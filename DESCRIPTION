@@ -20,18 +20,13 @@ License: Apache License (>= 2)
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.3
 Depends:
     R (>= 4.2)
 Imports:
-    dplyr,
-    ggplot2,
     lubridate,
-    purrr,
     S7,
-    stringr,
-    tibble,
-    tidyr
+    stats,
+    utils
 Suggests:
     knitr,
     pkgdown,
@@ -40,3 +35,4 @@ Suggests:
 Config/testthat/edition: 3
 Config/Needs/website: rmarkdown
 VignetteBuilder: knitr
+Config/roxygen2/version: 8.0.0
