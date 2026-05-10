@@ -1,0 +1,2 @@
+# Public C++ headers exposed to R packages via `LinkingTo: timescales`.
+# Populated in Phase 2.

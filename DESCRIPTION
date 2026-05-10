@@ -1,0 +1,42 @@
+Package: timescales
+Title: Nested Timeframes and Calendars for Optimization and Simulation Models
+Version: 0.0.0.9000
+Date: 2026-05-10
+URL: https://github.com/optimal2050/timescales
+BugReports: https://github.com/optimal2050/timescales/issues
+Authors@R:
+    person(given = "Oleg",
+           family = "Lugovoy",
+           role = c("aut", "cre"),
+           email = "olugovoy@optimalsolution.dev",
+           comment = c(ORCID = "0000-0001-5546-9875"))
+Description: Discrete time representations for optimization and simulation
+    models, including calendar-based nested sets of timeframes, conversion
+    between alternative temporal resolutions, and mapping of data onto
+    calendar grids for modeling and visualization. Successor to the
+    'timeslices' package, designed as the time-domain companion to
+    'geoscales'.
+License: Apache License (>= 2)
+Encoding: UTF-8
+LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.3
+Depends:
+    R (>= 4.2)
+Imports:
+    dplyr,
+    ggplot2,
+    lubridate,
+    purrr,
+    S7,
+    stringr,
+    tibble,
+    tidyr
+Suggests:
+    knitr,
+    pkgdown,
+    rmarkdown,
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+Config/Needs/website: rmarkdown
+VignetteBuilder: knitr

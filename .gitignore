@@ -1,0 +1,61 @@
+# R
+.Rhistory
+.Rapp.history
+.RData
+.Ruserdata
+*-Ex.R
+/*.tar.gz
+/*.Rcheck/
+.Rproj.user/
+vignettes/*.html
+vignettes/*.pdf
+*_cache/
+/cache/
+*.utf8.md
+*.knit.md
+.Renviron
+/doc/
+/Meta/
+
+# pkgdown
+docs/r/reference/
+docs/r/articles/
+pkgdown/
+
+# Quarto
+/_site/
+/.quarto/
+
+# C++ / CMake
+cpp/build/
+cpp/_build/
+cpp/cmake-build-*/
+*.o
+*.so
+*.dylib
+*.dll
+CMakeCache.txt
+CMakeFiles/
+
+# Python
+python/build/
+python/dist/
+python/*.egg-info/
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Editors
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Working / temp
+tmp/
