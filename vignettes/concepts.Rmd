@@ -1,0 +1,142 @@
+---
+title: "Concepts"
+description: "The mental model: timeframes, calendars, leaves, tokens, recasting."
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Concepts}
+  %\VignetteEngine{knitr::knitr}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+library(timescales)
+```
+
+## Three layers of abstraction
+
+`timescales` is built around three concentric ideas. Working out from
+the centre:
+
+1. **Timeframes** — the atomic vocabulary (`YEAR`, `MONTH`, `HOUR`, ...).
+2. **Tokens** — named recipes for the labels at one timeframe
+   (e.g. `m12` = `m01..m12`, `m12a` = `JAN..DEC`).
+3. **Calendars** — the actual partition of a year into labelled
+   leaves, formed by composing tokens.
+
+Most users only ever touch layer 3.
+
+## 1. Timeframes
+
+A *timeframe* is a unit of time at which a calendar can carry labels.
+The package ships with a fixed core set:
+
+```{r}
+CORE_TIMEFRAMES
+```
+
+The function `as_timeframe()` extracts the value of a chosen timeframe
+from any datetime:
+
+```{r}
+t <- as.POSIXct("2025-04-15 13:45", tz = "UTC")
+as_timeframe(t, "MONTH")
+as_timeframe(t, "MONTH", format = "token")
+as_timeframe(t, "HOUR")
+as_timeframe(t, "WDAY", format = "token")
+```
+
+`format = "token"` returns the same label style that the built-in
+tokens use, which is what the calendar machinery needs internally.
+
+## 2. Tokens
+
+A *token* is a named, reusable recipe for the labels of one timeframe,
+plus each label's within-year share. Tokens are how vocabularies are
+shared across calendars.
+
+```{r}
+list_tokens()
+get_token("m12")$expand() |> head(3)
+get_token("h24")$expand() |> head(3)
+```
+
+A few built-ins:
+
+| Token   | Timeframe | Labels              | Notes                           |
+|---------|-----------|---------------------|---------------------------------|
+| `d365`  | YDAY      | `d001..d365`        | day-of-year, 365-day calendar   |
+| `m12`   | MONTH     | `m01..m12`          | numeric month                   |
+| `m12a`  | MONTH     | `JAN..DEC`          | abbreviated month               |
+| `q4`    | QUARTER   | `Q1..Q4`            | day-weighted shares             |
+| `wd7`   | WDAY      | `MON..SUN`          | ISO weekday order               |
+| `h24`   | HOUR      | `h00..h23`          | hour-of-day                     |
+| `h168`  | HOUR      | `h000..h167`        | hour-of-week                    |
+
+Custom tokens are added with `register_token()`.
+
+## 3. Calendars
+
+A **Calendar** is the actual product of one or more tokens. The leaves
+of the resulting tree are the slices the rest of your model talks about.
+
+Three constructors, in increasing flexibility:
+
+```{r, eval = FALSE}
+calendar("m12_h24")                    # layer 1: by name
+calendar_build("m12", "h24")           # layer 2: by token list
+calendar_from_leaves(leaves, ...)      # layer 3: by raw leaf table
+```
+
+The first two compose tokens with a Cartesian product; share is the
+product of per-token shares scaled to `year_fraction`. The third is
+the escape hatch for irregular calendars (e.g. representative weeks
+that intentionally do not cover the full year).
+
+### What the leaves table looks like
+
+```{r}
+cal <- calendar("q4_h24")
+head(cal@leaves, 3)
+cat(nrow(cal@leaves), "leaves, share sums to", sum(cal@leaves$share))
+```
+
+## 4. Recasting between calendars
+
+Conversion is the central verb. The same `recast()` function handles
+upsampling, downsampling, and irregular-to-irregular mappings, given
+that both calendars cover the same year fraction.
+
+```{r}
+cal_m <- calendar("m12")     # source: monthly
+cal_q <- calendar("q4")      # target: quarterly
+
+monthly <- data.frame(
+  slice = cal_m@leaves$slice,
+  load  = c(120, 118, 105,  92,  85,  88,  95, 100,  98,  90, 105, 122)
+)
+
+recast(monthly, from = cal_m, to = cal_q, year = 2025,
+       rule = "weighted_mean", by = "day")
+```
+
+### Aggregation rules
+
+| Rule              | Meaning                                                        |
+|-------------------|----------------------------------------------------------------|
+| `weighted_mean`   | Average weighted by leaf share (the default).                  |
+| `mean`            | Plain mean over the shared expansion grid.                     |
+| `sum`             | Sum over the shared expansion grid.                            |
+
+On a uniform grid `weighted_mean` and `mean` coincide because longer
+source slices contribute proportionally more rows.
+
+## Design boundaries
+
+- **Year-bounded.** A calendar describes one year (or a fraction of one).
+  Multi-year horizons are out of scope for v0.1; build them on top of
+  this layer.
+- **Label-stable.** A calendar's slice IDs and ordering are fixed at
+  construction time. Conversions never mutate them.
+- **No side effects.** Every constructor returns a value; nothing is
+  registered or globally configured.

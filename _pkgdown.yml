@@ -1,0 +1,44 @@
+url: ~
+destination: docs/r
+
+template:
+  bootstrap: 5
+
+development:
+  mode: auto
+
+reference:
+  - title: "Calendars"
+    desc: "Construct and inspect Calendar objects."
+    contents:
+      - Calendar
+      - calendar_from_leaves
+      - calendar_build
+  - title: "Tokens"
+    desc: "Reusable label vocabularies for one timeframe."
+    contents:
+      - register_token
+  - title: "Timeframes"
+    desc: "The atomic units underneath every calendar."
+    contents:
+      - CORE_TIMEFRAMES
+      - as_timeframe
+  - title: "Conversions"
+    desc: "Move data between datetimes and calendars, and between calendars."
+    contents:
+      - instant_to_slice
+      - expand_calendar
+      - recast
+  - title: "Package"
+    contents:
+      - timescales-package
+
+articles:
+  - title: "Get started"
+    navbar: ~
+    contents:
+      - getting-started
+  - title: "Reference"
+    contents:
+      - concepts
+      - data-structures

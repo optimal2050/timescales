@@ -1,0 +1,116 @@
+# timescales
+
+> Nested timeframes and calendars for optimization and simulation
+> models.
+
+`timescales` is the **time-domain** package of the optimal2050 modeling
+stack and the successor to
+[`timeslices`](https://github.com/optimal2050/timeslices). Its companion
+package [`geoscales`](https://github.com/optimal2050/geoscales) covers
+the spatial dimension.
+
+This is a **multi-language** project. The R package is the current focus
+(Phase 1); a C++ core (Phase 2) and a Python port (Phase 3) are planned.
+
+## Status
+
+🚧 Pre-release — APIs are unstable. Repository is private until first
+pre-release.
+
+## Installation
+
+``` r
+
+# From GitHub (private during pre-release; requires access)
+# remotes::install_github("optimal2050/timescales")
+```
+
+After pre-release, also via
+[r-universe](https://optimal2050.r-universe.dev/):
+
+``` r
+
+# install.packages("timescales", repos = "https://optimal2050.r-universe.dev")
+```
+
+## Repository layout
+
+    timescales/
+    ├── DESCRIPTION, NAMESPACE, R/, man/, tests/, vignettes/   # R package (root)
+    ├── inst/include/timescales/                               # C++ headers (Phase 2)
+    ├── src/                                                   # Rcpp glue (Phase 2)
+    ├── cpp/                                                   # standalone C++ core (Phase 2)
+    ├── python/                                                # Python package (Phase 3)
+    ├── docs/                                                  # unified Quarto site
+    ├── specs/                                                 # cross-language golden tests
+    ├── benchmark/                                             # cross-language benchmarks
+    └── .github/workflows/                                     # CI
+
+## License
+
+Apache-2.0. See [LICENSE](LICENSE) and [NOTICE](NOTICE).
+
+# Package index
+
+## Calendars
+
+Construct and inspect Calendar objects.
+
+- [`Calendar()`](Calendar.md) : Calendar (S7 class)
+- [`calendar_from_leaves()`](calendar_from_leaves.md) : Build a Calendar
+  from a flat table of leaf slices
+- [`calendar_build()`](calendar_build.md)
+  [`calendar()`](calendar_build.md) : Build a Calendar from token names
+
+## Tokens
+
+Reusable label vocabularies for one timeframe.
+
+- [`register_token()`](register_token.md)
+  [`get_token()`](register_token.md)
+  [`list_tokens()`](register_token.md) : Register or look up a calendar
+  token
+
+## Timeframes
+
+The atomic units underneath every calendar.
+
+- [`CORE_TIMEFRAMES`](CORE_TIMEFRAMES.md) : Core timeframe identifiers
+- [`as_timeframe()`](as_timeframe.md) : Extract timeframe values from
+  datetime vectors
+
+## Conversions
+
+Move data between datetimes and calendars, and between calendars.
+
+- [`instant_to_slice()`](instant_to_slice.md) : Map datetimes to
+  calendar slice IDs
+- [`expand_calendar()`](expand_calendar.md) : Enumerate every instant in
+  a year mapped to its calendar slice
+- [`recast()`](recast.md) : Recast values from one calendar to another
+
+## Package
+
+- [`timescales`](timescales-package.md)
+  [`timescales-package`](timescales-package.md) : timescales: Nested
+  Timeframes and Calendars for Modeling
+
+# Articles
+
+### Get started
+
+- [Getting started with timescales](getting-started.md):
+
+  A short, end-to-end tour: build a calendar, attach data, convert
+  between calendars.
+
+### Reference
+
+- [Concepts](concepts.md):
+
+  The mental model: timeframes, calendars, leaves, tokens, recasting.
+
+- [Data structures](data-structures.md):
+
+  Anatomy of the Calendar S7 class, the leaves table, the levels list,
+  and meta.
