@@ -18,9 +18,11 @@ vignettes/*.pdf
 /Meta/
 
 # pkgdown
-docs/r/reference/
-docs/r/articles/
-pkgdown/
+# NOTE: the built site under docs/r/ is deliberately COMMITTED -- GitHub Pages
+# serves this repo from the `docs/` folder on `main`, so ignoring
+# docs/r/reference/ or docs/r/articles/ would publish a site whose Reference
+# and Articles links 404. `pkgdown/` is likewise tracked, so favicon/logo and
+# extra.css can be committed.
 
 # Quarto
 /_site/
@@ -59,3 +61,4 @@ Thumbs.db
 
 # Working / temp
 tmp/
+.positai

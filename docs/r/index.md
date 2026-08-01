@@ -48,4 +48,6 @@ After pre-release, also via
 
 ## License
 
-Apache-2.0. See [LICENSE](LICENSE) and [NOTICE](NOTICE).
+Apache-2.0. See
+[LICENSE](https://optimal2050.github.io/timescales/r/LICENSE) and
+[NOTICE](https://optimal2050.github.io/timescales/r/NOTICE).

@@ -49,5 +49,6 @@ the same PR.
 ## License
 
 By contributing you agree that your contributions are licensed under the
-Apache License, Version 2.0. See [LICENSE](LICENSE) and
-[NOTICE](NOTICE).
+Apache License, Version 2.0. See
+[LICENSE](https://optimal2050.github.io/timescales/r/LICENSE) and
+[NOTICE](https://optimal2050.github.io/timescales/r/NOTICE).
