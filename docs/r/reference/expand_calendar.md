@@ -1,16 +1,17 @@
-# Enumerate every instant in a year mapped to its calendar slice
+# Enumerate the instants of one or more model years mapped to slices
 
-Returns a `data.frame` with one row per instant in the requested year at
-the requested resolution, plus a `slice` column giving the calendar
-slice that instant belongs to (via
+Materialises the calendar on the base instant grid: one row per instant
+of each requested model year, with the slice that instant belongs to
+(via
 [`instant_to_slice()`](https://optimal2050.github.io/timescales/r/reference/instant_to_slice.md)).
-This is the ground truth used by
-[`recast()`](https://optimal2050.github.io/timescales/r/reference/recast.md).
+The model year spans `[year_start(y), year_start(y + 1))` in the
+calendar's local time (`meta$year_start`, `meta$utc_offset_minutes`);
+with the default metadata that is simply the Gregorian year in `tz`.
 
 ## Usage
 
 ``` r
-expand_calendar(calendar, year, by = NULL, tz = "UTC")
+expand_calendar(calendar, year, by = NULL, tz = "UTC", alignment = NULL)
 ```
 
 ## Arguments
@@ -22,40 +23,36 @@ expand_calendar(calendar, year, by = NULL, tz = "UTC")
 
 - year:
 
-  Integer scalar — the Gregorian year to enumerate.
+  Integer vector — the model year(s) to enumerate.
 
 - by:
 
   Resolution string passed to `seq.POSIXt`'s `by` argument (`"hour"`,
-  `"day"`, `"15 min"`, ...). Defaults to `"hour"` if `HOUR` is in the
-  calendar's timeframes, otherwise `"day"`.
+  `"day"`, `"15 min"`, ...). Defaults to the finest of the calendar's
+  timeframes.
 
 - tz:
 
-  Time zone string. Defaults to `"UTC"`.
+  Time zone of the returned instants. Defaults to `"UTC"`.
+
+- alignment:
+
+  Optional alignment override, as in
+  [`instant_to_slice()`](https://optimal2050.github.io/timescales/r/reference/instant_to_slice.md).
 
 ## Value
 
-A `data.frame` with columns `datetime` (POSIXct) and `slice`
-(character). Rows where `slice` is `NA` correspond to instants the
-calendar does not cover (e.g. Feb 29 in a 365-day calendar).
+A `data.frame` with columns `datetime` (POSIXct), `year` (integer, model
+year) and `slice` (character). Rows where `slice` is `NA` are instants
+the calendar does not cover.
 
 ## Examples
 
 ``` r
-df <- data.frame(
-  MONTH  = sprintf("m%02d", 1:12),
-  share  = c(31,28,31,30,31,30,31,31,30,31,30,31) / 365,
-  weight = c(31,28,31,30,31,30,31,31,30,31,30,31)
-)
-cal <- calendar_from_leaves(df, timeframes = "MONTH", name = "m12")
-grid <- expand_calendar(cal, year = 2021, by = "month")
-head(grid)
-#>     datetime slice
-#> 1 2021-01-01   m01
-#> 2 2021-02-01   m02
-#> 3 2021-03-01   m03
-#> 4 2021-04-01   m04
-#> 5 2021-05-01   m05
-#> 6 2021-06-01   m06
+cal <- calendar_build("m12")
+grid <- expand_calendar(cal, year = 2021, by = "day")
+nrow(grid)                                  # 365
+#> [1] 365
+nrow(expand_calendar(cal, 2020, by = "day"))  # 366 (leap year)
+#> [1] 366
 ```

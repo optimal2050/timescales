@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">timescales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.0.0.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.2.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -108,25 +108,14 @@ year fraction.</li>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cal_my</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calendar_build.html">calendar</a></span><span class="op">(</span><span class="st">"m12_h24"</span><span class="op">)</span>    <span class="co"># 12 months × 24 hours = 288 leaves</span></span>
 <span><span class="va">cal_my</span></span>
-<span><span class="co">#&gt; &lt;timescales::Calendar&gt;</span></span>
-<span><span class="co">#&gt;  @ leaves    :'data.frame':  288 obs. of  5 variables:</span></span>
-<span><span class="co">#&gt;  .. $ MONTH : chr  "m01" "m02" "m03" "m04" ...</span></span>
-<span><span class="co">#&gt;  .. $ HOUR  : chr  "h00" "h00" "h00" "h00" ...</span></span>
-<span><span class="co">#&gt;  .. $ share : num  0.00354 0.0032 0.00354 0.00342 0.00354 ...</span></span>
-<span><span class="co">#&gt;  .. $ weight: num  31 28 31 30 31 30 31 31 30 31 ...</span></span>
-<span><span class="co">#&gt;  .. $ slice : chr  "m01_h00" "m02_h00" "m03_h00" "m04_h00" ...</span></span>
-<span><span class="co">#&gt;  @ timeframes: chr [1:2] "MONTH" "HOUR"</span></span>
-<span><span class="co">#&gt;  @ levels    :List of 2</span></span>
-<span><span class="co">#&gt;  .. $ MONTH: chr [1:12] "m01" "m02" "m03" "m04" ...</span></span>
-<span><span class="co">#&gt;  .. $ HOUR : chr [1:24] "h00" "h01" "h02" "h03" ...</span></span>
-<span><span class="co">#&gt;  @ meta      :List of 5</span></span>
-<span><span class="co">#&gt;  .. $ name              : chr "m12_h24"</span></span>
-<span><span class="co">#&gt;  .. $ desc              : chr ""</span></span>
-<span><span class="co">#&gt;  .. $ year_start        :List of 2</span></span>
-<span><span class="co">#&gt;  ..  ..$ month: int 1</span></span>
-<span><span class="co">#&gt;  ..  ..$ day  : int 1</span></span>
-<span><span class="co">#&gt;  .. $ utc_offset_minutes: int 0</span></span>
-<span><span class="co">#&gt;  .. $ year_fraction     : num 1</span></span></code></pre></div>
+<span><span class="co">#&gt; Calendar: m12_h24 </span></span>
+<span><span class="co">#&gt; Timeframes (2):</span></span>
+<span><span class="co">#&gt;   - MONTH (12) [token: m12]</span></span>
+<span><span class="co">#&gt;   - HOUR (24) [token: h24]</span></span>
+<span><span class="co">#&gt; Leaf slices: 288</span></span>
+<span><span class="co">#&gt; year_fraction: 1</span></span>
+<span><span class="co">#&gt; year_start: month=1, day=1</span></span>
+<span><span class="co">#&gt; utc_offset_minutes: 0</span></span></code></pre></div>
 <p>Equivalent declarative form:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cal_my2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calendar_build.html">calendar_build</a></span><span class="op">(</span><span class="st">"m12"</span>, <span class="st">"h24"</span><span class="op">)</span></span>

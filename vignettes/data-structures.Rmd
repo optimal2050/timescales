@@ -4,7 +4,7 @@ description: "Anatomy of the Calendar S7 class, the leaves table, the levels lis
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Data structures}
-  %\VignetteEngine{knitr::knitr}
+  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
@@ -73,12 +73,14 @@ A free-form named list. Recognised keys today:
 
 | Key                  | Type      | Default            | Used by                         |
 |----------------------|-----------|--------------------|---------------------------------|
-| `name`               | character | `""`               | `print()`                       |
+| `name`               | character | `""`               | `print()`, `register_conversion()` lookup |
 | `desc`               | character | `""`               | `print()`                       |
-| `year_start`         | list      | `list(month=1L, day=1L)` | `instant_to_slice()`, `expand_calendar()` |
-| `utc_offset_minutes` | integer   | `0L`               | `instant_to_slice()` (planned)  |
+| `year_start`         | list      | `list(month=1L, day=1L)` | `instant_to_slice()` (YDAY/YEAR anchor), `expand_calendar()` (year window) |
+| `utc_offset_minutes` | integer   | `0L`               | `instant_to_slice()`, `expand_calendar()` (local time = UTC + offset) |
 | `year_fraction`      | numeric   | `1`                | validator (`sum(share)`)        |
-| `year_qualified`    | logical   | `FALSE`            | set by `calendar("y_...")`       |
+| `year_qualified`     | logical   | `FALSE`            | set by `calendar("y_...")`      |
+| `tokens`             | named chr | —                  | provenance: token per timeframe (set by `calendar_build()`) |
+| `alignment`          | named list | —                 | alignment rule per timeframe, seeded by tokens |
 
 Anything else you put in `@meta` is preserved untouched.
 
@@ -96,11 +98,13 @@ the built-in set and extensible at run time with `register_token()`.
 list_tokens()
 ```
 
-A token is a list with two fields:
+A token is a list with two required fields and one optional:
 
 - `timeframe` — one of `CORE_TIMEFRAMES`,
 - `expand` — a zero-argument function returning
-  `data.frame(label, share)` with `share` summing to 1.
+  `data.frame(label, share)` with `share` summing to 1,
+- `alignment` (optional) — one of `ALIGNMENT_RULES`, inherited by
+  calendars built from the token.
 
 ```{r}
 m12 <- get_token("m12")

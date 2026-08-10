@@ -6,7 +6,7 @@
 \alias{list_tokens}
 \title{Register or look up a calendar token}
 \usage{
-register_token(name, timeframe, expand)
+register_token(name, timeframe, expand, alignment = NULL)
 
 get_token(name)
 
@@ -20,12 +20,17 @@ list_tokens()
 \item{expand}{A zero-argument function returning a \code{data.frame} with
 columns \code{label} (character, unique) and \code{share} (numeric > 0, summing
 to 1).}
+
+\item{alignment}{Optional default alignment rule (one of
+\code{\link{ALIGNMENT_RULES}}) declaring how real instants beyond this token's
+vocabulary map onto it (e.g. \code{"drop_feb29"} for \code{d365}). Calendars built
+from the token inherit it in \code{meta$alignment}.}
 }
 \value{
 \code{register_token()} invisibly returns the token name.
-\code{get_token()} returns the token definition (a list with \code{timeframe}
-and \code{expand}). \code{list_tokens()} returns a character vector of all
-registered token names.
+\code{get_token()} returns the token definition (a list with \code{timeframe},
+\code{expand}, and optionally \code{alignment}). \code{list_tokens()} returns a
+character vector of all registered token names.
 }
 \description{
 Tokens are named recipes for the labels (and within-year shares) of one

@@ -4,7 +4,7 @@ description: "A short, end-to-end tour: build a calendar, attach data, convert b
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Getting started with timescales}
-  %\VignetteEngine{knitr::knitr}
+  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 

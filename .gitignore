@@ -16,6 +16,7 @@ vignettes/*.pdf
 .Renviron
 /doc/
 /Meta/
+dev/*
 
 # pkgdown
 # NOTE: the built site under docs/r/ is deliberately COMMITTED -- GitHub Pages

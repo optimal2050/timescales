@@ -1,8 +1,20 @@
 test_that("CORE_TIMEFRAMES is the expected vocabulary", {
   expect_type(CORE_TIMEFRAMES, "character")
   expect_true(all(c("YEAR", "MONTH", "MDAY", "YDAY", "HOUR", "MINUTE",
-                    "SECOND", "WDAY", "WEEK", "MWEEK", "QUARTER")
+                    "SECOND", "WDAY", "WHOUR", "WEEK", "MWEEK", "QUARTER")
                   %in% CORE_TIMEFRAMES))
+})
+
+test_that("WHOUR is hour-of-week, Monday-first ISO", {
+  # 2021-03-15 was a Monday
+  expect_equal(as_timeframe(lubridate::ymd_h("2021-03-15 00", tz = "UTC"),
+                            "WHOUR"), 0)
+  expect_equal(as_timeframe(lubridate::ymd_h("2021-03-15 14", tz = "UTC"),
+                            "WHOUR"), 14)
+  expect_equal(as_timeframe(lubridate::ymd_h("2021-03-21 23", tz = "UTC"),
+                            "WHOUR"), 167)
+  expect_equal(as_timeframe(lubridate::ymd_h("2021-03-16 05", tz = "UTC"),
+                            "WHOUR", format = "token"), "h029")
 })
 
 test_that("as_timeframe.POSIXt extracts numeric values", {

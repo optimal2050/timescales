@@ -3,19 +3,23 @@
 to-finest order. The Cartesian product of their labels becomes the leaf
 table; each leaf's share is the product of its tokens' shares, scaled to
 year_fraction.
-Convenience shortcut: parses a token-style name like &quot;d365_h24&quot; or
-&quot;m12_h24&quot; into its tokens and dispatches to calendar_build(). The
-leading y_ prefix (year-qualified) is currently stripped and recorded
-in meta$year_qualified — full year-prefix semantics arrive in a later
-phase."><meta property="og:description" content="Declarative constructor: name the timeframe vocabulary tokens in coarsest-
+Convenience shortcut. Names listed in calendar_catalog() build the
+catalog design (with coverage/regularity metadata attached; the
+m12_md* family uses a dedicated ragged month/day builder). Any other
+name is parsed as _-joined tokens and dispatched to
+calendar_build(). The leading y_ prefix (year-qualified) is
+currently stripped and recorded in meta$year_qualified — full
+year-prefix semantics arrive in a later phase."><meta property="og:description" content="Declarative constructor: name the timeframe vocabulary tokens in coarsest-
 to-finest order. The Cartesian product of their labels becomes the leaf
 table; each leaf's share is the product of its tokens' shares, scaled to
 year_fraction.
-Convenience shortcut: parses a token-style name like &quot;d365_h24&quot; or
-&quot;m12_h24&quot; into its tokens and dispatches to calendar_build(). The
-leading y_ prefix (year-qualified) is currently stripped and recorded
-in meta$year_qualified — full year-prefix semantics arrive in a later
-phase."></head><body>
+Convenience shortcut. Names listed in calendar_catalog() build the
+catalog design (with coverage/regularity metadata attached; the
+m12_md* family uses a dedicated ragged month/day builder). Any other
+name is parsed as _-joined tokens and dispatched to
+calendar_build(). The leading y_ prefix (year-qualified) is
+currently stripped and recorded in meta$year_qualified — full
+year-prefix semantics arrive in a later phase."></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -23,7 +27,7 @@ phase."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">timescales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.0.0.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.2.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -66,11 +70,13 @@ phase."></head><body>
 to-finest order. The Cartesian product of their labels becomes the leaf
 table; each leaf's share is the product of its tokens' shares, scaled to
 <code>year_fraction</code>.</p>
-<p>Convenience shortcut: parses a token-style name like <code>"d365_h24"</code> or
-<code>"m12_h24"</code> into its tokens and dispatches to <code>calendar_build()</code>. The
-leading <code>y_</code> prefix (year-qualified) is currently stripped and recorded
-in <code>meta$year_qualified</code> — full year-prefix semantics arrive in a later
-phase.</p>
+<p>Convenience shortcut. Names listed in <code><a href="calendar_catalog.html">calendar_catalog()</a></code> build the
+catalog design (with <code>coverage</code>/<code>regularity</code> metadata attached; the
+<code>m12_md*</code> family uses a dedicated ragged month/day builder). Any other
+name is parsed as <code>_</code>-joined tokens and dispatched to
+<code>calendar_build()</code>. The leading <code>y_</code> prefix (year-qualified) is
+currently stripped and recorded in <code>meta$year_qualified</code> — full
+year-prefix semantics arrive in a later phase.</p>
     </div>
 
     <div class="section level2">
@@ -127,87 +133,43 @@ phase.</p>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">cal</span> <span class="op">&lt;-</span> <span class="fu">calendar_build</span><span class="op">(</span><span class="st">"d365"</span>, <span class="st">"h24"</span>, name <span class="op">=</span> <span class="st">"d365_h24"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">cal</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;timescales::Calendar&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  @ leaves    :'data.frame':	8760 obs. of  5 variables:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .. $ YDAY  : chr  "d001" "d002" "d003" "d004" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .. $ HOUR  : chr  "h00" "h00" "h00" "h00" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .. $ share : num  0.000114 0.000114 0.000114 0.000114 0.000114 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .. $ weight: num  1 1 1 1 1 1 1 1 1 1 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .. $ slice : chr  "d001_h00" "d002_h00" "d003_h00" "d004_h00" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  @ timeframes: chr [1:2] "YDAY" "HOUR"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  @ levels    :List of 2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .. $ YDAY: chr [1:365] "d001" "d002" "d003" "d004" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .. $ HOUR: chr [1:24] "h00" "h01" "h02" "h03" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  @ meta      :List of 5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .. $ name              : chr "d365_h24"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .. $ desc              : chr ""</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .. $ year_start        :List of 2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  ..  ..$ month: int 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  ..  ..$ day  : int 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .. $ utc_offset_minutes: int 0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .. $ year_fraction     : num 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Calendar: d365_h24 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Timeframes (2):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - YDAY (365) [token: d365, alignment: drop_feb29]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - HOUR (24) [token: h24]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Leaf slices: 8760</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> year_fraction: 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> year_start: month=1, day=1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> utc_offset_minutes: 0</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">cal2</span> <span class="op">&lt;-</span> <span class="fu">calendar_build</span><span class="op">(</span><span class="st">"m12"</span>, <span class="st">"h24"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">cal2</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;timescales::Calendar&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  @ leaves    :'data.frame':	288 obs. of  5 variables:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .. $ MONTH : chr  "m01" "m02" "m03" "m04" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .. $ HOUR  : chr  "h00" "h00" "h00" "h00" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .. $ share : num  0.00354 0.0032 0.00354 0.00342 0.00354 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .. $ weight: num  31 28 31 30 31 30 31 31 30 31 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .. $ slice : chr  "m01_h00" "m02_h00" "m03_h00" "m04_h00" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  @ timeframes: chr [1:2] "MONTH" "HOUR"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  @ levels    :List of 2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .. $ MONTH: chr [1:12] "m01" "m02" "m03" "m04" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .. $ HOUR : chr [1:24] "h00" "h01" "h02" "h03" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  @ meta      :List of 5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .. $ name              : chr "m12_h24"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .. $ desc              : chr ""</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .. $ year_start        :List of 2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  ..  ..$ month: int 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  ..  ..$ day  : int 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .. $ utc_offset_minutes: int 0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .. $ year_fraction     : num 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Calendar: m12_h24 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Timeframes (2):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - MONTH (12) [token: m12]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - HOUR (24) [token: h24]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Leaf slices: 288</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> year_fraction: 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> year_start: month=1, day=1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> utc_offset_minutes: 0</span>
 <span class="r-in"><span><span class="fu">calendar</span><span class="op">(</span><span class="st">"d365_h24"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;timescales::Calendar&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  @ leaves    :'data.frame':	8760 obs. of  5 variables:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .. $ YDAY  : chr  "d001" "d002" "d003" "d004" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .. $ HOUR  : chr  "h00" "h00" "h00" "h00" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .. $ share : num  0.000114 0.000114 0.000114 0.000114 0.000114 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .. $ weight: num  1 1 1 1 1 1 1 1 1 1 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .. $ slice : chr  "d001_h00" "d002_h00" "d003_h00" "d004_h00" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  @ timeframes: chr [1:2] "YDAY" "HOUR"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  @ levels    :List of 2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .. $ YDAY: chr [1:365] "d001" "d002" "d003" "d004" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .. $ HOUR: chr [1:24] "h00" "h01" "h02" "h03" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  @ meta      :List of 5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .. $ name              : chr "d365_h24"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .. $ desc              : chr ""</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .. $ year_start        :List of 2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  ..  ..$ month: int 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  ..  ..$ day  : int 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .. $ utc_offset_minutes: int 0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .. $ year_fraction     : num 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Calendar: d365_h24 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Timeframes (2):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - YDAY (365) [token: d365, alignment: drop_feb29]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - HOUR (24) [token: h24]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Leaf slices: 8760</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> year_fraction: 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> year_start: month=1, day=1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> utc_offset_minutes: 0</span>
 <span class="r-in"><span><span class="fu">calendar</span><span class="op">(</span><span class="st">"m12_h24"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;timescales::Calendar&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  @ leaves    :'data.frame':	288 obs. of  5 variables:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .. $ MONTH : chr  "m01" "m02" "m03" "m04" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .. $ HOUR  : chr  "h00" "h00" "h00" "h00" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .. $ share : num  0.00354 0.0032 0.00354 0.00342 0.00354 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .. $ weight: num  31 28 31 30 31 30 31 31 30 31 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .. $ slice : chr  "m01_h00" "m02_h00" "m03_h00" "m04_h00" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  @ timeframes: chr [1:2] "MONTH" "HOUR"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  @ levels    :List of 2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .. $ MONTH: chr [1:12] "m01" "m02" "m03" "m04" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .. $ HOUR : chr [1:24] "h00" "h01" "h02" "h03" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  @ meta      :List of 5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .. $ name              : chr "m12_h24"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .. $ desc              : chr ""</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .. $ year_start        :List of 2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  ..  ..$ month: int 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  ..  ..$ day  : int 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .. $ utc_offset_minutes: int 0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .. $ year_fraction     : num 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Calendar: m12_h24 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Timeframes (2):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - MONTH (12) [token: m12]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - HOUR (24) [token: h24]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Leaf slices: 288</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> year_fraction: 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> year_start: month=1, day=1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> utc_offset_minutes: 0</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

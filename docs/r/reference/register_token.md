@@ -9,7 +9,7 @@ added with `register_token()`.
 ## Usage
 
 ``` r
-register_token(name, timeframe, expand)
+register_token(name, timeframe, expand, alignment = NULL)
 
 get_token(name)
 
@@ -32,12 +32,20 @@ list_tokens()
   A zero-argument function returning a `data.frame` with columns `label`
   (character, unique) and `share` (numeric \> 0, summing to 1).
 
+- alignment:
+
+  Optional default alignment rule (one of
+  [`ALIGNMENT_RULES`](https://optimal2050.github.io/timescales/r/reference/ALIGNMENT_RULES.md))
+  declaring how real instants beyond this token's vocabulary map onto it
+  (e.g. `"drop_feb29"` for `d365`). Calendars built from the token
+  inherit it in `meta$alignment`.
+
 ## Value
 
 `register_token()` invisibly returns the token name. `get_token()`
-returns the token definition (a list with `timeframe` and `expand`).
-`list_tokens()` returns a character vector of all registered token
-names.
+returns the token definition (a list with `timeframe`, `expand`, and
+optionally `alignment`). `list_tokens()` returns a character vector of
+all registered token names.
 
 ## Examples
 

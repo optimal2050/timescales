@@ -1,5 +1,6 @@
 <urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
 <url><loc>https://optimal2050.github.io/timescales/r/404.html</loc></url>
+<url><loc>https://optimal2050.github.io/timescales/r/articles/calendars.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/articles/concepts.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/articles/data-structures.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/articles/getting-started.html</loc></url>
@@ -9,15 +10,29 @@
 <url><loc>https://optimal2050.github.io/timescales/r/index.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/LICENSE-text.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/news/index.html</loc></url>
+<url><loc>https://optimal2050.github.io/timescales/r/reference/ALIGNMENT_RULES.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/reference/as_timeframe.html</loc></url>
+<url><loc>https://optimal2050.github.io/timescales/r/reference/base_calendar.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/reference/Calendar.html</loc></url>
+<url><loc>https://optimal2050.github.io/timescales/r/reference/calendars.html</loc></url>
+<url><loc>https://optimal2050.github.io/timescales/r/reference/calendar_at_level.html</loc></url>
+<url><loc>https://optimal2050.github.io/timescales/r/reference/calendar_autoplot.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/reference/calendar_build.html</loc></url>
+<url><loc>https://optimal2050.github.io/timescales/r/reference/calendar_catalog.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/reference/calendar_from_leaves.html</loc></url>
+<url><loc>https://optimal2050.github.io/timescales/r/reference/calendar_layout.html</loc></url>
+<url><loc>https://optimal2050.github.io/timescales/r/reference/calendar_plot.html</loc></url>
+<url><loc>https://optimal2050.github.io/timescales/r/reference/clear_rules.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/reference/CORE_TIMEFRAMES.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/reference/expand_calendar.html</loc></url>
+<url><loc>https://optimal2050.github.io/timescales/r/reference/get_rule.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/reference/index.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/reference/instant_to_slice.html</loc></url>
+<url><loc>https://optimal2050.github.io/timescales/r/reference/list_rules.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/reference/recast.html</loc></url>
+<url><loc>https://optimal2050.github.io/timescales/r/reference/RECAST_RULES.html</loc></url>
+<url><loc>https://optimal2050.github.io/timescales/r/reference/register_conversion.html</loc></url>
+<url><loc>https://optimal2050.github.io/timescales/r/reference/register_rule.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/reference/register_token.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/reference/timescales-package.html</loc></url>
 </urlset>

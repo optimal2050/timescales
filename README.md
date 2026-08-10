@@ -1,5 +1,12 @@
 # timescales
 
+<!-- badges: start -->
+[![R-CMD-check](https://github.com/optimal2050/timescales/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/optimal2050/timescales/actions/workflows/R-CMD-check.yaml)
+[![test-coverage](https://github.com/optimal2050/timescales/actions/workflows/test-coverage.yaml/badge.svg)](https://github.com/optimal2050/timescales/actions/workflows/test-coverage.yaml)
+[![lint](https://github.com/optimal2050/timescales/actions/workflows/lint.yaml/badge.svg)](https://github.com/optimal2050/timescales/actions/workflows/lint.yaml)
+[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+<!-- badges: end -->
+
 > Nested timeframes and calendars for optimization and simulation models.
 
 `timescales` is the **time-domain** package of the optimal2050 modeling stack and
@@ -9,6 +16,12 @@ the spatial dimension.
 
 This is a **multi-language** project. The R package is the current focus
 (Phase 1); a C++ core (Phase 2) and a Python port (Phase 3) are planned.
+
+## Documentation
+
+- **[Project site](https://optimal2050.github.io/timescales/)** — entry point
+  for all language flavours
+- **[R reference and articles](https://optimal2050.github.io/timescales/r/)**
 
 ## Status
 

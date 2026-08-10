@@ -18,6 +18,8 @@ spatial dimension.
 \seealso{
 Useful links:
 \itemize{
+  \item \url{https://optimal2050.github.io/timescales/r/}
+  \item \url{https://optimal2050.github.io/timescales/}
   \item \url{https://github.com/optimal2050/timescales}
   \item Report bugs at \url{https://github.com/optimal2050/timescales/issues}
 }

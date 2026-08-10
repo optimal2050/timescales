@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">timescales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.0.0.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.2.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -73,6 +73,36 @@
 
         </dt>
         <dd>Build a Calendar from token names</dd>
+
+        <dt>
+
+          <code><a href="calendar_at_level.html">calendar_at_level()</a></code>
+
+        </dt>
+        <dd>Derive a coarser calendar by truncating the hierarchy at a timeframe</dd>
+      </dl></div><div class="section level2">
+      <h2 id="catalog">Catalog<a class="anchor" aria-label="anchor" href="#catalog"></a></h2>
+
+      <div class="section-desc"><p>The built-in calendar designs.</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="calendar_catalog.html">calendar_catalog()</a></code>
+
+        </dt>
+        <dd>The calendar catalog</dd>
+
+        <dt>
+
+          <code><a href="calendars.html">calendars</a></code>
+
+        </dt>
+        <dd>Pre-built calendars from the catalog</dd>
       </dl></div><div class="section level2">
       <h2 id="tokens">Tokens<a class="anchor" aria-label="anchor" href="#tokens"></a></h2>
 
@@ -134,7 +164,7 @@
           <code><a href="expand_calendar.html">expand_calendar()</a></code>
 
         </dt>
-        <dd>Enumerate every instant in a year mapped to its calendar slice</dd>
+        <dd>Enumerate the instants of one or more model years mapped to slices</dd>
 
         <dt>
 
@@ -142,6 +172,101 @@
 
         </dt>
         <dd>Recast values from one calendar to another</dd>
+
+        <dt>
+
+          <code><a href="base_calendar.html">base_calendar()</a></code>
+
+        </dt>
+        <dd>Enumerate the base instant grid for one or more years</dd>
+      </dl></div><div class="section level2">
+      <h2 id="visualization">Visualization<a class="anchor" aria-label="anchor" href="#visualization"></a></h2>
+
+      <div class="section-desc"><p>Draw calendar structures and data on calendars.</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="calendar_layout.html">calendar_layout()</a></code>
+
+        </dt>
+        <dd>Icicle layout of a calendar's structure</dd>
+
+        <dt>
+
+          <code><a href="calendar_autoplot.html">calendar_autoplot()</a></code> <code><a href="calendar_autoplot.html">autoplot.Calendar()</a></code> <code><a href="calendar_autoplot.html">plot(<i>&lt;Calendar&gt;</i>)</a></code>
+
+        </dt>
+        <dd>Plot a calendar's structure as an icicle</dd>
+
+        <dt>
+
+          <code><a href="calendar_plot.html">calendar_plot()</a></code>
+
+        </dt>
+        <dd>Heatmap of data on a calendar</dd>
+      </dl></div><div class="section level2">
+      <h2 id="rules-and-registries">Rules and registries<a class="anchor" aria-label="anchor" href="#rules-and-registries"></a></h2>
+
+      <div class="section-desc"><p>Aggregation and alignment semantics, and their registries.</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="RECAST_RULES.html">RECAST_RULES</a></code>
+
+        </dt>
+        <dd>Supported aggregation rules</dd>
+
+        <dt>
+
+          <code><a href="ALIGNMENT_RULES.html">ALIGNMENT_RULES</a></code>
+
+        </dt>
+        <dd>Supported alignment rules</dd>
+
+        <dt>
+
+          <code><a href="register_rule.html">register_rule()</a></code>
+
+        </dt>
+        <dd>Register how a parameter should be recast</dd>
+
+        <dt>
+
+          <code><a href="get_rule.html">get_rule()</a></code>
+
+        </dt>
+        <dd>Look up a registered rule</dd>
+
+        <dt>
+
+          <code><a href="list_rules.html">list_rules()</a></code>
+
+        </dt>
+        <dd>List registered rules</dd>
+
+        <dt>
+
+          <code><a href="clear_rules.html">clear_rules()</a></code>
+
+        </dt>
+        <dd>Clear the rule registry</dd>
+
+        <dt>
+
+          <code><a href="register_conversion.html">register_conversion()</a></code> <code><a href="register_conversion.html">get_conversion()</a></code> <code><a href="register_conversion.html">list_conversions()</a></code> <code><a href="register_conversion.html">clear_conversions()</a></code>
+
+        </dt>
+        <dd>Register a pairwise calendar conversion override</dd>
       </dl></div><div class="section level2">
       <h2 id="package">Package<a class="anchor" aria-label="anchor" href="#package"></a></h2>
 

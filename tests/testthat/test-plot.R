@@ -1,0 +1,119 @@
+# calendar_layout() — no ggplot2 required -------------------------------------
+
+test_that("calendar_layout returns the contracted columns and geometry", {
+  d <- calendar_layout(calendar("m12_h24"))
+  expect_named(d, c("timeframe", "label", "slice", "rank", "xmin", "xmax",
+                    "ymin", "ymax", "share", "weight", "order", "within"))
+  expect_true(all(d$xmin >= 0 - 1e-12 & d$xmax <= 1 + 1e-12))
+  expect_true(all(d$xmax > d$xmin))
+
+  # Bands: ANNUAL rank 0 on top, then MONTH, HOUR
+  expect_equal(unique(d$timeframe), c("ANNUAL", "MONTH", "HOUR"))
+  expect_equal(unique(d$rank), 0:2)
+  ann <- d[d$timeframe == "ANNUAL", ]
+  expect_gt(ann$ymin, max(d$ymin[d$timeframe == "HOUR"]))
+
+  # Segment counts: 1 / 12 / 288
+  expect_equal(as.vector(table(d$timeframe)[c("ANNUAL", "MONTH", "HOUR")]),
+               c(1L, 12L, 288L))
+
+  # Every full-coverage row spans 0 -> 1 and its shares sum to 1
+  for (tf in unique(d$timeframe)) {
+    r <- d[d$timeframe == tf, ]
+    expect_equal(min(r$xmin), 0, tolerance = 1e-12, info = tf)
+    expect_equal(max(r$xmax), 1, tolerance = 1e-9, info = tf)
+    expect_equal(sum(r$share), 1, tolerance = 1e-9, info = tf)
+  }
+})
+
+test_that("calendar_layout `within` restarts per parent", {
+  d <- calendar_layout(calendar("q4_h24"))
+  hr <- d[d$timeframe == "HOUR", ]
+  expect_equal(nrow(hr), 96L)
+  expect_equal(hr$within, rep(1:24, 4))
+  # month widths are day-weighted, not uniform
+  mo <- calendar_layout(calendar("m12"))
+  mw <- mo[mo$timeframe == "MONTH", ]
+  expect_equal(mw$xmax - mw$xmin, c(31, 28, 31, 30, 31, 30,
+                                    31, 31, 30, 31, 30, 31) / 365,
+               tolerance = 1e-9)
+})
+
+test_that("calendar_layout handles irregular calendars and annual = FALSE", {
+  d <- calendar_layout(calendar("m12_md365"))
+  expect_equal(sum(d$timeframe == "MDAY"), 365L)
+  expect_equal(sum(d$timeframe == "MONTH"), 12L)
+
+  d2 <- calendar_layout(calendar("m12"), annual = FALSE)
+  expect_false("ANNUAL" %in% d2$timeframe)
+  expect_equal(max(d2$ymax), 0.9)
+})
+
+test_that("calendar_layout orders rows chronologically regardless of input
+           row order", {
+  df <- data.frame(
+    MONTH = c("m03", "m01", "m02"),
+    share = c(31, 31, 28) / 90,
+    weight = c(31, 31, 28)
+  )
+  cal <- calendar_from_leaves(df, timeframes = "MONTH",
+                              levels = list(MONTH = c("m01", "m02", "m03")))
+  d <- calendar_layout(cal, annual = FALSE)
+  expect_equal(d$label, c("m01", "m02", "m03"))
+  expect_equal(d$xmin[1], 0, tolerance = 1e-12)
+})
+
+# Rendering — guarded ----------------------------------------------------------
+
+test_that("autoplot / plot / calendar_autoplot return ggplot objects", {
+  skip_if_not_installed("ggplot2")
+  cal <- calendar("q4_h24")
+  p1 <- calendar_autoplot(cal)
+  p2 <- ggplot2::autoplot(cal)
+  p3 <- plot(cal)
+  expect_s3_class(p1, "ggplot")
+  expect_s3_class(p2, "ggplot")
+  expect_s3_class(p3, "ggplot")
+})
+
+test_that("calendar_autoplot fill styles and binning work", {
+  skip_if_not_installed("ggplot2")
+  cal <- calendar("m12_h24")
+  for (f in c("order", "share", "weight")) {
+    expect_s3_class(calendar_autoplot(cal, fill = f), "ggplot")
+  }
+  expect_s3_class(calendar_autoplot(cal, color_pattern = "global"), "ggplot")
+
+  # d365_h24: the HOUR row (8760 segments) must be binned to <= max_segments
+  p <- calendar_autoplot(calendar("d365_h24"), max_segments = 1000)
+  hr <- p$data[p$data$timeframe == "HOUR", ]
+  expect_lte(nrow(hr), 1000L)
+  # binned rows carry no slice ids (mutes labels)
+  expect_true(all(is.na(hr$slice)))
+})
+
+test_that("calendar_plot renders with and without data", {
+  skip_if_not_installed("ggplot2")
+  expect_s3_class(calendar_plot(calendar("m12_h24")), "ggplot")
+
+  cal <- calendar("m12")
+  x <- data.frame(slice = sprintf("m%02d", 1:12), load = 1:12 * 1.0)
+  p <- calendar_plot(cal, x)
+  expect_s3_class(p, "ggplot")
+
+  # facet path: 3-level calendar puts the coarsest level in facets
+  p3 <- calendar_plot(calendar("m12_md365_h24"))
+  expect_s3_class(p3, "ggplot")
+  expect_true(".facet" %in% names(p3$data))
+})
+
+test_that("calendar_plot validates inputs", {
+  skip_if_not_installed("ggplot2")
+  cal <- calendar("m12")
+  expect_error(calendar_plot(cal, data.frame(a = 1)), "no column named")
+  expect_error(
+    calendar_plot(cal, data.frame(slice = "nope", v = 1)),
+    "matched"
+  )
+  expect_error(calendar_plot(cal, x_tf = "HOUR"), "not timeframes")
+})

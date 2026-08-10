@@ -21,8 +21,9 @@ The package ships with a fixed core set:
 ``` r
 
 CORE_TIMEFRAMES
-#>  [1] "YEAR"    "QUARTER" "MONTH"   "MDAY"    "YDAY"    "HOUR"    "MINUTE" 
-#>  [8] "SECOND"  "WDAY"    "MWEEK"   "WEEK"
+#>  [1] "YEAR"     "QUARTER"  "MONTH"    "MDAY"     "YDAY"     "HOUR"    
+#>  [7] "MINUTE"   "SECOND"   "WDAY"     "WHOUR"    "MWEEK"    "WEEK"    
+#> [13] "SEASON"   "DAYTYPE"  "HOURTYPE"
 ```
 
 The function
@@ -54,8 +55,8 @@ shared across calendars.
 ``` r
 
 list_tokens()
-#>  [1] "d360"  "d364"  "d365"  "d366"  "h168"  "h24"   "m12"   "m12a"  "min60"
-#> [10] "q4"    "w52"   "w53"   "wd7"
+#>  [1] "d360"  "d364"  "d365"  "d366"  "h168"  "h24"   "hp3"   "m12"   "m12a" 
+#> [10] "min60" "q4"    "s4"    "w52"   "w53"   "wd7"   "wk2"
 get_token("m12")$expand() |> head(3)
 #>   label      share
 #> 1   m01 0.08493151
@@ -70,18 +71,39 @@ get_token("h24")$expand() |> head(3)
 
 A few built-ins:
 
-| Token  | Timeframe | Labels       | Notes                         |
-|--------|-----------|--------------|-------------------------------|
-| `d365` | YDAY      | `d001..d365` | day-of-year, 365-day calendar |
-| `m12`  | MONTH     | `m01..m12`   | numeric month                 |
-| `m12a` | MONTH     | `JAN..DEC`   | abbreviated month             |
-| `q4`   | QUARTER   | `Q1..Q4`     | day-weighted shares           |
-| `wd7`  | WDAY      | `MON..SUN`   | ISO weekday order             |
-| `h24`  | HOUR      | `h00..h23`   | hour-of-day                   |
-| `h168` | HOUR      | `h000..h167` | hour-of-week                  |
+| Token  | Timeframe | Labels       | Notes                             |
+|--------|-----------|--------------|-----------------------------------|
+| `d365` | YDAY      | `d001..d365` | day-of-year; aligns `drop_feb29`  |
+| `d360` | YDAY      | `d001..d360` | stylised year; aligns `drop_last` |
+| `m12`  | MONTH     | `m01..m12`   | numeric month                     |
+| `m12a` | MONTH     | `JAN..DEC`   | abbreviated month                 |
+| `q4`   | QUARTER   | `Q1..Q4`     | day-weighted shares               |
+| `wd7`  | WDAY      | `MON..SUN`   | ISO weekday order                 |
+| `h24`  | HOUR      | `h00..h23`   | hour-of-day                       |
+| `h168` | WHOUR     | `h000..h167` | hour-of-week (Mon 00:00 = `h000`) |
 
 Custom tokens are added with
-[`register_token()`](https://optimal2050.github.io/timescales/r/reference/register_token.md).
+[`register_token()`](https://optimal2050.github.io/timescales/r/reference/register_token.md),
+optionally declaring an *alignment* rule (see below).
+
+### Alignment: mapping real years onto stylised ones
+
+A `d365` calendar has no label for Feb 29; a `d360` calendar has none
+for the last days of December. *Alignment rules* (`ALIGNMENT_RULES`)
+declare what happens to such instants: `drop_feb29` (Feb 29 is `NA`,
+later ydays shift down so Dec 31 is still `d365`), `drop_last`,
+`repeat_last` (clamp to the last label — how week 53 folds into `w52`),
+and `exact` (error). Built-in tokens carry sensible defaults; calendars
+record them in `meta$alignment`, and
+[`instant_to_slice()`](https://optimal2050.github.io/timescales/r/reference/instant_to_slice.md)
+accepts an override.
+
+``` r
+
+d365 <- calendar_build("d365")
+instant_to_slice(as.Date(c("2020-02-29", "2020-12-31")), d365)
+#> [1] NA     "d365"
+```
 
 ## 3. Calendars
 
@@ -144,21 +166,55 @@ recast(monthly, from = cal_m, to = cal_q, year = 2025,
 
 ### Aggregation rules
 
-| Rule            | Meaning                                       |
-|-----------------|-----------------------------------------------|
-| `weighted_mean` | Average weighted by leaf share (the default). |
-| `mean`          | Plain mean over the shared expansion grid.    |
-| `sum`           | Sum over the shared expansion grid.           |
+Conversion routes through the **base grid** of real instants: source
+values are projected *down* to instants, then aggregated *up* to target
+slices, so aggregation and disaggregation are one operation
+(`RECAST_RULES`):
 
-On a uniform grid `weighted_mean` and `mean` coincide because longer
-source slices contribute proportionally more rows.
+| Rule | Down (slice → instants) | Up (instants → slice) |
+|----|----|----|
+| `weighted_mean` | copy | mean weighted by declared `share` (default) |
+| `sum` | split across grid instants | sum — **totals are conserved** |
+| `mean` | copy | plain (time-weighted) mean |
+| `copy` | copy | the common value; error if not constant |
+| `sd` | copy | spread of the fine signal |
+
+`weighted_mean` and `mean` differ exactly when a calendar’s declared
+shares differ from its real-time coverage. Per-parameter defaults can be
+registered with
+[`register_rule()`](https://optimal2050.github.io/timescales/r/reference/register_rule.md),
+and a pairwise calendar-to-calendar override with
+[`register_conversion()`](https://optimal2050.github.io/timescales/r/reference/register_conversion.md).
+Instants not covered by one of the calendars are governed by
+`na_action = "drop"` (warns), `"error"`, or `"keep"` (an explicit `NA`
+row that conserves totals).
+
+### Within-calendar aggregation and the ANNUAL root
+
+Every calendar has an implicit whole-year root named `ANNUAL`.
+[`calendar_at_level()`](https://optimal2050.github.io/timescales/r/reference/calendar_at_level.md)
+truncates a calendar at one of its own timeframes, and
+[`recast()`](https://optimal2050.github.io/timescales/r/reference/recast.md)
+accepts a timeframe name for `to=`:
+
+``` r
+
+cal <- calendar("q4_h24")
+x <- data.frame(slice = cal@leaves$slice, energy = 1)
+recast(x, cal, to = "ANNUAL", year = 2025, rule = "sum")
+#>    slice energy
+#> 1 ANNUAL     96
+```
 
 ## Design boundaries
 
-- **Year-bounded.** A calendar describes one year (or a fraction of
-  one). Multi-year horizons are out of scope for v0.1; build them on top
-  of this layer.
+- **Year-bounded calendars, multi-year base.** A calendar describes one
+  model year (or a fraction of one); the base instant grid
+  ([`base_calendar()`](https://optimal2050.github.io/timescales/r/reference/base_calendar.md))
+  spans real multi-year time, which is how leap years stay
+  representable. Multi-year horizons remain a future layer.
 - **Label-stable.** A calendar’s slice IDs and ordering are fixed at
   construction time. Conversions never mutate them.
-- **No side effects.** Every constructor returns a value; nothing is
-  registered or globally configured.
+- **Explicit registries only.** Constructors return values; the token,
+  rule, and conversion registries change behaviour only when you
+  register into them.

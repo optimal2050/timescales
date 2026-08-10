@@ -14,6 +14,7 @@
 # Apache-2.0 is a standard R license abbreviation, so the text is not shipped.
 ^LICENSE$
 ^dev$
+^data-raw$
 ^tmp$
 ^NOTICE$
 ^CONTRIBUTING\.md$

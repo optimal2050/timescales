@@ -1,11 +1,18 @@
-url: ~
+# pkgdown builds ONLY the R reference, into `docs/r/`. The `docs/` root is the
+# multi-language landing page (and, in a later phase, a Quarto site with
+# language-agnostic `concepts/` beside `r/`, `python/` and `cpp/`).
+url: https://optimal2050.github.io/timescales/r/
 destination: docs/r
 
 template:
   bootstrap: 5
+  light-switch: true
 
+# Pinned rather than `auto`: with `auto`, the first released version silently
+# switches pkgdown to devel mode and relocates the whole site into `r/dev/`.
 development:
-  mode: auto
+  mode: unreleased
+  version_label: danger
 
 reference:
   - title: "Calendars"
@@ -14,6 +21,12 @@ reference:
       - Calendar
       - calendar_from_leaves
       - calendar_build
+      - calendar_at_level
+  - title: "Catalog"
+    desc: "The built-in calendar designs."
+    contents:
+      - calendar_catalog
+      - calendars
   - title: "Tokens"
     desc: "Reusable label vocabularies for one timeframe."
     contents:
@@ -29,6 +42,23 @@ reference:
       - instant_to_slice
       - expand_calendar
       - recast
+      - base_calendar
+  - title: "Visualization"
+    desc: "Draw calendar structures and data on calendars."
+    contents:
+      - calendar_layout
+      - calendar_autoplot
+      - calendar_plot
+  - title: "Rules and registries"
+    desc: "Aggregation and alignment semantics, and their registries."
+    contents:
+      - RECAST_RULES
+      - ALIGNMENT_RULES
+      - register_rule
+      - get_rule
+      - list_rules
+      - clear_rules
+      - register_conversion
   - title: "Package"
     contents:
       - timescales-package
@@ -42,3 +72,4 @@ articles:
     contents:
       - concepts
       - data-structures
+      - calendars

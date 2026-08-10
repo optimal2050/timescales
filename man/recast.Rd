@@ -11,9 +11,10 @@ recast(
   year,
   key = "slice",
   values = NULL,
-  rule = c("weighted_mean", "sum", "mean"),
+  rule = NULL,
   by = NULL,
-  tz = "UTC"
+  tz = "UTC",
+  na_action = c("drop", "error", "keep")
 )
 }
 \arguments{
@@ -22,71 +23,68 @@ plus one or more numeric value columns.}
 
 \item{from}{Source \code{\link{Calendar}}.}
 
-\item{to}{Destination \code{\link{Calendar}}.}
+\item{to}{Destination \code{\link{Calendar}}, or a timeframe name of \code{from}
+(including \code{"ANNUAL"}) for within-calendar aggregation via
+\code{\link[=calendar_at_level]{calendar_at_level()}}.}
 
-\item{year}{Integer scalar Gregorian year used to materialise both
-calendars on a shared grid.}
+\item{year}{Integer scalar model year used to materialise both calendars
+on the shared grid.}
 
 \item{key}{Name of the slice key column in \code{x}. Default \code{"slice"}.}
 
 \item{values}{Character vector of value columns to transform. Default:
 all numeric columns other than \code{key}.}
 
-\item{rule}{Aggregation rule for many-source-instants-per-target-slice
-(downsampling). One of:
-\itemize{
-\item \code{"weighted_mean"} — share-weighted mean (default; physical units like
-average load).
-\item \code{"sum"} — sum (extensive quantities like total energy).
-\item \code{"mean"} — unweighted mean.
-}}
+\item{rule}{One of \code{\link{RECAST_RULES}}, applied to every value column; or
+\code{NULL} (default) to look each column up with \code{\link[=get_rule]{get_rule()}}, falling
+back to \code{"weighted_mean"}.}
 
-\item{by}{Grid resolution for \code{\link[=expand_calendar]{expand_calendar()}}. Defaults to the
-finest of the two calendars.}
+\item{by}{Grid resolution for the shared instant grid. Defaults to the
+finest timeframe of the two calendars.}
 
 \item{tz}{Time zone for the shared grid. Default \code{"UTC"}.}
+
+\item{na_action}{What to do with grid instants not covered by \code{to}:
+\code{"drop"} (default, with a warning — the affected source share is
+genuinely lost), \code{"error"}, or \code{"keep"} (retain an explicit \code{NA} slice
+row so totals conserve). Instants not covered by \code{from} carry no data
+and are always dropped.}
 }
 \value{
 A \code{data.frame} keyed by slice in \code{to}, with one row per slice in
-\code{to} and the same value columns as in \code{x}.
+\code{to} (plus an \code{NA} row under \code{na_action = "keep"}) and the same value
+columns as in \code{x}.
 }
 \description{
 The central conversion verb. Takes a \code{data.frame} keyed by slice in
 calendar \code{from} with one or more numeric value columns, and returns a
-\code{data.frame} keyed by slice in calendar \code{to}. Conversion goes through a
-shared instant grid built by \code{\link[=expand_calendar]{expand_calendar()}} for the given \code{year}.
+\code{data.frame} keyed by slice in calendar \code{to}. Every conversion routes
+\code{A -> base -> B} through the shared instant grid: source values are
+projected down to instants, then aggregated up to target slices, so
+aggregation and disaggregation are one operation. A pairwise override
+registered with \code{\link[=register_conversion]{register_conversion()}} short-circuits the route.
 }
 \details{
-Algorithm:
-\enumerate{
-\item Expand both calendars onto a shared instant grid for \code{year}.
-\item Join \code{x} onto the grid via \code{from$slice}, broadcasting each source
-slice's value to every grid instant it covers.
-\item Group by \code{to$slice} and aggregate per \code{rule}.
-}
-
-Instants present in one calendar but not the other (e.g. Feb 29) drop out
-silently for now (will be configurable in a later phase).
+Rules (see \code{\link{RECAST_RULES}}): \code{"sum"} splits each source value equally
+across its slice's grid instants before summing up, so totals are
+conserved. \code{"weighted_mean"} weights by the declared \code{leaves$share} of
+each source slice; \code{"mean"} is the plain (time-weighted) mean over
+instants — the two differ exactly when declared shares differ from
+real-time coverage. \code{"copy"} requires a constant value per target slice;
+\code{"sd"} is aggregation-only.
 }
 \examples{
-month_df <- data.frame(
-  MONTH  = sprintf("m\%02d", 1:12),
-  share  = c(31,28,31,30,31,30,31,31,30,31,30,31) / 365,
-  weight = c(31,28,31,30,31,30,31,31,30,31,30,31)
-)
-cal_m <- calendar_from_leaves(month_df, timeframes = "MONTH", name = "m12")
-
-quarter_df <- data.frame(
-  QUARTER = sprintf("Q\%d", 1:4),
-  share   = c(90, 91, 92, 92) / 365,
-  weight  = c(90, 91, 92, 92)
-)
-cal_q <- calendar_from_leaves(quarter_df, timeframes = "QUARTER",
-                              name = "q4")
+cal_m <- calendar_build("m12")
+cal_q <- calendar_build("q4")
 
 x <- data.frame(
   slice = sprintf("m\%02d", 1:12),
   load  = seq(100, 210, length.out = 12)
 )
-recast(x, from = cal_m, to = cal_q, year = 2021, rule = "weighted_mean")
+recast(x, from = cal_m, to = cal_q, year = 2021)
+
+# Within-calendar aggregation, and the ANNUAL root
+cal <- calendar_build("q4", "h24")
+xh <- data.frame(slice = S7::prop(cal, "leaves")$slice, energy = 1)
+recast(xh, cal, to = "ANNUAL", year = 2021, rule = "sum")  # 96
 }

@@ -15,7 +15,7 @@ register_token()."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">timescales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.0.0.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.2.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -63,7 +63,7 @@ common cases (<code>d365</code>, <code>m12</code>, <code>m12a</code>, <code>q4</
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">register_token</span><span class="op">(</span><span class="va">name</span>, <span class="va">timeframe</span>, <span class="va">expand</span><span class="op">)</span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">register_token</span><span class="op">(</span><span class="va">name</span>, <span class="va">timeframe</span>, <span class="va">expand</span>, alignment <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">get_token</span><span class="op">(</span><span class="va">name</span><span class="op">)</span></span>
 <span></span>
@@ -87,13 +87,20 @@ common cases (<code>d365</code>, <code>m12</code>, <code>m12a</code>, <code>q4</
 columns <code>label</code> (character, unique) and <code>share</code> (numeric &gt; 0, summing
 to 1).</p></dd>
 
+
+<dt id="arg-alignment">alignment<a class="anchor" aria-label="anchor" href="#arg-alignment"></a></dt>
+<dd><p>Optional default alignment rule (one of
+<code><a href="ALIGNMENT_RULES.html">ALIGNMENT_RULES</a></code>) declaring how real instants beyond this token's
+vocabulary map onto it (e.g. <code>"drop_feb29"</code> for <code>d365</code>). Calendars built
+from the token inherit it in <code>meta$alignment</code>.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p><code>register_token()</code> invisibly returns the token name.
-<code>get_token()</code> returns the token definition (a list with <code>timeframe</code>
-and <code>expand</code>). <code>list_tokens()</code> returns a character vector of all
-registered token names.</p>
+<code>get_token()</code> returns the token definition (a list with <code>timeframe</code>,
+<code>expand</code>, and optionally <code>alignment</code>). <code>list_tokens()</code> returns a
+character vector of all registered token names.</p>
     </div>
 
     <div class="section level2">

@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">timescales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.0.0.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.2.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -103,8 +103,9 @@ labelled leaves, formed by composing tokens.</li>
 labels. The package ships with a fixed core set:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">CORE_TIMEFRAMES</span></span>
-<span><span class="co">#&gt;  [1] "YEAR"    "QUARTER" "MONTH"   "MDAY"    "YDAY"    "HOUR"    "MINUTE" </span></span>
-<span><span class="co">#&gt;  [8] "SECOND"  "WDAY"    "MWEEK"   "WEEK"</span></span></code></pre></div>
+<span><span class="co">#&gt;  [1] "YEAR"     "QUARTER"  "MONTH"    "MDAY"     "YDAY"     "HOUR"    </span></span>
+<span><span class="co">#&gt;  [7] "MINUTE"   "SECOND"   "WDAY"     "WHOUR"    "MWEEK"    "WEEK"    </span></span>
+<span><span class="co">#&gt; [13] "SEASON"   "DAYTYPE"  "HOURTYPE"</span></span></code></pre></div>
 <p>The function <code><a href="../reference/as_timeframe.html">as_timeframe()</a></code> extracts the value of a
 chosen timeframe from any datetime:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
@@ -129,8 +130,8 @@ timeframe, plus each label’s within-year share. Tokens are how
 vocabularies are shared across calendars.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/register_token.html">list_tokens</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt;  [1] "d360"  "d364"  "d365"  "d366"  "h168"  "h24"   "m12"   "m12a"  "min60"</span></span>
-<span><span class="co">#&gt; [10] "q4"    "w52"   "w53"   "wd7"</span></span>
+<span><span class="co">#&gt;  [1] "d360"  "d364"  "d365"  "d366"  "h168"  "h24"   "hp3"   "m12"   "m12a" </span></span>
+<span><span class="co">#&gt; [10] "min60" "q4"    "s4"    "w52"   "w53"   "wd7"   "wk2"</span></span>
 <span><span class="fu"><a href="../reference/register_token.html">get_token</a></span><span class="op">(</span><span class="st">"m12"</span><span class="op">)</span><span class="op">$</span><span class="fu">expand</span><span class="op">(</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">3</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   label      share</span></span>
 <span><span class="co">#&gt; 1   m01 0.08493151</span></span>
@@ -160,47 +161,74 @@ vocabularies are shared across calendars.</p>
 <td><code>d365</code></td>
 <td>YDAY</td>
 <td><code>d001..d365</code></td>
-<td>day-of-year, 365-day calendar</td>
+<td>day-of-year; aligns <code>drop_feb29</code>
+</td>
 </tr>
 <tr class="even">
+<td><code>d360</code></td>
+<td>YDAY</td>
+<td><code>d001..d360</code></td>
+<td>stylised year; aligns <code>drop_last</code>
+</td>
+</tr>
+<tr class="odd">
 <td><code>m12</code></td>
 <td>MONTH</td>
 <td><code>m01..m12</code></td>
 <td>numeric month</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>m12a</code></td>
 <td>MONTH</td>
 <td><code>JAN..DEC</code></td>
 <td>abbreviated month</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>q4</code></td>
 <td>QUARTER</td>
 <td><code>Q1..Q4</code></td>
 <td>day-weighted shares</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>wd7</code></td>
 <td>WDAY</td>
 <td><code>MON..SUN</code></td>
 <td>ISO weekday order</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td><code>h24</code></td>
 <td>HOUR</td>
 <td><code>h00..h23</code></td>
 <td>hour-of-day</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td><code>h168</code></td>
-<td>HOUR</td>
+<td>WHOUR</td>
 <td><code>h000..h167</code></td>
-<td>hour-of-week</td>
+<td>hour-of-week (Mon 00:00 = <code>h000</code>)</td>
 </tr>
 </tbody>
 </table>
-<p>Custom tokens are added with <code><a href="../reference/register_token.html">register_token()</a></code>.</p>
+<p>Custom tokens are added with <code><a href="../reference/register_token.html">register_token()</a></code>,
+optionally declaring an <em>alignment</em> rule (see below).</p>
+<div class="section level3">
+<h3 id="alignment-mapping-real-years-onto-stylised-ones">Alignment: mapping real years onto stylised ones<a class="anchor" aria-label="anchor" href="#alignment-mapping-real-years-onto-stylised-ones"></a>
+</h3>
+<p>A <code>d365</code> calendar has no label for Feb 29; a
+<code>d360</code> calendar has none for the last days of December.
+<em>Alignment rules</em> (<code>ALIGNMENT_RULES</code>) declare what
+happens to such instants: <code>drop_feb29</code> (Feb 29 is
+<code>NA</code>, later ydays shift down so Dec 31 is still
+<code>d365</code>), <code>drop_last</code>, <code>repeat_last</code>
+(clamp to the last label — how week 53 folds into <code>w52</code>), and
+<code>exact</code> (error). Built-in tokens carry sensible defaults;
+calendars record them in <code>meta$alignment</code>, and
+<code><a href="../reference/instant_to_slice.html">instant_to_slice()</a></code> accepts an override.</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">d365</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calendar_build.html">calendar_build</a></span><span class="op">(</span><span class="st">"d365"</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/instant_to_slice.html">instant_to_slice</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"2020-02-29"</span>, <span class="st">"2020-12-31"</span><span class="op">)</span><span class="op">)</span>, <span class="va">d365</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] NA     "d365"</span></span></code></pre></div>
+</div>
 </div>
 <div class="section level2">
 <h2 id="calendars">3. Calendars<a class="anchor" aria-label="anchor" href="#calendars"></a>
@@ -209,7 +237,7 @@ vocabularies are shared across calendars.</p>
 tokens. The leaves of the resulting tree are the slices the rest of your
 model talks about.</p>
 <p>Three constructors, in increasing flexibility:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/calendar_build.html">calendar</a></span><span class="op">(</span><span class="st">"m12_h24"</span><span class="op">)</span>                    <span class="co"># layer 1: by name</span></span>
 <span><span class="fu"><a href="../reference/calendar_build.html">calendar_build</a></span><span class="op">(</span><span class="st">"m12"</span>, <span class="st">"h24"</span><span class="op">)</span>           <span class="co"># layer 2: by token list</span></span>
 <span><span class="fu"><a href="../reference/calendar_from_leaves.html">calendar_from_leaves</a></span><span class="op">(</span><span class="va">leaves</span>, <span class="va">...</span><span class="op">)</span>      <span class="co"># layer 3: by raw leaf table</span></span></code></pre></div>
@@ -220,7 +248,7 @@ weeks that intentionally do not cover the full year).</p>
 <div class="section level3">
 <h3 id="what-the-leaves-table-looks-like">What the leaves table looks like<a class="anchor" aria-label="anchor" href="#what-the-leaves-table-looks-like"></a>
 </h3>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cal</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calendar_build.html">calendar</a></span><span class="op">(</span><span class="st">"q4_h24"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">cal</span><span class="op">@</span><span class="va">leaves</span>, <span class="fl">3</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   QUARTER HOUR      share weight  slice</span></span>
@@ -237,7 +265,7 @@ weeks that intentionally do not cover the full year).</p>
 <p>Conversion is the central verb. The same <code><a href="../reference/recast.html">recast()</a></code>
 function handles upsampling, downsampling, and irregular-to-irregular
 mappings, given that both calendars cover the same year fraction.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cal_m</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calendar_build.html">calendar</a></span><span class="op">(</span><span class="st">"m12"</span><span class="op">)</span>     <span class="co"># source: monthly</span></span>
 <span><span class="va">cal_q</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calendar_build.html">calendar</a></span><span class="op">(</span><span class="st">"q4"</span><span class="op">)</span>      <span class="co"># target: quarterly</span></span>
 <span></span>
@@ -256,33 +284,72 @@ mappings, given that both calendars cover the same year fraction.</p>
 <div class="section level3">
 <h3 id="aggregation-rules">Aggregation rules<a class="anchor" aria-label="anchor" href="#aggregation-rules"></a>
 </h3>
+<p>Conversion routes through the <strong>base grid</strong> of real
+instants: source values are projected <em>down</em> to instants, then
+aggregated <em>up</em> to target slices, so aggregation and
+disaggregation are one operation (<code>RECAST_RULES</code>):</p>
 <table class="table">
 <colgroup>
-<col width="22%">
-<col width="77%">
+<col width="20%">
+<col width="32%">
+<col width="46%">
 </colgroup>
 <thead><tr class="header">
 <th>Rule</th>
-<th>Meaning</th>
+<th>Down (slice → instants)</th>
+<th>Up (instants → slice)</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
 <td><code>weighted_mean</code></td>
-<td>Average weighted by leaf share (the default).</td>
+<td>copy</td>
+<td>mean weighted by declared <code>share</code> (default)</td>
 </tr>
 <tr class="even">
-<td><code>mean</code></td>
-<td>Plain mean over the shared expansion grid.</td>
+<td><code>sum</code></td>
+<td>split across grid instants</td>
+<td>sum — <strong>totals are conserved</strong>
+</td>
 </tr>
 <tr class="odd">
-<td><code>sum</code></td>
-<td>Sum over the shared expansion grid.</td>
+<td><code>mean</code></td>
+<td>copy</td>
+<td>plain (time-weighted) mean</td>
+</tr>
+<tr class="even">
+<td><code>copy</code></td>
+<td>copy</td>
+<td>the common value; error if not constant</td>
+</tr>
+<tr class="odd">
+<td><code>sd</code></td>
+<td>copy</td>
+<td>spread of the fine signal</td>
 </tr>
 </tbody>
 </table>
-<p>On a uniform grid <code>weighted_mean</code> and <code>mean</code>
-coincide because longer source slices contribute proportionally more
-rows.</p>
+<p><code>weighted_mean</code> and <code>mean</code> differ exactly when
+a calendar’s declared shares differ from its real-time coverage.
+Per-parameter defaults can be registered with
+<code><a href="../reference/register_rule.html">register_rule()</a></code>, and a pairwise calendar-to-calendar
+override with <code><a href="../reference/register_conversion.html">register_conversion()</a></code>. Instants not covered
+by one of the calendars are governed by <code>na_action = "drop"</code>
+(warns), <code>"error"</code>, or <code>"keep"</code> (an explicit
+<code>NA</code> row that conserves totals).</p>
+</div>
+<div class="section level3">
+<h3 id="within-calendar-aggregation-and-the-annual-root">Within-calendar aggregation and the ANNUAL root<a class="anchor" aria-label="anchor" href="#within-calendar-aggregation-and-the-annual-root"></a>
+</h3>
+<p>Every calendar has an implicit whole-year root named
+<code>ANNUAL</code>. <code><a href="../reference/calendar_at_level.html">calendar_at_level()</a></code> truncates a
+calendar at one of its own timeframes, and <code><a href="../reference/recast.html">recast()</a></code> accepts
+a timeframe name for <code>to=</code>:</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">cal</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calendar_build.html">calendar</a></span><span class="op">(</span><span class="st">"q4_h24"</span><span class="op">)</span></span>
+<span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>slice <span class="op">=</span> <span class="va">cal</span><span class="op">@</span><span class="va">leaves</span><span class="op">$</span><span class="va">slice</span>, energy <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/recast.html">recast</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">cal</span>, to <span class="op">=</span> <span class="st">"ANNUAL"</span>, year <span class="op">=</span> <span class="fl">2025</span>, rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span></span>
+<span><span class="co">#&gt;    slice energy</span></span>
+<span><span class="co">#&gt; 1 ANNUAL     96</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -290,15 +357,18 @@ rows.</p>
 </h2>
 <ul>
 <li>
-<strong>Year-bounded.</strong> A calendar describes one year (or a
-fraction of one). Multi-year horizons are out of scope for v0.1; build
-them on top of this layer.</li>
+<strong>Year-bounded calendars, multi-year base.</strong> A calendar
+describes one model year (or a fraction of one); the base instant grid
+(<code><a href="../reference/base_calendar.html">base_calendar()</a></code>) spans real multi-year time, which is how
+leap years stay representable. Multi-year horizons remain a future
+layer.</li>
 <li>
 <strong>Label-stable.</strong> A calendar’s slice IDs and ordering
 are fixed at construction time. Conversions never mutate them.</li>
 <li>
-<strong>No side effects.</strong> Every constructor returns a value;
-nothing is registered or globally configured.</li>
+<strong>Explicit registries only.</strong> Constructors return
+values; the token, rule, and conversion registries change behaviour only
+when you register into them.</li>
 </ul>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

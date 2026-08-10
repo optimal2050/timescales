@@ -16,6 +16,17 @@ test_that("get_token() returns timeframe + expand", {
   expect_equal(sum(df$share), 1)
 })
 
+test_that("built-in tokens declare their alignment and axis", {
+  expect_equal(get_token("d365")$alignment, "drop_feb29")
+  expect_equal(get_token("d360")$alignment, "drop_last")
+  expect_equal(get_token("d364")$alignment, "drop_last")
+  expect_equal(get_token("w52")$alignment, "repeat_last")
+  expect_null(get_token("d366")$alignment)
+  # h168 is hour-of-week, not hour-of-day
+  expect_equal(get_token("h168")$timeframe, "WHOUR")
+  expect_equal(get_token("h24")$timeframe, "HOUR")
+})
+
 test_that("month tokens have day-weighted shares", {
   m12 <- get_token("m12")$expand()
   expect_equal(m12$label, sprintf("m%02d", 1:12))
@@ -42,6 +53,26 @@ test_that("register_token() adds and can be retrieved", {
   on.exit(rm("my_d2", envir = timescales:::.TOKEN_REGISTRY), add = TRUE)
   expect_true("my_d2" %in% list_tokens())
   expect_equal(get_token("my_d2")$timeframe, "YDAY")
+})
+
+test_that("register_token() records an alignment and calendars inherit it", {
+  register_token("d180", "YDAY", function() {
+    data.frame(label = sprintf("d%03d", 1:180), share = rep(1 / 180, 180))
+  }, alignment = "drop_last")
+  on.exit(rm("d180", envir = timescales:::.TOKEN_REGISTRY), add = TRUE)
+
+  expect_equal(get_token("d180")$alignment, "drop_last")
+  cal <- calendar_build("d180")
+  expect_equal(S7::prop(cal, "meta")$alignment$YDAY, "drop_last")
+  expect_error(register_token("d181", "YDAY", function() {
+    data.frame(label = "a", share = 1)
+  }, alignment = "not_a_rule"))
+})
+
+test_that("calendar_build records token provenance in meta$tokens", {
+  cal <- calendar_build("m12", "h24")
+  expect_equal(S7::prop(cal, "meta")$tokens,
+               c(MONTH = "m12", HOUR = "h24"))
 })
 
 test_that("register_token() rejects bad expand functions", {

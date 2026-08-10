@@ -2,39 +2,39 @@
 % Please edit documentation in R/recast.R
 \name{expand_calendar}
 \alias{expand_calendar}
-\title{Enumerate every instant in a year mapped to its calendar slice}
+\title{Enumerate the instants of one or more model years mapped to slices}
 \usage{
-expand_calendar(calendar, year, by = NULL, tz = "UTC")
+expand_calendar(calendar, year, by = NULL, tz = "UTC", alignment = NULL)
 }
 \arguments{
 \item{calendar}{A \code{\link{Calendar}}.}
 
-\item{year}{Integer scalar — the Gregorian year to enumerate.}
+\item{year}{Integer vector — the model year(s) to enumerate.}
 
 \item{by}{Resolution string passed to \code{seq.POSIXt}'s \code{by} argument
-(\code{"hour"}, \code{"day"}, \code{"15 min"}, ...). Defaults to \code{"hour"} if \code{HOUR} is
-in the calendar's timeframes, otherwise \code{"day"}.}
+(\code{"hour"}, \code{"day"}, \code{"15 min"}, ...). Defaults to the finest of the
+calendar's timeframes.}
 
-\item{tz}{Time zone string. Defaults to \code{"UTC"}.}
+\item{tz}{Time zone of the returned instants. Defaults to \code{"UTC"}.}
+
+\item{alignment}{Optional alignment override, as in
+\code{\link[=instant_to_slice]{instant_to_slice()}}.}
 }
 \value{
-A \code{data.frame} with columns \code{datetime} (POSIXct) and \code{slice}
-(character). Rows where \code{slice} is \code{NA} correspond to instants the
-calendar does not cover (e.g. Feb 29 in a 365-day calendar).
+A \code{data.frame} with columns \code{datetime} (POSIXct), \code{year}
+(integer, model year) and \code{slice} (character). Rows where \code{slice} is
+\code{NA} are instants the calendar does not cover.
 }
 \description{
-Returns a \code{data.frame} with one row per instant in the requested year at
-the requested resolution, plus a \code{slice} column giving the calendar slice
-that instant belongs to (via \code{\link[=instant_to_slice]{instant_to_slice()}}). This is the ground
-truth used by \code{\link[=recast]{recast()}}.
+Materialises the calendar on the base instant grid: one row per instant of
+each requested model year, with the slice that instant belongs to (via
+\code{\link[=instant_to_slice]{instant_to_slice()}}). The model year spans \verb{[year_start(y), year_start(y + 1))} in the calendar's local time (\code{meta$year_start},
+\code{meta$utc_offset_minutes}); with the default metadata that is simply the
+Gregorian year in \code{tz}.
 }
 \examples{
-df <- data.frame(
-  MONTH  = sprintf("m\%02d", 1:12),
-  share  = c(31,28,31,30,31,30,31,31,30,31,30,31) / 365,
-  weight = c(31,28,31,30,31,30,31,31,30,31,30,31)
-)
-cal <- calendar_from_leaves(df, timeframes = "MONTH", name = "m12")
-grid <- expand_calendar(cal, year = 2021, by = "month")
-head(grid)
+cal <- calendar_build("m12")
+grid <- expand_calendar(cal, year = 2021, by = "day")
+nrow(grid)                                  # 365
+nrow(expand_calendar(cal, 2020, by = "day"))  # 366 (leap year)
 }

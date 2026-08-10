@@ -42,11 +42,13 @@ to-finest order. The Cartesian product of their labels becomes the leaf
 table; each leaf's share is the product of its tokens' shares, scaled to
 \code{year_fraction}.
 
-Convenience shortcut: parses a token-style name like \code{"d365_h24"} or
-\code{"m12_h24"} into its tokens and dispatches to \code{\link[=calendar_build]{calendar_build()}}. The
-leading \code{y_} prefix (year-qualified) is currently stripped and recorded
-in \code{meta$year_qualified} — full year-prefix semantics arrive in a later
-phase.
+Convenience shortcut. Names listed in \code{\link[=calendar_catalog]{calendar_catalog()}} build the
+catalog design (with \code{coverage}/\code{regularity} metadata attached; the
+\verb{m12_md*} family uses a dedicated ragged month/day builder). Any other
+name is parsed as \verb{_}-joined tokens and dispatched to
+\code{\link[=calendar_build]{calendar_build()}}. The leading \code{y_} prefix (year-qualified) is
+currently stripped and recorded in \code{meta$year_qualified} — full
+year-prefix semantics arrive in a later phase.
 }
 \examples{
 cal <- calendar_build("d365", "h24", name = "d365_h24")

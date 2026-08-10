@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">timescales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.0.0.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.2.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -45,10 +45,75 @@
     </div>
 
     <div class="section level2">
+<h2 class="pkg-version" data-toc-text="development version" id="timescales-development-version">timescales (development version)<a class="anchor" aria-label="anchor" href="#timescales-development-version"></a></h2>
+<div class="section level3">
+<h3 id="calendar-visualization-development-version">Calendar visualization<a class="anchor" aria-label="anchor" href="#calendar-visualization-development-version"></a></h3>
+<p>First viz layer, mirroring <code>geoscales</code> (ggplot2 in Suggests, no custom ggproto — plot-level functions over an exported plain-data layout):</p>
+<ul><li>
+<code><a href="../reference/calendar_layout.html">calendar_layout()</a></code> — plotting-system-agnostic icicle geometry: one band per timeframe (<code>ANNUAL</code> root on top), x normalized to <code>[0, 1]</code>.</li>
+<li>
+<code><a href="../reference/calendar_autoplot.html">calendar_autoplot()</a></code> — the structure icicle; <code><a href="https://ggplot2.tidyverse.org/reference/autoplot.html" class="external-link">autoplot()</a></code> and <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> on a Calendar dispatch here. Fill by chronological <code>order</code> (gradient recycling <code>within</code> each parent, or <code>global</code>), <code>share</code>, or <code>weight</code>; auto white/dark labels; rows denser than <code>max_segments</code> (default 2000) are binned so hourly calendars render instantly.</li>
+<li>
+<code><a href="../reference/calendar_plot.html">calendar_plot()</a></code> — the single data-on-calendar heatmap: data keyed by slice, layout finest-on-y / next-on-x / coarser-as-facets, aggregation with <code>fun=</code> when timeframes are dropped; no data plots the share structure.</li>
+<li>Naming convention settled: class-word prefixes (<code>calendar_*</code> now, <code>horizon_*</code> when Horizon lands); generics stay bare. Custom <code>stat_*</code>/<code>geom_*</code> layers are deferred and will wrap the same helpers.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="calendar-catalog-development-version">Calendar catalog<a class="anchor" aria-label="anchor" href="#calendar-catalog-development-version"></a></h3>
+<p>The curated calendar library returns, ported from <code>timeslices</code> (37 designs) — with a correctness upgrade: catalog calendars carry <strong>duration-proportional shares</strong> (January is <code>31/365</code> of the year), where the timeslices originals shipped uniform shares (<code>1/12</code>) in contradiction with their own documentation.</p>
+<ul><li>
+<code><a href="../reference/calendar_catalog.html">calendar_catalog()</a></code> — the discoverable table of built-in designs (id, tokens, timeframes, slice count, coverage, regularity).</li>
+<li>
+<code>calendars</code> dataset — all 37 pre-built as lean package data (~40 KB vs timeslices’ 1.9 MB).</li>
+<li>
+<code>calendar(id)</code> now consults the catalog first: catalog builds carry <code>meta$coverage</code> / <code>meta$regularity</code>, and the non-Cartesian <code>m12_md*</code> family (ragged month/day grids — February is short) routes to a dedicated builder. Feb 29 under <code>m12_md365</code> and day 31 under <code>m12_md360</code> map to <code>NA</code> naturally.</li>
+<li>New timeframes <code>SEASON</code> (meteorological, <code>WIN</code> = Dec–Feb), <code>DAYTYPE</code> (<code>WORKDAY</code>/<code>WEEKEND</code>), and <code>HOURTYPE</code> (<code>DAY</code>/<code>NIGHT</code> h22–h05/<code>PEAK</code> h17–h20) join <code>CORE_TIMEFRAMES</code> with full datetime extraction — the 9 type-axis designs (<code>s4*</code>, <code>wk2*</code>, <code>hp3</code>, <code>*_hp3</code>) are datetime-convertible for the first time (timeslices could construct but never populate them).</li>
+<li>New tokens <code>s4</code>, <code>wk2</code>, <code>hp3</code> with duration-weighted shares.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="conversion-core-rewrite-v02-line-development-version">Conversion core rewrite (v0.2 line)<a class="anchor" aria-label="anchor" href="#conversion-core-rewrite-v02-line-development-version"></a></h3>
+<p>Fixes the five conversion defects diagnosed in <code>dev/review-core-plan.md</code>; the design decisions are recorded in <code>dev/review-core.md</code>. <code><a href="../reference/recast.html">recast()</a></code> now routes every conversion <code>A -&gt; base -&gt; B</code> through a multi-year grid of real instants (the geoscales atom pattern), projecting source values down to instants and aggregating up to target slices.</p>
+<div class="section level4">
+<h4 id="breaking-changes-development-version">Breaking changes<a class="anchor" aria-label="anchor" href="#breaking-changes-development-version"></a></h4>
+<ul><li>
+<code>recast(rule = "sum")</code> now <strong>conserves totals</strong> — each source value is split across its slice’s grid instants before summing. Previously values were broadcast to every instant and added (96 unit leaves recast <code>q4_h24 -&gt; q4</code> returned 8760; it now returns 96).</li>
+<li>
+<code>recast(rule = "weighted_mean")</code> now weights by the declared <code>leaves$share</code>. It differs from <code>"mean"</code> (the plain time-weighted grid mean) exactly when declared shares differ from real-time coverage.</li>
+<li>
+<code><a href="../reference/expand_calendar.html">expand_calendar()</a></code> gains a <code>year</code> column in its output (<code>datetime, year, slice</code>) and accepts a vector of years.</li>
+<li>The <code>h168</code> token now lives on the new <code>WHOUR</code> timeframe (hour of week, Monday-first ISO, <code>h000</code>..<code>h167</code>) instead of being mis-declared as <code>HOUR</code>, and maps datetimes correctly.</li>
+<li>Uncovered grid instants are no longer dropped silently: <code>recast(na_action = c("drop", "error", "keep"))</code> — <code>"drop"</code> warns, <code>"keep"</code> retains an explicit <code>NA</code> slice row so totals conserve.</li>
+</ul></div>
+<div class="section level4">
+<h4 id="new-features-development-version">New features<a class="anchor" aria-label="anchor" href="#new-features-development-version"></a></h4>
+<ul><li>
+<strong>Base calendar</strong>: <code>base_calendar(years, by, tz)</code> enumerates the cached multi-year grid of real POSIXct instants — the 1:1 correspondence between calendars and date-time (leap years included: 2020 has 8784 hourly rows).</li>
+<li>
+<strong>ANNUAL root and within-calendar aggregation</strong>: <code>calendar_at_level(cal, tf)</code> truncates a calendar at one of its own timeframes (<code>"ANNUAL"</code> returns the implicit one-slice whole-year root), and <code><a href="../reference/recast.html">recast()</a></code> accepts a timeframe name for <code>to=</code>.</li>
+<li>
+<strong>Alignment rules</strong> (<code>ALIGNMENT_RULES</code>): <code>exact</code>, <code>drop_last</code>, <code>drop_feb29</code>, <code>repeat_last</code> declare how real instants beyond a calendar’s vocabulary map onto it. Stored per-timeframe in <code>meta$alignment</code>, seeded by tokens (<code>d365 -&gt; drop_feb29</code>, <code>d360</code>/<code>d364</code> -&gt; <code>drop_last</code>, <code>w52 -&gt; repeat_last</code>), overridable in <code><a href="../reference/instant_to_slice.html">instant_to_slice()</a></code>. <code><a href="../reference/register_token.html">register_token()</a></code> gains an <code>alignment</code> argument.</li>
+<li>
+<strong>New rules</strong>: <code>"copy"</code> (common value, error if non-constant) and <code>"sd"</code> join <code>RECAST_RULES</code>.</li>
+<li>
+<strong>Registries</strong> (mirroring <code>geoscales</code>): <code><a href="../reference/register_rule.html">register_rule()</a></code> / <code><a href="../reference/get_rule.html">get_rule()</a></code> / <code><a href="../reference/list_rules.html">list_rules()</a></code> / <code><a href="../reference/clear_rules.html">clear_rules()</a></code> map value-column names to default rules; <code><a href="../reference/register_conversion.html">register_conversion()</a></code> / <code><a href="../reference/register_conversion.html">get_conversion()</a></code> / <code><a href="../reference/register_conversion.html">list_conversions()</a></code> / <code><a href="../reference/register_conversion.html">clear_conversions()</a></code> register pairwise calendar-to-calendar overrides consulted before the base route.</li>
+<li>
+<strong>Vocabulary unification</strong>: <code><a href="../reference/instant_to_slice.html">instant_to_slice()</a></code> resolves labels by formatted-token match first, then a positional fallback for full-cardinality enum vocabularies — <code>m12a</code> (<code>JAN</code>..<code>DEC</code>) and custom enum tokens now map instead of returning <code>NA</code>.</li>
+<li>
+<strong><code>meta$year_start</code> and <code>meta$utc_offset_minutes</code> are live</strong>: the model year spans <code>[anchor(y), anchor(y+1))</code>, <code>YDAY</code>/<code>YEAR</code> are anchored to <code>year_start</code>, and local time = UTC + offset throughout <code><a href="../reference/instant_to_slice.html">instant_to_slice()</a></code> and <code><a href="../reference/expand_calendar.html">expand_calendar()</a></code>.</li>
+<li>
+<strong>Token provenance</strong> restored: <code><a href="../reference/calendar_build.html">calendar_build()</a></code> records <code>meta$tokens</code> (token per timeframe).</li>
+</ul></div>
+</div>
+</div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.1.0.9000" id="timescales-0109000">timescales 0.1.0.9000<a class="anchor" aria-label="anchor" href="#timescales-0109000"></a></h2>
+<ul><li>Phase 1 skeleton: <code>Calendar</code> S7 class with validator, token registry (<code><a href="../reference/register_token.html">register_token()</a></code>, <code><a href="../reference/register_token.html">get_token()</a></code>, <code><a href="../reference/register_token.html">list_tokens()</a></code>), three-layer constructors (<code><a href="../reference/calendar_build.html">calendar()</a></code>, <code><a href="../reference/calendar_build.html">calendar_build()</a></code>, <code><a href="../reference/calendar_from_leaves.html">calendar_from_leaves()</a></code>), <code><a href="../reference/as_timeframe.html">as_timeframe()</a></code>, first-generation <code><a href="../reference/instant_to_slice.html">instant_to_slice()</a></code> / <code><a href="../reference/expand_calendar.html">expand_calendar()</a></code> / <code><a href="../reference/recast.html">recast()</a></code>, three vignettes, pkgdown site, CI.</li>
+</ul></div>
+    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.0.0.9000" id="timescales-0009000">timescales 0.0.0.9000<a class="anchor" aria-label="anchor" href="#timescales-0009000"></a></h2>
 <ul><li>Initial scaffolding. Successor to <code>timeslices</code>; code migration in progress.</li>
 </ul></div>
-  </main></div>
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside></div>
 
 
     <footer><div class="pkgdown-footer-left">

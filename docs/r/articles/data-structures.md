@@ -86,12 +86,14 @@ A free-form named list. Recognised keys today:
 
 | Key | Type | Default | Used by |
 |----|----|----|----|
-| `name` | character | `""` | [`print()`](https://rdrr.io/r/base/print.html) |
+| `name` | character | `""` | [`print()`](https://rdrr.io/r/base/print.html), [`register_conversion()`](https://optimal2050.github.io/timescales/r/reference/register_conversion.md) lookup |
 | `desc` | character | `""` | [`print()`](https://rdrr.io/r/base/print.html) |
-| `year_start` | list | `list(month=1L, day=1L)` | [`instant_to_slice()`](https://optimal2050.github.io/timescales/r/reference/instant_to_slice.md), [`expand_calendar()`](https://optimal2050.github.io/timescales/r/reference/expand_calendar.md) |
-| `utc_offset_minutes` | integer | `0L` | [`instant_to_slice()`](https://optimal2050.github.io/timescales/r/reference/instant_to_slice.md) (planned) |
+| `year_start` | list | `list(month=1L, day=1L)` | [`instant_to_slice()`](https://optimal2050.github.io/timescales/r/reference/instant_to_slice.md) (YDAY/YEAR anchor), [`expand_calendar()`](https://optimal2050.github.io/timescales/r/reference/expand_calendar.md) (year window) |
+| `utc_offset_minutes` | integer | `0L` | [`instant_to_slice()`](https://optimal2050.github.io/timescales/r/reference/instant_to_slice.md), [`expand_calendar()`](https://optimal2050.github.io/timescales/r/reference/expand_calendar.md) (local time = UTC + offset) |
 | `year_fraction` | numeric | `1` | validator (`sum(share)`) |
 | `year_qualified` | logical | `FALSE` | set by `calendar("y_...")` |
+| `tokens` | named chr | — | provenance: token per timeframe (set by [`calendar_build()`](https://optimal2050.github.io/timescales/r/reference/calendar_build.md)) |
+| `alignment` | named list | — | alignment rule per timeframe, seeded by tokens |
 
 Anything else you put in `@meta` is preserved untouched.
 
@@ -99,7 +101,8 @@ Anything else you put in `@meta` is preserved untouched.
 
 names(cal@meta)
 #> [1] "name"               "desc"               "year_start"        
-#> [4] "utc_offset_minutes" "year_fraction"
+#> [4] "utc_offset_minutes" "year_fraction"      "tokens"            
+#> [7] "coverage"           "regularity"
 cal@meta$year_start
 #> $month
 #> [1] 1
@@ -117,15 +120,17 @@ built-in set and extensible at run time with
 ``` r
 
 list_tokens()
-#>  [1] "d360"  "d364"  "d365"  "d366"  "h168"  "h24"   "m12"   "m12a"  "min60"
-#> [10] "q4"    "w52"   "w53"   "wd7"
+#>  [1] "d360"  "d364"  "d365"  "d366"  "h168"  "h24"   "hp3"   "m12"   "m12a" 
+#> [10] "min60" "q4"    "s4"    "w52"   "w53"   "wd7"   "wk2"
 ```
 
-A token is a list with two fields:
+A token is a list with two required fields and one optional:
 
 - `timeframe` — one of `CORE_TIMEFRAMES`,
 - `expand` — a zero-argument function returning
-  `data.frame(label, share)` with `share` summing to 1.
+  `data.frame(label, share)` with `share` summing to 1,
+- `alignment` (optional) — one of `ALIGNMENT_RULES`, inherited by
+  calendars built from the token.
 
 ``` r
 
@@ -151,25 +156,14 @@ register_token("d4q", "YDAY", function() {
              share = c(90, 91, 92, 92) / 365)
 })
 calendar_build("d4q", "h24")
-#> <timescales::Calendar>
-#>  @ leaves    :'data.frame':  96 obs. of  5 variables:
-#>  .. $ YDAY  : chr  "Q1d" "Q2d" "Q3d" "Q4d" ...
-#>  .. $ HOUR  : chr  "h00" "h00" "h00" "h00" ...
-#>  .. $ share : num  0.0103 0.0104 0.0105 0.0105 0.0103 ...
-#>  .. $ weight: num  90 91 92 92 90 91 92 92 90 91 ...
-#>  .. $ slice : chr  "Q1d_h00" "Q2d_h00" "Q3d_h00" "Q4d_h00" ...
-#>  @ timeframes: chr [1:2] "YDAY" "HOUR"
-#>  @ levels    :List of 2
-#>  .. $ YDAY: chr [1:4] "Q1d" "Q2d" "Q3d" "Q4d"
-#>  .. $ HOUR: chr [1:24] "h00" "h01" "h02" "h03" ...
-#>  @ meta      :List of 5
-#>  .. $ name              : chr "d4q_h24"
-#>  .. $ desc              : chr ""
-#>  .. $ year_start        :List of 2
-#>  ..  ..$ month: int 1
-#>  ..  ..$ day  : int 1
-#>  .. $ utc_offset_minutes: int 0
-#>  .. $ year_fraction     : num 1
+#> Calendar: d4q_h24 
+#> Timeframes (2):
+#>   - YDAY (4) [token: d4q]
+#>   - HOUR (24) [token: h24]
+#> Leaf slices: 96
+#> year_fraction: 1
+#> year_start: month=1, day=1
+#> utc_offset_minutes: 0
 ```
 
 ## Construction validity

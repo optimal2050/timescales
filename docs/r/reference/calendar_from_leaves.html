@@ -11,7 +11,7 @@ optionally pin down the per-timeframe vocabulary and model-level metadata."></he
 
     <a class="navbar-brand me-2" href="../index.html">timescales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.0.0.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.2.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -129,23 +129,13 @@ Defaults to <code>1</code>.</p></dd>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">cal</span> <span class="op">&lt;-</span> <span class="fu">calendar_from_leaves</span><span class="op">(</span><span class="va">df</span>, timeframes <span class="op">=</span> <span class="st">"MONTH"</span>, name <span class="op">=</span> <span class="st">"m12"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">cal</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;timescales::Calendar&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  @ leaves    :'data.frame':	12 obs. of  4 variables:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .. $ MONTH : chr  "m01" "m02" "m03" "m04" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .. $ share : num  0.0849 0.0767 0.0849 0.0822 0.0849 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .. $ weight: num  31 28 31 30 31 30 31 31 30 31 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .. $ slice : chr  "m01" "m02" "m03" "m04" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  @ timeframes: chr "MONTH"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  @ levels    :List of 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .. $ MONTH: chr [1:12] "m01" "m02" "m03" "m04" ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  @ meta      :List of 5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .. $ name              : chr "m12"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .. $ desc              : chr ""</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .. $ year_start        :List of 2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  ..  ..$ month: int 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  ..  ..$ day  : int 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .. $ utc_offset_minutes: int 0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .. $ year_fraction     : num 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Calendar: m12 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Timeframes (1):</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - MONTH (12)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Leaf slices: 12</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> year_fraction: 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> year_start: month=1, day=1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> utc_offset_minutes: 0</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

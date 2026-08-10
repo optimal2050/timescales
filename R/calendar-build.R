@@ -46,8 +46,8 @@ calendar_build <- function(...,
   tokens <- args[is_token]
 
   if (length(tokens) == 0L) {
-    stop("`calendar_build()` requires at least one token name as a positional argument",
-         call. = FALSE)
+    stop("`calendar_build()` requires at least one token name as a ",
+         "positional argument", call. = FALSE)
   }
   if (!all(vapply(tokens, function(x) is.character(x) && length(x) == 1L,
                   logical(1)))) {
@@ -93,6 +93,13 @@ calendar_build <- function(...,
 
   if (is.null(name)) name <- paste(tokens, collapse = "_")
 
+  # Provenance: which token built each timeframe, and the alignment each
+  # token declares (how real instants beyond its vocabulary map onto it)
+  tokens_by_tf <- stats::setNames(tokens, tfs)
+  alignment <- lapply(defs, `[[`, "alignment")
+  names(alignment) <- tfs
+  alignment <- alignment[!vapply(alignment, is.null, logical(1))]
+
   calendar_from_leaves(
     leaves             = grid,
     timeframes         = tfs,
@@ -101,17 +108,21 @@ calendar_build <- function(...,
     desc               = desc,
     year_start         = year_start,
     utc_offset_minutes = utc_offset_minutes,
-    year_fraction      = year_fraction
+    year_fraction      = year_fraction,
+    tokens             = tokens_by_tf,
+    alignment          = if (length(alignment) > 0L) alignment else NULL
   )
 }
 
 #' Build a Calendar by name
 #'
-#' Convenience shortcut: parses a token-style name like `"d365_h24"` or
-#' `"m12_h24"` into its tokens and dispatches to [`calendar_build()`]. The
-#' leading `y_` prefix (year-qualified) is currently stripped and recorded
-#' in `meta$year_qualified` — full year-prefix semantics arrive in a later
-#' phase.
+#' Convenience shortcut. Names listed in [`calendar_catalog()`] build the
+#' catalog design (with `coverage`/`regularity` metadata attached; the
+#' `m12_md*` family uses a dedicated ragged month/day builder). Any other
+#' name is parsed as `_`-joined tokens and dispatched to
+#' [`calendar_build()`]. The leading `y_` prefix (year-qualified) is
+#' currently stripped and recorded in `meta$year_qualified` — full
+#' year-prefix semantics arrive in a later phase.
 #'
 #' @param name Character scalar — a token-style calendar name (`"d365"`,
 #'   `"d365_h24"`, `"m12_h24"`, `"q4_h24"`, ...).
@@ -137,12 +148,24 @@ calendar <- function(name, ...) {
     parsed_name <- sub("^y_", "", parsed_name)
   }
 
+  # Catalog entries first: they carry coverage/regularity metadata, and the
+  # m12_md* designs are non-Cartesian (not expressible as a token product)
+  entry <- .CALENDAR_CATALOG[[parsed_name]]
+  if (!is.null(entry)) {
+    cal <- .calendar_from_catalog(parsed_name, entry, name = name, ...)
+    if (year_qualified) {
+      cal@meta$year_qualified <- TRUE
+    }
+    return(cal)
+  }
+
   tokens <- strsplit(parsed_name, "_", fixed = TRUE)[[1]]
   unknown <- setdiff(tokens, list_tokens())
   if (length(unknown) > 0L) {
     stop("Unknown token(s) in '", name, "': ",
          paste(unknown, collapse = ", "),
-         ". Use list_tokens() to see available tokens, or register_token() to add custom ones.",
+         ". Use list_tokens() to see available tokens and calendar_catalog() ",
+         "for the named designs, or register_token() to add custom tokens.",
          call. = FALSE)
   }
 

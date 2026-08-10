@@ -12,6 +12,13 @@ the spatial dimension.
 This is a **multi-language** project. The R package is the current focus
 (Phase 1); a C++ core (Phase 2) and a Python port (Phase 3) are planned.
 
+## Documentation
+
+- **[Project site](https://optimal2050.github.io/timescales/)** — entry
+  point for all language flavours
+- **[R reference and
+  articles](https://optimal2050.github.io/timescales/r/)**
+
 ## Status
 
 🚧 Pre-release — APIs are unstable. Repository is private until first

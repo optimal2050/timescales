@@ -84,21 +84,11 @@ df <- data.frame(
 )
 cal <- calendar_from_leaves(df, timeframes = "MONTH", name = "m12")
 cal
-#> <timescales::Calendar>
-#>  @ leaves    :'data.frame':  12 obs. of  4 variables:
-#>  .. $ MONTH : chr  "m01" "m02" "m03" "m04" ...
-#>  .. $ share : num  0.0849 0.0767 0.0849 0.0822 0.0849 ...
-#>  .. $ weight: num  31 28 31 30 31 30 31 31 30 31 ...
-#>  .. $ slice : chr  "m01" "m02" "m03" "m04" ...
-#>  @ timeframes: chr "MONTH"
-#>  @ levels    :List of 1
-#>  .. $ MONTH: chr [1:12] "m01" "m02" "m03" "m04" ...
-#>  @ meta      :List of 5
-#>  .. $ name              : chr "m12"
-#>  .. $ desc              : chr ""
-#>  .. $ year_start        :List of 2
-#>  ..  ..$ month: int 1
-#>  ..  ..$ day  : int 1
-#>  .. $ utc_offset_minutes: int 0
-#>  .. $ year_fraction     : num 1
+#> Calendar: m12 
+#> Timeframes (1):
+#>   - MONTH (12)
+#> Leaf slices: 12
+#> year_fraction: 1
+#> year_start: month=1, day=1
+#> utc_offset_minutes: 0
 ```

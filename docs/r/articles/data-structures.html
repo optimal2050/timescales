@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">timescales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.0.0.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.2.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -238,7 +238,8 @@ fixes deterministic ordering for downstream sorting and plotting.</p>
 <td><code>name</code></td>
 <td>character</td>
 <td><code>""</code></td>
-<td><code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code></td>
+<td>
+<code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code>, <code><a href="../reference/register_conversion.html">register_conversion()</a></code> lookup</td>
 </tr>
 <tr class="even">
 <td><code>desc</code></td>
@@ -251,15 +252,16 @@ fixes deterministic ordering for downstream sorting and plotting.</p>
 <td>list</td>
 <td><code>list(month=1L, day=1L)</code></td>
 <td>
-<code><a href="../reference/instant_to_slice.html">instant_to_slice()</a></code>, <code><a href="../reference/expand_calendar.html">expand_calendar()</a></code>
-</td>
+<code><a href="../reference/instant_to_slice.html">instant_to_slice()</a></code> (YDAY/YEAR anchor),
+<code><a href="../reference/expand_calendar.html">expand_calendar()</a></code> (year window)</td>
 </tr>
 <tr class="even">
 <td><code>utc_offset_minutes</code></td>
 <td>integer</td>
 <td><code>0L</code></td>
 <td>
-<code><a href="../reference/instant_to_slice.html">instant_to_slice()</a></code> (planned)</td>
+<code><a href="../reference/instant_to_slice.html">instant_to_slice()</a></code>, <code><a href="../reference/expand_calendar.html">expand_calendar()</a></code>
+(local time = UTC + offset)</td>
 </tr>
 <tr class="odd">
 <td><code>year_fraction</code></td>
@@ -274,6 +276,19 @@ fixes deterministic ordering for downstream sorting and plotting.</p>
 <td>set by <code>calendar("y_...")</code>
 </td>
 </tr>
+<tr class="odd">
+<td><code>tokens</code></td>
+<td>named chr</td>
+<td>—</td>
+<td>provenance: token per timeframe (set by
+<code><a href="../reference/calendar_build.html">calendar_build()</a></code>)</td>
+</tr>
+<tr class="even">
+<td><code>alignment</code></td>
+<td>named list</td>
+<td>—</td>
+<td>alignment rule per timeframe, seeded by tokens</td>
+</tr>
 </tbody>
 </table>
 <p>Anything else you put in <code>@meta</code> is preserved
@@ -281,7 +296,8 @@ untouched.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">cal</span><span class="op">@</span><span class="va">meta</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "name"               "desc"               "year_start"        </span></span>
-<span><span class="co">#&gt; [4] "utc_offset_minutes" "year_fraction"</span></span>
+<span><span class="co">#&gt; [4] "utc_offset_minutes" "year_fraction"      "tokens"            </span></span>
+<span><span class="co">#&gt; [7] "coverage"           "regularity"</span></span>
 <span><span class="va">cal</span><span class="op">@</span><span class="va">meta</span><span class="op">$</span><span class="va">year_start</span></span>
 <span><span class="co">#&gt; $month</span></span>
 <span><span class="co">#&gt; [1] 1</span></span>
@@ -298,16 +314,20 @@ the built-in set and extensible at run time with
 <code><a href="../reference/register_token.html">register_token()</a></code>.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/register_token.html">list_tokens</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt;  [1] "d360"  "d364"  "d365"  "d366"  "h168"  "h24"   "m12"   "m12a"  "min60"</span></span>
-<span><span class="co">#&gt; [10] "q4"    "w52"   "w53"   "wd7"</span></span></code></pre></div>
-<p>A token is a list with two fields:</p>
+<span><span class="co">#&gt;  [1] "d360"  "d364"  "d365"  "d366"  "h168"  "h24"   "hp3"   "m12"   "m12a" </span></span>
+<span><span class="co">#&gt; [10] "min60" "q4"    "s4"    "w52"   "w53"   "wd7"   "wk2"</span></span></code></pre></div>
+<p>A token is a list with two required fields and one optional:</p>
 <ul>
 <li>
 <code>timeframe</code> — one of <code>CORE_TIMEFRAMES</code>,</li>
 <li>
 <code>expand</code> — a zero-argument function returning
 <code>data.frame(label, share)</code> with <code>share</code> summing to
-1.</li>
+1,</li>
+<li>
+<code>alignment</code> (optional) — one of
+<code>ALIGNMENT_RULES</code>, inherited by calendars built from the
+token.</li>
 </ul>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">m12</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/register_token.html">get_token</a></span><span class="op">(</span><span class="st">"m12"</span><span class="op">)</span></span>
@@ -328,25 +348,14 @@ the built-in set and extensible at run time with
 <span>             share <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">90</span>, <span class="fl">91</span>, <span class="fl">92</span>, <span class="fl">92</span><span class="op">)</span> <span class="op">/</span> <span class="fl">365</span><span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/calendar_build.html">calendar_build</a></span><span class="op">(</span><span class="st">"d4q"</span>, <span class="st">"h24"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; &lt;timescales::Calendar&gt;</span></span>
-<span><span class="co">#&gt;  @ leaves    :'data.frame':  96 obs. of  5 variables:</span></span>
-<span><span class="co">#&gt;  .. $ YDAY  : chr  "Q1d" "Q2d" "Q3d" "Q4d" ...</span></span>
-<span><span class="co">#&gt;  .. $ HOUR  : chr  "h00" "h00" "h00" "h00" ...</span></span>
-<span><span class="co">#&gt;  .. $ share : num  0.0103 0.0104 0.0105 0.0105 0.0103 ...</span></span>
-<span><span class="co">#&gt;  .. $ weight: num  90 91 92 92 90 91 92 92 90 91 ...</span></span>
-<span><span class="co">#&gt;  .. $ slice : chr  "Q1d_h00" "Q2d_h00" "Q3d_h00" "Q4d_h00" ...</span></span>
-<span><span class="co">#&gt;  @ timeframes: chr [1:2] "YDAY" "HOUR"</span></span>
-<span><span class="co">#&gt;  @ levels    :List of 2</span></span>
-<span><span class="co">#&gt;  .. $ YDAY: chr [1:4] "Q1d" "Q2d" "Q3d" "Q4d"</span></span>
-<span><span class="co">#&gt;  .. $ HOUR: chr [1:24] "h00" "h01" "h02" "h03" ...</span></span>
-<span><span class="co">#&gt;  @ meta      :List of 5</span></span>
-<span><span class="co">#&gt;  .. $ name              : chr "d4q_h24"</span></span>
-<span><span class="co">#&gt;  .. $ desc              : chr ""</span></span>
-<span><span class="co">#&gt;  .. $ year_start        :List of 2</span></span>
-<span><span class="co">#&gt;  ..  ..$ month: int 1</span></span>
-<span><span class="co">#&gt;  ..  ..$ day  : int 1</span></span>
-<span><span class="co">#&gt;  .. $ utc_offset_minutes: int 0</span></span>
-<span><span class="co">#&gt;  .. $ year_fraction     : num 1</span></span></code></pre></div>
+<span><span class="co">#&gt; Calendar: d4q_h24 </span></span>
+<span><span class="co">#&gt; Timeframes (2):</span></span>
+<span><span class="co">#&gt;   - YDAY (4) [token: d4q]</span></span>
+<span><span class="co">#&gt;   - HOUR (24) [token: h24]</span></span>
+<span><span class="co">#&gt; Leaf slices: 96</span></span>
+<span><span class="co">#&gt; year_fraction: 1</span></span>
+<span><span class="co">#&gt; year_start: month=1, day=1</span></span>
+<span><span class="co">#&gt; utc_offset_minutes: 0</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="construction-validity">Construction validity<a class="anchor" aria-label="anchor" href="#construction-validity"></a>

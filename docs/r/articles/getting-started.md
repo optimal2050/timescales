@@ -28,25 +28,14 @@ The fastest path uses **token-based names**:
 
 cal_my <- calendar("m12_h24")    # 12 months × 24 hours = 288 leaves
 cal_my
-#> <timescales::Calendar>
-#>  @ leaves    :'data.frame':  288 obs. of  5 variables:
-#>  .. $ MONTH : chr  "m01" "m02" "m03" "m04" ...
-#>  .. $ HOUR  : chr  "h00" "h00" "h00" "h00" ...
-#>  .. $ share : num  0.00354 0.0032 0.00354 0.00342 0.00354 ...
-#>  .. $ weight: num  31 28 31 30 31 30 31 31 30 31 ...
-#>  .. $ slice : chr  "m01_h00" "m02_h00" "m03_h00" "m04_h00" ...
-#>  @ timeframes: chr [1:2] "MONTH" "HOUR"
-#>  @ levels    :List of 2
-#>  .. $ MONTH: chr [1:12] "m01" "m02" "m03" "m04" ...
-#>  .. $ HOUR : chr [1:24] "h00" "h01" "h02" "h03" ...
-#>  @ meta      :List of 5
-#>  .. $ name              : chr "m12_h24"
-#>  .. $ desc              : chr ""
-#>  .. $ year_start        :List of 2
-#>  ..  ..$ month: int 1
-#>  ..  ..$ day  : int 1
-#>  .. $ utc_offset_minutes: int 0
-#>  .. $ year_fraction     : num 1
+#> Calendar: m12_h24 
+#> Timeframes (2):
+#>   - MONTH (12) [token: m12]
+#>   - HOUR (24) [token: h24]
+#> Leaf slices: 288
+#> year_fraction: 1
+#> year_start: month=1, day=1
+#> utc_offset_minutes: 0
 ```
 
 Equivalent declarative form:

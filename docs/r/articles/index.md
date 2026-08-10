@@ -19,3 +19,9 @@
 
   Anatomy of the Calendar S7 class, the leaves table, the levels list,
   and meta.
+
+- [Calendar
+  catalog](https://optimal2050.github.io/timescales/r/articles/calendars.md):
+
+  The built-in calendar designs: what ships, how to build them, and how
+  to pick one.

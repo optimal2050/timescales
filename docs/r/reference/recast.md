@@ -2,10 +2,13 @@
 
 The central conversion verb. Takes a `data.frame` keyed by slice in
 calendar `from` with one or more numeric value columns, and returns a
-`data.frame` keyed by slice in calendar `to`. Conversion goes through a
-shared instant grid built by
-[`expand_calendar()`](https://optimal2050.github.io/timescales/r/reference/expand_calendar.md)
-for the given `year`.
+`data.frame` keyed by slice in calendar `to`. Every conversion routes
+`A -> base -> B` through the shared instant grid: source values are
+projected down to instants, then aggregated up to target slices, so
+aggregation and disaggregation are one operation. A pairwise override
+registered with
+[`register_conversion()`](https://optimal2050.github.io/timescales/r/reference/register_conversion.md)
+short-circuits the route.
 
 ## Usage
 
@@ -17,9 +20,10 @@ recast(
   year,
   key = "slice",
   values = NULL,
-  rule = c("weighted_mean", "sum", "mean"),
+  rule = NULL,
   by = NULL,
-  tz = "UTC"
+  tz = "UTC",
+  na_action = c("drop", "error", "keep")
 )
 ```
 
@@ -38,11 +42,14 @@ recast(
 - to:
 
   Destination
-  [`Calendar`](https://optimal2050.github.io/timescales/r/reference/Calendar.md).
+  [`Calendar`](https://optimal2050.github.io/timescales/r/reference/Calendar.md),
+  or a timeframe name of `from` (including `"ANNUAL"`) for
+  within-calendar aggregation via
+  [`calendar_at_level()`](https://optimal2050.github.io/timescales/r/reference/calendar_at_level.md).
 
 - year:
 
-  Integer scalar Gregorian year used to materialise both calendars on a
+  Integer scalar model year used to materialise both calendars on the
   shared grid.
 
 - key:
@@ -56,71 +63,68 @@ recast(
 
 - rule:
 
-  Aggregation rule for many-source-instants-per-target-slice
-  (downsampling). One of:
-
-  - `"weighted_mean"` — share-weighted mean (default; physical units
-    like average load).
-
-  - `"sum"` — sum (extensive quantities like total energy).
-
-  - `"mean"` — unweighted mean.
+  One of
+  [`RECAST_RULES`](https://optimal2050.github.io/timescales/r/reference/RECAST_RULES.md),
+  applied to every value column; or `NULL` (default) to look each column
+  up with
+  [`get_rule()`](https://optimal2050.github.io/timescales/r/reference/get_rule.md),
+  falling back to `"weighted_mean"`.
 
 - by:
 
-  Grid resolution for
-  [`expand_calendar()`](https://optimal2050.github.io/timescales/r/reference/expand_calendar.md).
-  Defaults to the finest of the two calendars.
+  Grid resolution for the shared instant grid. Defaults to the finest
+  timeframe of the two calendars.
 
 - tz:
 
   Time zone for the shared grid. Default `"UTC"`.
 
+- na_action:
+
+  What to do with grid instants not covered by `to`: `"drop"` (default,
+  with a warning — the affected source share is genuinely lost),
+  `"error"`, or `"keep"` (retain an explicit `NA` slice row so totals
+  conserve). Instants not covered by `from` carry no data and are always
+  dropped.
+
 ## Value
 
 A `data.frame` keyed by slice in `to`, with one row per slice in `to`
-and the same value columns as in `x`.
+(plus an `NA` row under `na_action = "keep"`) and the same value columns
+as in `x`.
 
 ## Details
 
-Algorithm:
-
-1.  Expand both calendars onto a shared instant grid for `year`.
-
-2.  Join `x` onto the grid via `from$slice`, broadcasting each source
-    slice's value to every grid instant it covers.
-
-3.  Group by `to$slice` and aggregate per `rule`.
-
-Instants present in one calendar but not the other (e.g. Feb 29) drop
-out silently for now (will be configurable in a later phase).
+Rules (see
+[`RECAST_RULES`](https://optimal2050.github.io/timescales/r/reference/RECAST_RULES.md)):
+`"sum"` splits each source value equally across its slice's grid
+instants before summing up, so totals are conserved. `"weighted_mean"`
+weights by the declared `leaves$share` of each source slice; `"mean"` is
+the plain (time-weighted) mean over instants — the two differ exactly
+when declared shares differ from real-time coverage. `"copy"` requires a
+constant value per target slice; `"sd"` is aggregation-only.
 
 ## Examples
 
 ``` r
-month_df <- data.frame(
-  MONTH  = sprintf("m%02d", 1:12),
-  share  = c(31,28,31,30,31,30,31,31,30,31,30,31) / 365,
-  weight = c(31,28,31,30,31,30,31,31,30,31,30,31)
-)
-cal_m <- calendar_from_leaves(month_df, timeframes = "MONTH", name = "m12")
-
-quarter_df <- data.frame(
-  QUARTER = sprintf("Q%d", 1:4),
-  share   = c(90, 91, 92, 92) / 365,
-  weight  = c(90, 91, 92, 92)
-)
-cal_q <- calendar_from_leaves(quarter_df, timeframes = "QUARTER",
-                              name = "q4")
+cal_m <- calendar_build("m12")
+cal_q <- calendar_build("q4")
 
 x <- data.frame(
   slice = sprintf("m%02d", 1:12),
   load  = seq(100, 210, length.out = 12)
 )
-recast(x, from = cal_m, to = cal_q, year = 2021, rule = "weighted_mean")
+recast(x, from = cal_m, to = cal_q, year = 2021)
 #>   slice     load
 #> 1    Q1 110.0000
 #> 2    Q2 140.0000
 #> 3    Q3 169.8913
 #> 4    Q4 200.0000
+
+# Within-calendar aggregation, and the ANNUAL root
+cal <- calendar_build("q4", "h24")
+xh <- data.frame(slice = S7::prop(cal, "leaves")$slice, energy = 1)
+recast(xh, cal, to = "ANNUAL", year = 2021, rule = "sum")  # 96
+#>    slice energy
+#> 1 ANNUAL     96
 ```

@@ -1,8 +1,10 @@
 Package: timescales
 Title: Nested Timeframes and Calendars for Optimization and Simulation Models
-Version: 0.0.0.9000
-Date: 2026-05-10
-URL: https://github.com/optimal2050/timescales
+Version: 0.2.0.9000
+Date: 2026-08-10
+URL: https://optimal2050.github.io/timescales/r/,
+    https://optimal2050.github.io/timescales/,
+    https://github.com/optimal2050/timescales
 BugReports: https://github.com/optimal2050/timescales/issues
 Authors@R:
     person(given = "Oleg",
@@ -28,11 +30,12 @@ Imports:
     stats,
     utils
 Suggests:
+    ggplot2,
     knitr,
     pkgdown,
     rmarkdown,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
-Config/Needs/website: rmarkdown
+Config/Needs/website: pkgdown, rmarkdown
 VignetteBuilder: knitr
 Config/roxygen2/version: 8.0.0

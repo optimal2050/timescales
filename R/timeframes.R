@@ -25,9 +25,20 @@ CORE_TIMEFRAMES <- c(
   "MINUTE",  # Minute of hour (0-59)
   "SECOND",  # Second of minute (0-59)
   "WDAY",    # Day of week (1-7; numbering depends on `week_start`)
+  "WHOUR",   # Hour of week (0-167, Monday-first ISO)
   "MWEEK",   # Week of month (1-5, calendar-grid aligned to WDAY)
-  "WEEK"     # Week of year (1-53)
+  "WEEK",    # Week of year (1-53)
+  "SEASON",  # Meteorological season (1-4: WIN=Dec-Feb, SPR, SUM, FAL)
+  "DAYTYPE", # Day type (1-2: WORKDAY=Mon-Fri, WEEKEND)
+  "HOURTYPE" # Hour type (1-3: DAY, NIGHT=h22-h05, PEAK=h17-h20)
 )
+
+# Enum label sets for the derived type axes. The numeric codes returned by
+# the extractors index these vectors, so token vocabularies in this order
+# work with the positional fallback in instant_to_slice().
+.SEASON_LABELS   <- c("WIN", "SPR", "SUM", "FAL")
+.DAYTYPE_LABELS  <- c("WORKDAY", "WEEKEND")
+.HOURTYPE_LABELS <- c("DAY", "NIGHT", "PEAK")
 
 # Internal: lubridate-based extractors -----------------------------------------
 .TIMEFRAME_EXTRACTORS <- list(
@@ -44,6 +55,22 @@ CORE_TIMEFRAMES <- c(
     else lubridate::wday(x, week_start = week_start)
   },
   WEEK    = lubridate::week,
+  WHOUR   = function(x, ...) {
+    # Hour of week, Monday-first ISO: Mon 00:00 -> 0, Sun 23:00 -> 167.
+    (lubridate::wday(x, week_start = 1) - 1L) * 24L + lubridate::hour(x)
+  },
+  SEASON  = function(x, ...) {
+    # Meteorological seasons: WIN = Dec-Feb, SPR = Mar-May, ...
+    c(1L, 1L, 2L, 2L, 2L, 3L, 3L, 3L, 4L, 4L, 4L, 1L)[lubridate::month(x)]
+  },
+  DAYTYPE = function(x, ...) {
+    ifelse(lubridate::wday(x, week_start = 1) <= 5L, 1L, 2L)
+  },
+  HOURTYPE = function(x, ...) {
+    # DAY = 1 (default), NIGHT = 2 (h22-h05), PEAK = 3 (h17-h20)
+    h <- lubridate::hour(x)
+    ifelse(h >= 17L & h <= 20L, 3L, ifelse(h >= 22L | h <= 5L, 2L, 1L))
+  },
   MWEEK   = function(x, week_start = NULL, ...) {
     # Calendar-grid week-of-month, aligned to WDAY:
     #   MWEEK = floor((MDAY + WDAY(first_of_month) - 2) / 7) + 1
@@ -66,6 +93,10 @@ CORE_TIMEFRAMES <- c(
   MINUTE  = function(x) sprintf("min%02d", x),
   SECOND  = function(x) sprintf("sec%02d", as.integer(x)),
   WDAY    = function(x) c("SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT")[x],
+  WHOUR   = function(x) sprintf("h%03d", x),
+  SEASON  = function(x) .SEASON_LABELS[x],
+  DAYTYPE = function(x) .DAYTYPE_LABELS[x],
+  HOURTYPE = function(x) .HOURTYPE_LABELS[x],
   MWEEK   = function(x) sprintf("mw%02d", x),
   WEEK    = function(x) sprintf("w%02d", x)
 )

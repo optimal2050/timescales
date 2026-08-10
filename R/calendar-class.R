@@ -103,13 +103,16 @@ Calendar <- S7::new_class(
         lv <- levels[[tf]]
         if (!is.character(lv) || length(lv) == 0L ||
             anyNA(lv) || any(lv == "") || anyDuplicated(lv)) {
-          errs <- c(errs, sprintf("`levels[[\"%s\"]]` must be a unique non-empty character vector", tf))
+          errs <- c(errs, sprintf(
+            "`levels[[\"%s\"]]` must be a unique non-empty character vector",
+            tf))
           next
         }
         seen <- unique(as.character(leaves[[tf]]))
         if (!setequal(seen, lv)) {
           errs <- c(errs, sprintf(
-            "`levels[[\"%s\"]]` must contain exactly the values present in `leaves$%s`",
+            paste0("`levels[[\"%s\"]]` must contain exactly the values ",
+                   "present in `leaves$%s`"),
             tf, tf))
         }
       }
@@ -120,7 +123,8 @@ Calendar <- S7::new_class(
       sid <- leaves$slice
       if (!is.character(sid) || anyNA(sid) || any(sid == "") ||
           anyDuplicated(sid)) {
-        errs <- c(errs, "`leaves$slice` must be a unique non-empty character vector")
+        errs <- c(errs,
+                  "`leaves$slice` must be a unique non-empty character vector")
       }
     }
     if ("share" %in% names(leaves)) {
@@ -142,13 +146,15 @@ Calendar <- S7::new_class(
     } else {
       yf <- meta$year_fraction %||% 1
       if (!is.numeric(yf) || length(yf) != 1L || !is.finite(yf) || yf <= 0) {
-        errs <- c(errs, "`meta$year_fraction` must be a single finite numeric > 0")
+        errs <- c(errs,
+                  "`meta$year_fraction` must be a single finite numeric > 0")
       } else if ("share" %in% names(leaves) && is.numeric(leaves$share) &&
                  all(is.finite(leaves$share))) {
         if (abs(sum(leaves$share) - yf) > 1e-9) {
-          errs <- c(errs,
-            sprintf("sum(`leaves$share`) (%g) must equal `meta$year_fraction` (%g)",
-                    sum(leaves$share), yf))
+          errs <- c(errs, sprintf(
+            paste0("sum(`leaves$share`) (%g) must equal ",
+                   "`meta$year_fraction` (%g)"),
+            sum(leaves$share), yf))
         }
       }
 
@@ -157,11 +163,15 @@ Calendar <- S7::new_class(
         if (!is.list(ys) || is.null(ys$month) || is.null(ys$day)) {
           errs <- c(errs, "`meta$year_start` must be `list(month = , day = )`")
         } else {
-          m <- as.integer(ys$month); d <- as.integer(ys$day)
-          if (length(m) != 1L || is.na(m) || m < 1 || m > 12)
-            errs <- c(errs, "`meta$year_start$month` must be an integer in 1:12")
-          if (length(d) != 1L || is.na(d) || d < 1 || d > 31)
+          m <- as.integer(ys$month)
+          d <- as.integer(ys$day)
+          if (length(m) != 1L || is.na(m) || m < 1 || m > 12) {
+            errs <- c(errs,
+                      "`meta$year_start$month` must be an integer in 1:12")
+          }
+          if (length(d) != 1L || is.na(d) || d < 1 || d > 31) {
             errs <- c(errs, "`meta$year_start$day` must be an integer in 1:31")
+          }
         }
       }
 
@@ -169,7 +179,8 @@ Calendar <- S7::new_class(
       if (!is.null(uom)) {
         if (!is.numeric(uom) || length(uom) != 1L || !is.finite(uom) ||
             abs(uom - round(uom)) > 1e-10) {
-          errs <- c(errs, "`meta$utc_offset_minutes` must be a single integer (minutes)")
+          errs <- c(errs, paste0("`meta$utc_offset_minutes` must be a single ",
+                                 "integer (minutes)"))
         }
       }
     }
@@ -196,12 +207,21 @@ print.Calendar <- function(x, ...) {
 
   name <- meta$name %||% ""
   cat("Calendar:", if (nzchar(name)) name else "<unnamed>", "\n")
-  if (!is.null(meta$desc) && nzchar(meta$desc)) cat("Description:", meta$desc, "\n")
+  if (!is.null(meta$desc) && nzchar(meta$desc)) {
+    cat("Description:", meta$desc, "\n")
+  }
 
   cat("Timeframes (", length(tf), "):\n", sep = "")
   for (t in tf) {
     n <- length(lv[[t]])
-    cat("  - ", t, " (", n, ")\n", sep = "")
+    tok <- meta$tokens[[t]]
+    aln <- meta$alignment[[t]]
+    extras <- c(if (!is.null(tok)) paste0("token: ", tok),
+                if (!is.null(aln)) paste0("alignment: ", aln))
+    cat("  - ", t, " (", n, ")",
+        if (length(extras) > 0) paste0(" [", paste(extras, collapse = ", "),
+                                       "]"),
+        "\n", sep = "")
   }
   cat("Leaf slices: ", nrow(lf), "\n", sep = "")
   cat("year_fraction: ", meta$year_fraction %||% 1, "\n", sep = "")
