@@ -27,3 +27,31 @@
 #'   S7::prop(calendar("q4"), "leaves")
 #' )
 "calendars"
+
+#' Hourly weather sample: three cities, year 2019
+#'
+#' NASA MERRA-2 reanalysis extracted for Helsinki, Lima, and Sydney — a
+#' high-latitude / equatorial / southern-hemisphere contrast, used by the
+#' weather-data vignette to demonstrate mapping instants onto calendars,
+#' calendar heatmaps, and recasting across resolutions.
+#'
+#' @format A `data.frame` with 26,280 rows (3 cities x 8,760 hours) and
+#'   5 columns:
+#' \describe{
+#'   \item{`city`}{`"Helsinki"`, `"Lima"`, or `"Sydney"`.}
+#'   \item{`datetime`}{POSIXct, UTC; hourly instants of 2019 stamped at
+#'     30 minutes past the hour (the MERRA-2 hourly-mean convention).}
+#'   \item{`T10M`}{Air temperature at 10 m, degrees C.}
+#'   \item{`W50M`}{Wind speed at 50 m, m/s.}
+#'   \item{`SWGDN`}{Surface incoming shortwave irradiance, W/m2.}
+#' }
+#'
+#' @source NASA MERRA-2 reanalysis, Global Modeling and Assimilation
+#'   Office (GMAO), extracted with the `merra2ools` package
+#'   (\url{https://github.com/optimal2050/merra2ools}); subset built by
+#'   `data-raw/merra2_cities.R`.
+#'
+#' @examples
+#' head(merra2_cities)
+#' with(subset(merra2_cities, city == "Helsinki"), range(T10M))
+"merra2_cities"

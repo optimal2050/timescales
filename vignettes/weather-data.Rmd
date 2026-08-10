@@ -1,0 +1,146 @@
+---
+title: "Weather data on calendars"
+description: "MERRA-2 samples on calendars: heatmap layers, energypal palettes, and recasting across resolutions."
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Weather data on calendars}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+library(timescales)
+viz <- requireNamespace("ggplot2", quietly = TRUE) &&
+  requireNamespace("energypal", quietly = TRUE)
+if (viz) library(ggplot2)
+```
+
+## The sample
+
+`merra2_cities` ships three contrasting hourly weather series for 2019 —
+Helsinki (high latitude), Lima (equatorial), Sydney (southern
+hemisphere) — extracted from NASA's MERRA-2 reanalysis:
+
+```{r}
+str(merra2_cities)
+```
+
+Instants are stamped at 30 minutes past the hour (the MERRA-2
+hourly-mean convention); `instant_to_slice()` floors them into hourly
+slices, so no preprocessing is needed.
+
+## Datetime data on a calendar
+
+`geom_calendar()` cuts a datetime column to slices and aggregates into
+tiles. Helsinki wind on the full-resolution `d365_h24` calendar, with
+energypal's Global Wind Atlas ramp:
+
+```{r wind-heatmap, fig.width = 8, fig.height = 3.6, eval = viz}
+hel <- subset(merra2_cities, city == "Helsinki")
+ggplot(hel) +
+  geom_calendar(calendar = calendars$d365_h24,
+                datetime = "datetime", z = "W50M") +
+  energypal::scale_fill_energy_c(palette = "windatlas") +
+  scale_x_discrete(breaks = sprintf("d%03d", seq(1, 365, by = 30))) +
+  scale_y_discrete(breaks = sprintf("h%02d", seq(0, 23, by = 4))) +
+  labs(x = "day of year", y = "hour", fill = "m/s",
+       title = "Helsinki wind speed at 50 m, 2019") +
+  theme_calendar()
+```
+
+The representative-day view compresses the same year into `m12_h24`
+(month x hour), and the `by=` argument carries the `city` column through
+aggregation so facets work. Times are UTC, so each city's solar noon
+sits at its longitude's offset (Lima ~16h, Sydney ~01h — a calendar
+with `utc_offset_minutes` shifts this to local time):
+
+```{r solar-heatmap, fig.width = 8, fig.height = 3.2, eval = viz}
+ggplot(merra2_cities) +
+  geom_calendar(calendar = calendars$m12_h24,
+                datetime = "datetime", z = "SWGDN", by = "city") +
+  facet_wrap(~city) +
+  energypal::scale_fill_energy_c(palette = "solaratlas_ghi") +
+  labs(x = "month", y = "hour", fill = "W/m2",
+       title = "Mean solar irradiance by month and hour, 2019") +
+  theme_calendar()
+```
+
+## Slice-keyed data
+
+Once data lives on slices, `geom_calendar_tile()` draws it directly, and
+`calendar_join()` attaches timeframe columns for manual workflows:
+
+```{r slice-tiles, fig.width = 7, fig.height = 3, eval = viz}
+cal <- calendars$m12_h24
+hel$slice <- instant_to_slice(hel$datetime, cal)
+hel_slices <- aggregate(T10M ~ slice, data = hel, FUN = mean)
+
+ggplot(hel_slices) +
+  geom_calendar_tile(calendar = cal, z = "T10M") +
+  scale_fill_gradientn(colours = energypal::energypal("solaratlas_ghi")) +
+  labs(x = "month", y = "hour", fill = "degC",
+       title = "Helsinki mean temperature (m12_h24)") +
+  theme_calendar()
+```
+
+(energypal deliberately ships no temperature palette; the solar-atlas
+ramp is borrowed here and labeled as such.)
+
+## Recasting across calendars
+
+Slice-keyed panels recast between any two calendars, and identifier
+columns like `city` are preserved as grouping columns — the same
+mechanics that let mixed pipelines chain
+`x |> calendar_recast(...) |> geo_recast(...)`. Aggregate all three
+cities onto `m12_h24`, then move the panel across resolutions:
+
+```{r recast-panel}
+all3 <- merra2_cities
+all3$slice <- instant_to_slice(all3$datetime, cal)
+panel <- aggregate(cbind(T10M, W50M) ~ city + slice, data = all3,
+                   FUN = mean)
+
+# month x hour -> quarter x hourtype (cross-cutting hierarchies)
+q_hp <- calendar_recast(panel, cal, calendars$q4_hp3, year = 2019)
+head(q_hp, 6)
+
+# ... and to the seasonal view
+seasonal <- calendar_recast(panel, cal, calendars$s4, year = 2019)
+seasonal[seasonal$city == "Helsinki", ]
+```
+
+Conservation under `rule = "sum"` holds per identifier group. Treating
+mean irradiance as an extensive proxy (energy per slice), each city's
+annual total survives the trip to `"ANNUAL"`:
+
+```{r conservation}
+irr <- aggregate(SWGDN ~ city + slice, data = all3, FUN = sum)
+annual <- calendar_recast(irr, cal, to = "ANNUAL", year = 2019,
+                          rule = "sum")
+annual
+# identical to summing the slice panel directly:
+tapply(irr$SWGDN, irr$city, sum)
+```
+
+## Comparing resolutions
+
+The same temperature series at monthly resolution for all three cities,
+with `energypal_gradient()` spreading one carrier color into related
+tones (the levels aren't energy carriers, so explicit colors sidestep
+the label matcher):
+
+```{r resolutions, fig.width = 7, fig.height = 3.4, eval = viz}
+m_t <- calendar_recast(panel[c("city", "slice", "T10M")], cal,
+                       to = "MONTH", year = 2019)
+
+tones <- energypal::energypal_gradient(
+  energypal::energypal("carriers")[["Solar"]], n = 3)
+
+ggplot(m_t, aes(slice, T10M, color = city, group = city)) +
+  geom_line(linewidth = 1) +
+  scale_color_manual(values = unname(tones)) +
+  labs(x = NULL, y = "degC",
+       title = "Monthly mean temperature, 2019") +
+  theme_calendar()
+```

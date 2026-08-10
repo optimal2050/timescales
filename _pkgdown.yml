@@ -22,11 +22,12 @@ reference:
       - calendar_from_leaves
       - calendar_build
       - calendar_at_level
-  - title: "Catalog"
-    desc: "The built-in calendar designs."
+  - title: "Catalog and data"
+    desc: "The built-in calendar designs and sample data."
     contents:
       - calendar_catalog
       - calendars
+      - merra2_cities
   - title: "Tokens"
     desc: "Reusable label vocabularies for one timeframe."
     contents:
@@ -41,7 +42,9 @@ reference:
     contents:
       - instant_to_slice
       - expand_calendar
+      - calendar_recast
       - recast
+      - calendar_join
       - base_calendar
   - title: "Visualization"
     desc: "Draw calendar structures and data on calendars."
@@ -49,6 +52,7 @@ reference:
       - calendar_layout
       - calendar_autoplot
       - calendar_plot
+      - geom_calendar
   - title: "Rules and registries"
     desc: "Aggregation and alignment semantics, and their registries."
     contents:
@@ -73,3 +77,4 @@ articles:
       - concepts
       - data-structures
       - calendars
+      - weather-data

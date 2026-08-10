@@ -178,7 +178,7 @@ test_that("recast aggregates monthly -> quarterly with day-weighted mean", {
   cal_q <- .quarter_cal()
   x <- data.frame(slice = sprintf("m%02d", 1:12),
                   load  = seq(100, 210, length.out = 12))
-  out <- recast(x, from = cal_m, to = cal_q, year = 2021,
+  out <- calendar_recast(x, from = cal_m, to = cal_q, year = 2021,
                 rule = "weighted_mean", by = "day")
   expect_named(out, c("slice", "load"))
   expect_equal(out$slice, sprintf("Q%d", 1:4))
@@ -194,7 +194,7 @@ test_that("recast 'sum' conserves totals (the 0.1.0 defect)", {
   cal_q <- .quarter_cal()
   # one unit per month -> each quarter gets 3, total stays 12
   x <- data.frame(slice = sprintf("m%02d", 1:12), v = rep(1, 12))
-  out <- recast(x, from = cal_m, to = cal_q, year = 2021,
+  out <- calendar_recast(x, from = cal_m, to = cal_q, year = 2021,
                 rule = "sum", by = "day")
   expect_equal(out$v, rep(3, 4))
   expect_equal(sum(out$v), sum(x$v))
@@ -203,7 +203,7 @@ test_that("recast 'sum' conserves totals (the 0.1.0 defect)", {
 test_that("recast 'sum' conserves through a two-level hierarchy", {
   cal  <- calendar_build("q4", "h24")
   x <- data.frame(slice = S7::prop(cal, "leaves")$slice, v = 1)
-  out <- recast(x, from = cal, to = calendar_build("q4"), year = 2021,
+  out <- calendar_recast(x, from = cal, to = calendar_build("q4"), year = 2021,
                 rule = "sum")
   expect_equal(sum(out$v), 96)  # was 8760 before the fix
   expect_equal(out$v, rep(24, 4))
@@ -221,9 +221,9 @@ test_that("recast 'weighted_mean' reads declared shares (differs from mean)", {
   v <- c(1, 10, 2, rep(0, 9))
   x <- data.frame(slice = sprintf("m%02d", 1:12), v = v)
 
-  wm <- recast(x, cal_eq, cal_q, year = 2021, rule = "weighted_mean",
+  wm <- calendar_recast(x, cal_eq, cal_q, year = 2021, rule = "weighted_mean",
                by = "day")
-  mn <- recast(x, cal_eq, cal_q, year = 2021, rule = "mean", by = "day")
+  mn <- calendar_recast(x, cal_eq, cal_q, year = 2021, rule = "mean", by = "day")
 
   # weighted_mean: equal declared shares -> plain average of the months
   expect_equal(wm$v[1], mean(v[1:3]), tolerance = 1e-10)
@@ -237,12 +237,12 @@ test_that("recast 'copy' returns the common value and rejects non-constant", {
   cal_m <- .month_cal()
   cal_q <- .quarter_cal()
   x_const <- data.frame(slice = sprintf("m%02d", 1:12), v = rep(7, 12))
-  out <- recast(x_const, cal_m, cal_q, year = 2021, rule = "copy", by = "day")
+  out <- calendar_recast(x_const, cal_m, cal_q, year = 2021, rule = "copy", by = "day")
   expect_equal(out$v, rep(7, 4))
 
   x_vary <- data.frame(slice = sprintf("m%02d", 1:12), v = 1:12 * 1.0)
   expect_error(
-    recast(x_vary, cal_m, cal_q, year = 2021, rule = "copy", by = "day"),
+    calendar_recast(x_vary, cal_m, cal_q, year = 2021, rule = "copy", by = "day"),
     "not constant"
   )
 })
@@ -251,7 +251,7 @@ test_that("recast 'sd' measures spread of the fine signal", {
   cal_m <- .month_cal()
   cal_q <- .quarter_cal()
   x <- data.frame(slice = sprintf("m%02d", 1:12), v = 1:12 * 1.0)
-  out <- recast(x, cal_m, cal_q, year = 2021, rule = "sd", by = "day")
+  out <- calendar_recast(x, cal_m, cal_q, year = 2021, rule = "sd", by = "day")
   expected_q1 <- stats::sd(c(rep(1, 31), rep(2, 28), rep(3, 31)))
   expect_equal(out$v[1], expected_q1, tolerance = 1e-10)
 })
@@ -261,12 +261,12 @@ test_that("recast disaggregates: sum splits, weighted_mean copies", {
   cal_q <- .quarter_cal()
   xq <- data.frame(slice = sprintf("Q%d", 1:4), v = c(90, 91, 92, 92) * 1.0)
 
-  down_sum <- recast(xq, cal_q, cal_m, year = 2021, rule = "sum", by = "day")
+  down_sum <- calendar_recast(xq, cal_q, cal_m, year = 2021, rule = "sum", by = "day")
   # Q1's 90 split over its 90 days: January gets 31
   expect_equal(down_sum$v[1], 31, tolerance = 1e-10)
   expect_equal(sum(down_sum$v), sum(xq$v), tolerance = 1e-10)
 
-  down_int <- recast(xq, cal_q, cal_m, year = 2021, rule = "weighted_mean",
+  down_int <- calendar_recast(xq, cal_q, cal_m, year = 2021, rule = "weighted_mean",
                      by = "day")
   expect_equal(down_int$v[1:3], rep(90, 3), tolerance = 1e-10)
 })
@@ -275,7 +275,7 @@ test_that("recast roundtrips identity on the same calendar", {
   cal <- .month_cal()
   x <- data.frame(slice = sprintf("m%02d", 1:12),
                   v = seq_len(12) * 1.5)
-  out <- recast(x, from = cal, to = cal, year = 2021, by = "day")
+  out <- calendar_recast(x, from = cal, to = cal, year = 2021, by = "day")
   expect_equal(out$v, x$v, tolerance = 1e-10)
 })
 
@@ -284,7 +284,7 @@ test_that("recast roundtrips identity on the same calendar", {
 test_that("recast accepts a timeframe name for `to`", {
   cal <- calendar_build("q4", "h24")
   x <- data.frame(slice = S7::prop(cal, "leaves")$slice, v = 1)
-  out <- recast(x, cal, to = "QUARTER", year = 2021, rule = "sum")
+  out <- calendar_recast(x, cal, to = "QUARTER", year = 2021, rule = "sum")
   expect_equal(out$slice, sprintf("Q%d", 1:4))
   expect_equal(sum(out$v), 96)
 })
@@ -292,7 +292,7 @@ test_that("recast accepts a timeframe name for `to`", {
 test_that("recast to = 'ANNUAL' aggregates to the root", {
   cal <- calendar_build("q4", "h24")
   x <- data.frame(slice = S7::prop(cal, "leaves")$slice, v = 1)
-  out <- recast(x, cal, to = "ANNUAL", year = 2021, rule = "sum")
+  out <- calendar_recast(x, cal, to = "ANNUAL", year = 2021, rule = "sum")
   expect_equal(out$slice, "ANNUAL")
   expect_equal(out$v, 96)
 })
@@ -304,7 +304,7 @@ test_that("na_action = 'drop' warns and loses uncovered share", {
   cal_d360 <- calendar_build("d360")  # Dec 27-31 uncovered
   x <- data.frame(slice = sprintf("m%02d", 1:12), v = rep(1, 12))
   expect_warning(
-    out <- recast(x, cal_m, cal_d360, year = 2021, rule = "sum", by = "day"),
+    out <- calendar_recast(x, cal_m, cal_d360, year = 2021, rule = "sum", by = "day"),
     "not covered by `to`"
   )
   expect_lt(sum(out$v, na.rm = TRUE), 12)
@@ -315,7 +315,7 @@ test_that("na_action = 'error' stops on uncovered instants", {
   cal_d360 <- calendar_build("d360")
   x <- data.frame(slice = sprintf("m%02d", 1:12), v = rep(1, 12))
   expect_error(
-    recast(x, cal_m, cal_d360, year = 2021, rule = "sum", by = "day",
+    calendar_recast(x, cal_m, cal_d360, year = 2021, rule = "sum", by = "day",
            na_action = "error"),
     "not covered"
   )
@@ -325,7 +325,7 @@ test_that("na_action = 'keep' conserves totals in an explicit NA row", {
   cal_m <- .month_cal()
   cal_d360 <- calendar_build("d360")
   x <- data.frame(slice = sprintf("m%02d", 1:12), v = rep(1, 12))
-  out <- recast(x, cal_m, cal_d360, year = 2021, rule = "sum", by = "day",
+  out <- calendar_recast(x, cal_m, cal_d360, year = 2021, rule = "sum", by = "day",
                 na_action = "keep")
   expect_true(anyNA(out$slice))
   expect_equal(sum(out$v, na.rm = TRUE), 12, tolerance = 1e-10)
@@ -341,7 +341,7 @@ test_that("recast consults the per-parameter rule registry", {
   x <- data.frame(slice = sprintf("m%02d", 1:12),
                   energy = rep(1, 12),        # registered -> sum
                   load   = rep(5, 12))        # unregistered -> weighted_mean
-  out <- recast(x, cal_m, cal_q, year = 2021, by = "day")
+  out <- calendar_recast(x, cal_m, cal_q, year = 2021, by = "day")
   expect_equal(sum(out$energy), 12)
   expect_equal(out$load, rep(5, 4))
 })
@@ -350,7 +350,7 @@ test_that("a registered pairwise conversion short-circuits the grid route", {
   on.exit(clear_conversions(), add = TRUE)
   marker <- data.frame(slice = "override", v = -1)
   register_conversion("m12", "q4", function(x, from, to, ...) marker)
-  out <- recast(data.frame(slice = "m01", v = 1),
+  out <- calendar_recast(data.frame(slice = "m01", v = 1),
                 .month_cal(), .quarter_cal(), year = 2021)
   expect_identical(out, marker)
 })
@@ -363,7 +363,7 @@ test_that("recast warns when source slices are missing from x", {
   x <- data.frame(slice = sprintf("m%02d", 1:6),  # only first half-year
                   load  = 1:6 * 1.0)
   expect_warning(
-    recast(x, from = cal_m, to = cal_q, year = 2021, by = "day"),
+    calendar_recast(x, from = cal_m, to = cal_q, year = 2021, by = "day"),
     "missing from `x`"
   )
 })
@@ -373,7 +373,7 @@ test_that("recast errors when key column missing", {
   cal_q <- .quarter_cal()
   x <- data.frame(month = sprintf("m%02d", 1:12), v = 1:12)
   expect_error(
-    recast(x, from = cal_m, to = cal_q, year = 2021),
+    calendar_recast(x, from = cal_m, to = cal_q, year = 2021),
     "no column named"
   )
 })
@@ -384,7 +384,7 @@ test_that("recast handles multiple value columns", {
   x <- data.frame(slice = sprintf("m%02d", 1:12),
                   a = 1:12 * 1.0,
                   b = 12:1 * 1.0)
-  out <- recast(x, from = cal_m, to = cal_q, year = 2021, by = "day")
+  out <- calendar_recast(x, from = cal_m, to = cal_q, year = 2021, by = "day")
   expect_named(out, c("slice", "a", "b"))
   expect_equal(nrow(out), 4)
 })
@@ -393,6 +393,83 @@ test_that("recast leap-year conservation: shares split over real instants", {
   cal_m <- .month_cal()
   cal_q <- .quarter_cal()
   x <- data.frame(slice = sprintf("m%02d", 1:12), v = rep(1, 12))
-  out <- recast(x, cal_m, cal_q, year = 2020, rule = "sum", by = "day")
+  out <- calendar_recast(x, cal_m, cal_q, year = 2020, rule = "sum", by = "day")
   expect_equal(sum(out$v), 12, tolerance = 1e-10)  # Feb has 29 grid days
+})
+
+# calendar_recast: panel/id columns (geoscales harmonization) -----------------
+
+test_that("id columns are preserved as grouping columns with types intact", {
+  cal_m <- .month_cal()
+  cal_q <- .quarter_cal()
+  x <- rbind(
+    data.frame(slice = sprintf("m%02d", 1:12), city = "Helsinki",
+               year = 2019L, v = rep(1, 12)),
+    data.frame(slice = sprintf("m%02d", 1:12), city = "Lima",
+               year = 2019L, v = rep(2, 12))
+  )
+  out <- calendar_recast(x, cal_m, cal_q, year = 2021, rule = "sum",
+                         by = "day", values = "v")
+  expect_named(out, c("slice", "city", "year", "v"))
+  expect_equal(nrow(out), 8L)  # 2 cities x 4 quarters
+  expect_type(out$year, "integer")
+  # per-city conservation
+  expect_equal(sum(out$v[out$city == "Helsinki"]), 12, tolerance = 1e-10)
+  expect_equal(sum(out$v[out$city == "Lima"]), 24, tolerance = 1e-10)
+})
+
+test_that("values auto-detection excludes timeframe columns", {
+  cal_m <- .month_cal()
+  cal_q <- .quarter_cal()
+  # a joined table carrying the MONTH timeframe column must not sweep it in
+  x <- data.frame(slice = sprintf("m%02d", 1:12),
+                  MONTH = sprintf("m%02d", 1:12),
+                  v = rep(1, 12))
+  out <- calendar_recast(x, cal_m, cal_q, year = 2021, rule = "sum",
+                         by = "day")
+  expect_named(out, c("slice", "v"))  # MONTH dropped, not id, not value
+  expect_equal(sum(out$v), 12)
+})
+
+test_that("unknown source keys warn and are ignored", {
+  cal_m <- .month_cal()
+  cal_q <- .quarter_cal()
+  x <- data.frame(slice = c(sprintf("m%02d", 1:12), "not_a_slice"),
+                  v = c(rep(1, 12), 99))
+  expect_warning(
+    out <- calendar_recast(x, cal_m, cal_q, year = 2021, rule = "sum",
+                           by = "day"),
+    "not slices of `from`"
+  )
+  expect_equal(sum(out$v), 12)
+})
+
+test_that("key = NULL resolves to slice; missing key errors with hint", {
+  cal_m <- .month_cal()
+  x <- data.frame(month = sprintf("m%02d", 1:12), v = 1:12)
+  expect_error(
+    calendar_recast(x, cal_m, .quarter_cal(), year = 2021),
+    "pass `key="
+  )
+})
+
+test_that("recast() is a deprecated alias with identical results", {
+  cal_m <- .month_cal()
+  cal_q <- .quarter_cal()
+  x <- data.frame(slice = sprintf("m%02d", 1:12), v = rep(1, 12))
+  expect_warning(
+    old <- recast(x, cal_m, cal_q, year = 2021, rule = "sum", by = "day"),
+    "deprecated|calendar_recast"
+  )
+  new <- calendar_recast(x, cal_m, cal_q, year = 2021, rule = "sum",
+                         by = "day")
+  expect_identical(old, new)
+})
+
+test_that("validator rejects reserved timeframe names", {
+  df <- data.frame(weight = c("w1", "w2"), share = c(0.5, 0.5))
+  expect_error(
+    calendar_from_leaves(df, timeframes = "weight"),
+    "reserved"
+  )
 })

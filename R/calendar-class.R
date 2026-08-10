@@ -82,6 +82,11 @@ Calendar <- S7::new_class(
       errs <- c(errs, "`timeframes` must be a non-empty character vector")
     } else if (anyDuplicated(timeframes)) {
       errs <- c(errs, "`timeframes` must be unique")
+    } else if (any(timeframes %in% c("slice", "share", "weight"))) {
+      # reserved leaf-table column names: a timeframe called `share` would
+      # silently corrupt the leaves table
+      errs <- c(errs, paste0("`timeframes` must not use the reserved names ",
+                             "slice, share, weight"))
     } else {
       missing_cols <- setdiff(timeframes, names(leaves))
       if (length(missing_cols) > 0) {

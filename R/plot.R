@@ -353,9 +353,7 @@ calendar_plot <- function(x, data = NULL,
     ggplot2::scale_x_discrete(hd$x_tf, breaks = hd$x_breaks) +
     ggplot2::scale_y_discrete(hd$y_tf, breaks = hd$y_breaks) +
     ggplot2::labs(fill = hd$fill_label) +
-    ggplot2::theme_minimal() +
-    ggplot2::theme(panel.grid = ggplot2::element_blank(),
-                   axis.text = ggplot2::element_text(size = 8))
+    theme_calendar()
 
   if (!is.null(palette)) {
     p <- p + ggplot2::scale_fill_viridis_c(option = palette)

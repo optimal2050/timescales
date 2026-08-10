@@ -115,7 +115,7 @@ test_that("type-axis calendars map instants to composite slices", {
 
 test_that("recast conserves across catalog calendars (m12 -> s4)", {
   x <- data.frame(slice = sprintf("m%02d", 1:12), v = rep(1, 12))
-  out <- recast(x, calendar("m12"), calendar("s4"), year = 2021,
+  out <- calendar_recast(x, calendar("m12"), calendar("s4"), year = 2021,
                 rule = "sum", by = "day")
   expect_equal(sum(out$v), 12, tolerance = 1e-10)
   expect_setequal(out$slice, c("WIN", "SPR", "SUM", "FAL"))

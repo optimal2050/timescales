@@ -1,5 +1,49 @@
 # timescales (development version)
 
+## `calendar_recast()`, panel data, and the naming convention
+
+* **`recast()` is deprecated; the verb is now `calendar_recast()`.** The
+  stack-wide convention reserves bare names for foreign generics
+  (`plot`, `autoplot`, `print`) and prefixes owned operations by their
+  object — `calendar_recast()` pairs with `geoscales::geo_recast()`, so
+  mixed pipelines read
+  `x |> calendar_recast(...) |> geo_recast(...)`. (Bare `recast` also
+  risked masking against the retired reshape2; bare `filter`/`rank`/
+  `expand`/`children` are outright collisions and will never be used.)
+* **Behavior fix: identifier (panel) columns are preserved.** Previously
+  a city x slice table silently returned only the first city's values;
+  now non-key, non-value columns group the aggregation, keep their
+  types, and pass through to the output — per group, the full target
+  slice vocabulary is emitted.
+* **Behavior fix: `values` auto-detection excludes `from`'s timeframe
+  columns** (a joined `MONTH` column no longer gets swept into the
+  values); numeric identifiers like `year` still need explicit
+  exclusion.
+* `key = NULL` default (resolving to `"slice"`), a warning for source
+  keys unknown to the calendar, geoscales-style error messages via new
+  internal `.stop()`/`.warn()`/`.preview()` helpers, and a validator
+  guard rejecting reserved timeframe names (`slice`, `share`,
+  `weight`).
+
+## ggplot2 layers and weather sample
+
+* **`calendar_join()`** attaches a calendar's timeframe columns (as
+  vocabulary-ordered factors) plus `share`/`weight` to slice-keyed
+  data — the foundation for manual ggplot2 workflows.
+* **`geom_calendar()`** (datetime mode) and **`geom_calendar_tile()`**
+  (slice mode): composable single tile layers, plus the shared
+  **`theme_calendar()`**. Implemented as layer factories over the plot
+  data rather than ggproto Stats — ggplot2 maps positional scales
+  before statistics run, so a Stat cannot emit the discrete axes a
+  calendar heatmap needs (the reason timeslices carried 600+ lines of
+  custom scale code, which is deliberately not ported). Calendar inputs
+  are column-name arguments (`datetime=`, `slice=`, `z=`); `by=` carries
+  facet columns through aggregation.
+* **`merra2_cities`** dataset: hourly 2019 weather (temperature, wind,
+  solar) for Helsinki, Lima, and Sydney from NASA MERRA-2 (~60 KB), and
+  a new **weather-data vignette** combining the layers, energypal
+  palettes, and cross-calendar recasting. energypal joins Suggests.
+
 ## Calendar visualization
 
 First viz layer, mirroring `geoscales` (ggplot2 in Suggests, no custom

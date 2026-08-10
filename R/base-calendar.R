@@ -3,7 +3,7 @@
 # =============================================================================
 # The analogue of geoscales' atom rows in `@leaves`: real POSIXct instants,
 # multi-year (so leap years are representable), generated on demand and
-# cached rather than stored on any object. Every `recast()` routes through
+# cached rather than stored on any object. Every `calendar_recast()` routes through
 # this grid; `base_calendar()` exposes it directly for converting data
 # from/to date-time form.
 # =============================================================================
@@ -68,7 +68,7 @@ base_calendar <- function(years, by = "hour", tz = "UTC") {
 #' whole-year root — a one-slice calendar (the root is named `ANNUAL`, never
 #' `YEAR`, which is reserved for the Gregorian-year axis).
 #'
-#' Together with [`recast()`]'s acceptance of a timeframe name for `to=`,
+#' Together with [`calendar_recast()`]'s acceptance of a timeframe name for `to=`,
 #' this covers within-calendar aggregation (e.g. `q4_h24 -> q4`) without
 #' constructing a second calendar by hand.
 #'

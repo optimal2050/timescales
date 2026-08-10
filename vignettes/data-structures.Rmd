@@ -139,14 +139,14 @@ is always internally consistent.
 
 ## Conversion outputs
 
-`recast()` returns a `data.frame` with the same column layout as its
+`calendar_recast()` returns a `data.frame` with the same column layout as its
 input — `slice` plus the value columns — but with the target
 calendar's slice IDs.
 
 ```{r}
 src <- data.frame(slice = sprintf("m%02d", 1:12),
                   load  = seq(100, 210, length.out = 12))
-recast(src, from = calendar("m12"), to = calendar("q4"),
+calendar_recast(src, from = calendar("m12"), to = calendar("q4"),
        year = 2025, rule = "weighted_mean", by = "day")
 ```
 

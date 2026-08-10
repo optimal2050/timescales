@@ -320,7 +320,7 @@ expand_calendar <- function(calendar, year, by = NULL, tz = "UTC",
 }
 
 # -----------------------------------------------------------------------------
-# recast()
+# calendar_recast()
 # -----------------------------------------------------------------------------
 
 #' Recast values from one calendar to another
@@ -333,20 +333,33 @@ expand_calendar <- function(calendar, year, by = NULL, tz = "UTC",
 #' aggregation and disaggregation are one operation. A pairwise override
 #' registered with [`register_conversion()`] short-circuits the route.
 #'
-#' @param x `data.frame` with a column named by `key` (default `"slice"`)
-#'   plus one or more numeric value columns.
+#' Columns of `x` that are neither the key nor a value column are treated
+#' as identifiers (panel columns — a `city`, a scenario) and preserved as
+#' grouping columns, so panel data recasts correctly in one call; this is
+#' what makes mixed pipelines like
+#' `x |> calendar_recast(...) |> geo_recast(...)` work. Columns named like
+#' `from`'s timeframes are treated as slice attributes and dropped.
+#'
+#' `recast()` is a deprecated alias.
+#'
+#' @param x `data.frame` with a column named by `key` plus one or more
+#'   numeric value columns; other columns are preserved as identifiers.
 #' @param from Source [`Calendar`].
 #' @param to Destination [`Calendar`], or a timeframe name of `from`
 #'   (including `"ANNUAL"`) for within-calendar aggregation via
 #'   [`calendar_at_level()`].
 #' @param year Integer scalar model year used to materialise both calendars
 #'   on the shared grid.
-#' @param key Name of the slice key column in `x`. Default `"slice"`.
+#' @param key Name of the slice key column in `x`. `NULL` (default)
+#'   resolves to `"slice"`.
 #' @param values Character vector of value columns to transform. Default:
-#'   all numeric columns other than `key`.
+#'   all numeric columns other than `key` and `from`'s timeframe columns.
+#'   Numeric identifiers (e.g. `year`) must be excluded explicitly.
 #' @param rule One of [`RECAST_RULES`], applied to every value column; or
 #'   `NULL` (default) to look each column up with [`get_rule()`], falling
-#'   back to `"weighted_mean"`.
+#'   back to `"weighted_mean"`. (Deliberate divergence from
+#'   `geoscales::geo_recast()`, whose fallback is `"sum"`: time-series
+#'   panels skew intensive, spatial tables skew extensive.)
 #' @param by Grid resolution for the shared instant grid. Defaults to the
 #'   finest timeframe of the two calendars.
 #' @param tz Time zone for the shared grid. Default `"UTC"`.
@@ -356,9 +369,12 @@ expand_calendar <- function(calendar, year, by = NULL, tz = "UTC",
 #'   row so totals conserve). Instants not covered by `from` carry no data
 #'   and are always dropped.
 #'
-#' @return A `data.frame` keyed by slice in `to`, with one row per slice in
-#'   `to` (plus an `NA` row under `na_action = "keep"`) and the same value
-#'   columns as in `x`.
+#' @return A `data.frame` with columns `c(key, identifiers, values)`: per
+#'   identifier combination, one row per slice in `to` (the full target
+#'   vocabulary, `NA` where uncovered — a deliberate divergence from
+#'   `geo_recast()`, which emits observed combinations only), plus an `NA`
+#'   slice row under `na_action = "keep"`. Identifier column types are
+#'   preserved.
 #'
 #' @details
 #' Rules (see [`RECAST_RULES`]): `"sum"` splits each source value equally
@@ -367,7 +383,8 @@ expand_calendar <- function(calendar, year, by = NULL, tz = "UTC",
 #' each source slice; `"mean"` is the plain (time-weighted) mean over
 #' instants — the two differ exactly when declared shares differ from
 #' real-time coverage. `"copy"` requires a constant value per target slice;
-#' `"sd"` is aggregation-only.
+#' `"sd"` is aggregation-only. There is no `weight=` argument: a calendar
+#' has exactly one weighting, its `leaves$share`.
 #'
 #' @examples
 #' cal_m <- calendar_build("m12")
@@ -377,40 +394,42 @@ expand_calendar <- function(calendar, year, by = NULL, tz = "UTC",
 #'   slice = sprintf("m%02d", 1:12),
 #'   load  = seq(100, 210, length.out = 12)
 #' )
-#' recast(x, from = cal_m, to = cal_q, year = 2021)
+#' calendar_recast(x, from = cal_m, to = cal_q, year = 2021)
+#'
+#' # Panel data: the city column is carried through
+#' xp <- rbind(transform(x, city = "A"), transform(x, city = "B"))
+#' calendar_recast(xp, cal_m, cal_q, year = 2021, rule = "sum")
 #'
 #' # Within-calendar aggregation, and the ANNUAL root
 #' cal <- calendar_build("q4", "h24")
 #' xh <- data.frame(slice = S7::prop(cal, "leaves")$slice, energy = 1)
-#' recast(xh, cal, to = "ANNUAL", year = 2021, rule = "sum")  # 96
+#' calendar_recast(xh, cal, to = "ANNUAL", year = 2021, rule = "sum")  # 96
 #' @export
-recast <- function(x, from, to, year,
-                   key = "slice",
-                   values = NULL,
-                   rule = NULL,
-                   by = NULL,
-                   tz = "UTC",
-                   na_action = c("drop", "error", "keep")) {
+calendar_recast <- function(x, from, to, year,
+                            key = NULL,
+                            values = NULL,
+                            rule = NULL,
+                            by = NULL,
+                            tz = "UTC",
+                            na_action = c("drop", "error", "keep")) {
   na_action <- match.arg(na_action)
 
   if (!is.data.frame(x)) {
-    stop("`x` must be a data.frame", call. = FALSE)
+    .stop("`x` must be a data.frame")
   }
+  if (is.null(key)) key <- "slice"
   if (!key %in% names(x)) {
-    stop(sprintf("`x` has no column named `%s`", key), call. = FALSE)
+    .stop("`x` has no column named `%s`; pass `key=`", key)
   }
-  if (!S7::S7_inherits(from, Calendar)) {
-    stop("`from` must be a Calendar object", call. = FALSE)
-  }
+  .check_calendar(from, "from")
   if (is.character(to)) {
     to <- calendar_at_level(from, to)
-  } else if (!S7::S7_inherits(to, Calendar)) {
-    stop("`to` must be a Calendar object or a timeframe name of `from`",
-         call. = FALSE)
+  } else {
+    .check_calendar(to, "to")
   }
   year <- as.integer(year)
   if (length(year) != 1L || is.na(year)) {
-    stop("`year` must be a single integer", call. = FALSE)
+    .stop("`year` must be a single integer")
   }
 
   # Pairwise override, keyed by calendar names
@@ -425,18 +444,21 @@ recast <- function(x, from, to, year,
     }
   }
 
+  tfs_from <- S7::prop(from, "timeframes")
   if (is.null(values)) {
-    candidates <- setdiff(names(x), key)
+    candidates <- setdiff(names(x), c(key, tfs_from))
     values <- candidates[vapply(x[candidates], is.numeric, logical(1))]
     if (length(values) == 0L) {
-      stop("No numeric value columns found in `x`. Specify `values=`.",
-           call. = FALSE)
+      .stop("no numeric value columns found in `x`; specify `values=`")
     }
   } else if (!all(values %in% names(x))) {
-    stop("Some `values` columns are not in `x`: ",
-         paste(setdiff(values, names(x)), collapse = ", "),
-         call. = FALSE)
+    .stop("value column(s) not in `x`: %s",
+          .preview(setdiff(values, names(x))))
   }
+
+  # Identifier (panel) columns are preserved as grouping columns; timeframe
+  # columns are slice attributes and are dropped
+  id_cols <- setdiff(names(x), c(key, values, tfs_from))
 
   # Per-column rules: explicit argument > registry > weighted_mean
   rules <- vapply(values, function(v) {
@@ -445,10 +467,18 @@ recast <- function(x, from, to, year,
     if (is.null(reg)) "weighted_mean" else reg$rule
   }, character(1))
 
+  # Warn about source keys the calendar does not know
+  from_leaves <- S7::prop(from, "leaves")
+  src_keys <- unique(stats::na.omit(as.character(x[[key]])))
+  unknown <- setdiff(src_keys, from_leaves$slice)
+  if (length(unknown) > 0L) {
+    .warn("%d code(s) in `x$%s` are not slices of `from` and were ignored: %s",
+          length(unknown), key, .preview(unknown))
+  }
+
   # Shared instant grid (A -> base -> B), windowed by `from`'s model year
   if (is.null(by)) {
-    by <- .default_step(union(S7::prop(from, "timeframes"),
-                              S7::prop(to, "timeframes")))
+    by <- .default_step(union(tfs_from, S7::prop(to, "timeframes")))
   }
   dtm <- .model_year_instants(from, year, by, tz)
 
@@ -458,10 +488,8 @@ recast <- function(x, from, to, year,
   if (na_action == "error") {
     n_bad <- sum(is.na(s_from) | is.na(s_to))
     if (n_bad > 0L) {
-      stop(sprintf(
-        paste0("%d grid instant(s) are not covered by both calendars; ",
-               "use na_action = \"drop\" or \"keep\""), n_bad),
-        call. = FALSE)
+      .stop(paste0("%d grid instant(s) are not covered by both calendars; ",
+                   "use na_action = \"drop\" or \"keep\""), n_bad)
     }
   }
 
@@ -476,20 +504,17 @@ recast <- function(x, from, to, year,
   n_grid <- table(s_from)
   n_i    <- as.numeric(n_grid[s_from])
 
-  from_leaves <- S7::prop(from, "leaves")
   share_map <- stats::setNames(from_leaves$share, from_leaves$slice)
   w_i <- as.numeric(share_map[s_from]) / n_i
 
   if (any(is.na(s_to))) {
     if (na_action == "drop") {
       drop_i <- is.na(s_to)
-      affected <- intersect(unique(s_from[drop_i]),
-                            stats::na.omit(as.character(x[[key]])))
-      warning(sprintf(
-        paste0("%d grid instant(s) are not covered by `to`; the share of ",
-               "%d source slice(s) falling on them is dropped. ",
-               "Use na_action = \"keep\" to conserve totals."),
-        sum(drop_i), length(affected)), call. = FALSE)
+      affected <- intersect(unique(s_from[drop_i]), src_keys)
+      .warn(paste0("%d grid instant(s) are not covered by `to`; the share ",
+                   "of %d source slice(s) falling on them is dropped; use ",
+                   "na_action = \"keep\" to conserve totals"),
+            sum(drop_i), length(affected))
       s_from <- s_from[!drop_i]
       s_to   <- s_to[!drop_i]
       n_i    <- n_i[!drop_i]
@@ -498,39 +523,73 @@ recast <- function(x, from, to, year,
     # na_action == "keep": NA stays as an explicit group
   }
 
-  # Look up x values for each grid instant
-  xi <- match(s_from, x[[key]])
-  if (anyNA(xi)) {
-    missing_slices <- setdiff(unique(s_from), x[[key]])
-    if (length(missing_slices) > 0L) {
-      warning(sprintf(
-        paste0("%d source slice(s) present on the grid but missing from ",
-               "`x` (e.g. %s); produced NAs."),
-        length(missing_slices),
-        paste(utils::head(missing_slices, 3L), collapse = ", ")),
-        call. = FALSE)
-    }
-  }
-
-  # Aggregate per destination slice
+  # Destination groups (identical across identifier groups)
   target_keys <- S7::prop(to, "leaves")$slice
   keep_na_row <- na_action == "keep" && anyNA(s_to)
-
-  out <- data.frame(slice = c(target_keys,
-                              if (keep_na_row) NA_character_),
-                    stringsAsFactors = FALSE)
-  names(out) <- key
-
+  out_keys <- c(target_keys, if (keep_na_row) NA_character_)
   grp <- addNA(factor(s_to, levels = target_keys), ifany = keep_na_row)
   idx <- split(seq_along(s_to), grp)
 
-  for (v in values) {
-    vals <- x[[v]][xi]
-    r <- rules[[v]]
-    if (r == "sum") vals <- vals / n_i
-    out[[v]] <- .recast_aggregate(vals, w_i, idx, r, v, out[[key]])
+  # One aggregation pass per identifier combination
+  if (length(id_cols) > 0L) {
+    gkey <- do.call(paste, c(lapply(x[id_cols], as.character), sep = "\r"))
+    groups <- split(seq_len(nrow(x)), factor(gkey, levels = unique(gkey)))
+  } else {
+    groups <- list(seq_len(nrow(x)))
   }
-  out
+
+  all_missing <- character()
+  res <- lapply(groups, function(ri) {
+    x_g <- x[ri, , drop = FALSE]
+    xi <- match(s_from, x_g[[key]])
+    if (anyNA(xi)) {
+      all_missing <<- union(all_missing, setdiff(unique(s_from),
+                                                 x_g[[key]]))
+    }
+    out_g <- data.frame(slice = out_keys, stringsAsFactors = FALSE)
+    names(out_g) <- key
+    for (ic in id_cols) out_g[[ic]] <- x_g[[ic]][1L]
+    for (v in values) {
+      vals <- x_g[[v]][xi]
+      r <- rules[[v]]
+      if (r == "sum") vals <- vals / n_i
+      out_g[[v]] <- .recast_aggregate(vals, w_i, idx, r, v, out_keys)
+    }
+    out_g
+  })
+
+  if (length(all_missing) > 0L) {
+    .warn(paste0("%d source slice(s) present on the grid but missing from ",
+                 "`x` (e.g. %s); produced NAs"),
+          length(all_missing), .preview(all_missing))
+  }
+
+  out <- do.call(rbind, res)
+  rownames(out) <- NULL
+  out[, c(key, id_cols, values), drop = FALSE]
+}
+
+#' Deprecated alias of calendar_recast()
+#'
+#' `recast()` is deprecated; use [`calendar_recast()`] — the stack-wide
+#' convention prefixes owned operations by their object
+#' (`calendar_recast()`, `geoscales::geo_recast()`), reserving bare names
+#' for foreign generics.
+#'
+#' @inheritParams calendar_recast
+#' @return See [`calendar_recast()`].
+#' @export
+recast <- function(x, from, to, year,
+                   key = NULL,
+                   values = NULL,
+                   rule = NULL,
+                   by = NULL,
+                   tz = "UTC",
+                   na_action = c("drop", "error", "keep")) {
+  .Deprecated("calendar_recast")
+  calendar_recast(x, from = from, to = to, year = year, key = key,
+                  values = values, rule = rule, by = by, tz = tz,
+                  na_action = na_action)
 }
 
 #' Aggregate instant values into target slices under one rule

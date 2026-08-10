@@ -120,7 +120,7 @@ cat(nrow(cal@leaves), "leaves, share sums to", sum(cal@leaves$share))
 
 ## 4. Recasting between calendars
 
-Conversion is the central verb. The same `recast()` function handles
+Conversion is the central verb. The same `calendar_recast()` function handles
 upsampling, downsampling, and irregular-to-irregular mappings, given
 that both calendars cover the same year fraction.
 
@@ -133,7 +133,7 @@ monthly <- data.frame(
   load  = c(120, 118, 105,  92,  85,  88,  95, 100,  98,  90, 105, 122)
 )
 
-recast(monthly, from = cal_m, to = cal_q, year = 2025,
+calendar_recast(monthly, from = cal_m, to = cal_q, year = 2025,
        rule = "weighted_mean", by = "day")
 ```
 
@@ -163,12 +163,12 @@ or `"keep"` (an explicit `NA` row that conserves totals).
 
 Every calendar has an implicit whole-year root named `ANNUAL`.
 `calendar_at_level()` truncates a calendar at one of its own timeframes,
-and `recast()` accepts a timeframe name for `to=`:
+and `calendar_recast()` accepts a timeframe name for `to=`:
 
 ```{r}
 cal <- calendar("q4_h24")
 x <- data.frame(slice = cal@leaves$slice, energy = 1)
-recast(x, cal, to = "ANNUAL", year = 2025, rule = "sum")
+calendar_recast(x, cal, to = "ANNUAL", year = 2025, rule = "sum")
 ```
 
 ## Design boundaries
