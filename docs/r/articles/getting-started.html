@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">timescales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.2.0.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.3.1.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -81,17 +81,18 @@
 <h2 id="what-problem-does-this-solve">What problem does this solve?<a class="anchor" aria-label="anchor" href="#what-problem-does-this-solve"></a>
 </h2>
 <p>Energy-system, climate, and operations models all carve the year into
-discrete <em>time slices</em>. Different models pick different slicings:
-365 days, 12 months, 4 quarters × 24 hours, 168 hours of a
-representative week, and so on. The slice <strong>labels</strong> are
-arbitrary, the <strong>shares of a year</strong> are model-defined, and
-converting data between slicings is error-prone.</p>
+discrete <em>time timeslices</em>. Different models pick different
+slicings: 365 days, 12 months, 4 quarters × 24 hours, 168 hours of a
+representative week, and so on. The timeslice <strong>labels</strong>
+are arbitrary, the <strong>shares of a year</strong> are model-defined,
+and converting data between slicings is error-prone.</p>
 <p><code>timescales</code> represents any such slicing as a
 <strong>Calendar</strong>: an ordered hierarchy of <em>timeframes</em>
 (<code>YEAR</code>, <code>MONTH</code>, <code>HOUR</code>, …) whose
-terminal <em>leaves</em> form the slices. With one object you get:</p>
+terminal <em>leaves</em> form the timeslices. With one object you
+get:</p>
 <ul>
-<li>a stable schema for the slice labels and their year-share
+<li>a stable schema for the timeslice labels and their year-share
 weights,</li>
 <li>well-defined mappings to and from real datetimes,</li>
 <li>well-defined conversions between any two calendars covering the same
@@ -112,7 +113,7 @@ year fraction.</li>
 <span><span class="co">#&gt; Timeframes (2):</span></span>
 <span><span class="co">#&gt;   - MONTH (12) [token: m12]</span></span>
 <span><span class="co">#&gt;   - HOUR (24) [token: h24]</span></span>
-<span><span class="co">#&gt; Leaf slices: 288</span></span>
+<span><span class="co">#&gt; Leaf timeslices: 288</span></span>
 <span><span class="co">#&gt; year_fraction: 1</span></span>
 <span><span class="co">#&gt; year_start: month=1, day=1</span></span>
 <span><span class="co">#&gt; utc_offset_minutes: 0</span></span></code></pre></div>
@@ -132,12 +133,12 @@ directly.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cal_my</span><span class="op">@</span><span class="va">timeframes</span>               <span class="co"># the timeframe hierarchy, coarsest first</span></span>
 <span><span class="co">#&gt; [1] "MONTH" "HOUR"</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">cal_my</span><span class="op">@</span><span class="va">leaves</span>, <span class="fl">4</span><span class="op">)</span>          <span class="co"># the leaf table (one row per slice)</span></span>
-<span><span class="co">#&gt;   MONTH HOUR       share weight   slice</span></span>
-<span><span class="co">#&gt; 1   m01  h00 0.003538813     31 m01_h00</span></span>
-<span><span class="co">#&gt; 2   m02  h00 0.003196347     28 m02_h00</span></span>
-<span><span class="co">#&gt; 3   m03  h00 0.003538813     31 m03_h00</span></span>
-<span><span class="co">#&gt; 4   m04  h00 0.003424658     30 m04_h00</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">cal_my</span><span class="op">@</span><span class="va">leaves</span>, <span class="fl">4</span><span class="op">)</span>          <span class="co"># the leaf table (one row per timeslice)</span></span>
+<span><span class="co">#&gt;   MONTH HOUR       share weight timeslice</span></span>
+<span><span class="co">#&gt; 1   m01  h00 0.003538813     31   m01_h00</span></span>
+<span><span class="co">#&gt; 2   m02  h00 0.003196347     28   m02_h00</span></span>
+<span><span class="co">#&gt; 3   m03  h00 0.003538813     31   m03_h00</span></span>
+<span><span class="co">#&gt; 4   m04  h00 0.003424658     30   m04_h00</span></span>
 <span><span class="va">cal_my</span><span class="op">@</span><span class="va">levels</span><span class="op">$</span><span class="va">MONTH</span>             <span class="co"># ordered label vocabulary per timeframe</span></span>
 <span><span class="co">#&gt;  [1] "m01" "m02" "m03" "m04" "m05" "m06" "m07" "m08" "m09" "m10" "m11" "m12"</span></span>
 <span><span class="va">cal_my</span><span class="op">@</span><span class="va">meta</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"name"</span>, <span class="st">"year_fraction"</span><span class="op">)</span><span class="op">]</span></span>
@@ -147,14 +148,14 @@ directly.</p>
 <span><span class="co">#&gt; $year_fraction</span></span>
 <span><span class="co">#&gt; [1] 1</span></span></code></pre></div>
 <p><code>leaves</code> is a plain <code>data.frame</code>. Each row is
-one slice, with columns:</p>
+one timeslice, with columns:</p>
 <ul>
 <li>
-<code>slice</code> — the unique slice ID,</li>
+<code>timeslice</code> — the unique timeslice ID,</li>
 <li>
 <code>share</code> — fraction of a year,</li>
 <li>
-<code>weight</code> — slice weight in hours (default
+<code>weight</code> — timeslice weight in hours (default
 <code>share * 8760</code>),</li>
 <li>one column per timeframe — the label at that level.</li>
 </ul>
@@ -164,7 +165,7 @@ one slice, with columns:</p>
 </h3>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">times</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.POSIXlt.html" class="external-link">as.POSIXct</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"2025-01-15 03:00"</span>, <span class="st">"2025-07-20 18:00"</span><span class="op">)</span>, tz <span class="op">=</span> <span class="st">"UTC"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/instant_to_slice.html">instant_to_slice</a></span><span class="op">(</span><span class="va">times</span>, <span class="va">cal_my</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/instant_to_timeslice.html">instant_to_timeslice</a></span><span class="op">(</span><span class="va">times</span>, <span class="va">cal_my</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "m01_h03" "m07_h18"</span></span></code></pre></div>
 </div>
 <div class="section level3">
@@ -176,17 +177,17 @@ one slice, with columns:</p>
 <span><span class="va">cal_q</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calendar_build.html">calendar</a></span><span class="op">(</span><span class="st">"q4"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">monthly</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
-<span>  slice <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"m%02d"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">12</span><span class="op">)</span>,</span>
+<span>  timeslice <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sprintf.html" class="external-link">sprintf</a></span><span class="op">(</span><span class="st">"m%02d"</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">12</span><span class="op">)</span>,</span>
 <span>  load  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">120</span>, <span class="fl">118</span>, <span class="fl">105</span>,  <span class="fl">92</span>,  <span class="fl">85</span>,  <span class="fl">88</span>,  <span class="fl">95</span>, <span class="fl">100</span>,  <span class="fl">98</span>,  <span class="fl">90</span>, <span class="fl">105</span>, <span class="fl">122</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="../reference/recast.html">recast</a></span><span class="op">(</span><span class="va">monthly</span>, from <span class="op">=</span> <span class="va">cal_m</span>, to <span class="op">=</span> <span class="va">cal_q</span>, year <span class="op">=</span> <span class="fl">2025</span>,</span>
+<span><span class="fu"><a href="../reference/recast_calendar.html">recast_calendar</a></span><span class="op">(</span><span class="va">monthly</span>, from <span class="op">=</span> <span class="va">cal_m</span>, to <span class="op">=</span> <span class="va">cal_q</span>, year <span class="op">=</span> <span class="fl">2025</span>,</span>
 <span>       rule <span class="op">=</span> <span class="st">"weighted_mean"</span>, by <span class="op">=</span> <span class="st">"day"</span><span class="op">)</span></span>
-<span><span class="co">#&gt;   slice      load</span></span>
-<span><span class="co">#&gt; 1    Q1 114.21111</span></span>
-<span><span class="co">#&gt; 2    Q2  88.29670</span></span>
-<span><span class="co">#&gt; 3    Q3  97.66304</span></span>
-<span><span class="co">#&gt; 4    Q4 105.67391</span></span></code></pre></div>
+<span><span class="co">#&gt;   timeslice      load</span></span>
+<span><span class="co">#&gt; 1        Q1 114.21111</span></span>
+<span><span class="co">#&gt; 2        Q2  88.29670</span></span>
+<span><span class="co">#&gt; 3        Q3  97.66304</span></span>
+<span><span class="co">#&gt; 4        Q4 105.67391</span></span></code></pre></div>
 <p>The result is day-weighted: Q1 = (31·v₁ + 28·v₂ + 31·v₃) / 90.</p>
 </div>
 </div>

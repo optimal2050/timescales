@@ -3,8 +3,8 @@
 # =============================================================================
 # A `Calendar` is a nested time partition of a (model) year:
 #
-#   * `leaves`     — flat enumeration of leaf slices, with one column per
-#                    timeframe in the hierarchy plus `slice`, `share`, `weight`
+#   * `leaves`     — flat enumeration of leaf timeslices, with one column per
+#                    timeframe in the hierarchy plus `timeslice`, `share`, `weight`
 #   * `timeframes` — ordered character vector naming the hierarchy, coarsest
 #                    first (e.g. `c("MONTH", "MDAY", "HOUR")`)
 #   * `levels`     — named list giving the full ordered token vocabulary at
@@ -22,14 +22,14 @@
 
 #' Calendar (S7 class)
 #'
-#' A nested time partition: a flat table of weighted leaf slices plus the
+#' A nested time partition: a flat table of weighted leaf timeslices plus the
 #' ordered hierarchy of timeframes that produced them.
 #'
 #' Construct with [`calendar_from_leaves()`] (the general escape hatch).
 #' Higher-level constructors built on tokens and a catalog will arrive in a
 #' later phase.
 #'
-#' @param leaves `data.frame` with columns `slice`, `share`, `weight`, plus
+#' @param leaves `data.frame` with columns `timeslice`, `share`, `weight`, plus
 #'   one column per timeframe in `timeframes`.
 #' @param timeframes Ordered character vector of timeframe names (coarsest
 #'   first); each name must appear as a column in `leaves`.
@@ -69,7 +69,7 @@ Calendar <- S7::new_class(
     if (!is.data.frame(leaves)) {
       return("`leaves` must be a data.frame")
     }
-    required <- c("slice", "share", "weight")
+    required <- c("timeslice", "share", "weight")
     missing <- setdiff(required, names(leaves))
     if (length(missing) > 0) {
       errs <- c(errs, sprintf("`leaves` missing columns: %s",
@@ -82,11 +82,13 @@ Calendar <- S7::new_class(
       errs <- c(errs, "`timeframes` must be a non-empty character vector")
     } else if (anyDuplicated(timeframes)) {
       errs <- c(errs, "`timeframes` must be unique")
-    } else if (any(timeframes %in% c("slice", "share", "weight"))) {
+    } else if (any(timeframes %in% c("slice", "timeslice", "share",
+                                     "weight"))) {
       # reserved leaf-table column names: a timeframe called `share` would
-      # silently corrupt the leaves table
+      # silently corrupt the leaves table (`slice` stays reserved as the
+      # pre-rename spelling)
       errs <- c(errs, paste0("`timeframes` must not use the reserved names ",
-                             "slice, share, weight"))
+                             "slice, timeslice, share, weight"))
     } else {
       missing_cols <- setdiff(timeframes, names(leaves))
       if (length(missing_cols) > 0) {
@@ -123,13 +125,13 @@ Calendar <- S7::new_class(
       }
     }
 
-    # slice / share / weight columns -----------------------------------------
-    if ("slice" %in% names(leaves)) {
-      sid <- leaves$slice
+    # timeslice / share / weight columns -----------------------------------------
+    if ("timeslice" %in% names(leaves)) {
+      sid <- leaves$timeslice
       if (!is.character(sid) || anyNA(sid) || any(sid == "") ||
           anyDuplicated(sid)) {
         errs <- c(errs,
-                  "`leaves$slice` must be a unique non-empty character vector")
+                  "`leaves$timeslice` must be a unique non-empty character vector")
       }
     }
     if ("share" %in% names(leaves)) {
@@ -228,7 +230,7 @@ print.Calendar <- function(x, ...) {
                                        "]"),
         "\n", sep = "")
   }
-  cat("Leaf slices: ", nrow(lf), "\n", sep = "")
+  cat("Leaf timeslices: ", nrow(lf), "\n", sep = "")
   cat("year_fraction: ", meta$year_fraction %||% 1, "\n", sep = "")
   if (!is.null(meta$year_start)) {
     cat(sprintf("year_start: month=%d, day=%d\n",

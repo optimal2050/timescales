@@ -13,7 +13,7 @@ calendar_layout(calendar, annual = TRUE)
 }
 \value{
 A \code{data.frame} with columns \code{timeframe}, \code{label} (the level value
-of the segment), \code{slice} (the full prefix path id), \code{rank} (0 for
+of the segment), \code{timeslice} (the full prefix path id), \code{rank} (0 for
 \code{ANNUAL}, then 1 = coarsest), \code{xmin}/\code{xmax} (in \verb{[0, 1]}),
 \code{ymin}/\code{ymax} (bands, top row highest), \code{share} (segment share of the
 year), \code{weight} (segment weight sum), \code{order} (index of the segment's
@@ -23,7 +23,7 @@ among its siblings, restarting per parent).
 \description{
 Computes the rectangle geometry of the structure plot as a plain
 \code{data.frame} — one band per timeframe (coarsest at the top, plus the
-implicit \code{ANNUAL} root), one rectangle per contiguous slice segment,
+implicit \code{ANNUAL} root), one rectangle per contiguous timeslice segment,
 x normalized to \verb{[0, 1]} (share of the covered year). Exposed so the
 layout can be drawn with something other than ggplot2; the same frame
 backs \code{\link[=calendar_autoplot]{calendar_autoplot()}}.

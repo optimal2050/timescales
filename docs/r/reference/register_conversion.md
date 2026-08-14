@@ -1,7 +1,7 @@
 # Register a pairwise calendar conversion override
 
 By default
-[`recast()`](https://optimal2050.github.io/timescales/r/reference/recast.md)
+[`recast_calendar()`](https://optimal2050.github.io/timescales/r/reference/recast_calendar.md)
 routes every conversion through the shared instant grid
 (`A -> base -> B`). A registered override short-circuits that route for
 one named calendar pair — the escape hatch for exact nested-calendar
@@ -29,7 +29,7 @@ clear_conversions(key = NULL)
 
   A function with signature `fun(x, from, to, ...)` receiving the same
   arguments as
-  [`recast()`](https://optimal2050.github.io/timescales/r/reference/recast.md)
+  [`recast_calendar()`](https://optimal2050.github.io/timescales/r/reference/recast_calendar.md)
   and returning the recast `data.frame`. `NULL` removes a previously
   registered override.
 
@@ -52,8 +52,8 @@ Invisibly, the registry key (`"from->to"`).
 register_conversion("m12", "q4", function(x, from, to, ...) {
   # trivial exact nesting: quarters are consecutive month triples
   q <- rep(sprintf("Q%d", 1:4), each = 3)
-  stats::aggregate(x[-1], list(slice = q[match(x$slice,
-    S7::prop(from, "leaves")$slice)]), sum)
+  stats::aggregate(x[-1], list(timeslice = q[match(x$timeslice,
+    S7::prop(from, "leaves")$timeslice)]), sum)
 })
 "m12->q4" %in% list_conversions()$key
 #> [1] TRUE

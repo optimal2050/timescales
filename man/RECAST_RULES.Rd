@@ -17,17 +17,17 @@ extensive vs intensive quantities):
 \details{
 \describe{
 \item{\code{weighted_mean}}{Down: copy. Up: mean weighted by the declared
-\code{leaves$share} of each source slice. For intensive quantities
+\code{leaves$share} of each source timeslice. For intensive quantities
 (load, price, efficiency). The default.}
-\item{\code{sum}}{Down: split equally across the slice's grid instants.
+\item{\code{sum}}{Down: split equally across the timeslice's grid instants.
 Up: sum. Conserves totals; for extensive quantities (energy, cost).}
 \item{\code{mean}}{Down: copy. Up: plain mean over instants — a time-weighted
 mean, since the grid is uniform. Differs from \code{weighted_mean} exactly
 when declared shares differ from real-time coverage.}
 \item{\code{copy}}{Down: copy. Up: the common value, erroring if it is not
-constant. For slice-invariant scalars.}
+constant. For timeslice-invariant scalars.}
 \item{\code{sd}}{Up: standard deviation over instants — the spread of the
-fine signal within each target slice. Aggregation-only; going finer it
+fine signal within each target timeslice. Aggregation-only; going finer it
 degenerates to 0/NA.}
 }
 }

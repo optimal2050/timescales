@@ -11,7 +11,7 @@ extensive vs intensive quantities):"></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">timescales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.2.0.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.3.1.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -69,11 +69,11 @@ extensive vs intensive quantities):</p>
 
 <dl><dt><code>weighted_mean</code></dt>
 <dd><p>Down: copy. Up: mean weighted by the declared
-<code>leaves$share</code> of each source slice. For intensive quantities
+<code>leaves$share</code> of each source timeslice. For intensive quantities
 (load, price, efficiency). The default.</p></dd>
 
 <dt><code>sum</code></dt>
-<dd><p>Down: split equally across the slice's grid instants.
+<dd><p>Down: split equally across the timeslice's grid instants.
 Up: sum. Conserves totals; for extensive quantities (energy, cost).</p></dd>
 
 <dt><code>mean</code></dt>
@@ -83,11 +83,11 @@ when declared shares differ from real-time coverage.</p></dd>
 
 <dt><code>copy</code></dt>
 <dd><p>Down: copy. Up: the common value, erroring if it is not
-constant. For slice-invariant scalars.</p></dd>
+constant. For timeslice-invariant scalars.</p></dd>
 
 <dt><code>sd</code></dt>
 <dd><p>Up: standard deviation over instants — the spread of the
-fine signal within each target slice. Aggregation-only; going finer it
+fine signal within each target timeslice. Aggregation-only; going finer it
 degenerates to 0/NA.</p></dd>
 
 

@@ -143,16 +143,16 @@ test_that("calendar() recognises year-qualified prefix", {
   expect_equal(nrow(cal@leaves), 365 * 24)
 })
 
-# Round-trip with calendar_recast() ---------------------------------------------------
+# Round-trip with recast_calendar() ---------------------------------------------------
 
-test_that("calendar() result works with calendar_recast()", {
+test_that("calendar() result works with recast_calendar()", {
   cal_m <- calendar("m12")
   cal_q <- calendar("q4")
-  x <- data.frame(slice = sprintf("m%02d", 1:12),
+  x <- data.frame(timeslice = sprintf("m%02d", 1:12),
                   load  = seq(100, 210, length.out = 12))
-  out <- calendar_recast(x, from = cal_m, to = cal_q, year = 2021,
+  out <- recast_calendar(x, from = cal_m, to = cal_q, year = 2021,
                 rule = "weighted_mean", by = "day")
-  expect_equal(out$slice, sprintf("Q%d", 1:4))
+  expect_equal(out$timeslice, sprintf("Q%d", 1:4))
   v <- x$load
   expected_q1 <- (31 * v[1] + 28 * v[2] + 31 * v[3]) / 90
   expect_equal(out$load[1], expected_q1, tolerance = 1e-10)

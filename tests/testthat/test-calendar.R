@@ -20,17 +20,17 @@ test_that("calendar_from_leaves builds a minimal Calendar", {
   expect_setequal(cal@levels$MONTH, sprintf("m%02d", 1:12))
 })
 
-test_that("calendar_from_leaves auto-generates slice IDs when missing", {
+test_that("calendar_from_leaves auto-generates timeslice IDs when missing", {
   df <- .month_df()
   cal <- calendar_from_leaves(df, timeframes = "MONTH")
-  expect_equal(cal@leaves$slice, sprintf("m%02d", 1:12))
+  expect_equal(cal@leaves$timeslice, sprintf("m%02d", 1:12))
 })
 
-test_that("calendar_from_leaves preserves user-supplied slice IDs", {
+test_that("calendar_from_leaves preserves user-supplied timeslice IDs", {
   df <- .month_df()
-  df$slice <- paste0("S", seq_len(12))
+  df$timeslice <- paste0("S", seq_len(12))
   cal <- calendar_from_leaves(df, timeframes = "MONTH")
-  expect_equal(cal@leaves$slice, paste0("S", seq_len(12)))
+  expect_equal(cal@leaves$timeslice, paste0("S", seq_len(12)))
 })
 
 test_that("calendar_from_leaves handles a 2-level hierarchy", {
@@ -50,8 +50,8 @@ test_that("calendar_from_leaves handles a 2-level hierarchy", {
   expect_equal(nrow(cal@leaves), 12 * 24)
   expect_equal(cal@timeframes, c("MONTH", "HOUR"))
   expect_setequal(cal@levels$HOUR, sprintf("h%02d", 0:23))
-  # auto-generated composite slice IDs
-  expect_true(all(grepl("^m\\d{2}_h\\d{2}$", cal@leaves$slice)))
+  # auto-generated composite timeslice IDs
+  expect_true(all(grepl("^m\\d{2}_h\\d{2}$", cal@leaves$timeslice)))
 })
 
 test_that("calendar_from_leaves enforces sum(share) == year_fraction", {
@@ -80,12 +80,12 @@ test_that("calendar_from_leaves rejects non-positive share", {
   )
 })
 
-test_that("calendar_from_leaves rejects duplicate slice IDs", {
+test_that("calendar_from_leaves rejects duplicate timeslice IDs", {
   df <- .month_df()
-  df$slice <- rep("dup", 12)
+  df$timeslice <- rep("dup", 12)
   expect_error(
     calendar_from_leaves(df, timeframes = "MONTH"),
-    "slice"
+    "timeslice"
   )
 })
 
@@ -105,5 +105,5 @@ test_that("Calendar print method runs without error", {
                               name = "m12")
   expect_output(print(cal), "Calendar:")
   expect_output(print(cal), "Timeframes")
-  expect_output(print(cal), "Leaf slices")
+  expect_output(print(cal), "Leaf timeslices")
 })

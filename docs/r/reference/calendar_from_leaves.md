@@ -1,10 +1,10 @@
-# Build a Calendar from a flat table of leaf slices
+# Build a Calendar from a flat table of leaf timeslices
 
 This is the most general way to construct a
 [`Calendar`](https://optimal2050.github.io/timescales/r/reference/Calendar.md):
-provide the leaf slices directly as a `data.frame`, name the timeframe
-columns, and optionally pin down the per-timeframe vocabulary and
-model-level metadata.
+provide the leaf timeslices directly as a `data.frame`, name the
+timeframe columns, and optionally pin down the per-timeframe vocabulary
+and model-level metadata.
 
 ## Usage
 
@@ -26,7 +26,7 @@ calendar_from_leaves(
 
 - leaves:
 
-  A `data.frame` with one row per leaf slice. Must contain:
+  A `data.frame` with one row per leaf timeslice. Must contain:
 
   - one column per timeframe named in `timeframes`
 
@@ -34,7 +34,8 @@ calendar_from_leaves(
 
   - `weight` — numeric \>= 0; user-defined importance weight
 
-  - (optional) `slice` — unique character ID; auto-generated if missing
+  - (optional) `timeslice` — unique character ID; auto-generated if
+    missing
 
 - timeframes:
 
@@ -87,7 +88,7 @@ cal
 #> Calendar: m12 
 #> Timeframes (1):
 #>   - MONTH (12)
-#> Leaf slices: 12
+#> Leaf timeslices: 12
 #> year_fraction: 1
 #> year_start: month=1, day=1
 #> utc_offset_minutes: 0

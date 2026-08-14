@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">timescales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.2.0.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.3.1.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -91,8 +91,8 @@ objects come pre-built in the <code>calendars</code> dataset:</p>
 <col width="9%">
 <col width="9%">
 <col width="11%">
-<col width="6%">
-<col width="10%">
+<col width="8%">
+<col width="9%">
 <col width="7%">
 <col width="44%">
 </colgroup>
@@ -100,7 +100,7 @@ objects come pre-built in the <code>calendars</code> dataset:</p>
 <th align="left">id</th>
 <th align="left">tokens</th>
 <th align="left">timeframes</th>
-<th align="right">n_slices</th>
+<th align="right">n_timeslices</th>
 <th align="left">coverage</th>
 <th align="left">regularity</th>
 <th align="left">desc</th>
@@ -113,7 +113,7 @@ objects come pre-built in the <code>calendars</code> dataset:</p>
 <td align="right">360</td>
 <td align="left">truncated</td>
 <td align="left">regular</td>
-<td align="left">YDAY calendar (360 slices; truncated, regular)</td>
+<td align="left">YDAY calendar (360 timeslices; truncated, regular)</td>
 </tr>
 <tr class="even">
 <td align="left">d364</td>
@@ -122,7 +122,7 @@ objects come pre-built in the <code>calendars</code> dataset:</p>
 <td align="right">364</td>
 <td align="left">truncated</td>
 <td align="left">regular</td>
-<td align="left">YDAY calendar (364 slices; truncated, regular)</td>
+<td align="left">YDAY calendar (364 timeslices; truncated, regular)</td>
 </tr>
 <tr class="odd">
 <td align="left">d365</td>
@@ -131,7 +131,7 @@ objects come pre-built in the <code>calendars</code> dataset:</p>
 <td align="right">365</td>
 <td align="left">truncated</td>
 <td align="left">regular</td>
-<td align="left">YDAY calendar (365 slices; truncated, regular)</td>
+<td align="left">YDAY calendar (365 timeslices; truncated, regular)</td>
 </tr>
 <tr class="even">
 <td align="left">d366</td>
@@ -140,7 +140,7 @@ objects come pre-built in the <code>calendars</code> dataset:</p>
 <td align="right">366</td>
 <td align="left">complete</td>
 <td align="left">regular</td>
-<td align="left">YDAY calendar (366 slices; complete, regular)</td>
+<td align="left">YDAY calendar (366 timeslices; complete, regular)</td>
 </tr>
 <tr class="odd">
 <td align="left">d360_h24</td>
@@ -149,7 +149,7 @@ objects come pre-built in the <code>calendars</code> dataset:</p>
 <td align="right">8640</td>
 <td align="left">truncated</td>
 <td align="left">regular</td>
-<td align="left">YDAY/HOUR calendar (8640 slices; truncated,
+<td align="left">YDAY/HOUR calendar (8640 timeslices; truncated,
 regular)</td>
 </tr>
 <tr class="even">
@@ -159,7 +159,7 @@ regular)</td>
 <td align="right">8736</td>
 <td align="left">truncated</td>
 <td align="left">regular</td>
-<td align="left">YDAY/HOUR calendar (8736 slices; truncated,
+<td align="left">YDAY/HOUR calendar (8736 timeslices; truncated,
 regular)</td>
 </tr>
 <tr class="odd">
@@ -169,7 +169,7 @@ regular)</td>
 <td align="right">8760</td>
 <td align="left">truncated</td>
 <td align="left">regular</td>
-<td align="left">YDAY/HOUR calendar (8760 slices; truncated,
+<td align="left">YDAY/HOUR calendar (8760 timeslices; truncated,
 regular)</td>
 </tr>
 <tr class="even">
@@ -179,7 +179,7 @@ regular)</td>
 <td align="right">8784</td>
 <td align="left">complete</td>
 <td align="left">regular</td>
-<td align="left">YDAY/HOUR calendar (8784 slices; complete,
+<td align="left">YDAY/HOUR calendar (8784 timeslices; complete,
 regular)</td>
 </tr>
 <tr class="odd">
@@ -189,7 +189,7 @@ regular)</td>
 <td align="right">12</td>
 <td align="left">complete</td>
 <td align="left">regular</td>
-<td align="left">MONTH calendar (12 slices; complete, regular)</td>
+<td align="left">MONTH calendar (12 timeslices; complete, regular)</td>
 </tr>
 <tr class="even">
 <td align="left">m12a</td>
@@ -198,7 +198,7 @@ regular)</td>
 <td align="right">12</td>
 <td align="left">complete</td>
 <td align="left">regular</td>
-<td align="left">MONTH calendar (12 slices; complete, regular)</td>
+<td align="left">MONTH calendar (12 timeslices; complete, regular)</td>
 </tr>
 <tr class="odd">
 <td align="left">m12_h24</td>
@@ -207,7 +207,7 @@ regular)</td>
 <td align="right">288</td>
 <td align="left">complete</td>
 <td align="left">regular</td>
-<td align="left">MONTH/HOUR calendar (288 slices; complete,
+<td align="left">MONTH/HOUR calendar (288 timeslices; complete,
 regular)</td>
 </tr>
 <tr class="even">
@@ -217,7 +217,7 @@ regular)</td>
 <td align="right">288</td>
 <td align="left">complete</td>
 <td align="left">regular</td>
-<td align="left">MONTH/HOUR calendar (288 slices; complete,
+<td align="left">MONTH/HOUR calendar (288 timeslices; complete,
 regular)</td>
 </tr>
 <tr class="odd">
@@ -227,7 +227,7 @@ regular)</td>
 <td align="right">360</td>
 <td align="left">truncated</td>
 <td align="left">regular</td>
-<td align="left">MONTH/MDAY calendar (360 slices; truncated,
+<td align="left">MONTH/MDAY calendar (360 timeslices; truncated,
 regular)</td>
 </tr>
 <tr class="even">
@@ -237,7 +237,7 @@ regular)</td>
 <td align="right">8640</td>
 <td align="left">truncated</td>
 <td align="left">regular</td>
-<td align="left">MONTH/MDAY/HOUR calendar (8640 slices; truncated,
+<td align="left">MONTH/MDAY/HOUR calendar (8640 timeslices; truncated,
 regular)</td>
 </tr>
 <tr class="odd">
@@ -247,7 +247,7 @@ regular)</td>
 <td align="right">365</td>
 <td align="left">truncated</td>
 <td align="left">irregular</td>
-<td align="left">MONTH/MDAY calendar (365 slices; truncated,
+<td align="left">MONTH/MDAY calendar (365 timeslices; truncated,
 irregular)</td>
 </tr>
 <tr class="even">
@@ -257,7 +257,7 @@ irregular)</td>
 <td align="right">8760</td>
 <td align="left">truncated</td>
 <td align="left">irregular</td>
-<td align="left">MONTH/MDAY/HOUR calendar (8760 slices; truncated,
+<td align="left">MONTH/MDAY/HOUR calendar (8760 timeslices; truncated,
 irregular)</td>
 </tr>
 <tr class="odd">
@@ -267,7 +267,7 @@ irregular)</td>
 <td align="right">366</td>
 <td align="left">complete</td>
 <td align="left">irregular</td>
-<td align="left">MONTH/MDAY calendar (366 slices; complete,
+<td align="left">MONTH/MDAY calendar (366 timeslices; complete,
 irregular)</td>
 </tr>
 <tr class="even">
@@ -277,7 +277,7 @@ irregular)</td>
 <td align="right">8784</td>
 <td align="left">complete</td>
 <td align="left">irregular</td>
-<td align="left">MONTH/MDAY/HOUR calendar (8784 slices; complete,
+<td align="left">MONTH/MDAY/HOUR calendar (8784 timeslices; complete,
 irregular)</td>
 </tr>
 <tr class="odd">
@@ -287,7 +287,7 @@ irregular)</td>
 <td align="right">4</td>
 <td align="left">complete</td>
 <td align="left">regular</td>
-<td align="left">QUARTER calendar (4 slices; complete, regular)</td>
+<td align="left">QUARTER calendar (4 timeslices; complete, regular)</td>
 </tr>
 <tr class="even">
 <td align="left">s4</td>
@@ -296,7 +296,7 @@ irregular)</td>
 <td align="right">4</td>
 <td align="left">complete</td>
 <td align="left">regular</td>
-<td align="left">SEASON calendar (4 slices; complete, regular)</td>
+<td align="left">SEASON calendar (4 timeslices; complete, regular)</td>
 </tr>
 <tr class="odd">
 <td align="left">q4_h24</td>
@@ -305,7 +305,7 @@ irregular)</td>
 <td align="right">96</td>
 <td align="left">representative</td>
 <td align="left">regular</td>
-<td align="left">QUARTER/HOUR calendar (96 slices; representative,
+<td align="left">QUARTER/HOUR calendar (96 timeslices; representative,
 regular)</td>
 </tr>
 <tr class="even">
@@ -315,7 +315,7 @@ regular)</td>
 <td align="right">96</td>
 <td align="left">representative</td>
 <td align="left">regular</td>
-<td align="left">SEASON/HOUR calendar (96 slices; representative,
+<td align="left">SEASON/HOUR calendar (96 timeslices; representative,
 regular)</td>
 </tr>
 <tr class="odd">
@@ -325,7 +325,7 @@ regular)</td>
 <td align="right">52</td>
 <td align="left">truncated</td>
 <td align="left">regular</td>
-<td align="left">WEEK calendar (52 slices; truncated, regular)</td>
+<td align="left">WEEK calendar (52 timeslices; truncated, regular)</td>
 </tr>
 <tr class="even">
 <td align="left">w53</td>
@@ -334,7 +334,7 @@ regular)</td>
 <td align="right">53</td>
 <td align="left">complete</td>
 <td align="left">regular</td>
-<td align="left">WEEK calendar (53 slices; complete, regular)</td>
+<td align="left">WEEK calendar (53 timeslices; complete, regular)</td>
 </tr>
 <tr class="odd">
 <td align="left">w52_h24</td>
@@ -343,7 +343,7 @@ regular)</td>
 <td align="right">1248</td>
 <td align="left">representative</td>
 <td align="left">regular</td>
-<td align="left">WEEK/HOUR calendar (1248 slices; representative,
+<td align="left">WEEK/HOUR calendar (1248 timeslices; representative,
 regular)</td>
 </tr>
 <tr class="even">
@@ -353,7 +353,7 @@ regular)</td>
 <td align="right">1272</td>
 <td align="left">representative</td>
 <td align="left">regular</td>
-<td align="left">WEEK/HOUR calendar (1272 slices; representative,
+<td align="left">WEEK/HOUR calendar (1272 timeslices; representative,
 regular)</td>
 </tr>
 <tr class="odd">
@@ -363,7 +363,7 @@ regular)</td>
 <td align="right">8736</td>
 <td align="left">truncated</td>
 <td align="left">regular</td>
-<td align="left">WEEK/WHOUR calendar (8736 slices; truncated,
+<td align="left">WEEK/WHOUR calendar (8736 timeslices; truncated,
 regular)</td>
 </tr>
 <tr class="even">
@@ -373,7 +373,7 @@ regular)</td>
 <td align="right">8904</td>
 <td align="left">complete</td>
 <td align="left">irregular</td>
-<td align="left">WEEK/WHOUR calendar (8904 slices; complete,
+<td align="left">WEEK/WHOUR calendar (8904 timeslices; complete,
 irregular)</td>
 </tr>
 <tr class="odd">
@@ -383,7 +383,8 @@ irregular)</td>
 <td align="right">7</td>
 <td align="left">representative</td>
 <td align="left">regular</td>
-<td align="left">WDAY calendar (7 slices; representative, regular)</td>
+<td align="left">WDAY calendar (7 timeslices; representative,
+regular)</td>
 </tr>
 <tr class="even">
 <td align="left">wd7_h24</td>
@@ -392,7 +393,7 @@ irregular)</td>
 <td align="right">168</td>
 <td align="left">representative</td>
 <td align="left">regular</td>
-<td align="left">WDAY/HOUR calendar (168 slices; representative,
+<td align="left">WDAY/HOUR calendar (168 timeslices; representative,
 regular)</td>
 </tr>
 <tr class="odd">
@@ -402,7 +403,7 @@ regular)</td>
 <td align="right">2</td>
 <td align="left">representative</td>
 <td align="left">regular</td>
-<td align="left">DAYTYPE calendar (2 slices; representative,
+<td align="left">DAYTYPE calendar (2 timeslices; representative,
 regular)</td>
 </tr>
 <tr class="even">
@@ -412,7 +413,7 @@ regular)</td>
 <td align="right">48</td>
 <td align="left">representative</td>
 <td align="left">regular</td>
-<td align="left">DAYTYPE/HOUR calendar (48 slices; representative,
+<td align="left">DAYTYPE/HOUR calendar (48 timeslices; representative,
 regular)</td>
 </tr>
 <tr class="odd">
@@ -422,7 +423,7 @@ regular)</td>
 <td align="right">3</td>
 <td align="left">representative</td>
 <td align="left">regular</td>
-<td align="left">HOURTYPE calendar (3 slices; representative,
+<td align="left">HOURTYPE calendar (3 timeslices; representative,
 regular)</td>
 </tr>
 <tr class="even">
@@ -432,8 +433,8 @@ regular)</td>
 <td align="right">1095</td>
 <td align="left">representative</td>
 <td align="left">regular</td>
-<td align="left">YDAY/HOURTYPE calendar (1095 slices; representative,
-regular)</td>
+<td align="left">YDAY/HOURTYPE calendar (1095 timeslices;
+representative, regular)</td>
 </tr>
 <tr class="odd">
 <td align="left">m12a_hp3</td>
@@ -442,7 +443,7 @@ regular)</td>
 <td align="right">36</td>
 <td align="left">representative</td>
 <td align="left">regular</td>
-<td align="left">MONTH/HOURTYPE calendar (36 slices; representative,
+<td align="left">MONTH/HOURTYPE calendar (36 timeslices; representative,
 regular)</td>
 </tr>
 <tr class="even">
@@ -452,8 +453,8 @@ regular)</td>
 <td align="right">12</td>
 <td align="left">representative</td>
 <td align="left">regular</td>
-<td align="left">SEASON/HOURTYPE calendar (12 slices; representative,
-regular)</td>
+<td align="left">SEASON/HOURTYPE calendar (12 timeslices;
+representative, regular)</td>
 </tr>
 <tr class="odd">
 <td align="left">q4_hp3</td>
@@ -462,8 +463,8 @@ regular)</td>
 <td align="right">12</td>
 <td align="left">representative</td>
 <td align="left">regular</td>
-<td align="left">QUARTER/HOURTYPE calendar (12 slices; representative,
-regular)</td>
+<td align="left">QUARTER/HOURTYPE calendar (12 timeslices;
+representative, regular)</td>
 </tr>
 </tbody>
 </table>
@@ -474,59 +475,60 @@ regular)</td>
 <span><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="va">cal</span><span class="op">@</span><span class="va">leaves</span>, <span class="va">cal2</span><span class="op">@</span><span class="va">leaves</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
 <p><strong>Coverage</strong> says how the design relates to a real year:
-<code>complete</code> (every instant has a slice),
+<code>complete</code> (every instant has a timeslice),
 <code>truncated</code> (a stylised year that drops instants —
-<code>d365</code> has no Feb 29), or <code>representative</code> (slices
-stand for recurring types rather than a partition of the timeline —
-<code>q4_h24</code> is a representative day per quarter).
-<strong>Regularity</strong> flags designs whose slices differ in length
-within a level (<code>m12_md365</code>: February is short).</p>
+<code>d365</code> has no Feb 29), or <code>representative</code>
+(timeslices stand for recurring types rather than a partition of the
+timeline — <code>q4_h24</code> is a representative day per quarter).
+<strong>Regularity</strong> flags designs whose timeslices differ in
+length within a level (<code>m12_md365</code>: February is short).</p>
 </div>
 <div class="section level2">
 <h2 id="shares-are-duration-proportional">Shares are duration-proportional<a class="anchor" aria-label="anchor" href="#shares-are-duration-proportional"></a>
 </h2>
-<p>Unlike the timeslices originals — which gave every slice a uniform
-share — catalog calendars weight slices by real duration:</p>
+<p>Unlike the timeslices originals — which gave every timeslice a
+uniform share — catalog calendars weight timeslices by real
+duration:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">m12</span> <span class="op">&lt;-</span> <span class="va">calendars</span><span class="op">$</span><span class="va">m12</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>slice <span class="op">=</span> <span class="va">m12</span><span class="op">@</span><span class="va">leaves</span><span class="op">$</span><span class="va">slice</span>, share <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">m12</span><span class="op">@</span><span class="va">leaves</span><span class="op">$</span><span class="va">share</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, <span class="op">]</span></span>
-<span><span class="co">#&gt;   slice  share</span></span>
-<span><span class="co">#&gt; 1   m01 0.0849</span></span>
-<span><span class="co">#&gt; 2   m02 0.0767</span></span>
-<span><span class="co">#&gt; 3   m03 0.0849</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>timeslice <span class="op">=</span> <span class="va">m12</span><span class="op">@</span><span class="va">leaves</span><span class="op">$</span><span class="va">timeslice</span>, share <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">m12</span><span class="op">@</span><span class="va">leaves</span><span class="op">$</span><span class="va">share</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, <span class="op">]</span></span>
+<span><span class="co">#&gt;   timeslice  share</span></span>
+<span><span class="co">#&gt; 1       m01 0.0849</span></span>
+<span><span class="co">#&gt; 2       m02 0.0767</span></span>
+<span><span class="co">#&gt; 3       m03 0.0849</span></span></code></pre></div>
 <p>January is <code>31/365</code> of the year, not <code>1/12</code>.
-This is what makes <code>recast(rule = "sum")</code> conserve and
-<code>weighted_mean</code> weight correctly.</p>
+This is what makes <code>recast_calendar(rule = "sum")</code> conserve
+and <code>weighted_mean</code> weight correctly.</p>
 </div>
 <div class="section level2">
 <h2 id="the-workhorses">The workhorses<a class="anchor" aria-label="anchor" href="#the-workhorses"></a>
 </h2>
 <p>The designs most models start from:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">calendars</span><span class="op">$</span><span class="va">d365_h24</span>    <span class="co"># 8,760 hourly slices, the full-resolution classic</span></span>
+<code class="sourceCode R"><span><span class="va">calendars</span><span class="op">$</span><span class="va">d365_h24</span>    <span class="co"># 8,760 hourly timeslices, the full-resolution classic</span></span>
 <span><span class="co">#&gt; Calendar: d365_h24 </span></span>
 <span><span class="co">#&gt; Timeframes (2):</span></span>
 <span><span class="co">#&gt;   - YDAY (365) [token: d365, alignment: drop_feb29]</span></span>
 <span><span class="co">#&gt;   - HOUR (24) [token: h24]</span></span>
-<span><span class="co">#&gt; Leaf slices: 8760</span></span>
+<span><span class="co">#&gt; Leaf timeslices: 8760</span></span>
 <span><span class="co">#&gt; year_fraction: 1</span></span>
 <span><span class="co">#&gt; year_start: month=1, day=1</span></span>
 <span><span class="co">#&gt; utc_offset_minutes: 0</span></span>
-<span><span class="va">calendars</span><span class="op">$</span><span class="va">m12_h24</span>     <span class="co"># 288 slices: representative day per month</span></span>
+<span><span class="va">calendars</span><span class="op">$</span><span class="va">m12_h24</span>     <span class="co"># 288 timeslices: representative day per month</span></span>
 <span><span class="co">#&gt; Calendar: m12_h24 </span></span>
 <span><span class="co">#&gt; Timeframes (2):</span></span>
 <span><span class="co">#&gt;   - MONTH (12) [token: m12]</span></span>
 <span><span class="co">#&gt;   - HOUR (24) [token: h24]</span></span>
-<span><span class="co">#&gt; Leaf slices: 288</span></span>
+<span><span class="co">#&gt; Leaf timeslices: 288</span></span>
 <span><span class="co">#&gt; year_fraction: 1</span></span>
 <span><span class="co">#&gt; year_start: month=1, day=1</span></span>
 <span><span class="co">#&gt; utc_offset_minutes: 0</span></span>
-<span><span class="va">calendars</span><span class="op">$</span><span class="va">q4_h24</span>      <span class="co"># 96 slices: representative day per quarter</span></span>
+<span><span class="va">calendars</span><span class="op">$</span><span class="va">q4_h24</span>      <span class="co"># 96 timeslices: representative day per quarter</span></span>
 <span><span class="co">#&gt; Calendar: q4_h24 </span></span>
 <span><span class="co">#&gt; Timeframes (2):</span></span>
 <span><span class="co">#&gt;   - QUARTER (4) [token: q4]</span></span>
 <span><span class="co">#&gt;   - HOUR (24) [token: h24]</span></span>
-<span><span class="co">#&gt; Leaf slices: 96</span></span>
+<span><span class="co">#&gt; Leaf timeslices: 96</span></span>
 <span><span class="co">#&gt; year_fraction: 1</span></span>
 <span><span class="co">#&gt; year_start: month=1, day=1</span></span>
 <span><span class="co">#&gt; utc_offset_minutes: 0</span></span></code></pre></div>
@@ -538,13 +540,13 @@ month and day-of-month:</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">md</span><span class="op">@</span><span class="va">leaves</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 365</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">md</span><span class="op">@</span><span class="va">leaves</span><span class="op">[</span><span class="va">md</span><span class="op">@</span><span class="va">leaves</span><span class="op">$</span><span class="va">MONTH</span> <span class="op">==</span> <span class="st">"m02"</span>, <span class="op">]</span>, <span class="fl">2</span><span class="op">)</span></span>
-<span><span class="co">#&gt;    MONTH MDAY       share   slice weight</span></span>
-<span><span class="co">#&gt; 32   m02  d01 0.002739726 m02_d01     24</span></span>
-<span><span class="co">#&gt; 33   m02  d02 0.002739726 m02_d02     24</span></span>
+<span><span class="co">#&gt;    MONTH MDAY       share timeslice weight</span></span>
+<span><span class="co">#&gt; 32   m02  d01 0.002739726   m02_d01     24</span></span>
+<span><span class="co">#&gt; 33   m02  d02 0.002739726   m02_d02     24</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail</a></span><span class="op">(</span><span class="va">md</span><span class="op">@</span><span class="va">leaves</span><span class="op">[</span><span class="va">md</span><span class="op">@</span><span class="va">leaves</span><span class="op">$</span><span class="va">MONTH</span> <span class="op">==</span> <span class="st">"m02"</span>, <span class="op">]</span>, <span class="fl">1</span><span class="op">)</span>   <span class="co"># Feb ends at d28</span></span>
-<span><span class="co">#&gt;    MONTH MDAY       share   slice weight</span></span>
-<span><span class="co">#&gt; 59   m02  d28 0.002739726 m02_d28     24</span></span>
-<span><span class="fu"><a href="../reference/instant_to_slice.html">instant_to_slice</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"2021-03-15"</span>, <span class="st">"2020-02-29"</span><span class="op">)</span><span class="op">)</span>, <span class="va">md</span><span class="op">)</span>  <span class="co"># Feb 29 -&gt; NA</span></span>
+<span><span class="co">#&gt;    MONTH MDAY       share timeslice weight</span></span>
+<span><span class="co">#&gt; 59   m02  d28 0.002739726   m02_d28     24</span></span>
+<span><span class="fu"><a href="../reference/instant_to_timeslice.html">instant_to_timeslice</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"2021-03-15"</span>, <span class="st">"2020-02-29"</span><span class="op">)</span><span class="op">)</span>, <span class="va">md</span><span class="op">)</span>  <span class="co"># Feb 29 -&gt; NA</span></span>
 <span><span class="co">#&gt; [1] "m03_d15" NA</span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -568,9 +570,9 @@ and unlike in timeslices, they are fully datetime-convertible:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dtm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.POSIXlt.html" class="external-link">as.POSIXct</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"2021-01-15 03:00"</span>, <span class="st">"2021-01-16 18:00"</span>,</span>
 <span>                    <span class="st">"2021-07-14 12:00"</span><span class="op">)</span>, tz <span class="op">=</span> <span class="st">"UTC"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/instant_to_slice.html">instant_to_slice</a></span><span class="op">(</span><span class="va">dtm</span>, <span class="va">calendars</span><span class="op">$</span><span class="va">s4_hp3</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/instant_to_timeslice.html">instant_to_timeslice</a></span><span class="op">(</span><span class="va">dtm</span>, <span class="va">calendars</span><span class="op">$</span><span class="va">s4_hp3</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "WIN_NIGHT" "WIN_PEAK"  "SUM_DAY"</span></span>
-<span><span class="fu"><a href="../reference/instant_to_slice.html">instant_to_slice</a></span><span class="op">(</span><span class="va">dtm</span>, <span class="va">calendars</span><span class="op">$</span><span class="va">wk2_h24</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/instant_to_timeslice.html">instant_to_timeslice</a></span><span class="op">(</span><span class="va">dtm</span>, <span class="va">calendars</span><span class="op">$</span><span class="va">wk2_h24</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "WORKDAY_h03" "WEEKEND_h18" "WORKDAY_h12"</span></span></code></pre></div>
 <p>The mappings are defaults, not dogma — register your own token
 (e.g. a different peak window) with <code><a href="../reference/register_token.html">register_token()</a></code> and
@@ -581,10 +583,10 @@ build a custom calendar from it.</p>
 </h2>
 <p><code><a href="https://ggplot2.tidyverse.org/reference/autoplot.html" class="external-link">autoplot()</a></code> (or <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>) draws a calendar’s
 structure as an icicle: one band per timeframe with the
-<code>ANNUAL</code> root on top, rectangle widths equal to slice shares,
-x spanning the year on <code>[0, 1]</code>. The gradient restarts inside
-each parent (<code>color_pattern = "within"</code>), so nested structure
-is visible at a glance:</p>
+<code>ANNUAL</code> root on top, rectangle widths equal to timeslice
+shares, x spanning the year on <code>[0, 1]</code>. The gradient
+restarts inside each parent (<code>color_pattern = "within"</code>), so
+nested structure is visible at a glance:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/autoplot.html" class="external-link">autoplot</a></span><span class="op">(</span><span class="va">calendars</span><span class="op">$</span><span class="va">m12_h24</span><span class="op">)</span></span></code></pre></div>
@@ -605,14 +607,14 @@ binned before drawing:</p>
 rectangles, usable from any plotting system:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="../reference/calendar_layout.html">calendar_layout</a></span><span class="op">(</span><span class="va">calendars</span><span class="op">$</span><span class="va">q4_h24</span><span class="op">)</span>, <span class="fl">7</span><span class="op">)</span></span>
-<span><span class="co">#&gt;   timeframe  label  slice rank       xmin       xmax ymin ymax      share</span></span>
-<span><span class="co">#&gt; 1    ANNUAL ANNUAL ANNUAL    0 0.00000000 1.00000000    2  2.9 1.00000000</span></span>
-<span><span class="co">#&gt; 2   QUARTER     Q1     Q1    1 0.00000000 0.24657534    1  1.9 0.24657534</span></span>
-<span><span class="co">#&gt; 3   QUARTER     Q2     Q2    1 0.24657534 0.49589041    1  1.9 0.24931507</span></span>
-<span><span class="co">#&gt; 4   QUARTER     Q3     Q3    1 0.49589041 0.74794521    1  1.9 0.25205479</span></span>
-<span><span class="co">#&gt; 5   QUARTER     Q4     Q4    1 0.74794521 1.00000000    1  1.9 0.25205479</span></span>
-<span><span class="co">#&gt; 6      HOUR    h00 Q1_h00    2 0.00000000 0.01027397    0  0.9 0.01027397</span></span>
-<span><span class="co">#&gt; 7      HOUR    h01 Q1_h01    2 0.01027397 0.02054795    0  0.9 0.01027397</span></span>
+<span><span class="co">#&gt;   timeframe  label timeslice rank       xmin       xmax ymin ymax      share</span></span>
+<span><span class="co">#&gt; 1    ANNUAL ANNUAL    ANNUAL    0 0.00000000 1.00000000    2  2.9 1.00000000</span></span>
+<span><span class="co">#&gt; 2   QUARTER     Q1        Q1    1 0.00000000 0.24657534    1  1.9 0.24657534</span></span>
+<span><span class="co">#&gt; 3   QUARTER     Q2        Q2    1 0.24657534 0.49589041    1  1.9 0.24931507</span></span>
+<span><span class="co">#&gt; 4   QUARTER     Q3        Q3    1 0.49589041 0.74794521    1  1.9 0.25205479</span></span>
+<span><span class="co">#&gt; 5   QUARTER     Q4        Q4    1 0.74794521 1.00000000    1  1.9 0.25205479</span></span>
+<span><span class="co">#&gt; 6      HOUR    h00    Q1_h00    2 0.00000000 0.01027397    0  0.9 0.01027397</span></span>
+<span><span class="co">#&gt; 7      HOUR    h01    Q1_h01    2 0.01027397 0.02054795    0  0.9 0.01027397</span></span>
 <span><span class="co">#&gt;   weight order within</span></span>
 <span><span class="co">#&gt; 1   8760     1      1</span></span>
 <span><span class="co">#&gt; 2   2160     1      1</span></span>
@@ -622,11 +624,11 @@ rectangles, usable from any plotting system:</p>
 <span><span class="co">#&gt; 6     90     1      1</span></span>
 <span><span class="co">#&gt; 7     90     2      2</span></span></code></pre></div>
 <p><code><a href="../reference/calendar_plot.html">calendar_plot()</a></code> is the data-on-calendar heatmap: hand it
-a <code>data.frame</code> keyed by slice (or nothing, to see the share
-structure). The layout follows the hierarchy — finest timeframe on y,
-next on x, coarser levels as facets:</p>
+a <code>data.frame</code> keyed by timeslice (or nothing, to see the
+share structure). The layout follows the hierarchy — finest timeframe on
+y, next on x, coarser levels as facets:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>slice <span class="op">=</span> <span class="va">calendars</span><span class="op">$</span><span class="va">m12_h24</span><span class="op">@</span><span class="va">leaves</span><span class="op">$</span><span class="va">slice</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>timeslice <span class="op">=</span> <span class="va">calendars</span><span class="op">$</span><span class="va">m12_h24</span><span class="op">@</span><span class="va">leaves</span><span class="op">$</span><span class="va">timeslice</span><span class="op">)</span></span>
 <span><span class="va">x</span><span class="op">$</span><span class="va">load</span> <span class="op">&lt;-</span> <span class="fl">80</span> <span class="op">+</span> <span class="fl">40</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">sin</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">6</span> <span class="op">*</span> <span class="va">pi</span>, length.out <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/calendar_plot.html">calendar_plot</a></span><span class="op">(</span><span class="va">calendars</span><span class="op">$</span><span class="va">m12_h24</span>, <span class="va">x</span>, palette <span class="op">=</span> <span class="st">"C"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="calendars_files/figure-html/unnamed-chunk-10-1.png" class="r-plt" alt="" width="672"></p>
@@ -637,25 +639,25 @@ next on x, coarser levels as facets:</p>
 <p>Any two catalog calendars convert into each other; totals are
 conserved under <code>rule = "sum"</code>:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>slice <span class="op">=</span> <span class="va">calendars</span><span class="op">$</span><span class="va">m12</span><span class="op">@</span><span class="va">leaves</span><span class="op">$</span><span class="va">slice</span>,</span>
+<code class="sourceCode R"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>timeslice <span class="op">=</span> <span class="va">calendars</span><span class="op">$</span><span class="va">m12</span><span class="op">@</span><span class="va">leaves</span><span class="op">$</span><span class="va">timeslice</span>,</span>
 <span>                energy <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">310</span>, <span class="fl">280</span>, <span class="fl">300</span>, <span class="fl">250</span>, <span class="fl">220</span>, <span class="fl">230</span>,</span>
 <span>                           <span class="fl">260</span>, <span class="fl">270</span>, <span class="fl">240</span>, <span class="fl">250</span>, <span class="fl">280</span>, <span class="fl">320</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/recast.html">recast</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">calendars</span><span class="op">$</span><span class="va">m12</span>, <span class="va">calendars</span><span class="op">$</span><span class="va">s4</span>, year <span class="op">=</span> <span class="fl">2021</span>, rule <span class="op">=</span> <span class="st">"sum"</span>,</span>
+<span><span class="fu"><a href="../reference/recast_calendar.html">recast_calendar</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">calendars</span><span class="op">$</span><span class="va">m12</span>, <span class="va">calendars</span><span class="op">$</span><span class="va">s4</span>, year <span class="op">=</span> <span class="fl">2021</span>, rule <span class="op">=</span> <span class="st">"sum"</span>,</span>
 <span>       by <span class="op">=</span> <span class="st">"day"</span><span class="op">)</span></span>
-<span><span class="co">#&gt;   slice energy</span></span>
-<span><span class="co">#&gt; 1   WIN    910</span></span>
-<span><span class="co">#&gt; 2   SPR    770</span></span>
-<span><span class="co">#&gt; 3   SUM    760</span></span>
-<span><span class="co">#&gt; 4   FAL    770</span></span>
+<span><span class="co">#&gt;   timeslice energy</span></span>
+<span><span class="co">#&gt; 1       WIN    910</span></span>
+<span><span class="co">#&gt; 2       SPR    770</span></span>
+<span><span class="co">#&gt; 3       SUM    760</span></span>
+<span><span class="co">#&gt; 4       FAL    770</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">x</span><span class="op">$</span><span class="va">energy</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 3210</span></span></code></pre></div>
 <p>Or aggregate within one calendar via the <code>ANNUAL</code>
 root:</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/recast.html">recast</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">calendars</span><span class="op">$</span><span class="va">m12</span>, to <span class="op">=</span> <span class="st">"ANNUAL"</span>, year <span class="op">=</span> <span class="fl">2021</span>, rule <span class="op">=</span> <span class="st">"sum"</span>,</span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/recast_calendar.html">recast_calendar</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">calendars</span><span class="op">$</span><span class="va">m12</span>, to <span class="op">=</span> <span class="st">"ANNUAL"</span>, year <span class="op">=</span> <span class="fl">2021</span>, rule <span class="op">=</span> <span class="st">"sum"</span>,</span>
 <span>       by <span class="op">=</span> <span class="st">"day"</span><span class="op">)</span></span>
-<span><span class="co">#&gt;    slice energy</span></span>
-<span><span class="co">#&gt; 1 ANNUAL   3210</span></span></code></pre></div>
+<span><span class="co">#&gt;   timeslice energy</span></span>
+<span><span class="co">#&gt; 1    ANNUAL   3210</span></span></code></pre></div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

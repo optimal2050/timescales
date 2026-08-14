@@ -21,7 +21,15 @@ reference:
       - Calendar
       - calendar_from_leaves
       - calendar_build
-      - calendar_at_level
+      - prune_calendar
+  - title: "Navigation and subsetting"
+    desc: "Query the timeframe hierarchy and subset calendars."
+    contents:
+      - calendar_queries
+      - calendar_family
+      - calendar_navigate
+      - calendar_share
+      - filter_calendar
   - title: "Catalog and data"
     desc: "The built-in calendar designs and sample data."
     contents:
@@ -40,11 +48,12 @@ reference:
   - title: "Conversions"
     desc: "Move data between datetimes and calendars, and between calendars."
     contents:
+      - instant_to_timeslice
       - instant_to_slice
       - expand_calendar
-      - calendar_recast
+      - recast_calendar
       - recast
-      - calendar_join
+      - join_calendar
       - base_calendar
   - title: "Visualization"
     desc: "Draw calendar structures and data on calendars."
@@ -63,6 +72,9 @@ reference:
       - list_rules
       - clear_rules
       - register_conversion
+  - title: "Deprecated"
+    contents:
+      - timescales-deprecated
   - title: "Package"
     contents:
       - timescales-package

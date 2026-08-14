@@ -16,17 +16,17 @@ library(timescales)
 ## What problem does this solve?
 
 Energy-system, climate, and operations models all carve the year into
-discrete *time slices*. Different models pick different slicings:
+discrete *time timeslices*. Different models pick different slicings:
 365 days, 12 months, 4 quarters × 24 hours, 168 hours of a representative
-week, and so on. The slice **labels** are arbitrary, the **shares of a
+week, and so on. The timeslice **labels** are arbitrary, the **shares of a
 year** are model-defined, and converting data between slicings is
 error-prone.
 
 `timescales` represents any such slicing as a **Calendar**: an ordered
 hierarchy of *timeframes* (`YEAR`, `MONTH`, `HOUR`, ...) whose terminal
-*leaves* form the slices. With one object you get:
+*leaves* form the timeslices. With one object you get:
 
-- a stable schema for the slice labels and their year-share weights,
+- a stable schema for the timeslice labels and their year-share weights,
 - well-defined mappings to and from real datetimes,
 - well-defined conversions between any two calendars covering the
   same year fraction.
@@ -58,23 +58,23 @@ A `Calendar` has four parts:
 
 ```{r}
 cal_my@timeframes               # the timeframe hierarchy, coarsest first
-head(cal_my@leaves, 4)          # the leaf table (one row per slice)
+head(cal_my@leaves, 4)          # the leaf table (one row per timeslice)
 cal_my@levels$MONTH             # ordered label vocabulary per timeframe
 cal_my@meta[c("name", "year_fraction")]
 ```
 
-`leaves` is a plain `data.frame`. Each row is one slice, with columns:
+`leaves` is a plain `data.frame`. Each row is one timeslice, with columns:
 
-- `slice` — the unique slice ID,
+- `timeslice` — the unique timeslice ID,
 - `share` — fraction of a year,
-- `weight` — slice weight in hours (default `share * 8760`),
+- `weight` — timeslice weight in hours (default `share * 8760`),
 - one column per timeframe — the label at that level.
 
 ### 3. Map real datetimes onto the calendar
 
 ```{r}
 times <- as.POSIXct(c("2025-01-15 03:00", "2025-07-20 18:00"), tz = "UTC")
-instant_to_slice(times, cal_my)
+instant_to_timeslice(times, cal_my)
 ```
 
 ### 4. Convert data between calendars
@@ -86,11 +86,11 @@ cal_m <- calendar("m12")
 cal_q <- calendar("q4")
 
 monthly <- data.frame(
-  slice = sprintf("m%02d", 1:12),
+  timeslice = sprintf("m%02d", 1:12),
   load  = c(120, 118, 105,  92,  85,  88,  95, 100,  98,  90, 105, 122)
 )
 
-calendar_recast(monthly, from = cal_m, to = cal_q, year = 2025,
+recast_calendar(monthly, from = cal_m, to = cal_q, year = 2025,
        rule = "weighted_mean", by = "day")
 ```
 

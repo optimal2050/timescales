@@ -25,3 +25,9 @@
 
   The built-in calendar designs: what ships, how to build them, and how
   to pick one.
+
+- [Weather data on
+  calendars](https://optimal2050.github.io/timescales/r/articles/weather-data.md):
+
+  MERRA-2 samples on calendars: heatmap layers, energypal palettes, and
+  recasting across resolutions.

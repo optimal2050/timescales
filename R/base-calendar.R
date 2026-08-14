@@ -3,7 +3,7 @@
 # =============================================================================
 # The analogue of geoscales' atom rows in `@leaves`: real POSIXct instants,
 # multi-year (so leap years are representable), generated on demand and
-# cached rather than stored on any object. Every `calendar_recast()` routes through
+# cached rather than stored on any object. Every `recast_calendar()` routes through
 # this grid; `base_calendar()` exposes it directly for converting data
 # from/to date-time form.
 # =============================================================================
@@ -65,10 +65,10 @@ base_calendar <- function(years, by = "hour", tz = "UTC") {
 #' Aggregates a calendar to one of its own timeframe levels: leaves are
 #' grouped by the timeframes down to (and including) `timeframe`, and their
 #' `share`/`weight` are summed. `timeframe = "ANNUAL"` returns the implicit
-#' whole-year root — a one-slice calendar (the root is named `ANNUAL`, never
+#' whole-year root — a one-timeslice calendar (the root is named `ANNUAL`, never
 #' `YEAR`, which is reserved for the Gregorian-year axis).
 #'
-#' Together with [`calendar_recast()`]'s acceptance of a timeframe name for `to=`,
+#' Together with [`recast_calendar()`]'s acceptance of a timeframe name for `to=`,
 #' this covers within-calendar aggregation (e.g. `q4_h24 -> q4`) without
 #' constructing a second calendar by hand.
 #'
@@ -80,10 +80,10 @@ base_calendar <- function(years, by = "hour", tz = "UTC") {
 #'
 #' @examples
 #' cal <- calendar_build("q4", "h24")
-#' calendar_at_level(cal, "QUARTER")   # 4 slices, shares summed over hours
-#' calendar_at_level(cal, "ANNUAL")    # 1 slice covering the year
+#' prune_calendar(cal, "QUARTER")   # 4 timeslices, shares summed over hours
+#' prune_calendar(cal, "ANNUAL")    # 1 timeslice covering the year
 #' @export
-calendar_at_level <- function(calendar, timeframe) {
+prune_calendar <- function(calendar, timeframe) {
   if (!S7::S7_inherits(calendar, Calendar)) {
     stop("`calendar` must be a Calendar object", call. = FALSE)
   }
@@ -101,7 +101,7 @@ calendar_at_level <- function(calendar, timeframe) {
   if (timeframe == "ANNUAL") {
     root <- data.frame(
       ANNUAL = "ANNUAL",
-      slice  = "ANNUAL",
+      timeslice  = "ANNUAL",
       share  = sum(leaves$share),
       weight = sum(leaves$weight),
       stringsAsFactors = FALSE
@@ -134,7 +134,7 @@ calendar_at_level <- function(calendar, timeframe) {
   agg$share  <- as.numeric(tapply(leaves$share, grp_key, sum)[grp_key[first_i]])
   agg$weight <- as.numeric(tapply(leaves$weight, grp_key,
                                   sum)[grp_key[first_i]])
-  agg$slice  <- .make_slice_ids(agg, keep)
+  agg$timeslice  <- .make_timeslice_ids(agg, keep)
 
   # Order rows by the vocabulary order of the kept timeframes
   ord_rank <- Reduce(`+`, lapply(seq_along(keep), function(i) {

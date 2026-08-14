@@ -3,17 +3,17 @@
 ## What problem does this solve?
 
 Energy-system, climate, and operations models all carve the year into
-discrete *time slices*. Different models pick different slicings: 365
-days, 12 months, 4 quarters × 24 hours, 168 hours of a representative
-week, and so on. The slice **labels** are arbitrary, the **shares of a
-year** are model-defined, and converting data between slicings is
-error-prone.
+discrete *time timeslices*. Different models pick different slicings:
+365 days, 12 months, 4 quarters × 24 hours, 168 hours of a
+representative week, and so on. The timeslice **labels** are arbitrary,
+the **shares of a year** are model-defined, and converting data between
+slicings is error-prone.
 
 `timescales` represents any such slicing as a **Calendar**: an ordered
 hierarchy of *timeframes* (`YEAR`, `MONTH`, `HOUR`, …) whose terminal
-*leaves* form the slices. With one object you get:
+*leaves* form the timeslices. With one object you get:
 
-- a stable schema for the slice labels and their year-share weights,
+- a stable schema for the timeslice labels and their year-share weights,
 - well-defined mappings to and from real datetimes,
 - well-defined conversions between any two calendars covering the same
   year fraction.
@@ -32,7 +32,7 @@ cal_my
 #> Timeframes (2):
 #>   - MONTH (12) [token: m12]
 #>   - HOUR (24) [token: h24]
-#> Leaf slices: 288
+#> Leaf timeslices: 288
 #> year_fraction: 1
 #> year_start: month=1, day=1
 #> utc_offset_minutes: 0
@@ -59,12 +59,12 @@ A `Calendar` has four parts:
 
 cal_my@timeframes               # the timeframe hierarchy, coarsest first
 #> [1] "MONTH" "HOUR"
-head(cal_my@leaves, 4)          # the leaf table (one row per slice)
-#>   MONTH HOUR       share weight   slice
-#> 1   m01  h00 0.003538813     31 m01_h00
-#> 2   m02  h00 0.003196347     28 m02_h00
-#> 3   m03  h00 0.003538813     31 m03_h00
-#> 4   m04  h00 0.003424658     30 m04_h00
+head(cal_my@leaves, 4)          # the leaf table (one row per timeslice)
+#>   MONTH HOUR       share weight timeslice
+#> 1   m01  h00 0.003538813     31   m01_h00
+#> 2   m02  h00 0.003196347     28   m02_h00
+#> 3   m03  h00 0.003538813     31   m03_h00
+#> 4   m04  h00 0.003424658     30   m04_h00
 cal_my@levels$MONTH             # ordered label vocabulary per timeframe
 #>  [1] "m01" "m02" "m03" "m04" "m05" "m06" "m07" "m08" "m09" "m10" "m11" "m12"
 cal_my@meta[c("name", "year_fraction")]
@@ -75,11 +75,12 @@ cal_my@meta[c("name", "year_fraction")]
 #> [1] 1
 ```
 
-`leaves` is a plain `data.frame`. Each row is one slice, with columns:
+`leaves` is a plain `data.frame`. Each row is one timeslice, with
+columns:
 
-- `slice` — the unique slice ID,
+- `timeslice` — the unique timeslice ID,
 - `share` — fraction of a year,
-- `weight` — slice weight in hours (default `share * 8760`),
+- `weight` — timeslice weight in hours (default `share * 8760`),
 - one column per timeframe — the label at that level.
 
 ### 3. Map real datetimes onto the calendar
@@ -87,7 +88,7 @@ cal_my@meta[c("name", "year_fraction")]
 ``` r
 
 times <- as.POSIXct(c("2025-01-15 03:00", "2025-07-20 18:00"), tz = "UTC")
-instant_to_slice(times, cal_my)
+instant_to_timeslice(times, cal_my)
 #> [1] "m01_h03" "m07_h18"
 ```
 
@@ -101,17 +102,17 @@ cal_m <- calendar("m12")
 cal_q <- calendar("q4")
 
 monthly <- data.frame(
-  slice = sprintf("m%02d", 1:12),
+  timeslice = sprintf("m%02d", 1:12),
   load  = c(120, 118, 105,  92,  85,  88,  95, 100,  98,  90, 105, 122)
 )
 
-recast(monthly, from = cal_m, to = cal_q, year = 2025,
+recast_calendar(monthly, from = cal_m, to = cal_q, year = 2025,
        rule = "weighted_mean", by = "day")
-#>   slice      load
-#> 1    Q1 114.21111
-#> 2    Q2  88.29670
-#> 3    Q3  97.66304
-#> 4    Q4 105.67391
+#>   timeslice      load
+#> 1        Q1 114.21111
+#> 2        Q2  88.29670
+#> 3        Q3  97.66304
+#> 4        Q4 105.67391
 ```
 
 The result is day-weighted: Q1 = (31·v₁ + 28·v₂ + 31·v₃) / 90.

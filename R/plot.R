@@ -30,7 +30,7 @@
 #'
 #' Computes the rectangle geometry of the structure plot as a plain
 #' `data.frame` — one band per timeframe (coarsest at the top, plus the
-#' implicit `ANNUAL` root), one rectangle per contiguous slice segment,
+#' implicit `ANNUAL` root), one rectangle per contiguous timeslice segment,
 #' x normalized to `[0, 1]` (share of the covered year). Exposed so the
 #' layout can be drawn with something other than ggplot2; the same frame
 #' backs [`calendar_autoplot()`].
@@ -39,7 +39,7 @@
 #' @param annual Include the `ANNUAL` root band on top? Default `TRUE`.
 #'
 #' @return A `data.frame` with columns `timeframe`, `label` (the level value
-#'   of the segment), `slice` (the full prefix path id), `rank` (0 for
+#'   of the segment), `timeslice` (the full prefix path id), `rank` (0 for
 #'   `ANNUAL`, then 1 = coarsest), `xmin`/`xmax` (in `[0, 1]`),
 #'   `ymin`/`ymax` (bands, top row highest), `share` (segment share of the
 #'   year), `weight` (segment weight sum), `order` (index of the segment's
@@ -77,7 +77,7 @@ calendar_layout <- function(calendar, annual = TRUE) {
   if (annual) {
     b <- band(1)
     rows[[1]] <- data.frame(
-      timeframe = "ANNUAL", label = "ANNUAL", slice = "ANNUAL", rank = 0L,
+      timeframe = "ANNUAL", label = "ANNUAL", timeslice = "ANNUAL", rank = 0L,
       xmin = 0, xmax = x1[n_leaf], ymin = b[["ymin"]], ymax = b[["ymax"]],
       share = sum(leaves$share), weight = sum(leaves$weight),
       order = 1L, within = 1L, stringsAsFactors = FALSE
@@ -97,7 +97,7 @@ calendar_layout <- function(calendar, annual = TRUE) {
     rows[[length(rows) + 1L]] <- data.frame(
       timeframe = tfs[i],
       label     = as.character(leaves[[tfs[i]]])[starts],
-      slice     = do.call(paste, c(prefix, sep = "_")),
+      timeslice     = do.call(paste, c(prefix, sep = "_")),
       rank      = i,
       xmin      = x0[starts],
       xmax      = x1[ends],
@@ -140,17 +140,17 @@ calendar_layout <- function(calendar, annual = TRUE) {
 #' Plot a calendar's structure as an icicle
 #'
 #' One horizontal band per timeframe (`ANNUAL` root on top, coarsest first),
-#' rectangle widths proportional to slice shares, x spanning the covered
+#' rectangle widths proportional to timeslice shares, x spanning the covered
 #' year on `[0, 1]`. `autoplot()` and `plot()` on a Calendar dispatch here.
 #'
 #' @param object A [`Calendar`].
 #' @param fill What drives the fill gradient: `"order"` (chronological
 #'   position, default), `"share"`, or `"weight"`.
 #' @param color_pattern For `fill = "order"`: `"within"` (default) restarts
-#'   the gradient inside each parent slice (hours recycle every day);
+#'   the gradient inside each parent timeslice (hours recycle every day);
 #'   `"global"` sweeps once across the whole year.
 #' @param labels Segment labels: `"name"` (level value, e.g. `h00`;
-#'   default), `"slice"` (full path, e.g. `Q1_h00`), or `"none"`.
+#'   default), `"timeslice"` (full path, e.g. `Q1_h00`), or `"none"`.
 #'   `TRUE`/`FALSE` are accepted as shorthands.
 #' @param max_labels Rows with more segments than this get no labels.
 #'   Default 60.
@@ -175,7 +175,7 @@ calendar_layout <- function(calendar, annual = TRUE) {
 calendar_autoplot <- function(object,
                               fill = c("order", "share", "weight"),
                               color_pattern = c("within", "global"),
-                              labels = c("name", "slice", "none"),
+                              labels = c("name", "timeslice", "none"),
                               max_labels = 60L,
                               max_segments = 2000L,
                               border = NA,
@@ -255,9 +255,9 @@ calendar_autoplot <- function(object,
   # Labels ---------------------------------------------------------------------
   if (labels != "none") {
     lab_rows <- names(seg_n)[seg_n <= max_labels]
-    ld <- d[d$timeframe %in% lab_rows & !is.na(d$slice), , drop = FALSE]
+    ld <- d[d$timeframe %in% lab_rows & !is.na(d$timeslice), , drop = FALSE]
     if (nrow(ld) > 0L) {
-      ld$.label <- if (labels == "slice") ld$slice else ld$label
+      ld$.label <- if (labels == "timeslice") ld$timeslice else ld$label
       # white on dark cells, dark on light ones (normalize fill to [0,1])
       rng <- range(d$.fill, finite = TRUE)
       f01 <- if (diff(rng) > 0) (ld$.fill - rng[1]) / diff(rng) else 0.5
@@ -288,7 +288,7 @@ calendar_autoplot <- function(object,
     r$share  <- sum(row_df$share[i])
     r$weight <- sum(row_df$weight[i])
     r$.fill  <- stats::weighted.mean(row_df$.fill[i], width[i])
-    r$slice  <- NA_character_   # a bin is not a real slice; also mutes labels
+    r$timeslice  <- NA_character_   # a bin is not a real timeslice; also mutes labels
     r
   })
   do.call(rbind, out)
@@ -301,19 +301,19 @@ calendar_autoplot <- function(object,
 #' Heatmap of data on a calendar
 #'
 #' The package's single data-on-calendar renderer (the analogue of
-#' `geoscales::geo_plot()`): callers prepare a `data.frame` keyed by slice
+#' `geoscales::geo_plot()`): callers prepare a `data.frame` keyed by timeslice
 #' and hand it over. With no data, the calendar's own `share` is drawn — a
 #' quick structural view. Layout follows the calendar's hierarchy: finest
 #' timeframe on y, next-finest on x, anything coarser as facets
 #' (overridable via `x_tf`/`y_tf`/`facet_tf`).
 #'
 #' @param x A [`Calendar`].
-#' @param data Optional `data.frame` with a `key` column of slice IDs plus
+#' @param data Optional `data.frame` with a `key` column of timeslice IDs plus
 #'   one numeric value column (pick with `values=` if there are several).
 #'   Default `NULL` plots `leaves$share`.
 #' @param values Name of the value column to plot. Default: the first
 #'   numeric column other than `key`.
-#' @param key Name of the slice key column in `data`. Default `"slice"`.
+#' @param key Name of the timeslice key column in `data`. Default `"timeslice"`.
 #' @param x_tf,y_tf,facet_tf Timeframe names overriding the automatic
 #'   layout.
 #' @param fun Aggregator applied when the chosen layout drops timeframes
@@ -330,13 +330,13 @@ calendar_autoplot <- function(object,
 #'   calendar_plot(calendar("m12_h24"))   # structure: share heatmap
 #'
 #'   cal <- calendar("m12")
-#'   x <- data.frame(slice = sprintf("m%02d", 1:12), load = 1:12)
+#'   x <- data.frame(timeslice = sprintf("m%02d", 1:12), load = 1:12)
 #'   calendar_plot(cal, x)
 #' }
 #' @export
 calendar_plot <- function(x, data = NULL,
                           values = NULL,
-                          key = "slice",
+                          key = "timeslice",
                           x_tf = NULL, y_tf = NULL, facet_tf = NULL,
                           fun = mean,
                           palette = NULL,
@@ -403,9 +403,9 @@ calendar_plot <- function(x, data = NULL,
     if (length(values) != 1L || !values %in% names(data)) {
       stop("`values` must name exactly one column of `data`", call. = FALSE)
     }
-    mi <- match(leaves$slice, data[[key]])
+    mi <- match(leaves$timeslice, data[[key]])
     if (all(is.na(mi))) {
-      stop("no rows of `data` matched the calendar's slices; check `key=`",
+      stop("no rows of `data` matched the calendar's timeslices; check `key=`",
            call. = FALSE)
     }
     val <- data[[values]][mi]

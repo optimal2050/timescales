@@ -16,9 +16,9 @@ Invisibly, the registered entry.
 }
 \description{
 Records the aggregation rule to use for a named value column, so callers
-of \code{\link[=recast]{recast()}} need not repeat it. Downstream packages can register their
+of \code{\link[=recast_calendar]{recast_calendar()}} need not repeat it. Downstream packages can register their
 own parameter maps at load time. An explicit \verb{rule=} argument to
-\code{\link[=recast]{recast()}} always wins; unregistered columns default to
+\code{\link[=recast_calendar]{recast_calendar()}} always wins; unregistered columns default to
 \code{"weighted_mean"}.
 }
 \examples{

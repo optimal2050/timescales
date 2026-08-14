@@ -1,5 +1,46 @@
 # timescales (development version)
 
+## Harmonized naming with geoscales
+
+The sibling packages now share one convention: **`verb_class()`** for
+data operations and object transforms, **class-prefixed nouns** for
+properties and queries, constructors and registries unchanged.
+
+* Renamed (old names warn and forward; removal before 1.0):
+  `calendar_recast()` -> `recast_calendar()`,
+  `calendar_join()` -> `join_calendar()`,
+  `calendar_at_level()` -> `prune_calendar()`
+  (pairs with `geoscales::prune_geoscale()`).
+* **`recast()` is now an S7 generic owned by timescales** (it was a
+  deprecated alias), dispatching on the scale object in `from`:
+  `x |> recast(cal_a, cal_b) |> recast(gs, to = "country")` — geoscales
+  registers the `Geoscale` method.
+* New navigation/query family mirroring geoscales:
+  `calendar_timeframes()`, `calendar_timeslices()`, `calendar_rank()`,
+  `calendar_family()`, `calendar_children()`, `calendar_parents()`,
+  `calendar_descendants()`, `calendar_ancestors()`,
+  `calendar_share()`.
+* New subsetting: `filter_calendar(cal, timeframe, labels)` and
+  `cal[timeframe, labels]`. Shares are kept raw; the result is a
+  partial-year calendar with `meta$year_fraction = sum(share)`.
+
+## The time dimension is now `timeslice`
+
+Stack-wide rename `slice` -> `timeslice` (pre-first-release; energyRt
+follows on its v0.80 branch): the term matches the TIMES/OSeMOSYS
+vocabulary and pairs with geoscales' `region` in mixed panels.
+
+* The leaf/key column is `timeslice` everywhere: `leaves$timeslice`,
+  `expand_calendar()`/`calendar_layout()`/`calendar_recast()` outputs,
+  `key` defaults, `geom_calendar_tile(timeslice=)`.
+* `instant_to_slice()` is deprecated in favor of
+  `instant_to_timeslice()`.
+* `calendar_catalog()` column `n_slices` is now `n_timeslices`.
+* `slice` remains a reserved timeframe name alongside `timeslice`.
+* The bundled `calendars` dataset is regenerated with the new column.
+* (Entries below this section predate the rename and are written with
+  the new vocabulary.)
+
 ## `calendar_recast()`, panel data, and the naming convention
 
 * **`recast()` is deprecated; the verb is now `calendar_recast()`.** The
@@ -11,33 +52,33 @@
   risked masking against the retired reshape2; bare `filter`/`rank`/
   `expand`/`children` are outright collisions and will never be used.)
 * **Behavior fix: identifier (panel) columns are preserved.** Previously
-  a city x slice table silently returned only the first city's values;
+  a city x timeslice table silently returned only the first city's values;
   now non-key, non-value columns group the aggregation, keep their
   types, and pass through to the output — per group, the full target
-  slice vocabulary is emitted.
+  timeslice vocabulary is emitted.
 * **Behavior fix: `values` auto-detection excludes `from`'s timeframe
   columns** (a joined `MONTH` column no longer gets swept into the
   values); numeric identifiers like `year` still need explicit
   exclusion.
-* `key = NULL` default (resolving to `"slice"`), a warning for source
+* `key = NULL` default (resolving to `"timeslice"`), a warning for source
   keys unknown to the calendar, geoscales-style error messages via new
   internal `.stop()`/`.warn()`/`.preview()` helpers, and a validator
-  guard rejecting reserved timeframe names (`slice`, `share`,
+  guard rejecting reserved timeframe names (`timeslice`, `share`,
   `weight`).
 
 ## ggplot2 layers and weather sample
 
 * **`calendar_join()`** attaches a calendar's timeframe columns (as
-  vocabulary-ordered factors) plus `share`/`weight` to slice-keyed
+  vocabulary-ordered factors) plus `share`/`weight` to timeslice-keyed
   data — the foundation for manual ggplot2 workflows.
 * **`geom_calendar()`** (datetime mode) and **`geom_calendar_tile()`**
-  (slice mode): composable single tile layers, plus the shared
+  (timeslice mode): composable single tile layers, plus the shared
   **`theme_calendar()`**. Implemented as layer factories over the plot
   data rather than ggproto Stats — ggplot2 maps positional scales
   before statistics run, so a Stat cannot emit the discrete axes a
   calendar heatmap needs (the reason timeslices carried 600+ lines of
   custom scale code, which is deliberately not ported). Calendar inputs
-  are column-name arguments (`datetime=`, `slice=`, `z=`); `by=` carries
+  are column-name arguments (`datetime=`, `timeslice=`, `z=`); `by=` carries
   facet columns through aggregation.
 * **`merra2_cities`** dataset: hourly 2019 weather (temperature, wind,
   solar) for Helsinki, Lima, and Sydney from NASA MERRA-2 (~60 KB), and
@@ -57,7 +98,7 @@ ggproto — plot-level functions over an exported plain-data layout):
   `weight`; auto white/dark labels; rows denser than `max_segments`
   (default 2000) are binned so hourly calendars render instantly.
 * `calendar_plot()` — the single data-on-calendar heatmap: data keyed by
-  slice, layout finest-on-y / next-on-x / coarser-as-facets, aggregation
+  timeslice, layout finest-on-y / next-on-x / coarser-as-facets, aggregation
   with `fun=` when timeframes are dropped; no data plots the share
   structure.
 * Naming convention settled: class-word prefixes (`calendar_*` now,
@@ -73,7 +114,7 @@ the timeslices originals shipped uniform shares (`1/12`) in contradiction
 with their own documentation.
 
 * `calendar_catalog()` — the discoverable table of built-in designs
-  (id, tokens, timeframes, slice count, coverage, regularity).
+  (id, tokens, timeframes, timeslice count, coverage, regularity).
 * `calendars` dataset — all 37 pre-built as lean package data (~40 KB vs
   timeslices' 1.9 MB).
 * `calendar(id)` now consults the catalog first: catalog builds carry
@@ -95,25 +136,25 @@ Fixes the five conversion defects diagnosed in `dev/review-core-plan.md`;
 the design decisions are recorded in `dev/review-core.md`. `recast()` now
 routes every conversion `A -> base -> B` through a multi-year grid of real
 instants (the geoscales atom pattern), projecting source values down to
-instants and aggregating up to target slices.
+instants and aggregating up to target timeslices.
 
 ### Breaking changes
 
 * `recast(rule = "sum")` now **conserves totals** — each source value is
-  split across its slice's grid instants before summing. Previously values
+  split across its timeslice's grid instants before summing. Previously values
   were broadcast to every instant and added (96 unit leaves recast
   `q4_h24 -> q4` returned 8760; it now returns 96).
 * `recast(rule = "weighted_mean")` now weights by the declared
   `leaves$share`. It differs from `"mean"` (the plain time-weighted grid
   mean) exactly when declared shares differ from real-time coverage.
 * `expand_calendar()` gains a `year` column in its output
-  (`datetime, year, slice`) and accepts a vector of years.
+  (`datetime, year, timeslice`) and accepts a vector of years.
 * The `h168` token now lives on the new `WHOUR` timeframe (hour of week,
   Monday-first ISO, `h000`..`h167`) instead of being mis-declared as
   `HOUR`, and maps datetimes correctly.
 * Uncovered grid instants are no longer dropped silently:
   `recast(na_action = c("drop", "error", "keep"))` — `"drop"` warns,
-  `"keep"` retains an explicit `NA` slice row so totals conserve.
+  `"keep"` retains an explicit `NA` timeslice row so totals conserve.
 
 ### New features
 
@@ -123,14 +164,14 @@ instants and aggregating up to target slices.
   hourly rows).
 * **ANNUAL root and within-calendar aggregation**:
   `calendar_at_level(cal, tf)` truncates a calendar at one of its own
-  timeframes (`"ANNUAL"` returns the implicit one-slice whole-year root),
+  timeframes (`"ANNUAL"` returns the implicit one-timeslice whole-year root),
   and `recast()` accepts a timeframe name for `to=`.
 * **Alignment rules** (`ALIGNMENT_RULES`): `exact`, `drop_last`,
   `drop_feb29`, `repeat_last` declare how real instants beyond a
   calendar's vocabulary map onto it. Stored per-timeframe in
   `meta$alignment`, seeded by tokens (`d365 -> drop_feb29`,
   `d360`/`d364` -> `drop_last`, `w52 -> repeat_last`), overridable in
-  `instant_to_slice()`. `register_token()` gains an `alignment` argument.
+  `instant_to_timeslice()`. `register_token()` gains an `alignment` argument.
 * **New rules**: `"copy"` (common value, error if non-constant) and
   `"sd"` join `RECAST_RULES`.
 * **Registries** (mirroring `geoscales`): `register_rule()` /
@@ -138,14 +179,14 @@ instants and aggregating up to target slices.
   to default rules; `register_conversion()` / `get_conversion()` /
   `list_conversions()` / `clear_conversions()` register pairwise
   calendar-to-calendar overrides consulted before the base route.
-* **Vocabulary unification**: `instant_to_slice()` resolves labels by
+* **Vocabulary unification**: `instant_to_timeslice()` resolves labels by
   formatted-token match first, then a positional fallback for
   full-cardinality enum vocabularies — `m12a` (`JAN`..`DEC`) and custom
   enum tokens now map instead of returning `NA`.
 * **`meta$year_start` and `meta$utc_offset_minutes` are live**: the model
   year spans `[anchor(y), anchor(y+1))`, `YDAY`/`YEAR` are anchored to
   `year_start`, and local time = UTC + offset throughout
-  `instant_to_slice()` and `expand_calendar()`.
+  `instant_to_timeslice()` and `expand_calendar()`.
 * **Token provenance** restored: `calendar_build()` records
   `meta$tokens` (token per timeframe).
 
@@ -155,7 +196,7 @@ instants and aggregating up to target slices.
   (`register_token()`, `get_token()`, `list_tokens()`), three-layer
   constructors (`calendar()`, `calendar_build()`,
   `calendar_from_leaves()`), `as_timeframe()`, first-generation
-  `instant_to_slice()` / `expand_calendar()` / `recast()`, three
+  `instant_to_timeslice()` / `expand_calendar()` / `recast()`, three
   vignettes, pkgdown site, CI.
 
 # timescales 0.0.0.9000

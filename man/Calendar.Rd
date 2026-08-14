@@ -7,7 +7,7 @@
 Calendar(leaves, timeframes, levels, meta = list())
 }
 \arguments{
-\item{leaves}{\code{data.frame} with columns \code{slice}, \code{share}, \code{weight}, plus
+\item{leaves}{\code{data.frame} with columns \code{timeslice}, \code{share}, \code{weight}, plus
 one column per timeframe in \code{timeframes}.}
 
 \item{timeframes}{Ordered character vector of timeframe names (coarsest
@@ -21,7 +21,7 @@ a set.}
 \code{year_start}, \code{utc_offset_minutes}, \code{year_fraction}).}
 }
 \description{
-A nested time partition: a flat table of weighted leaf slices plus the
+A nested time partition: a flat table of weighted leaf timeslices plus the
 ordered hierarchy of timeframes that produced them.
 }
 \details{

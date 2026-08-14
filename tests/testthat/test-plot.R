@@ -2,7 +2,7 @@
 
 test_that("calendar_layout returns the contracted columns and geometry", {
   d <- calendar_layout(calendar("m12_h24"))
-  expect_named(d, c("timeframe", "label", "slice", "rank", "xmin", "xmax",
+  expect_named(d, c("timeframe", "label", "timeslice", "rank", "xmin", "xmax",
                     "ymin", "ymax", "share", "weight", "order", "within"))
   expect_true(all(d$xmin >= 0 - 1e-12 & d$xmax <= 1 + 1e-12))
   expect_true(all(d$xmax > d$xmin))
@@ -88,8 +88,8 @@ test_that("calendar_autoplot fill styles and binning work", {
   p <- calendar_autoplot(calendar("d365_h24"), max_segments = 1000)
   hr <- p$data[p$data$timeframe == "HOUR", ]
   expect_lte(nrow(hr), 1000L)
-  # binned rows carry no slice ids (mutes labels)
-  expect_true(all(is.na(hr$slice)))
+  # binned rows carry no timeslice ids (mutes labels)
+  expect_true(all(is.na(hr$timeslice)))
 })
 
 test_that("calendar_plot renders with and without data", {
@@ -97,7 +97,7 @@ test_that("calendar_plot renders with and without data", {
   expect_s3_class(calendar_plot(calendar("m12_h24")), "ggplot")
 
   cal <- calendar("m12")
-  x <- data.frame(slice = sprintf("m%02d", 1:12), load = 1:12 * 1.0)
+  x <- data.frame(timeslice = sprintf("m%02d", 1:12), load = 1:12 * 1.0)
   p <- calendar_plot(cal, x)
   expect_s3_class(p, "ggplot")
 
@@ -112,7 +112,7 @@ test_that("calendar_plot validates inputs", {
   cal <- calendar("m12")
   expect_error(calendar_plot(cal, data.frame(a = 1)), "no column named")
   expect_error(
-    calendar_plot(cal, data.frame(slice = "nope", v = 1)),
+    calendar_plot(cal, data.frame(timeslice = "nope", v = 1)),
     "matched"
   )
   expect_error(calendar_plot(cal, x_tf = "HOUR"), "not timeframes")

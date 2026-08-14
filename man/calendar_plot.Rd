@@ -8,7 +8,7 @@ calendar_plot(
   x,
   data = NULL,
   values = NULL,
-  key = "slice",
+  key = "timeslice",
   x_tf = NULL,
   y_tf = NULL,
   facet_tf = NULL,
@@ -20,14 +20,14 @@ calendar_plot(
 \arguments{
 \item{x}{A \code{\link{Calendar}}.}
 
-\item{data}{Optional \code{data.frame} with a \code{key} column of slice IDs plus
+\item{data}{Optional \code{data.frame} with a \code{key} column of timeslice IDs plus
 one numeric value column (pick with \verb{values=} if there are several).
 Default \code{NULL} plots \code{leaves$share}.}
 
 \item{values}{Name of the value column to plot. Default: the first
 numeric column other than \code{key}.}
 
-\item{key}{Name of the slice key column in \code{data}. Default \code{"slice"}.}
+\item{key}{Name of the timeslice key column in \code{data}. Default \code{"timeslice"}.}
 
 \item{x_tf, y_tf, facet_tf}{Timeframe names overriding the automatic
 layout.}
@@ -46,7 +46,7 @@ A ggplot object.
 }
 \description{
 The package's single data-on-calendar renderer (the analogue of
-\code{geoscales::geo_plot()}): callers prepare a \code{data.frame} keyed by slice
+\code{geoscales::geo_plot()}): callers prepare a \code{data.frame} keyed by timeslice
 and hand it over. With no data, the calendar's own \code{share} is drawn — a
 quick structural view. Layout follows the calendar's hierarchy: finest
 timeframe on y, next-finest on x, anything coarser as facets
@@ -57,7 +57,7 @@ if (requireNamespace("ggplot2", quietly = TRUE)) {
   calendar_plot(calendar("m12_h24"))   # structure: share heatmap
 
   cal <- calendar("m12")
-  x <- data.frame(slice = sprintf("m\%02d", 1:12), load = 1:12)
+  x <- data.frame(timeslice = sprintf("m\%02d", 1:12), load = 1:12)
   calendar_plot(cal, x)
 }
 }

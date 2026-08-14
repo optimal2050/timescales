@@ -19,7 +19,7 @@ clear_conversions(key = NULL)
 \item{from, to}{Calendar names (\code{meta$name}) the override applies to.}
 
 \item{fun}{A function with signature \code{fun(x, from, to, ...)} receiving the
-same arguments as \code{\link[=recast]{recast()}} and returning the recast \code{data.frame}.
+same arguments as \code{\link[=recast_calendar]{recast_calendar()}} and returning the recast \code{data.frame}.
 \code{NULL} removes a previously registered override.}
 
 \item{key}{Optional character vector of \code{"from->to"} keys to remove;
@@ -33,7 +33,7 @@ Invisibly, the registry key (\code{"from->to"}).
 \code{list_conversions()} returns a \code{data.frame} with column \code{key}.
 }
 \description{
-By default \code{\link[=recast]{recast()}} routes every conversion through the shared instant
+By default \code{\link[=recast_calendar]{recast_calendar()}} routes every conversion through the shared instant
 grid (\code{A -> base -> B}). A registered override short-circuits that route
 for one named calendar pair — the escape hatch for exact nested-calendar
 arithmetic or anything the grid cannot express.
@@ -42,8 +42,8 @@ arithmetic or anything the grid cannot express.
 register_conversion("m12", "q4", function(x, from, to, ...) {
   # trivial exact nesting: quarters are consecutive month triples
   q <- rep(sprintf("Q\%d", 1:4), each = 3)
-  stats::aggregate(x[-1], list(slice = q[match(x$slice,
-    S7::prop(from, "leaves")$slice)]), sum)
+  stats::aggregate(x[-1], list(timeslice = q[match(x$timeslice,
+    S7::prop(from, "leaves")$timeslice)]), sum)
 })
 "m12->q4" \%in\% list_conversions()$key
 clear_conversions()

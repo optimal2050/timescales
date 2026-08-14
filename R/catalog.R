@@ -9,7 +9,7 @@
 # Most entries are plain Cartesian token products that `calendar_build()`
 # assembles; the six `m12_md*` designs are non-Cartesian (February is short)
 # and route to `.calendar_m12_mday()`. Unlike timeslices — which gave every
-# slice a uniform share — all catalog calendars carry duration-proportional
+# timeslice a uniform share — all catalog calendars carry duration-proportional
 # shares by construction.
 #
 # Entry fields:
@@ -132,7 +132,7 @@
 #' [`calendars`] dataset.
 #'
 #' @return A `data.frame` with one row per catalog entry: `id`, `tokens`
-#'   (`+`-joined), `timeframes` (`/`-joined), `n_slices`, `coverage`
+#'   (`+`-joined), `timeframes` (`/`-joined), `n_timeslices`, `coverage`
 #'   (`complete`/`truncated`/`representative`), `regularity`
 #'   (`regular`/`irregular`), and a generated `desc`.
 #'
@@ -146,15 +146,15 @@ calendar_catalog <- function() {
   rows <- lapply(ids, function(id) {
     e <- .CALENDAR_CATALOG[[id]]
     tfs <- .catalog_timeframes(e)
-    n <- .catalog_n_slices(e)
+    n <- .catalog_n_timeslices(e)
     data.frame(
       id         = id,
       tokens     = paste(e$tokens, collapse = "+"),
       timeframes = paste(tfs, collapse = "/"),
-      n_slices   = n,
+      n_timeslices   = n,
       coverage   = e$coverage,
       regularity = e$regularity,
-      desc       = sprintf("%s calendar (%d slices; %s, %s)",
+      desc       = sprintf("%s calendar (%d timeslices; %s, %s)",
                            paste(tfs, collapse = "/"), n,
                            e$coverage, e$regularity),
       stringsAsFactors = FALSE
@@ -179,7 +179,7 @@ calendar_catalog <- function() {
 
 #' Leaf count of a catalog entry
 #' @noRd
-.catalog_n_slices <- function(entry) {
+.catalog_n_timeslices <- function(entry) {
   if (!is.null(entry$month_lengths)) {
     n <- sum(entry$month_lengths)
     if ("h24" %in% entry$tokens) n <- n * 24L

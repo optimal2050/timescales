@@ -1,16 +1,16 @@
 # =============================================================================
-# Datetime <-> slice conversions and calendar expansion
+# Datetime <-> timeslice conversions and calendar expansion
 # =============================================================================
 # Three building blocks:
 #
-#   instant_to_slice(dtm, cal)        datetime vector -> slice IDs
+#   instant_to_timeslice(dtm, cal)        datetime vector -> timeslice IDs
 #   expand_calendar(cal, years, by)   enumerate the instants of model year(s)
-#                                     -> data.frame(datetime, year, slice)
-#   recast(x, from, to, ...)          value-on-slice-in-A -> value-on-slice-in-B
+#                                     -> data.frame(datetime, year, timeslice)
+#   recast(x, from, to, ...)          value-on-timeslice-in-A -> value-on-timeslice-in-B
 #
 # `recast()` follows the geoscales two-step over the base instant grid
 # (see R/base-calendar.R): project source values DOWN to instants, aggregate
-# UP to target slices. Aggregation rules (RECAST_RULES) and alignment rules
+# UP to target timeslices. Aggregation rules (RECAST_RULES) and alignment rules
 # (ALIGNMENT_RULES) are separate axes — see R/rules.R and dev/review-core.md.
 # =============================================================================
 
@@ -22,10 +22,10 @@
                        SEASON = 4L, DAYTYPE = 2L, HOURTYPE = 3L)
 
 # -----------------------------------------------------------------------------
-# instant_to_slice()
+# instant_to_timeslice()
 # -----------------------------------------------------------------------------
 
-#' Map datetimes to calendar slice IDs
+#' Map datetimes to calendar timeslice IDs
 #'
 #' Extracts each calendar timeframe's component from `dtm`, applies the
 #' calendar's alignment rules (`meta$alignment`, see [`ALIGNMENT_RULES`]),
@@ -48,20 +48,20 @@
 #'   rule applied to every timeframe, or a named list/vector per timeframe.
 #'   `NULL` (default) uses `meta$alignment`.
 #'
-#' @return A character vector of slice IDs the same length as `dtm`.
+#' @return A character vector of timeslice IDs the same length as `dtm`.
 #'
 #' @examples
 #' cal <- calendar_build("m12")
-#' instant_to_slice(lubridate::ymd(c("2020-01-15", "2020-07-04")), cal)
+#' instant_to_timeslice(lubridate::ymd(c("2020-01-15", "2020-07-04")), cal)
 #'
 #' # Enum vocabularies resolve positionally
-#' instant_to_slice(lubridate::ymd("2021-03-15"), calendar_build("m12a"))
+#' instant_to_timeslice(lubridate::ymd("2021-03-15"), calendar_build("m12a"))
 #'
 #' # d365 drops Feb 29 and keeps Dec 31 = d365 on leap years
 #' d365 <- calendar_build("d365")
-#' instant_to_slice(lubridate::ymd(c("2020-02-29", "2020-12-31")), d365)
+#' instant_to_timeslice(lubridate::ymd(c("2020-02-29", "2020-12-31")), d365)
 #' @export
-instant_to_slice <- function(dtm, calendar, alignment = NULL) {
+instant_to_timeslice <- function(dtm, calendar, alignment = NULL) {
   if (!inherits(calendar, "timescales::Calendar") &&
       !S7::S7_inherits(calendar, Calendar)) {
     stop("`calendar` must be a Calendar object", call. = FALSE)
@@ -84,7 +84,7 @@ instant_to_slice <- function(dtm, calendar, alignment = NULL) {
                ys    = meta$year_start)
   })
 
-  # Rows with any NA component are NA slices
+  # Rows with any NA component are NA timeslices
   any_na <- Reduce(`|`, lapply(labs, is.na))
   dtm_key <- do.call(paste, c(labs, sep = "\u0001"))
   dtm_key[any_na] <- NA_character_
@@ -92,7 +92,21 @@ instant_to_slice <- function(dtm, calendar, alignment = NULL) {
   leaf_key <- do.call(paste,
     c(lapply(tfs, function(tf) as.character(leaves[[tf]])), sep = "\u0001"))
 
-  leaves$slice[match(dtm_key, leaf_key)]
+  leaves$timeslice[match(dtm_key, leaf_key)]
+}
+
+#' Deprecated alias of instant_to_timeslice()
+#'
+#' `instant_to_slice()` is deprecated; the time dimension was renamed
+#' `slice` -> `timeslice` across the stack (matching the TIMES/OSeMOSYS
+#' vocabulary and pairing with geoscales' `region`).
+#'
+#' @inheritParams instant_to_timeslice
+#' @return See [`instant_to_timeslice()`].
+#' @export
+instant_to_slice <- function(dtm, calendar, alignment = NULL) {
+  .Deprecated("instant_to_timeslice")
+  instant_to_timeslice(dtm, calendar, alignment = alignment)
 }
 
 #' Resolve the alignment rule for one timeframe
@@ -226,11 +240,11 @@ instant_to_slice <- function(dtm, calendar, alignment = NULL) {
 # expand_calendar()
 # -----------------------------------------------------------------------------
 
-#' Enumerate the instants of one or more model years mapped to slices
+#' Enumerate the instants of one or more model years mapped to timeslices
 #'
 #' Materialises the calendar on the base instant grid: one row per instant of
-#' each requested model year, with the slice that instant belongs to (via
-#' [`instant_to_slice()`]). The model year spans `[year_start(y),
+#' each requested model year, with the timeslice that instant belongs to (via
+#' [`instant_to_timeslice()`]). The model year spans `[year_start(y),
 #' year_start(y + 1))` in the calendar's local time (`meta$year_start`,
 #' `meta$utc_offset_minutes`); with the default metadata that is simply the
 #' Gregorian year in `tz`.
@@ -242,10 +256,10 @@ instant_to_slice <- function(dtm, calendar, alignment = NULL) {
 #'   calendar's timeframes.
 #' @param tz Time zone of the returned instants. Defaults to `"UTC"`.
 #' @param alignment Optional alignment override, as in
-#'   [`instant_to_slice()`].
+#'   [`instant_to_timeslice()`].
 #'
 #' @return A `data.frame` with columns `datetime` (POSIXct), `year`
-#'   (integer, model year) and `slice` (character). Rows where `slice` is
+#'   (integer, model year) and `timeslice` (character). Rows where `timeslice` is
 #'   `NA` are instants the calendar does not cover.
 #'
 #' @examples
@@ -273,7 +287,7 @@ expand_calendar <- function(calendar, year, by = NULL, tz = "UTC",
     data.frame(
       datetime = dtm,
       year     = y,
-      slice    = instant_to_slice(dtm, calendar, alignment = alignment),
+      timeslice    = instant_to_timeslice(dtm, calendar, alignment = alignment),
       stringsAsFactors = FALSE
     )
   })
@@ -320,16 +334,16 @@ expand_calendar <- function(calendar, year, by = NULL, tz = "UTC",
 }
 
 # -----------------------------------------------------------------------------
-# calendar_recast()
+# recast_calendar()
 # -----------------------------------------------------------------------------
 
 #' Recast values from one calendar to another
 #'
-#' The central conversion verb. Takes a `data.frame` keyed by slice in
+#' The central conversion verb. Takes a `data.frame` keyed by timeslice in
 #' calendar `from` with one or more numeric value columns, and returns a
-#' `data.frame` keyed by slice in calendar `to`. Every conversion routes
+#' `data.frame` keyed by timeslice in calendar `to`. Every conversion routes
 #' `A -> base -> B` through the shared instant grid: source values are
-#' projected down to instants, then aggregated up to target slices, so
+#' projected down to instants, then aggregated up to target timeslices, so
 #' aggregation and disaggregation are one operation. A pairwise override
 #' registered with [`register_conversion()`] short-circuits the route.
 #'
@@ -337,8 +351,8 @@ expand_calendar <- function(calendar, year, by = NULL, tz = "UTC",
 #' as identifiers (panel columns — a `city`, a scenario) and preserved as
 #' grouping columns, so panel data recasts correctly in one call; this is
 #' what makes mixed pipelines like
-#' `x |> calendar_recast(...) |> geo_recast(...)` work. Columns named like
-#' `from`'s timeframes are treated as slice attributes and dropped.
+#' `x |> recast_calendar(...) |> geo_recast(...)` work. Columns named like
+#' `from`'s timeframes are treated as timeslice attributes and dropped.
 #'
 #' `recast()` is a deprecated alias.
 #'
@@ -347,11 +361,11 @@ expand_calendar <- function(calendar, year, by = NULL, tz = "UTC",
 #' @param from Source [`Calendar`].
 #' @param to Destination [`Calendar`], or a timeframe name of `from`
 #'   (including `"ANNUAL"`) for within-calendar aggregation via
-#'   [`calendar_at_level()`].
+#'   [`prune_calendar()`].
 #' @param year Integer scalar model year used to materialise both calendars
 #'   on the shared grid.
-#' @param key Name of the slice key column in `x`. `NULL` (default)
-#'   resolves to `"slice"`.
+#' @param key Name of the timeslice key column in `x`. `NULL` (default)
+#'   resolves to `"timeslice"`.
 #' @param values Character vector of value columns to transform. Default:
 #'   all numeric columns other than `key` and `from`'s timeframe columns.
 #'   Numeric identifiers (e.g. `year`) must be excluded explicitly.
@@ -365,24 +379,24 @@ expand_calendar <- function(calendar, year, by = NULL, tz = "UTC",
 #' @param tz Time zone for the shared grid. Default `"UTC"`.
 #' @param na_action What to do with grid instants not covered by `to`:
 #'   `"drop"` (default, with a warning — the affected source share is
-#'   genuinely lost), `"error"`, or `"keep"` (retain an explicit `NA` slice
+#'   genuinely lost), `"error"`, or `"keep"` (retain an explicit `NA` timeslice
 #'   row so totals conserve). Instants not covered by `from` carry no data
 #'   and are always dropped.
 #'
 #' @return A `data.frame` with columns `c(key, identifiers, values)`: per
-#'   identifier combination, one row per slice in `to` (the full target
+#'   identifier combination, one row per timeslice in `to` (the full target
 #'   vocabulary, `NA` where uncovered — a deliberate divergence from
 #'   `geo_recast()`, which emits observed combinations only), plus an `NA`
-#'   slice row under `na_action = "keep"`. Identifier column types are
+#'   timeslice row under `na_action = "keep"`. Identifier column types are
 #'   preserved.
 #'
 #' @details
 #' Rules (see [`RECAST_RULES`]): `"sum"` splits each source value equally
-#' across its slice's grid instants before summing up, so totals are
+#' across its timeslice's grid instants before summing up, so totals are
 #' conserved. `"weighted_mean"` weights by the declared `leaves$share` of
-#' each source slice; `"mean"` is the plain (time-weighted) mean over
+#' each source timeslice; `"mean"` is the plain (time-weighted) mean over
 #' instants — the two differ exactly when declared shares differ from
-#' real-time coverage. `"copy"` requires a constant value per target slice;
+#' real-time coverage. `"copy"` requires a constant value per target timeslice;
 #' `"sd"` is aggregation-only. There is no `weight=` argument: a calendar
 #' has exactly one weighting, its `leaves$share`.
 #'
@@ -391,21 +405,21 @@ expand_calendar <- function(calendar, year, by = NULL, tz = "UTC",
 #' cal_q <- calendar_build("q4")
 #'
 #' x <- data.frame(
-#'   slice = sprintf("m%02d", 1:12),
+#'   timeslice = sprintf("m%02d", 1:12),
 #'   load  = seq(100, 210, length.out = 12)
 #' )
-#' calendar_recast(x, from = cal_m, to = cal_q, year = 2021)
+#' recast_calendar(x, from = cal_m, to = cal_q, year = 2021)
 #'
 #' # Panel data: the city column is carried through
 #' xp <- rbind(transform(x, city = "A"), transform(x, city = "B"))
-#' calendar_recast(xp, cal_m, cal_q, year = 2021, rule = "sum")
+#' recast_calendar(xp, cal_m, cal_q, year = 2021, rule = "sum")
 #'
 #' # Within-calendar aggregation, and the ANNUAL root
 #' cal <- calendar_build("q4", "h24")
-#' xh <- data.frame(slice = S7::prop(cal, "leaves")$slice, energy = 1)
-#' calendar_recast(xh, cal, to = "ANNUAL", year = 2021, rule = "sum")  # 96
+#' xh <- data.frame(timeslice = S7::prop(cal, "leaves")$timeslice, energy = 1)
+#' recast_calendar(xh, cal, to = "ANNUAL", year = 2021, rule = "sum")  # 96
 #' @export
-calendar_recast <- function(x, from, to, year,
+recast_calendar <- function(x, from, to, year,
                             key = NULL,
                             values = NULL,
                             rule = NULL,
@@ -417,13 +431,13 @@ calendar_recast <- function(x, from, to, year,
   if (!is.data.frame(x)) {
     .stop("`x` must be a data.frame")
   }
-  if (is.null(key)) key <- "slice"
+  if (is.null(key)) key <- "timeslice"
   if (!key %in% names(x)) {
     .stop("`x` has no column named `%s`; pass `key=`", key)
   }
   .check_calendar(from, "from")
   if (is.character(to)) {
-    to <- calendar_at_level(from, to)
+    to <- prune_calendar(from, to)
   } else {
     .check_calendar(to, "to")
   }
@@ -457,7 +471,7 @@ calendar_recast <- function(x, from, to, year,
   }
 
   # Identifier (panel) columns are preserved as grouping columns; timeframe
-  # columns are slice attributes and are dropped
+  # columns are timeslice attributes and are dropped
   id_cols <- setdiff(names(x), c(key, values, tfs_from))
 
   # Per-column rules: explicit argument > registry > weighted_mean
@@ -470,9 +484,9 @@ calendar_recast <- function(x, from, to, year,
   # Warn about source keys the calendar does not know
   from_leaves <- S7::prop(from, "leaves")
   src_keys <- unique(stats::na.omit(as.character(x[[key]])))
-  unknown <- setdiff(src_keys, from_leaves$slice)
+  unknown <- setdiff(src_keys, from_leaves$timeslice)
   if (length(unknown) > 0L) {
-    .warn("%d code(s) in `x$%s` are not slices of `from` and were ignored: %s",
+    .warn("%d code(s) in `x$%s` are not timeslices of `from` and were ignored: %s",
           length(unknown), key, .preview(unknown))
   }
 
@@ -482,8 +496,8 @@ calendar_recast <- function(x, from, to, year,
   }
   dtm <- .model_year_instants(from, year, by, tz)
 
-  s_from <- instant_to_slice(dtm, from)
-  s_to   <- instant_to_slice(dtm, to)
+  s_from <- instant_to_timeslice(dtm, from)
+  s_to   <- instant_to_timeslice(dtm, to)
 
   if (na_action == "error") {
     n_bad <- sum(is.na(s_from) | is.na(s_to))
@@ -498,13 +512,13 @@ calendar_recast <- function(x, from, to, year,
   s_from <- s_from[ok]
   s_to   <- s_to[ok]
 
-  # Down-projection factors are computed over each source slice's FULL
+  # Down-projection factors are computed over each source timeslice's FULL
   # instant set, so share falling on target-uncovered instants is genuinely
   # lost under na_action = "drop" rather than reallocated to siblings.
   n_grid <- table(s_from)
   n_i    <- as.numeric(n_grid[s_from])
 
-  share_map <- stats::setNames(from_leaves$share, from_leaves$slice)
+  share_map <- stats::setNames(from_leaves$share, from_leaves$timeslice)
   w_i <- as.numeric(share_map[s_from]) / n_i
 
   if (any(is.na(s_to))) {
@@ -512,7 +526,7 @@ calendar_recast <- function(x, from, to, year,
       drop_i <- is.na(s_to)
       affected <- intersect(unique(s_from[drop_i]), src_keys)
       .warn(paste0("%d grid instant(s) are not covered by `to`; the share ",
-                   "of %d source slice(s) falling on them is dropped; use ",
+                   "of %d source timeslice(s) falling on them is dropped; use ",
                    "na_action = \"keep\" to conserve totals"),
             sum(drop_i), length(affected))
       s_from <- s_from[!drop_i]
@@ -524,7 +538,7 @@ calendar_recast <- function(x, from, to, year,
   }
 
   # Destination groups (identical across identifier groups)
-  target_keys <- S7::prop(to, "leaves")$slice
+  target_keys <- S7::prop(to, "leaves")$timeslice
   keep_na_row <- na_action == "keep" && anyNA(s_to)
   out_keys <- c(target_keys, if (keep_na_row) NA_character_)
   grp <- addNA(factor(s_to, levels = target_keys), ifany = keep_na_row)
@@ -546,7 +560,7 @@ calendar_recast <- function(x, from, to, year,
       all_missing <<- union(all_missing, setdiff(unique(s_from),
                                                  x_g[[key]]))
     }
-    out_g <- data.frame(slice = out_keys, stringsAsFactors = FALSE)
+    out_g <- data.frame(timeslice = out_keys, stringsAsFactors = FALSE)
     names(out_g) <- key
     for (ic in id_cols) out_g[[ic]] <- x_g[[ic]][1L]
     for (v in values) {
@@ -559,7 +573,7 @@ calendar_recast <- function(x, from, to, year,
   })
 
   if (length(all_missing) > 0L) {
-    .warn(paste0("%d source slice(s) present on the grid but missing from ",
+    .warn(paste0("%d source timeslice(s) present on the grid but missing from ",
                  "`x` (e.g. %s); produced NAs"),
           length(all_missing), .preview(all_missing))
   }
@@ -569,30 +583,42 @@ calendar_recast <- function(x, from, to, year,
   out[, c(key, id_cols, values), drop = FALSE]
 }
 
-#' Deprecated alias of calendar_recast()
+#' Recast data between scales
 #'
-#' `recast()` is deprecated; use [`calendar_recast()`] — the stack-wide
-#' convention prefixes owned operations by their object
-#' (`calendar_recast()`, `geoscales::geo_recast()`), reserving bare names
-#' for foreign generics.
+#' The pipeline verb of the *scales family: convert `x` between two
+#' resolutions of one dimension, dispatching on the scale object given
+#' as `from` — a [Calendar] here; a `Geoscale` when the geoscales
+#' package is loaded (which registers its own method). This lets one
+#' verb chain across dimensions:
 #'
-#' @inheritParams calendar_recast
-#' @return See [`calendar_recast()`].
+#' ```r
+#' x |>
+#'   recast(cal_hourly, cal_monthly, year = 2021) |>
+#'   recast(gs, to = "country")
+#' ```
+#'
+#' The explicit per-package workers remain available:
+#' [`recast_calendar()`] and `geoscales::recast_geoscale()`.
+#'
+#' @param x A data.frame of values to convert.
+#' @param from The source scale object (here: the source [Calendar]).
+#' @param ... Passed to the dispatched worker; for the Calendar method
+#'   the arguments of [`recast_calendar()`] (`to`, `year`, `key`,
+#'   `values`, `rule`, `by`, `tz`, `na_action`).
+#' @return The converted data.frame (see the worker's documentation).
 #' @export
-recast <- function(x, from, to, year,
-                   key = NULL,
-                   values = NULL,
-                   rule = NULL,
-                   by = NULL,
-                   tz = "UTC",
-                   na_action = c("drop", "error", "keep")) {
-  .Deprecated("calendar_recast")
-  calendar_recast(x, from = from, to = to, year = year, key = key,
-                  values = values, rule = rule, by = by, tz = tz,
-                  na_action = na_action)
-}
+recast <- S7::new_generic("recast", dispatch_args = c("x", "from"))
 
-#' Aggregate instant values into target slices under one rule
+S7::method(recast, list(S7::class_any, Calendar)) <-
+  function(x, from, to, year,
+           key = NULL, values = NULL, rule = NULL, by = NULL,
+           tz = "UTC", na_action = c("drop", "error", "keep"), ...) {
+    recast_calendar(x, from = from, to = to, year = year, key = key,
+                    values = values, rule = rule, by = by, tz = tz,
+                    na_action = na_action)
+  }
+
+#' Aggregate instant values into target timeslices under one rule
 #' @noRd
 .recast_aggregate <- function(vals, w, idx, rule, vname, target_keys) {
   fn <- switch(
@@ -608,7 +634,7 @@ recast <- function(x, from, to, year,
       if (length(u) > 1L && diff(range(u, na.rm = TRUE)) > 1e-9) {
         stop(sprintf(
           paste0("rule \"copy\" for `%s`: values are not constant within ",
-                 "a target slice"), vname), call. = FALSE)
+                 "a target timeslice"), vname), call. = FALSE)
       }
       u[[1L]]
     },

@@ -1,9 +1,9 @@
 # Heatmap of data on a calendar
 
 The package's single data-on-calendar renderer (the analogue of
-[`geoscales::geo_plot()`](https://optimal2050.github.io/geoscales/r/reference/geo_plot.html)):
-callers prepare a `data.frame` keyed by slice and hand it over. With no
-data, the calendar's own `share` is drawn — a quick structural view.
+[`geoscales::geo_plot()`](https://optimal2050.github.io/geoscales/r/reference/geoscales-deprecated.html)):
+callers prepare a `data.frame` keyed by timeslice and hand it over. With
+no data, the calendar's own `share` is drawn — a quick structural view.
 Layout follows the calendar's hierarchy: finest timeframe on y,
 next-finest on x, anything coarser as facets (overridable via
 `x_tf`/`y_tf`/`facet_tf`).
@@ -15,7 +15,7 @@ calendar_plot(
   x,
   data = NULL,
   values = NULL,
-  key = "slice",
+  key = "timeslice",
   x_tf = NULL,
   y_tf = NULL,
   facet_tf = NULL,
@@ -34,7 +34,7 @@ calendar_plot(
 
 - data:
 
-  Optional `data.frame` with a `key` column of slice IDs plus one
+  Optional `data.frame` with a `key` column of timeslice IDs plus one
   numeric value column (pick with `values=` if there are several).
   Default `NULL` plots `leaves$share`.
 
@@ -45,7 +45,7 @@ calendar_plot(
 
 - key:
 
-  Name of the slice key column in `data`. Default `"slice"`.
+  Name of the timeslice key column in `data`. Default `"timeslice"`.
 
 - x_tf, y_tf, facet_tf:
 
@@ -77,7 +77,7 @@ if (requireNamespace("ggplot2", quietly = TRUE)) {
   calendar_plot(calendar("m12_h24"))   # structure: share heatmap
 
   cal <- calendar("m12")
-  x <- data.frame(slice = sprintf("m%02d", 1:12), load = 1:12)
+  x <- data.frame(timeslice = sprintf("m%02d", 1:12), load = 1:12)
   calendar_plot(cal, x)
 }
 ```

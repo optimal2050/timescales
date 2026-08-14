@@ -19,12 +19,12 @@ A character vector of length 5.
 - `weighted_mean`:
 
   Down: copy. Up: mean weighted by the declared `leaves$share` of each
-  source slice. For intensive quantities (load, price, efficiency). The
-  default.
+  source timeslice. For intensive quantities (load, price, efficiency).
+  The default.
 
 - `sum`:
 
-  Down: split equally across the slice's grid instants. Up: sum.
+  Down: split equally across the timeslice's grid instants. Up: sum.
   Conserves totals; for extensive quantities (energy, cost).
 
 - `mean`:
@@ -36,13 +36,13 @@ A character vector of length 5.
 - `copy`:
 
   Down: copy. Up: the common value, erroring if it is not constant. For
-  slice-invariant scalars.
+  timeslice-invariant scalars.
 
 - `sd`:
 
   Up: standard deviation over instants — the spread of the fine signal
-  within each target slice. Aggregation-only; going finer it degenerates
-  to 0/NA.
+  within each target timeslice. Aggregation-only; going finer it
+  degenerates to 0/NA.
 
 ## Examples
 

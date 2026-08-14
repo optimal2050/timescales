@@ -2,7 +2,7 @@
 % Please edit documentation in R/calendar-construct.R
 \name{calendar_from_leaves}
 \alias{calendar_from_leaves}
-\title{Build a Calendar from a flat table of leaf slices}
+\title{Build a Calendar from a flat table of leaf timeslices}
 \usage{
 calendar_from_leaves(
   leaves,
@@ -17,12 +17,12 @@ calendar_from_leaves(
 )
 }
 \arguments{
-\item{leaves}{A \code{data.frame} with one row per leaf slice. Must contain:
+\item{leaves}{A \code{data.frame} with one row per leaf timeslice. Must contain:
 \itemize{
 \item one column per timeframe named in \code{timeframes}
 \item \code{share} — numeric > 0; sums to \code{year_fraction}
 \item \code{weight} — numeric >= 0; user-defined importance weight
-\item (optional) \code{slice} — unique character ID; auto-generated if missing
+\item (optional) \code{timeslice} — unique character ID; auto-generated if missing
 }}
 
 \item{timeframes}{Ordered character vector of timeframe names (coarsest
@@ -48,7 +48,7 @@ A \code{\link{Calendar}} object.
 }
 \description{
 This is the most general way to construct a \code{\link{Calendar}}: provide the leaf
-slices directly as a \code{data.frame}, name the timeframe columns, and
+timeslices directly as a \code{data.frame}, name the timeframe columns, and
 optionally pin down the per-timeframe vocabulary and model-level metadata.
 }
 \examples{

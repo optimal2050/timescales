@@ -2,7 +2,7 @@
 # Recast rule + pairwise conversion registries
 # =============================================================================
 # Mirrors `geoscales/R/rules.R` (which itself mirrors the token registry in
-# `R/tokens.R`): package-level environments consulted by `calendar_recast()` when the
+# `R/tokens.R`): package-level environments consulted by `recast_calendar()` when the
 # caller does not pass `rule=`. An explicit argument always wins.
 #
 # Two registries live here:
@@ -19,17 +19,17 @@
 #'
 #' \describe{
 #'   \item{`weighted_mean`}{Down: copy. Up: mean weighted by the declared
-#'     `leaves$share` of each source slice. For intensive quantities
+#'     `leaves$share` of each source timeslice. For intensive quantities
 #'     (load, price, efficiency). The default.}
-#'   \item{`sum`}{Down: split equally across the slice's grid instants.
+#'   \item{`sum`}{Down: split equally across the timeslice's grid instants.
 #'     Up: sum. Conserves totals; for extensive quantities (energy, cost).}
 #'   \item{`mean`}{Down: copy. Up: plain mean over instants — a time-weighted
 #'     mean, since the grid is uniform. Differs from `weighted_mean` exactly
 #'     when declared shares differ from real-time coverage.}
 #'   \item{`copy`}{Down: copy. Up: the common value, erroring if it is not
-#'     constant. For slice-invariant scalars.}
+#'     constant. For timeslice-invariant scalars.}
 #'   \item{`sd`}{Up: standard deviation over instants — the spread of the
-#'     fine signal within each target slice. Aggregation-only; going finer it
+#'     fine signal within each target timeslice. Aggregation-only; going finer it
 #'     degenerates to 0/NA.}
 #' }
 #'
@@ -58,8 +58,8 @@ RECAST_RULES <- c("weighted_mean", "sum", "mean", "copy", "sd")
 #'
 #' Alignment lives per-timeframe in a calendar's `meta$alignment` (a named
 #' list), seeded by the tokens that built it and overridable at construction
-#' or in [`instant_to_slice()`]. Unaligned out-of-vocabulary instants map to
-#' `NA`, surfaced by `calendar_recast()`'s `na_action`.
+#' or in [`instant_to_timeslice()`]. Unaligned out-of-vocabulary instants map to
+#' `NA`, surfaced by `recast_calendar()`'s `na_action`.
 #'
 #' @format A character vector of length 4.
 #' @examples
@@ -78,9 +78,9 @@ ALIGNMENT_RULES <- c("exact", "drop_last", "drop_feb29", "repeat_last")
 #' Register how a parameter should be recast
 #'
 #' Records the aggregation rule to use for a named value column, so callers
-#' of [`calendar_recast()`] need not repeat it. Downstream packages can register their
+#' of [`recast_calendar()`] need not repeat it. Downstream packages can register their
 #' own parameter maps at load time. An explicit `rule=` argument to
-#' [`calendar_recast()`] always wins; unregistered columns default to
+#' [`recast_calendar()`] always wins; unregistered columns default to
 #' `"weighted_mean"`.
 #'
 #' @param param Name of the value column.
@@ -168,14 +168,14 @@ clear_rules <- function(param = NULL) {
 
 #' Register a pairwise calendar conversion override
 #'
-#' By default [`calendar_recast()`] routes every conversion through the shared instant
+#' By default [`recast_calendar()`] routes every conversion through the shared instant
 #' grid (`A -> base -> B`). A registered override short-circuits that route
 #' for one named calendar pair — the escape hatch for exact nested-calendar
 #' arithmetic or anything the grid cannot express.
 #'
 #' @param from,to Calendar names (`meta$name`) the override applies to.
 #' @param fun A function with signature `fun(x, from, to, ...)` receiving the
-#'   same arguments as [`calendar_recast()`] and returning the recast `data.frame`.
+#'   same arguments as [`recast_calendar()`] and returning the recast `data.frame`.
 #'   `NULL` removes a previously registered override.
 #'
 #' @return Invisibly, the registry key (`"from->to"`).
@@ -184,8 +184,8 @@ clear_rules <- function(param = NULL) {
 #' register_conversion("m12", "q4", function(x, from, to, ...) {
 #'   # trivial exact nesting: quarters are consecutive month triples
 #'   q <- rep(sprintf("Q%d", 1:4), each = 3)
-#'   stats::aggregate(x[-1], list(slice = q[match(x$slice,
-#'     S7::prop(from, "leaves")$slice)]), sum)
+#'   stats::aggregate(x[-1], list(timeslice = q[match(x$timeslice,
+#'     S7::prop(from, "leaves")$timeslice)]), sum)
 #' })
 #' "m12->q4" %in% list_conversions()$key
 #' clear_conversions()

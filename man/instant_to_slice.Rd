@@ -2,7 +2,7 @@
 % Please edit documentation in R/recast.R
 \name{instant_to_slice}
 \alias{instant_to_slice}
-\title{Map datetimes to calendar slice IDs}
+\title{Deprecated alias of instant_to_timeslice()}
 \usage{
 instant_to_slice(dtm, calendar, alignment = NULL)
 }
@@ -16,33 +16,10 @@ rule applied to every timeframe, or a named list/vector per timeframe.
 \code{NULL} (default) uses \code{meta$alignment}.}
 }
 \value{
-A character vector of slice IDs the same length as \code{dtm}.
+See \code{\link[=instant_to_timeslice]{instant_to_timeslice()}}.
 }
 \description{
-Extracts each calendar timeframe's component from \code{dtm}, applies the
-calendar's alignment rules (\code{meta$alignment}, see \code{\link{ALIGNMENT_RULES}}),
-and looks the resulting tuple up in \code{calendar@leaves}. Datetimes that
-produce a tuple not present in the calendar return \code{NA}.
-}
-\details{
-Local time is \code{dtm} plus \code{meta$utc_offset_minutes}; when
-\code{meta$year_start} is not January 1, \code{YDAY} and \code{YEAR} are computed
-relative to that anchor (MONTH/QUARTER/WEEK remain Gregorian).
-
-Labels are resolved by formatted-token match against the calendar's
-vocabulary first; for enum vocabularies of full fixed cardinality
-(12 months, 4 quarters, 24 hours, ...) an ordinal positional fallback
-applies, which assumes the vocabulary is in natural order — this is what
-makes \code{m12a} (\code{JAN}..\code{DEC}) work.
-}
-\examples{
-cal <- calendar_build("m12")
-instant_to_slice(lubridate::ymd(c("2020-01-15", "2020-07-04")), cal)
-
-# Enum vocabularies resolve positionally
-instant_to_slice(lubridate::ymd("2021-03-15"), calendar_build("m12a"))
-
-# d365 drops Feb 29 and keeps Dec 31 = d365 on leap years
-d365 <- calendar_build("d365")
-instant_to_slice(lubridate::ymd(c("2020-02-29", "2020-12-31")), d365)
+\code{instant_to_slice()} is deprecated; the time dimension was renamed
+\code{slice} -> \code{timeslice} across the stack (matching the TIMES/OSeMOSYS
+vocabulary and pairing with geoscales' \code{region}).
 }

@@ -74,7 +74,7 @@ cal
 #> Timeframes (2):
 #>   - YDAY (365) [token: d365, alignment: drop_feb29]
 #>   - HOUR (24) [token: h24]
-#> Leaf slices: 8760
+#> Leaf timeslices: 8760
 #> year_fraction: 1
 #> year_start: month=1, day=1
 #> utc_offset_minutes: 0
@@ -85,7 +85,7 @@ cal2
 #> Timeframes (2):
 #>   - MONTH (12) [token: m12]
 #>   - HOUR (24) [token: h24]
-#> Leaf slices: 288
+#> Leaf timeslices: 288
 #> year_fraction: 1
 #> year_start: month=1, day=1
 #> utc_offset_minutes: 0
@@ -94,7 +94,7 @@ calendar("d365_h24")
 #> Timeframes (2):
 #>   - YDAY (365) [token: d365, alignment: drop_feb29]
 #>   - HOUR (24) [token: h24]
-#> Leaf slices: 8760
+#> Leaf timeslices: 8760
 #> year_fraction: 1
 #> year_start: month=1, day=1
 #> utc_offset_minutes: 0
@@ -103,7 +103,7 @@ calendar("m12_h24")
 #> Timeframes (2):
 #>   - MONTH (12) [token: m12]
 #>   - HOUR (24) [token: h24]
-#> Leaf slices: 288
+#> Leaf timeslices: 288
 #> year_fraction: 1
 #> year_start: month=1, day=1
 #> utc_offset_minutes: 0

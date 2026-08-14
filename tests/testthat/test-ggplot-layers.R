@@ -1,30 +1,30 @@
-# calendar_join (no ggplot2 needed) -------------------------------------------
+# join_calendar (no ggplot2 needed) -------------------------------------------
 
-test_that("calendar_join attaches factor timeframe columns + share/weight", {
+test_that("join_calendar attaches factor timeframe columns + share/weight", {
   cal <- calendar("m12_h24")
-  x <- data.frame(slice = S7::prop(cal, "leaves")$slice, v = 1)
-  j <- calendar_join(x, cal)
-  expect_named(j, c("slice", "v", "MONTH", "HOUR", "share", "weight"))
+  x <- data.frame(timeslice = S7::prop(cal, "leaves")$timeslice, v = 1)
+  j <- join_calendar(x, cal)
+  expect_named(j, c("timeslice", "v", "MONTH", "HOUR", "share", "weight"))
   expect_true(is.factor(j$MONTH))
   expect_equal(levels(j$MONTH), sprintf("m%02d", 1:12))
   expect_equal(sum(j$share), 1, tolerance = 1e-9)
 })
 
-test_that("calendar_join warns on unknown keys and errors on no match", {
+test_that("join_calendar warns on unknown keys and errors on no match", {
   cal <- calendar("m12")
-  x <- data.frame(slice = c("m01", "nope"), v = 1:2)
-  expect_warning(j <- calendar_join(x, cal), "not slices")
+  x <- data.frame(timeslice = c("m01", "nope"), v = 1:2)
+  expect_warning(j <- join_calendar(x, cal), "not timeslices")
   expect_true(is.na(j$MONTH[2]))
-  expect_error(calendar_join(data.frame(slice = "zzz", v = 1), cal),
+  expect_error(join_calendar(data.frame(timeslice = "zzz", v = 1), cal),
                "no rows")
 })
 
-test_that("calendar_join subsets timeframes and validates names", {
+test_that("join_calendar subsets timeframes and validates names", {
   cal <- calendar("m12_h24")
-  x <- data.frame(slice = S7::prop(cal, "leaves")$slice, v = 1)
-  j <- calendar_join(x, cal, timeframes = "MONTH")
+  x <- data.frame(timeslice = S7::prop(cal, "leaves")$timeslice, v = 1)
+  j <- join_calendar(x, cal, timeframes = "MONTH")
   expect_false("HOUR" %in% names(j))
-  expect_error(calendar_join(x, cal, timeframes = "YDAY"),
+  expect_error(join_calendar(x, cal, timeframes = "YDAY"),
                "not timeframes")
 })
 
@@ -45,7 +45,7 @@ test_that("geom_calendar aggregates datetime data into tiles", {
 test_that("geom_calendar_tile works with explicit and plot data", {
   skip_if_not_installed("ggplot2")
   cal <- calendar("q4_h24")
-  y <- data.frame(slice = S7::prop(cal, "leaves")$slice, v = 1:96)
+  y <- data.frame(timeslice = S7::prop(cal, "leaves")$timeslice, v = 1:96)
   p1 <- ggplot2::ggplot(y) + geom_calendar_tile(calendar = cal, z = "v")
   p2 <- ggplot2::ggplot() +
     geom_calendar_tile(calendar = cal, z = "v", data = y)
@@ -57,8 +57,8 @@ test_that("by= preserves facet carriers through aggregation", {
   skip_if_not_installed("ggplot2")
   cal <- calendar("m12")
   y <- rbind(
-    data.frame(slice = sprintf("m%02d", 1:12), v = 1, g = "A"),
-    data.frame(slice = sprintf("m%02d", 1:12), v = 2, g = "B")
+    data.frame(timeslice = sprintf("m%02d", 1:12), v = 1, g = "A"),
+    data.frame(timeslice = sprintf("m%02d", 1:12), v = 2, g = "B")
   )
   p <- ggplot2::ggplot(y) +
     geom_calendar_tile(calendar = cal, z = "v", by = "g") +
@@ -71,12 +71,12 @@ test_that("by= preserves facet carriers through aggregation", {
 test_that("geoms validate their column arguments", {
   skip_if_not_installed("ggplot2")
   cal <- calendar("m12")
-  x <- data.frame(slice = sprintf("m%02d", 1:12), v = 1)
+  x <- data.frame(timeslice = sprintf("m%02d", 1:12), v = 1)
   p <- ggplot2::ggplot(x) +
     geom_calendar(calendar = cal, datetime = "nope", z = "v")
   expect_error(ggplot2::ggplot_build(p), "not found")
   p2 <- ggplot2::ggplot(x) +
-    geom_calendar(calendar = cal, datetime = "slice", z = "v")
+    geom_calendar(calendar = cal, datetime = "timeslice", z = "v")
   expect_error(ggplot2::ggplot_build(p2), "POSIXct")
 })
 

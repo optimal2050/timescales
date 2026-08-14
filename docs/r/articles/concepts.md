@@ -95,20 +95,21 @@ later ydays shift down so Dec 31 is still `d365`), `drop_last`,
 `repeat_last` (clamp to the last label — how week 53 folds into `w52`),
 and `exact` (error). Built-in tokens carry sensible defaults; calendars
 record them in `meta$alignment`, and
-[`instant_to_slice()`](https://optimal2050.github.io/timescales/r/reference/instant_to_slice.md)
+[`instant_to_timeslice()`](https://optimal2050.github.io/timescales/r/reference/instant_to_timeslice.md)
 accepts an override.
 
 ``` r
 
 d365 <- calendar_build("d365")
-instant_to_slice(as.Date(c("2020-02-29", "2020-12-31")), d365)
+instant_to_timeslice(as.Date(c("2020-02-29", "2020-12-31")), d365)
 #> [1] NA     "d365"
 ```
 
 ## 3. Calendars
 
 A **Calendar** is the actual product of one or more tokens. The leaves
-of the resulting tree are the slices the rest of your model talks about.
+of the resulting tree are the timeslices the rest of your model talks
+about.
 
 Three constructors, in increasing flexibility:
 
@@ -130,10 +131,10 @@ intentionally do not cover the full year).
 
 cal <- calendar("q4_h24")
 head(cal@leaves, 3)
-#>   QUARTER HOUR      share weight  slice
-#> 1      Q1  h00 0.01027397     90 Q1_h00
-#> 2      Q2  h00 0.01038813     91 Q2_h00
-#> 3      Q3  h00 0.01050228     92 Q3_h00
+#>   QUARTER HOUR      share weight timeslice
+#> 1      Q1  h00 0.01027397     90    Q1_h00
+#> 2      Q2  h00 0.01038813     91    Q2_h00
+#> 3      Q3  h00 0.01050228     92    Q3_h00
 cat(nrow(cal@leaves), "leaves, share sums to", sum(cal@leaves$share))
 #> 96 leaves, share sums to 1
 ```
@@ -141,7 +142,7 @@ cat(nrow(cal@leaves), "leaves, share sums to", sum(cal@leaves$share))
 ## 4. Recasting between calendars
 
 Conversion is the central verb. The same
-[`recast()`](https://optimal2050.github.io/timescales/r/reference/recast.md)
+[`recast_calendar()`](https://optimal2050.github.io/timescales/r/reference/recast_calendar.md)
 function handles upsampling, downsampling, and irregular-to-irregular
 mappings, given that both calendars cover the same year fraction.
 
@@ -151,27 +152,27 @@ cal_m <- calendar("m12")     # source: monthly
 cal_q <- calendar("q4")      # target: quarterly
 
 monthly <- data.frame(
-  slice = cal_m@leaves$slice,
+  timeslice = cal_m@leaves$timeslice,
   load  = c(120, 118, 105,  92,  85,  88,  95, 100,  98,  90, 105, 122)
 )
 
-recast(monthly, from = cal_m, to = cal_q, year = 2025,
+recast_calendar(monthly, from = cal_m, to = cal_q, year = 2025,
        rule = "weighted_mean", by = "day")
-#>   slice      load
-#> 1    Q1 114.21111
-#> 2    Q2  88.29670
-#> 3    Q3  97.66304
-#> 4    Q4 105.67391
+#>   timeslice      load
+#> 1        Q1 114.21111
+#> 2        Q2  88.29670
+#> 3        Q3  97.66304
+#> 4        Q4 105.67391
 ```
 
 ### Aggregation rules
 
 Conversion routes through the **base grid** of real instants: source
 values are projected *down* to instants, then aggregated *up* to target
-slices, so aggregation and disaggregation are one operation
+timeslices, so aggregation and disaggregation are one operation
 (`RECAST_RULES`):
 
-| Rule | Down (slice → instants) | Up (instants → slice) |
+| Rule | Down (timeslice → instants) | Up (instants → timeslice) |
 |----|----|----|
 | `weighted_mean` | copy | mean weighted by declared `share` (default) |
 | `sum` | split across grid instants | sum — **totals are conserved** |
@@ -192,18 +193,18 @@ row that conserves totals).
 ### Within-calendar aggregation and the ANNUAL root
 
 Every calendar has an implicit whole-year root named `ANNUAL`.
-[`calendar_at_level()`](https://optimal2050.github.io/timescales/r/reference/calendar_at_level.md)
+[`prune_calendar()`](https://optimal2050.github.io/timescales/r/reference/prune_calendar.md)
 truncates a calendar at one of its own timeframes, and
-[`recast()`](https://optimal2050.github.io/timescales/r/reference/recast.md)
+[`recast_calendar()`](https://optimal2050.github.io/timescales/r/reference/recast_calendar.md)
 accepts a timeframe name for `to=`:
 
 ``` r
 
 cal <- calendar("q4_h24")
-x <- data.frame(slice = cal@leaves$slice, energy = 1)
-recast(x, cal, to = "ANNUAL", year = 2025, rule = "sum")
-#>    slice energy
-#> 1 ANNUAL     96
+x <- data.frame(timeslice = cal@leaves$timeslice, energy = 1)
+recast_calendar(x, cal, to = "ANNUAL", year = 2025, rule = "sum")
+#>   timeslice energy
+#> 1    ANNUAL     96
 ```
 
 ## Design boundaries
@@ -213,7 +214,7 @@ recast(x, cal, to = "ANNUAL", year = 2025, rule = "sum")
   ([`base_calendar()`](https://optimal2050.github.io/timescales/r/reference/base_calendar.md))
   spans real multi-year time, which is how leap years stay
   representable. Multi-year horizons remain a future layer.
-- **Label-stable.** A calendar’s slice IDs and ordering are fixed at
+- **Label-stable.** A calendar’s timeslice IDs and ordering are fixed at
   construction time. Conversions never mutate them.
 - **Explicit registries only.** Constructors return values; the token,
   rule, and conversion registries change behaviour only when you

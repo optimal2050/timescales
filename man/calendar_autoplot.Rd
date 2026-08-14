@@ -10,7 +10,7 @@ calendar_autoplot(
   object,
   fill = c("order", "share", "weight"),
   color_pattern = c("within", "global"),
-  labels = c("name", "slice", "none"),
+  labels = c("name", "timeslice", "none"),
   max_labels = 60L,
   max_segments = 2000L,
   border = NA,
@@ -30,11 +30,11 @@ autoplot.Calendar(object, ...)
 position, default), \code{"share"}, or \code{"weight"}.}
 
 \item{color_pattern}{For \code{fill = "order"}: \code{"within"} (default) restarts
-the gradient inside each parent slice (hours recycle every day);
+the gradient inside each parent timeslice (hours recycle every day);
 \code{"global"} sweeps once across the whole year.}
 
 \item{labels}{Segment labels: \code{"name"} (level value, e.g. \code{h00};
-default), \code{"slice"} (full path, e.g. \code{Q1_h00}), or \code{"none"}.
+default), \code{"timeslice"} (full path, e.g. \code{Q1_h00}), or \code{"none"}.
 \code{TRUE}/\code{FALSE} are accepted as shorthands.}
 
 \item{max_labels}{Rows with more segments than this get no labels.
@@ -61,7 +61,7 @@ A ggplot object (returned, not printed).
 }
 \description{
 One horizontal band per timeframe (\code{ANNUAL} root on top, coarsest first),
-rectangle widths proportional to slice shares, x spanning the covered
+rectangle widths proportional to timeslice shares, x spanning the covered
 year on \verb{[0, 1]}. \code{autoplot()} and \code{plot()} on a Calendar dispatch here.
 }
 \examples{

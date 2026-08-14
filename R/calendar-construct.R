@@ -9,17 +9,17 @@
 # tokens) will be layered on top of this in Phase 1.2.
 # =============================================================================
 
-#' Build a Calendar from a flat table of leaf slices
+#' Build a Calendar from a flat table of leaf timeslices
 #'
 #' This is the most general way to construct a [`Calendar`]: provide the leaf
-#' slices directly as a `data.frame`, name the timeframe columns, and
+#' timeslices directly as a `data.frame`, name the timeframe columns, and
 #' optionally pin down the per-timeframe vocabulary and model-level metadata.
 #'
-#' @param leaves A `data.frame` with one row per leaf slice. Must contain:
+#' @param leaves A `data.frame` with one row per leaf timeslice. Must contain:
 #'   * one column per timeframe named in `timeframes`
 #'   * `share` — numeric > 0; sums to `year_fraction`
 #'   * `weight` — numeric >= 0; user-defined importance weight
-#'   * (optional) `slice` — unique character ID; auto-generated if missing
+#'   * (optional) `timeslice` — unique character ID; auto-generated if missing
 #' @param timeframes Ordered character vector of timeframe names (coarsest
 #'   first). Each must appear as a column in `leaves`.
 #' @param levels Optional named list giving the full ordered token set per
@@ -70,11 +70,11 @@ calendar_from_leaves <- function(leaves,
     leaves[[tf]] <- as.character(leaves[[tf]])
   }
 
-  # Auto-generate `slice` if absent
-  if (!"slice" %in% names(leaves)) {
-    leaves$slice <- .make_slice_ids(leaves, timeframes)
+  # Auto-generate `timeslice` if absent
+  if (!"timeslice" %in% names(leaves)) {
+    leaves$timeslice <- .make_timeslice_ids(leaves, timeframes)
   } else {
-    leaves$slice <- as.character(leaves$slice)
+    leaves$timeslice <- as.character(leaves$timeslice)
   }
 
   if (!"share" %in% names(leaves)) {
@@ -117,9 +117,9 @@ calendar_from_leaves <- function(leaves,
   )
 }
 
-# Internal: build composite slice IDs from a row's timeframe columns -----------
+# Internal: build composite timeslice IDs from a row's timeframe columns -----------
 #' @noRd
-.make_slice_ids <- function(df, timeframes) {
+.make_timeslice_ids <- function(df, timeframes) {
   parts <- lapply(timeframes, function(tf) as.character(df[[tf]]))
   if (length(parts) == 1L) return(parts[[1]])
   do.call(paste, c(parts, sep = "_"))

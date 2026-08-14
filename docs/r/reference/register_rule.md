@@ -2,10 +2,10 @@
 
 Records the aggregation rule to use for a named value column, so callers
 of
-[`recast()`](https://optimal2050.github.io/timescales/r/reference/recast.md)
+[`recast_calendar()`](https://optimal2050.github.io/timescales/r/reference/recast_calendar.md)
 need not repeat it. Downstream packages can register their own parameter
 maps at load time. An explicit `rule=` argument to
-[`recast()`](https://optimal2050.github.io/timescales/r/reference/recast.md)
+[`recast_calendar()`](https://optimal2050.github.io/timescales/r/reference/recast_calendar.md)
 always wins; unregistered columns default to `"weighted_mean"`.
 
 ## Usage

@@ -33,33 +33,33 @@ identical(cal@leaves, cal2@leaves)
 ```
 
 **Coverage** says how the design relates to a real year: `complete`
-(every instant has a slice), `truncated` (a stylised year that drops
-instants — `d365` has no Feb 29), or `representative` (slices stand for
+(every instant has a timeslice), `truncated` (a stylised year that drops
+instants — `d365` has no Feb 29), or `representative` (timeslices stand for
 recurring types rather than a partition of the timeline — `q4_h24` is a
 representative day per quarter). **Regularity** flags designs whose
-slices differ in length within a level (`m12_md365`: February is short).
+timeslices differ in length within a level (`m12_md365`: February is short).
 
 ## Shares are duration-proportional
 
-Unlike the timeslices originals — which gave every slice a uniform
-share — catalog calendars weight slices by real duration:
+Unlike the timeslices originals — which gave every timeslice a uniform
+share — catalog calendars weight timeslices by real duration:
 
 ```{r}
 m12 <- calendars$m12
-data.frame(slice = m12@leaves$slice, share = round(m12@leaves$share, 4))[1:3, ]
+data.frame(timeslice = m12@leaves$timeslice, share = round(m12@leaves$share, 4))[1:3, ]
 ```
 
 January is `31/365` of the year, not `1/12`. This is what makes
-`calendar_recast(rule = "sum")` conserve and `weighted_mean` weight correctly.
+`recast_calendar(rule = "sum")` conserve and `weighted_mean` weight correctly.
 
 ## The workhorses
 
 The designs most models start from:
 
 ```{r}
-calendars$d365_h24    # 8,760 hourly slices, the full-resolution classic
-calendars$m12_h24     # 288 slices: representative day per month
-calendars$q4_h24      # 96 slices: representative day per quarter
+calendars$d365_h24    # 8,760 hourly timeslices, the full-resolution classic
+calendars$m12_h24     # 288 timeslices: representative day per month
+calendars$q4_h24      # 96 timeslices: representative day per quarter
 ```
 
 The `m12_md*` family carries a real month/day structure (non-Cartesian —
@@ -71,7 +71,7 @@ md <- calendars$m12_md365
 nrow(md@leaves)
 head(md@leaves[md@leaves$MONTH == "m02", ], 2)
 tail(md@leaves[md@leaves$MONTH == "m02", ], 1)   # Feb ends at d28
-instant_to_slice(as.Date(c("2021-03-15", "2020-02-29")), md)  # Feb 29 -> NA
+instant_to_timeslice(as.Date(c("2021-03-15", "2020-02-29")), md)  # Feb 29 -> NA
 ```
 
 ## Type axes: SEASON, DAYTYPE, HOURTYPE
@@ -86,8 +86,8 @@ and unlike in timeslices, they are fully datetime-convertible:
 ```{r}
 dtm <- as.POSIXct(c("2021-01-15 03:00", "2021-01-16 18:00",
                     "2021-07-14 12:00"), tz = "UTC")
-instant_to_slice(dtm, calendars$s4_hp3)
-instant_to_slice(dtm, calendars$wk2_h24)
+instant_to_timeslice(dtm, calendars$s4_hp3)
+instant_to_timeslice(dtm, calendars$wk2_h24)
 ```
 
 The mappings are defaults, not dogma — register your own token (e.g. a
@@ -98,7 +98,7 @@ calendar from it.
 
 `autoplot()` (or `plot()`) draws a calendar's structure as an icicle: one
 band per timeframe with the `ANNUAL` root on top, rectangle widths equal
-to slice shares, x spanning the year on `[0, 1]`. The gradient restarts
+to timeslice shares, x spanning the year on `[0, 1]`. The gradient restarts
 inside each parent (`color_pattern = "within"`), so nested structure is
 visible at a glance:
 
@@ -124,12 +124,12 @@ head(calendar_layout(calendars$q4_h24), 7)
 ```
 
 `calendar_plot()` is the data-on-calendar heatmap: hand it a `data.frame`
-keyed by slice (or nothing, to see the share structure). The layout
+keyed by timeslice (or nothing, to see the share structure). The layout
 follows the hierarchy — finest timeframe on y, next on x, coarser levels
 as facets:
 
 ```{r, fig.width = 7, fig.height = 4, eval = requireNamespace("ggplot2", quietly = TRUE)}
-x <- data.frame(slice = calendars$m12_h24@leaves$slice)
+x <- data.frame(timeslice = calendars$m12_h24@leaves$timeslice)
 x$load <- 80 + 40 * sin(seq(0, 6 * pi, length.out = nrow(x)))
 calendar_plot(calendars$m12_h24, x, palette = "C")
 ```
@@ -140,10 +140,10 @@ Any two catalog calendars convert into each other; totals are conserved
 under `rule = "sum"`:
 
 ```{r}
-x <- data.frame(slice = calendars$m12@leaves$slice,
+x <- data.frame(timeslice = calendars$m12@leaves$timeslice,
                 energy = c(310, 280, 300, 250, 220, 230,
                            260, 270, 240, 250, 280, 320))
-calendar_recast(x, calendars$m12, calendars$s4, year = 2021, rule = "sum",
+recast_calendar(x, calendars$m12, calendars$s4, year = 2021, rule = "sum",
        by = "day")
 sum(x$energy)
 ```
@@ -151,6 +151,6 @@ sum(x$energy)
 Or aggregate within one calendar via the `ANNUAL` root:
 
 ```{r}
-calendar_recast(x, calendars$m12, to = "ANNUAL", year = 2021, rule = "sum",
+recast_calendar(x, calendars$m12, to = "ANNUAL", year = 2021, rule = "sum",
        by = "day")
 ```

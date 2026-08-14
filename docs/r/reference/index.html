@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">timescales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.2.0.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.3.1.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -65,7 +65,7 @@
           <code><a href="calendar_from_leaves.html">calendar_from_leaves()</a></code>
 
         </dt>
-        <dd>Build a Calendar from a flat table of leaf slices</dd>
+        <dd>Build a Calendar from a flat table of leaf timeslices</dd>
 
         <dt>
 
@@ -76,14 +76,58 @@
 
         <dt>
 
-          <code><a href="calendar_at_level.html">calendar_at_level()</a></code>
+          <code><a href="prune_calendar.html">prune_calendar()</a></code>
 
         </dt>
         <dd>Derive a coarser calendar by truncating the hierarchy at a timeframe</dd>
       </dl></div><div class="section level2">
-      <h2 id="catalog">Catalog<a class="anchor" aria-label="anchor" href="#catalog"></a></h2>
+      <h2 id="navigation-and-subsetting">Navigation and subsetting<a class="anchor" aria-label="anchor" href="#navigation-and-subsetting"></a></h2>
 
-      <div class="section-desc"><p>The built-in calendar designs.</p></div>
+      <div class="section-desc"><p>Query the timeframe hierarchy and subset calendars.</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="calendar_queries.html">calendar_timeframes()</a></code> <code><a href="calendar_queries.html">calendar_rank()</a></code> <code><a href="calendar_queries.html">calendar_timeslices()</a></code>
+
+        </dt>
+        <dd>Calendar hierarchy queries</dd>
+
+        <dt>
+
+          <code><a href="calendar_family.html">calendar_family()</a></code>
+
+        </dt>
+        <dd>Immediate parent-child pairs of a Calendar hierarchy</dd>
+
+        <dt>
+
+          <code><a href="calendar_navigate.html">calendar_children()</a></code> <code><a href="calendar_navigate.html">calendar_parents()</a></code> <code><a href="calendar_navigate.html">calendar_descendants()</a></code> <code><a href="calendar_navigate.html">calendar_ancestors()</a></code>
+
+        </dt>
+        <dd>Navigate a Calendar hierarchy</dd>
+
+        <dt>
+
+          <code><a href="calendar_share.html">calendar_share()</a></code>
+
+        </dt>
+        <dd>Duration shares at a timeframe</dd>
+
+        <dt>
+
+          <code><a href="filter_calendar.html">filter_calendar()</a></code> <code><a href="filter_calendar.html">`[`(<i>&lt;Calendar&gt;</i>)</a></code> <code><a href="filter_calendar.html">`[`(<i>&lt;timescales::Calendar&gt;</i>)</a></code>
+
+        </dt>
+        <dd>Filter a Calendar to selected labels</dd>
+      </dl></div><div class="section level2">
+      <h2 id="catalog-and-data">Catalog and data<a class="anchor" aria-label="anchor" href="#catalog-and-data"></a></h2>
+
+      <div class="section-desc"><p>The built-in calendar designs and sample data.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -103,6 +147,13 @@
 
         </dt>
         <dd>Pre-built calendars from the catalog</dd>
+
+        <dt>
+
+          <code><a href="merra2_cities.html">merra2_cities</a></code>
+
+        </dt>
+        <dd>Hourly weather sample: three cities, year 2019</dd>
       </dl></div><div class="section level2">
       <h2 id="tokens">Tokens<a class="anchor" aria-label="anchor" href="#tokens"></a></h2>
 
@@ -154,24 +205,45 @@
 
       <dl><dt>
 
+          <code><a href="instant_to_timeslice.html">instant_to_timeslice()</a></code>
+
+        </dt>
+        <dd>Map datetimes to calendar timeslice IDs</dd>
+
+        <dt>
+
           <code><a href="instant_to_slice.html">instant_to_slice()</a></code>
 
         </dt>
-        <dd>Map datetimes to calendar slice IDs</dd>
+        <dd>Deprecated alias of instant_to_timeslice()</dd>
 
         <dt>
 
           <code><a href="expand_calendar.html">expand_calendar()</a></code>
 
         </dt>
-        <dd>Enumerate the instants of one or more model years mapped to slices</dd>
+        <dd>Enumerate the instants of one or more model years mapped to timeslices</dd>
+
+        <dt>
+
+          <code><a href="recast_calendar.html">recast_calendar()</a></code>
+
+        </dt>
+        <dd>Recast values from one calendar to another</dd>
 
         <dt>
 
           <code><a href="recast.html">recast()</a></code>
 
         </dt>
-        <dd>Recast values from one calendar to another</dd>
+        <dd>Recast data between scales</dd>
+
+        <dt>
+
+          <code><a href="join_calendar.html">join_calendar()</a></code>
+
+        </dt>
+        <dd>Attach a calendar's timeframe columns to timeslice-keyed data</dd>
 
         <dt>
 
@@ -209,6 +281,13 @@
 
         </dt>
         <dd>Heatmap of data on a calendar</dd>
+
+        <dt>
+
+          <code><a href="geom_calendar.html">geom_calendar()</a></code> <code><a href="geom_calendar.html">geom_calendar_tile()</a></code> <code><a href="geom_calendar.html">theme_calendar()</a></code>
+
+        </dt>
+        <dd>Calendar layers for ggplot2</dd>
       </dl></div><div class="section level2">
       <h2 id="rules-and-registries">Rules and registries<a class="anchor" aria-label="anchor" href="#rules-and-registries"></a></h2>
 
@@ -267,6 +346,22 @@
 
         </dt>
         <dd>Register a pairwise calendar conversion override</dd>
+      </dl></div><div class="section level2">
+      <h2 id="deprecated">Deprecated<a class="anchor" aria-label="anchor" href="#deprecated"></a></h2>
+
+
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="timescales-deprecated.html">calendar_recast()</a></code> <code><a href="timescales-deprecated.html">calendar_join()</a></code> <code><a href="timescales-deprecated.html">calendar_at_level()</a></code>
+
+        </dt>
+        <dd>Deprecated timescales functions</dd>
       </dl></div><div class="section level2">
       <h2 id="package">Package<a class="anchor" aria-label="anchor" href="#package"></a></h2>
 

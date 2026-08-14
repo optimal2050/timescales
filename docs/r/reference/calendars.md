@@ -21,7 +21,7 @@ A named list of 37
 objects. Names are the catalog ids (`d365`, `d365_h24`, `m12`,
 `m12_h24`, `m12_md365`, `q4_h24`, `s4_hp3`, ...); see
 [`calendar_catalog()`](https://optimal2050.github.io/timescales/r/reference/calendar_catalog.md)
-for the full table with slice counts, coverage, and regularity.
+for the full table with timeslice counts, coverage, and regularity.
 
 ## Source
 
@@ -46,7 +46,7 @@ calendars$m12
 #> Calendar: m12 
 #> Timeframes (1):
 #>   - MONTH (12) [token: m12]
-#> Leaf slices: 12
+#> Leaf timeslices: 12
 #> year_fraction: 1
 #> year_start: month=1, day=1
 #> utc_offset_minutes: 0

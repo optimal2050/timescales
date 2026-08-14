@@ -2,89 +2,35 @@
 % Please edit documentation in R/recast.R
 \name{recast}
 \alias{recast}
-\title{Recast values from one calendar to another}
+\title{Recast data between scales}
 \usage{
-recast(
-  x,
-  from,
-  to,
-  year,
-  key = "slice",
-  values = NULL,
-  rule = NULL,
-  by = NULL,
-  tz = "UTC",
-  na_action = c("drop", "error", "keep")
-)
+recast(x, from, ...)
 }
 \arguments{
-\item{x}{\code{data.frame} with a column named by \code{key} (default \code{"slice"})
-plus one or more numeric value columns.}
+\item{x}{A data.frame of values to convert.}
 
-\item{from}{Source \code{\link{Calendar}}.}
+\item{from}{The source scale object (here: the source \link{Calendar}).}
 
-\item{to}{Destination \code{\link{Calendar}}, or a timeframe name of \code{from}
-(including \code{"ANNUAL"}) for within-calendar aggregation via
-\code{\link[=calendar_at_level]{calendar_at_level()}}.}
-
-\item{year}{Integer scalar model year used to materialise both calendars
-on the shared grid.}
-
-\item{key}{Name of the slice key column in \code{x}. Default \code{"slice"}.}
-
-\item{values}{Character vector of value columns to transform. Default:
-all numeric columns other than \code{key}.}
-
-\item{rule}{One of \code{\link{RECAST_RULES}}, applied to every value column; or
-\code{NULL} (default) to look each column up with \code{\link[=get_rule]{get_rule()}}, falling
-back to \code{"weighted_mean"}.}
-
-\item{by}{Grid resolution for the shared instant grid. Defaults to the
-finest timeframe of the two calendars.}
-
-\item{tz}{Time zone for the shared grid. Default \code{"UTC"}.}
-
-\item{na_action}{What to do with grid instants not covered by \code{to}:
-\code{"drop"} (default, with a warning — the affected source share is
-genuinely lost), \code{"error"}, or \code{"keep"} (retain an explicit \code{NA} slice
-row so totals conserve). Instants not covered by \code{from} carry no data
-and are always dropped.}
+\item{...}{Passed to the dispatched worker; for the Calendar method
+the arguments of \code{\link[=recast_calendar]{recast_calendar()}} (\code{to}, \code{year}, \code{key},
+\code{values}, \code{rule}, \code{by}, \code{tz}, \code{na_action}).}
 }
 \value{
-A \code{data.frame} keyed by slice in \code{to}, with one row per slice in
-\code{to} (plus an \code{NA} row under \code{na_action = "keep"}) and the same value
-columns as in \code{x}.
+The converted data.frame (see the worker's documentation).
 }
 \description{
-The central conversion verb. Takes a \code{data.frame} keyed by slice in
-calendar \code{from} with one or more numeric value columns, and returns a
-\code{data.frame} keyed by slice in calendar \code{to}. Every conversion routes
-\code{A -> base -> B} through the shared instant grid: source values are
-projected down to instants, then aggregated up to target slices, so
-aggregation and disaggregation are one operation. A pairwise override
-registered with \code{\link[=register_conversion]{register_conversion()}} short-circuits the route.
+The pipeline verb of the *scales family: convert \code{x} between two
+resolutions of one dimension, dispatching on the scale object given
+as \code{from} — a \link{Calendar} here; a \code{Geoscale} when the geoscales
+package is loaded (which registers its own method). This lets one
+verb chain across dimensions:
 }
 \details{
-Rules (see \code{\link{RECAST_RULES}}): \code{"sum"} splits each source value equally
-across its slice's grid instants before summing up, so totals are
-conserved. \code{"weighted_mean"} weights by the declared \code{leaves$share} of
-each source slice; \code{"mean"} is the plain (time-weighted) mean over
-instants — the two differ exactly when declared shares differ from
-real-time coverage. \code{"copy"} requires a constant value per target slice;
-\code{"sd"} is aggregation-only.
-}
-\examples{
-cal_m <- calendar_build("m12")
-cal_q <- calendar_build("q4")
+\if{html}{\out{<div class="sourceCode r">}}\preformatted{x |>
+  recast(cal_hourly, cal_monthly, year = 2021) |>
+  recast(gs, to = "country")
+}\if{html}{\out{</div>}}
 
-x <- data.frame(
-  slice = sprintf("m\%02d", 1:12),
-  load  = seq(100, 210, length.out = 12)
-)
-recast(x, from = cal_m, to = cal_q, year = 2021)
-
-# Within-calendar aggregation, and the ANNUAL root
-cal <- calendar_build("q4", "h24")
-xh <- data.frame(slice = S7::prop(cal, "leaves")$slice, energy = 1)
-recast(xh, cal, to = "ANNUAL", year = 2021, rule = "sum")  # 96
+The explicit per-package workers remain available:
+\code{\link[=recast_calendar]{recast_calendar()}} and \code{geoscales::recast_geoscale()}.
 }

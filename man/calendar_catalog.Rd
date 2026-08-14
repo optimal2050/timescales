@@ -8,7 +8,7 @@ calendar_catalog()
 }
 \value{
 A \code{data.frame} with one row per catalog entry: \code{id}, \code{tokens}
-(\code{+}-joined), \code{timeframes} (\code{/}-joined), \code{n_slices}, \code{coverage}
+(\code{+}-joined), \code{timeframes} (\code{/}-joined), \code{n_timeslices}, \code{coverage}
 (\code{complete}/\code{truncated}/\code{representative}), \code{regularity}
 (\code{regular}/\code{irregular}), and a generated \code{desc}.
 }

@@ -24,14 +24,14 @@ test_that("base_calendar validates years", {
   expect_error(base_calendar(NA), "integers")
 })
 
-# calendar_at_level -----------------------------------------------------------
+# prune_calendar -----------------------------------------------------------
 
-test_that("calendar_at_level truncates the hierarchy and sums shares", {
+test_that("prune_calendar truncates the hierarchy and sums shares", {
   cal <- calendar_build("q4", "h24")
-  q <- calendar_at_level(cal, "QUARTER")
+  q <- prune_calendar(cal, "QUARTER")
 
   expect_equal(S7::prop(q, "timeframes"), "QUARTER")
-  expect_equal(S7::prop(q, "leaves")$slice, sprintf("Q%d", 1:4))
+  expect_equal(S7::prop(q, "leaves")$timeslice, sprintf("Q%d", 1:4))
   # Shares sum over the dropped hours: quarter share is preserved
   expect_equal(S7::prop(q, "leaves")$share,
                c(90, 91, 92, 92) / 365, tolerance = 1e-9)
@@ -39,32 +39,32 @@ test_that("calendar_at_level truncates the hierarchy and sums shares", {
   expect_equal(S7::prop(q, "meta")$name, "q4_h24@QUARTER")
 })
 
-test_that("calendar_at_level('ANNUAL') returns the one-slice root", {
+test_that("prune_calendar('ANNUAL') returns the one-timeslice root", {
   cal <- calendar_build("m12", "h24")
-  root <- calendar_at_level(cal, "ANNUAL")
+  root <- prune_calendar(cal, "ANNUAL")
 
   expect_equal(S7::prop(root, "timeframes"), "ANNUAL")
   lv <- S7::prop(root, "leaves")
   expect_equal(nrow(lv), 1L)
-  expect_equal(lv$slice, "ANNUAL")
+  expect_equal(lv$timeslice, "ANNUAL")
   expect_equal(lv$share, 1, tolerance = 1e-9)
 })
 
-test_that("calendar_at_level keeps token/alignment provenance of kept levels", {
+test_that("prune_calendar keeps token/alignment provenance of kept levels", {
   cal <- calendar_build("d365", "h24")
-  d <- calendar_at_level(cal, "YDAY")
+  d <- prune_calendar(cal, "YDAY")
   meta <- S7::prop(d, "meta")
   expect_equal(unname(meta$tokens["YDAY"]), "d365")
   expect_equal(meta$alignment$YDAY, "drop_feb29")
 })
 
-test_that("calendar_at_level rejects unknown timeframes", {
+test_that("prune_calendar rejects unknown timeframes", {
   cal <- calendar_build("m12")
-  expect_error(calendar_at_level(cal, "HOUR"), "timeframes")
+  expect_error(prune_calendar(cal, "HOUR"), "timeframes")
 })
 
-test_that("instant_to_slice works on an ANNUAL root calendar", {
-  root <- calendar_at_level(calendar_build("m12"), "ANNUAL")
+test_that("instant_to_timeslice works on an ANNUAL root calendar", {
+  root <- prune_calendar(calendar_build("m12"), "ANNUAL")
   dtm <- lubridate::ymd(c("2021-01-01", "2021-12-31"))
-  expect_equal(instant_to_slice(dtm, root), c("ANNUAL", "ANNUAL"))
+  expect_equal(instant_to_timeslice(dtm, root), c("ANNUAL", "ANNUAL"))
 })

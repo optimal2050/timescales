@@ -13,7 +13,7 @@ alignment_rule vocabulary of the predecessor timeslices package."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">timescales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.2.0.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.3.1.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -88,8 +88,8 @@ week 53 folds into <code>w52</code>).</p></dd>
 
 </dl><p>Alignment lives per-timeframe in a calendar's <code>meta$alignment</code> (a named
 list), seeded by the tokens that built it and overridable at construction
-or in <code><a href="instant_to_slice.html">instant_to_slice()</a></code>. Unaligned out-of-vocabulary instants map to
-<code>NA</code>, surfaced by <code><a href="recast.html">recast()</a></code>'s <code>na_action</code>.</p>
+or in <code><a href="instant_to_timeslice.html">instant_to_timeslice()</a></code>. Unaligned out-of-vocabulary instants map to
+<code>NA</code>, surfaced by <code><a href="recast_calendar.html">recast_calendar()</a></code>'s <code>na_action</code>.</p>
     </div>
 
     <div class="section level2">

@@ -1,0 +1,60 @@
+# Derive a coarser calendar by truncating the hierarchy at a timeframe
+
+Aggregates a calendar to one of its own timeframe levels: leaves are
+grouped by the timeframes down to (and including) `timeframe`, and their
+`share`/`weight` are summed. `timeframe = "ANNUAL"` returns the implicit
+whole-year root — a one-timeslice calendar (the root is named `ANNUAL`,
+never `YEAR`, which is reserved for the Gregorian-year axis).
+
+## Usage
+
+``` r
+prune_calendar(calendar, timeframe)
+```
+
+## Arguments
+
+- calendar:
+
+  A
+  [`Calendar`](https://optimal2050.github.io/timescales/r/reference/Calendar.md).
+
+- timeframe:
+
+  One of `calendar`'s timeframes, or `"ANNUAL"` for the whole-year root.
+
+## Value
+
+A
+[`Calendar`](https://optimal2050.github.io/timescales/r/reference/Calendar.md)
+whose hierarchy stops at `timeframe`.
+
+## Details
+
+Together with
+[`recast_calendar()`](https://optimal2050.github.io/timescales/r/reference/recast_calendar.md)'s
+acceptance of a timeframe name for `to=`, this covers within-calendar
+aggregation (e.g. `q4_h24 -> q4`) without constructing a second calendar
+by hand.
+
+## Examples
+
+``` r
+cal <- calendar_build("q4", "h24")
+prune_calendar(cal, "QUARTER")   # 4 timeslices, shares summed over hours
+#> Calendar: q4_h24@QUARTER 
+#> Timeframes (1):
+#>   - QUARTER (4) [token: q4]
+#> Leaf timeslices: 4
+#> year_fraction: 1
+#> year_start: month=1, day=1
+#> utc_offset_minutes: 0
+prune_calendar(cal, "ANNUAL")    # 1 timeslice covering the year
+#> Calendar: q4_h24@ANNUAL 
+#> Timeframes (1):
+#>   - ANNUAL (1)
+#> Leaf timeslices: 1
+#> year_fraction: 1
+#> year_start: month=1, day=1
+#> utc_offset_minutes: 0
+```
