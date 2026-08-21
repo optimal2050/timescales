@@ -27,7 +27,7 @@ str(merra2_cities)
 ```
 
 Instants are stamped at 30 minutes past the hour (the MERRA-2
-hourly-mean convention); `instant_to_timeslice()` floors them into hourly
+hourly-mean convention); `datetime_to_timeslice()` floors them into hourly
 timeslices, so no preprocessing is needed.
 
 ## Datetime data on a calendar
@@ -73,7 +73,7 @@ Once data lives on timeslices, `geom_calendar_tile()` draws it directly, and
 
 ```{r timeslice-tiles, fig.width = 7, fig.height = 3, eval = viz}
 cal <- calendars$m12_h24
-hel$timeslice <- instant_to_timeslice(hel$datetime, cal)
+hel$timeslice <- datetime_to_timeslice(hel$datetime, cal)
 hel_timeslices <- aggregate(T10M ~ timeslice, data = hel, FUN = mean)
 
 ggplot(hel_timeslices) +
@@ -97,16 +97,18 @@ cities onto `m12_h24`, then move the panel across resolutions:
 
 ```{r recast-panel}
 all3 <- merra2_cities
-all3$timeslice <- instant_to_timeslice(all3$datetime, cal)
+all3$timeslice <- datetime_to_timeslice(all3$datetime, cal)
 panel <- aggregate(cbind(T10M, W50M) ~ city + timeslice, data = all3,
                    FUN = mean)
 
 # month x hour -> quarter x hourtype (cross-cutting hierarchies)
-q_hp <- recast_calendar(panel, cal, calendars$q4_hp3, year = 2019)
+q_hp <- recast_calendar(panel, cal, calendars$q4_hp3, year = 2019,
+                        rule = "weighted_mean")
 head(q_hp, 6)
 
 # ... and to the seasonal view
-seasonal <- recast_calendar(panel, cal, calendars$s4, year = 2019)
+seasonal <- recast_calendar(panel, cal, calendars$s4, year = 2019,
+                            rule = "weighted_mean")
 seasonal[seasonal$city == "Helsinki", ]
 ```
 
@@ -132,7 +134,7 @@ the label matcher):
 
 ```{r resolutions, fig.width = 7, fig.height = 3.4, eval = viz}
 m_t <- recast_calendar(panel[c("city", "timeslice", "T10M")], cal,
-                       to = "MONTH", year = 2019)
+                       to = "MONTH", year = 2019, rule = "weighted_mean")
 
 tones <- energypal::energypal_gradient(
   energypal::energypal("carriers")[["Solar"]], n = 3)

@@ -7,21 +7,21 @@
 recast(x, from, ...)
 }
 \arguments{
-\item{x}{A data.frame of values to convert.}
+\item{x}{The data to convert, in any supported backend.}
 
 \item{from}{The source scale object (here: the source \link{Calendar}).}
 
 \item{...}{Passed to the dispatched worker; for the Calendar method
 the arguments of \code{\link[=recast_calendar]{recast_calendar()}} (\code{to}, \code{year}, \code{key},
-\code{values}, \code{rule}, \code{by}, \code{tz}, \code{na_action}).}
+\code{values}, \code{rule}, \code{by}, \code{tz}, \code{na_action}, \code{collect}).}
 }
 \value{
-The converted data.frame (see the worker's documentation).
+The converted data (see the worker's documentation).
 }
 \description{
 The pipeline verb of the *scales family: convert \code{x} between two
 resolutions of one dimension, dispatching on the scale object given
-as \code{from} — a \link{Calendar} here; a \code{Geoscale} when the geoscales
+as \code{from} -- a \link{Calendar} here; a \code{Geoscale} when the geoscales
 package is loaded (which registers its own method). This lets one
 verb chain across dimensions:
 }

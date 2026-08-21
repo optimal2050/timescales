@@ -11,7 +11,7 @@
 #' **duration-proportional** (January is `31/365` of the year, not `1/12`),
 #' where timeslices shipped uniform shares.
 #'
-#' @format A named list of 37 [`Calendar`] objects. Names are the catalog
+#' @format A named list of 43 [`Calendar`] objects. Names are the catalog
 #'   ids (`d365`, `d365_h24`, `m12`, `m12_h24`, `m12_md365`, `q4_h24`,
 #'   `s4_hp3`, ...); see [`calendar_catalog()`] for the full table with
 #'   timeslice counts, coverage, and regularity.
@@ -23,8 +23,8 @@
 #' names(calendars)
 #' calendars$m12
 #' identical(
-#'   S7::prop(calendars$q4, "leaves"),
-#'   S7::prop(calendar("q4"), "leaves")
+#'   S7::prop(calendars$q4, "leaftable"),
+#'   S7::prop(calendar("q4"), "leaftable")
 #' )
 "calendars"
 

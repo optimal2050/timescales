@@ -53,9 +53,9 @@ calendar_layout <- function(calendar, annual = TRUE) {
   if (!S7::S7_inherits(calendar, Calendar)) {
     stop("`calendar` must be a Calendar object", call. = FALSE)
   }
-  leaves <- S7::prop(calendar, "leaves")
+  leaves <- S7::prop(calendar, "leaftable")
   tfs    <- S7::prop(calendar, "timeframes")
-  levels <- S7::prop(calendar, "levels")
+  levels <- S7::prop(calendar, "members")
   meta   <- S7::prop(calendar, "meta")
   yf     <- meta$year_fraction %||% 1
 
@@ -190,11 +190,11 @@ calendar_autoplot <- function(object,
   labels <- match.arg(labels)
 
   tfs    <- S7::prop(object, "timeframes")
-  levels <- S7::prop(object, "levels")
+  levels <- S7::prop(object, "members")
   meta   <- S7::prop(object, "meta")
 
   d <- calendar_layout(object, annual = annual)
-  n_leaf <- nrow(S7::prop(object, "leaves"))
+  n_leaf <- nrow(S7::prop(object, "leaftable"))
 
   # Fill values ---------------------------------------------------------------
   if (fill == "order" && color_pattern == "within") {
@@ -377,9 +377,9 @@ calendar_plot <- function(x, data = NULL,
 #' @noRd
 .calendar_heat_data <- function(cal, data, values, key,
                                 x_tf, y_tf, facet_tf, fun) {
-  leaves <- S7::prop(cal, "leaves")
+  leaves <- S7::prop(cal, "leaftable")
   tfs    <- S7::prop(cal, "timeframes")
-  levels <- S7::prop(cal, "levels")
+  levels <- S7::prop(cal, "members")
 
   # Value vector on leaves ----------------------------------------------------
   if (is.null(data)) {

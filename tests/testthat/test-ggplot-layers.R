@@ -1,29 +1,32 @@
-# join_calendar (no ggplot2 needed) -------------------------------------------
+# join_calendar (no ggplot2 needed; full coverage lives in test-join.R) -------
 
-test_that("join_calendar attaches factor timeframe columns + share/weight", {
+test_that("join_calendar attaches the calendar-named label + prefixed cols", {
   cal <- calendar("m12_h24")
-  x <- data.frame(timeslice = S7::prop(cal, "leaves")$timeslice, v = 1)
-  j <- join_calendar(x, cal)
-  expect_named(j, c("timeslice", "v", "MONTH", "HOUR", "share", "weight"))
-  expect_true(is.factor(j$MONTH))
-  expect_equal(levels(j$MONTH), sprintf("m%02d", 1:12))
-  expect_equal(sum(j$share), 1, tolerance = 1e-9)
+  x <- data.frame(timeslice = S7::prop(cal, "leaftable")$timeslice, v = 1)
+  j <- join_calendar(x, cal, timeframes = TRUE, meta = TRUE)
+  expect_named(j, c("timeslice", "v", "m12_h24",
+                    "m12_h24.MONTH", "m12_h24.HOUR",
+                    "m12_h24.share", "m12_h24.weight"))
+  expect_true(is.factor(j$m12_h24.MONTH))
+  expect_equal(levels(j$m12_h24.MONTH), sprintf("m%02d", 1:12))
+  expect_equal(sum(j$m12_h24.share), 1, tolerance = 1e-9)
 })
 
 test_that("join_calendar warns on unknown keys and errors on no match", {
   cal <- calendar("m12")
   x <- data.frame(timeslice = c("m01", "nope"), v = 1:2)
-  expect_warning(j <- join_calendar(x, cal), "not timeslices")
-  expect_true(is.na(j$MONTH[2]))
+  expect_warning(j <- join_calendar(x, cal, timeframes = "MONTH"),
+                 "not timeslices")
+  expect_true(is.na(j$m12.MONTH[2]))
   expect_error(join_calendar(data.frame(timeslice = "zzz", v = 1), cal),
                "no rows")
 })
 
 test_that("join_calendar subsets timeframes and validates names", {
   cal <- calendar("m12_h24")
-  x <- data.frame(timeslice = S7::prop(cal, "leaves")$timeslice, v = 1)
+  x <- data.frame(timeslice = S7::prop(cal, "leaftable")$timeslice, v = 1)
   j <- join_calendar(x, cal, timeframes = "MONTH")
-  expect_false("HOUR" %in% names(j))
+  expect_false("m12_h24.HOUR" %in% names(j))
   expect_error(join_calendar(x, cal, timeframes = "YDAY"),
                "not timeframes")
 })
@@ -45,7 +48,7 @@ test_that("geom_calendar aggregates datetime data into tiles", {
 test_that("geom_calendar_tile works with explicit and plot data", {
   skip_if_not_installed("ggplot2")
   cal <- calendar("q4_h24")
-  y <- data.frame(timeslice = S7::prop(cal, "leaves")$timeslice, v = 1:96)
+  y <- data.frame(timeslice = S7::prop(cal, "leaftable")$timeslice, v = 1:96)
   p1 <- ggplot2::ggplot(y) + geom_calendar_tile(calendar = cal, z = "v")
   p2 <- ggplot2::ggplot() +
     geom_calendar_tile(calendar = cal, z = "v", data = y)

@@ -25,9 +25,15 @@ calendar(name, ...)
 
 \item{desc}{Free-text description.}
 
-\item{year_start}{\code{list(month = , day = )}; defaults to January 1.}
+\item{year_start}{\code{list(month = , day = )}; defaults to January 1. A
+nontrivial anchor makes the model year span
+\verb{[year_start(y), year_start(y + 1))}, anchors \code{YDAY}/\code{YEAR} to it, and
+rotates the MONTH/QUARTER member order so the anchor month comes
+first -- labels stay Gregorian (\code{m04} is April, always).}
 
-\item{utc_offset_minutes}{Integer minutes; defaults to 0.}
+\item{utc_offset_minutes}{Integer minutes; defaults to 0 (UTC). Local
+time = UTC + offset; e.g. \code{330L} for IST (UTC+5:30). Constant offsets
+only -- Olson time zones / DST are a planned later phase.}
 
 \item{year_fraction}{Year fraction covered. Defaults to 1.}
 }
@@ -50,6 +56,22 @@ name is parsed as \verb{_}-joined tokens and dispatched to
 currently stripped and recorded in \code{meta$year_qualified} — full
 year-prefix semantics arrive in a later phase.
 }
+\section{Fiscal calendars}{
+
+The catalog ships April-start fiscal designs -- \code{fy04_m12},
+\code{fy04_m12_h24}, \code{fy04_q4}, \code{fy04_q4_h24}, \code{fy04_d365}, \code{fy04_d365_h24}
+-- for reporting systems whose year runs April..March (India, Japan).
+The model year \code{y} spans \verb{[y-04-01, y+1-04-01)} and the anchored \code{YEAR}
+is the STARTING Gregorian year (Indian "FY 2021-22" is model year
+2021). Labels stay Gregorian (\code{m04} is April, \code{Q2} is Apr-Jun); the
+fiscal identity lives in the anchored \code{YEAR}/\code{YDAY} and the April-first
+member order. The entries are defined in UTC like the rest of the
+catalog -- data already in Indian local time maps as-is, and true-UTC
+instants use \code{calendar("fy04_m12", utc_offset_minutes = 330L)} (IST).
+Other anchors follow the same pattern by argument, e.g.
+\code{calendar("m12", year_start = list(month = 7L, day = 1L))}.
+}
+
 \examples{
 cal <- calendar_build("d365", "h24", name = "d365_h24")
 cal

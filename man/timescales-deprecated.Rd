@@ -5,6 +5,9 @@
 \alias{calendar_recast}
 \alias{calendar_join}
 \alias{calendar_at_level}
+\alias{instant_to_timeslice}
+\alias{instant_to_slice}
+\alias{calendar_from_leaves}
 \title{Deprecated timescales functions}
 \usage{
 calendar_recast(...)
@@ -12,6 +15,12 @@ calendar_recast(...)
 calendar_join(...)
 
 calendar_at_level(...)
+
+instant_to_timeslice(...)
+
+instant_to_slice(...)
+
+calendar_from_leaves(leaves, timeframes, levels = NULL, ...)
 }
 \arguments{
 \item{...}{Arguments forwarded to the replacement function.}
@@ -32,7 +41,10 @@ they will be removed before the 1.0 release.
 generic)
 \item \code{calendar_join()} -> \code{\link[=join_calendar]{join_calendar()}}
 \item \code{calendar_at_level()} -> \code{\link[=prune_calendar]{prune_calendar()}}
-\item \code{instant_to_slice()} -> \code{\link[=instant_to_timeslice]{instant_to_timeslice()}}
+\item \code{instant_to_timeslice()} -> \code{\link[=datetime_to_timeslice]{datetime_to_timeslice()}} ("instant"
+retired from the public vocabulary: the column is \code{datetime}, the
+grid is the base calendar)
+\item \code{instant_to_slice()} -> \code{\link[=datetime_to_timeslice]{datetime_to_timeslice()}}
 }
 }
 \keyword{internal}

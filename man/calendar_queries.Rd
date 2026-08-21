@@ -11,12 +11,17 @@ calendar_timeframes(calendar)
 
 calendar_rank(calendar, timeframe)
 
-calendar_timeslices(calendar, timeframe = NULL)
+calendar_timeslices(calendar, timeframe = NULL, qualified = FALSE)
 }
 \arguments{
 \item{calendar}{A \link{Calendar}.}
 
 \item{timeframe}{A timeframe name (see \code{calendar_timeframes()}).}
+
+\item{qualified}{\code{calendar_timeslices()} only: return the qualified
+node IDs at \code{timeframe} -- the leaf IDs of
+\code{prune_calendar(calendar, timeframe)} -- instead of the bare member
+labels. This is the per-frame node view the energyRt bridge consumes.}
 }
 \value{
 \code{calendar_timeframes()} and \code{calendar_timeslices()} return a

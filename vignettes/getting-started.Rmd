@@ -50,7 +50,7 @@ identical(cal_my@timeframes, cal_my2@timeframes)
 ```
 
 For full control there is the lowest-level constructor
-`calendar_from_leaves()`, where you supply the leaves table directly.
+`calendar_from_leaftable()`, where you supply the leaves table directly.
 
 ### 2. Inspect the structure
 
@@ -58,8 +58,8 @@ A `Calendar` has four parts:
 
 ```{r}
 cal_my@timeframes               # the timeframe hierarchy, coarsest first
-head(cal_my@leaves, 4)          # the leaf table (one row per timeslice)
-cal_my@levels$MONTH             # ordered label vocabulary per timeframe
+head(cal_my@leaftable, 4)          # the leaf table (one row per timeslice)
+cal_my@members$MONTH             # ordered label vocabulary per timeframe
 cal_my@meta[c("name", "year_fraction")]
 ```
 
@@ -74,7 +74,7 @@ cal_my@meta[c("name", "year_fraction")]
 
 ```{r}
 times <- as.POSIXct(c("2025-01-15 03:00", "2025-07-20 18:00"), tz = "UTC")
-instant_to_timeslice(times, cal_my)
+datetime_to_timeslice(times, cal_my)
 ```
 
 ### 4. Convert data between calendars

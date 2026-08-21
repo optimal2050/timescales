@@ -69,7 +69,7 @@ a normal \code{ggplot()} pipeline (the assembled-figure counterparts are
 \itemize{
 \item \code{geom_calendar()} — \strong{datetime mode}: name a POSIXct/Date column
 (\verb{datetime=}) and a measured column (\verb{z=}); instants are cut to timeslices
-via \code{\link[=instant_to_timeslice]{instant_to_timeslice()}} and aggregated with \code{fun}.
+via \code{\link[=datetime_to_timeslice]{datetime_to_timeslice()}} and aggregated with \code{fun}.
 \item \code{geom_calendar_tile()} — \strong{timeslice mode}: name a timeslice-ID column
 (\verb{timeslice=}) and the measured column (\verb{z=}).
 \item \code{theme_calendar()} — the compact heatmap theme the assembled plots
@@ -105,7 +105,7 @@ if (requireNamespace("ggplot2", quietly = TRUE)) {
     theme_calendar()
 
   # timeslice mode
-  y <- data.frame(timeslice = S7::prop(cal, "leaves")$timeslice, v = 1:288)
+  y <- data.frame(timeslice = S7::prop(cal, "leaftable")$timeslice, v = 1:288)
   ggplot(y) +
     geom_calendar_tile(calendar = cal, z = "v") +
     theme_calendar()

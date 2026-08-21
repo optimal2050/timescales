@@ -28,7 +28,7 @@ week 53 folds into \code{w52}).}
 
 Alignment lives per-timeframe in a calendar's \code{meta$alignment} (a named
 list), seeded by the tokens that built it and overridable at construction
-or in \code{\link[=instant_to_timeslice]{instant_to_timeslice()}}. Unaligned out-of-vocabulary instants map to
+or in \code{\link[=datetime_to_timeslice]{datetime_to_timeslice()}}. Unaligned out-of-vocabulary grid points map to
 \code{NA}, surfaced by \code{recast_calendar()}'s \code{na_action}.
 }
 \examples{

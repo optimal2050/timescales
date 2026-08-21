@@ -14,12 +14,14 @@ recast_calendar(
   rule = NULL,
   by = NULL,
   tz = "UTC",
-  na_action = c("drop", "error", "keep")
+  na_action = c("drop", "error", "keep"),
+  collect = NULL
 )
 }
 \arguments{
-\item{x}{\code{data.frame} with a column named by \code{key} plus one or more
-numeric value columns; other columns are preserved as identifiers.}
+\item{x}{The data to recast, in any supported backend, with a column
+named by \code{key} plus one or more numeric value columns; other columns
+are preserved as identifiers.}
 
 \item{from}{Source \code{\link{Calendar}}.}
 
@@ -38,58 +40,77 @@ all numeric columns other than \code{key} and \code{from}'s timeframe columns.
 Numeric identifiers (e.g. \code{year}) must be excluded explicitly.}
 
 \item{rule}{One of \code{\link{RECAST_RULES}}, applied to every value column; or
-\code{NULL} (default) to look each column up with \code{\link[=get_rule]{get_rule()}}, falling
-back to \code{"weighted_mean"}. (Deliberate divergence from
-\code{geoscales::geo_recast()}, whose fallback is \code{"sum"}: time-series
-panels skew intensive, spatial tables skew extensive.)}
+\code{NULL} (default) to look each column up with \code{\link[=get_rule]{get_rule()}}. A column
+with neither an explicit \verb{rule=} nor a registry entry is an ERROR --
+there is deliberately no fallback (a silently guessed rule is a
+silent unit error).}
 
-\item{by}{Grid resolution for the shared instant grid. Defaults to the
+\item{by}{Grid resolution for the shared datetime grid. Defaults to the
 finest timeframe of the two calendars.}
 
 \item{tz}{Time zone for the shared grid. Default \code{"UTC"}.}
 
-\item{na_action}{What to do with grid instants not covered by \code{to}:
-\code{"drop"} (default, with a warning — the affected source share is
-genuinely lost), \code{"error"}, or \code{"keep"} (retain an explicit \code{NA} timeslice
-row so totals conserve). Instants not covered by \code{from} carry no data
-and are always dropped.}
+\item{na_action}{What to do with grid points not covered by \code{to}:
+\code{"drop"} (default, with a warning -- the affected source share is
+genuinely lost), \code{"error"}, or \code{"keep"} (retain an explicit \code{NA}
+timeslice row so totals conserve). Grid points not covered by \code{from}
+carry no data and are always dropped.}
+
+\item{collect}{For lazy inputs (arrow, dtplyr): materialise the result
+(\code{TRUE}) or return the uncollected query (default).}
 }
 \value{
-A \code{data.frame} with columns \code{c(key, identifiers, values)}: per
-identifier combination, one row per timeslice in \code{to} (the full target
-vocabulary, \code{NA} where uncovered — a deliberate divergence from
-\code{geo_recast()}, which emits observed combinations only), plus an \code{NA}
-timeslice row under \code{na_action = "keep"}. Identifier column types are
-preserved.
+The recast table in the input's class, with columns
+\code{c(key, identifiers, values)}: per identifier combination, one row per
+timeslice in \code{to} (the full target vocabulary, \code{NA} where uncovered --
+a deliberate divergence from \code{geo_recast()}, which emits observed
+combinations only), plus an \code{NA} timeslice row under
+\code{na_action = "keep"}. Identifier column types are preserved.
 }
 \description{
-The central conversion verb. Takes a \code{data.frame} keyed by timeslice in
-calendar \code{from} with one or more numeric value columns, and returns a
-\code{data.frame} keyed by timeslice in calendar \code{to}. Every conversion routes
-\code{A -> base -> B} through the shared instant grid: source values are
-projected down to instants, then aggregated up to target timeslices, so
-aggregation and disaggregation are one operation. A pairwise override
-registered with \code{\link[=register_conversion]{register_conversion()}} short-circuits the route.
+The central conversion verb. Takes a table keyed by timeslice in
+calendar \code{from} with one or more numeric value columns, and returns the
+same table keyed by timeslice in calendar \code{to}. Every conversion routes
+\code{A -> base -> B} through the shared datetime grid: source values are
+projected down to grid points, then aggregated up to target timeslices,
+so aggregation and disaggregation are one operation. The route is
+evaluated as one dplyr pipeline against the \code{\link[=calendar_map]{calendar_map()}}
+crosswalk, so \code{x} may live in any supported backend (see below). A
+pairwise override registered with \code{\link[=register_conversion]{register_conversion()}} (or a
+crosswalk registered with \code{\link[=register_calendar_map]{register_calendar_map()}}) short-circuits
+the grid route.
 }
 \details{
 Columns of \code{x} that are neither the key nor a value column are treated
-as identifiers (panel columns — a \code{city}, a scenario) and preserved as
+as identifiers (panel columns -- a \code{city}, a scenario) and preserved as
 grouping columns, so panel data recasts correctly in one call; this is
 what makes mixed pipelines like
 \code{x |> recast_calendar(...) |> geo_recast(...)} work. Columns named like
 \code{from}'s timeframes are treated as timeslice attributes and dropped.
 
-\code{recast()} is a deprecated alias.
+The public halves of the route are \code{\link[=recast_to_timebase]{recast_to_timebase()}} and
+\code{\link[=recast_from_timebase]{recast_from_timebase()}}; \code{recast_calendar(x, from, to)} is equivalent to
+\code{recast_from_timebase(recast_to_timebase(x, from), to)}.
 
 Rules (see \code{\link{RECAST_RULES}}): \code{"sum"} splits each source value equally
-across its timeslice's grid instants before summing up, so totals are
+across its timeslice's grid points before summing up, so totals are
 conserved. \code{"weighted_mean"} weights by the declared \code{leaves$share} of
 each source timeslice; \code{"mean"} is the plain (time-weighted) mean over
-instants — the two differ exactly when declared shares differ from
-real-time coverage. \code{"copy"} requires a constant value per target timeslice;
-\code{"sd"} is aggregation-only. There is no \verb{weight=} argument: a calendar
-has exactly one weighting, its \code{leaves$share}.
+grid points -- the two differ exactly when declared shares differ from
+real-time coverage. \code{"copy"} requires a constant value per target
+timeslice; \code{"sd"} is aggregation-only. There is no \verb{weight=} argument: a
+calendar has exactly one weighting, its \code{leaves$share}.
 }
+\section{Backends}{
+
+\code{x} may be a \code{data.frame}, tibble, \code{data.table}, \code{dtplyr} lazy table,
+or an arrow Dataset/Table/query. The result comes back in the input's
+class; lazy inputs (arrow, dtplyr) return the uncollected query unless
+\code{collect = TRUE}. Lazy results contain the observed target timeslices
+only -- the full-vocabulary completion (and its \code{NA} rows) applies when
+the result is materialised.
+}
+
 \examples{
 cal_m <- calendar_build("m12")
 cal_q <- calendar_build("q4")
@@ -98,7 +119,8 @@ x <- data.frame(
   timeslice = sprintf("m\%02d", 1:12),
   load  = seq(100, 210, length.out = 12)
 )
-recast_calendar(x, from = cal_m, to = cal_q, year = 2021)
+recast_calendar(x, from = cal_m, to = cal_q, year = 2021,
+                rule = "weighted_mean")
 
 # Panel data: the city column is carried through
 xp <- rbind(transform(x, city = "A"), transform(x, city = "B"))
@@ -106,6 +128,6 @@ recast_calendar(xp, cal_m, cal_q, year = 2021, rule = "sum")
 
 # Within-calendar aggregation, and the ANNUAL root
 cal <- calendar_build("q4", "h24")
-xh <- data.frame(timeslice = S7::prop(cal, "leaves")$timeslice, energy = 1)
+xh <- data.frame(timeslice = S7::prop(cal, "leaftable")$timeslice, energy = 1)
 recast_calendar(xh, cal, to = "ANNUAL", year = 2021, rule = "sum")  # 96
 }

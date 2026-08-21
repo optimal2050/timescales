@@ -56,8 +56,8 @@ test_that("calendar_layout orders rows chronologically regardless of input
     share = c(31, 31, 28) / 90,
     weight = c(31, 31, 28)
   )
-  cal <- calendar_from_leaves(df, timeframes = "MONTH",
-                              levels = list(MONTH = c("m01", "m02", "m03")))
+  cal <- calendar_from_leaftable(df, timeframes = "MONTH",
+                              members = list(MONTH = c("m01", "m02", "m03")))
   d <- calendar_layout(cal, annual = FALSE)
   expect_equal(d$label, c("m01", "m02", "m03"))
   expect_equal(d$xmin[1], 0, tolerance = 1e-12)

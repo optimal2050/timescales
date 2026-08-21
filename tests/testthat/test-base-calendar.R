@@ -31,11 +31,11 @@ test_that("prune_calendar truncates the hierarchy and sums shares", {
   q <- prune_calendar(cal, "QUARTER")
 
   expect_equal(S7::prop(q, "timeframes"), "QUARTER")
-  expect_equal(S7::prop(q, "leaves")$timeslice, sprintf("Q%d", 1:4))
+  expect_equal(S7::prop(q, "leaftable")$timeslice, sprintf("Q%d", 1:4))
   # Shares sum over the dropped hours: quarter share is preserved
-  expect_equal(S7::prop(q, "leaves")$share,
+  expect_equal(S7::prop(q, "leaftable")$share,
                c(90, 91, 92, 92) / 365, tolerance = 1e-9)
-  expect_equal(sum(S7::prop(q, "leaves")$share), 1, tolerance = 1e-9)
+  expect_equal(sum(S7::prop(q, "leaftable")$share), 1, tolerance = 1e-9)
   expect_equal(S7::prop(q, "meta")$name, "q4_h24@QUARTER")
 })
 
@@ -44,7 +44,7 @@ test_that("prune_calendar('ANNUAL') returns the one-timeslice root", {
   root <- prune_calendar(cal, "ANNUAL")
 
   expect_equal(S7::prop(root, "timeframes"), "ANNUAL")
-  lv <- S7::prop(root, "leaves")
+  lv <- S7::prop(root, "leaftable")
   expect_equal(nrow(lv), 1L)
   expect_equal(lv$timeslice, "ANNUAL")
   expect_equal(lv$share, 1, tolerance = 1e-9)
@@ -63,8 +63,8 @@ test_that("prune_calendar rejects unknown timeframes", {
   expect_error(prune_calendar(cal, "HOUR"), "timeframes")
 })
 
-test_that("instant_to_timeslice works on an ANNUAL root calendar", {
+test_that("datetime_to_timeslice works on an ANNUAL root calendar", {
   root <- prune_calendar(calendar_build("m12"), "ANNUAL")
   dtm <- lubridate::ymd(c("2021-01-01", "2021-12-31"))
-  expect_equal(instant_to_timeslice(dtm, root), c("ANNUAL", "ANNUAL"))
+  expect_equal(datetime_to_timeslice(dtm, root), c("ANNUAL", "ANNUAL"))
 })

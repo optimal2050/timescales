@@ -58,7 +58,7 @@ RECAST_RULES <- c("weighted_mean", "sum", "mean", "copy", "sd")
 #'
 #' Alignment lives per-timeframe in a calendar's `meta$alignment` (a named
 #' list), seeded by the tokens that built it and overridable at construction
-#' or in [`instant_to_timeslice()`]. Unaligned out-of-vocabulary instants map to
+#' or in [`datetime_to_timeslice()`]. Unaligned out-of-vocabulary grid points map to
 #' `NA`, surfaced by `recast_calendar()`'s `na_action`.
 #'
 #' @format A character vector of length 4.
@@ -185,7 +185,7 @@ clear_rules <- function(param = NULL) {
 #'   # trivial exact nesting: quarters are consecutive month triples
 #'   q <- rep(sprintf("Q%d", 1:4), each = 3)
 #'   stats::aggregate(x[-1], list(timeslice = q[match(x$timeslice,
-#'     S7::prop(from, "leaves")$timeslice)]), sum)
+#'     S7::prop(from, "leaftable")$timeslice)]), sum)
 #' })
 #' "m12->q4" %in% list_conversions()$key
 #' clear_conversions()

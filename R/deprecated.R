@@ -18,7 +18,10 @@
 #'   generic)
 #' * `calendar_join()` -> [join_calendar()]
 #' * `calendar_at_level()` -> [prune_calendar()]
-#' * `instant_to_slice()` -> [instant_to_timeslice()]
+#' * `instant_to_timeslice()` -> [datetime_to_timeslice()] ("instant"
+#'   retired from the public vocabulary: the column is `datetime`, the
+#'   grid is the base calendar)
+#' * `instant_to_slice()` -> [datetime_to_timeslice()]
 #'
 #' @param ... Arguments forwarded to the replacement function.
 #' @return See the replacement function.
@@ -45,4 +48,26 @@ calendar_join <- function(...) {
 calendar_at_level <- function(...) {
   .Deprecated("prune_calendar")
   prune_calendar(...)
+}
+
+#' @rdname timescales-deprecated
+#' @export
+instant_to_timeslice <- function(...) {
+  .Deprecated("datetime_to_timeslice")
+  datetime_to_timeslice(...)
+}
+
+#' @rdname timescales-deprecated
+#' @export
+instant_to_slice <- function(...) {
+  .Deprecated("datetime_to_timeslice")
+  datetime_to_timeslice(...)
+}
+
+#' @rdname timescales-deprecated
+#' @export
+calendar_from_leaves <- function(leaves, timeframes, levels = NULL, ...) {
+  .Deprecated("calendar_from_leaftable")
+  calendar_from_leaftable(leaftable = leaves, timeframes = timeframes,
+                          members = levels, ...)
 }

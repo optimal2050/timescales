@@ -4,18 +4,18 @@
 \alias{Calendar}
 \title{Calendar (S7 class)}
 \usage{
-Calendar(leaves, timeframes, levels, meta = list())
+Calendar(leaftable, timeframes, members, meta = list())
 }
 \arguments{
-\item{leaves}{\code{data.frame} with columns \code{timeslice}, \code{share}, \code{weight}, plus
-one column per timeframe in \code{timeframes}.}
+\item{leaftable}{\code{data.frame} with columns \code{timeslice}, \code{share}, \code{weight},
+plus one column per timeframe in \code{timeframes}.}
 
 \item{timeframes}{Ordered character vector of timeframe names (coarsest
-first); each name must appear as a column in \code{leaves}.}
+first); each name must appear as a column in \code{leaftable}.}
 
-\item{levels}{Named list; \code{levels[[tf]]} is the full ordered set of
-allowed tokens at timeframe \code{tf}. Must equal \code{unique(leaves[[tf]])} as
-a set.}
+\item{members}{Named list; \code{members[[tf]]} is the full ordered set of
+allowed labels at timeframe \code{tf}. Must equal \code{unique(leaftable[[tf]])}
+as a set.}
 
 \item{meta}{Named list of model-level attributes (\code{name}, \code{desc},
 \code{year_start}, \code{utc_offset_minutes}, \code{year_fraction}).}
@@ -25,7 +25,7 @@ A nested time partition: a flat table of weighted leaf timeslices plus the
 ordered hierarchy of timeframes that produced them.
 }
 \details{
-Construct with \code{\link[=calendar_from_leaves]{calendar_from_leaves()}} (the general escape hatch).
+Construct with \code{\link[=calendar_from_leaftable]{calendar_from_leaftable()}} (the general escape hatch).
 Higher-level constructors built on tokens and a catalog will arrive in a
 later phase.
 }

@@ -43,7 +43,7 @@ register_conversion("m12", "q4", function(x, from, to, ...) {
   # trivial exact nesting: quarters are consecutive month triples
   q <- rep(sprintf("Q\%d", 1:4), each = 3)
   stats::aggregate(x[-1], list(timeslice = q[match(x$timeslice,
-    S7::prop(from, "leaves")$timeslice)]), sum)
+    S7::prop(from, "leaftable")$timeslice)]), sum)
 })
 "m12->q4" \%in\% list_conversions()$key
 clear_conversions()

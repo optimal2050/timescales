@@ -37,6 +37,25 @@
   invisible(x)
 }
 
+#' The calendar's name, required by conversion routes and attachment
+#'
+#' `meta$name` is the calendar's identity: it keys the pairwise conversion
+#' registry, the crosswalk cache, and names the label column that
+#' `join_calendar()` attaches. `calendar()`/`calendar_build()` name
+#' calendars automatically; only hand-built `calendar_from_leaftable()`
+#' objects can end up nameless.
+#' @noRd
+.calendar_name <- function(cal, require = TRUE, arg = "calendar") {
+  nm <- S7::prop(cal, "meta")$name %||% ""
+  if (require && (!is.character(nm) || length(nm) != 1L || is.na(nm) ||
+                  !nzchar(nm))) {
+    .stop(paste0("`%s` has no name; conversion and attach need a named ",
+                 "calendar -- set meta$name, or build it with calendar()/",
+                 "calendar_build(), which name automatically"), arg)
+  }
+  nm
+}
+
 #' @noRd
 .check_timeframe <- function(cal, timeframe, arg = "timeframe") {
   tfs <- S7::prop(cal, "timeframes")

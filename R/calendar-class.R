@@ -3,12 +3,12 @@
 # =============================================================================
 # A `Calendar` is a nested time partition of a (model) year:
 #
-#   * `leaves`     — flat enumeration of leaf timeslices, with one column per
-#                    timeframe in the hierarchy plus `timeslice`, `share`, `weight`
+#   * `leaftable`  — flat enumeration of leaf timeslices (one row per leaf,
+#                    one column per timeframe plus `timeslice`, `share`, `weight`)
 #   * `timeframes` — ordered character vector naming the hierarchy, coarsest
 #                    first (e.g. `c("MONTH", "MDAY", "HOUR")`)
-#   * `levels`     — named list giving the full ordered token vocabulary at
-#                    each timeframe (e.g. `levels$MONTH = c("m01", ..., "m12")`)
+#   * `members`    — named list giving each timeframe's ordered member labels
+#                    (e.g. `members$MONTH = c("m01", ..., "m12")`)
 #   * `meta`       — small named list of model-level attributes:
 #                      * `name`, `desc`            character
 #                      * `year_start`              list(month, day)
@@ -25,17 +25,17 @@
 #' A nested time partition: a flat table of weighted leaf timeslices plus the
 #' ordered hierarchy of timeframes that produced them.
 #'
-#' Construct with [`calendar_from_leaves()`] (the general escape hatch).
+#' Construct with [`calendar_from_leaftable()`] (the general escape hatch).
 #' Higher-level constructors built on tokens and a catalog will arrive in a
 #' later phase.
 #'
-#' @param leaves `data.frame` with columns `timeslice`, `share`, `weight`, plus
-#'   one column per timeframe in `timeframes`.
+#' @param leaftable `data.frame` with columns `timeslice`, `share`, `weight`,
+#'   plus one column per timeframe in `timeframes`.
 #' @param timeframes Ordered character vector of timeframe names (coarsest
-#'   first); each name must appear as a column in `leaves`.
-#' @param levels Named list; `levels[[tf]]` is the full ordered set of
-#'   allowed tokens at timeframe `tf`. Must equal `unique(leaves[[tf]])` as
-#'   a set.
+#'   first); each name must appear as a column in `leaftable`.
+#' @param members Named list; `members[[tf]]` is the full ordered set of
+#'   allowed labels at timeframe `tf`. Must equal `unique(leaftable[[tf]])`
+#'   as a set.
 #' @param meta Named list of model-level attributes (`name`, `desc`,
 #'   `year_start`, `utc_offset_minutes`, `year_fraction`).
 #'
@@ -43,36 +43,36 @@
 Calendar <- S7::new_class(
   "Calendar",
   properties = list(
-    leaves     = S7::new_property(S7::class_data.frame),
+    leaftable  = S7::new_property(S7::class_data.frame),
     timeframes = S7::new_property(S7::class_character),
-    levels     = S7::new_property(S7::class_list),
+    members    = S7::new_property(S7::class_list),
     meta       = S7::new_property(S7::class_list, default = list())
   ),
-  constructor = function(leaves, timeframes, levels, meta = list()) {
+  constructor = function(leaftable, timeframes, members, meta = list()) {
     S7::new_object(
       S7::S7_object(),
-      leaves     = leaves,
+      leaftable  = leaftable,
       timeframes = timeframes,
-      levels     = levels,
+      members    = members,
       meta       = meta
     )
   },
   validator = function(self) {
     errs <- character()
 
-    leaves <- S7::prop(self, "leaves")
+    leaftable <- S7::prop(self, "leaftable")
     timeframes <- S7::prop(self, "timeframes")
-    levels <- S7::prop(self, "levels")
+    members <- S7::prop(self, "members")
     meta <- S7::prop(self, "meta")
 
     # leaves ------------------------------------------------------------------
-    if (!is.data.frame(leaves)) {
-      return("`leaves` must be a data.frame")
+    if (!is.data.frame(leaftable)) {
+      return("`leaftable` must be a data.frame")
     }
     required <- c("timeslice", "share", "weight")
-    missing <- setdiff(required, names(leaves))
+    missing <- setdiff(required, names(leaftable))
     if (length(missing) > 0) {
-      errs <- c(errs, sprintf("`leaves` missing columns: %s",
+      errs <- c(errs, sprintf("`leaftable` missing columns: %s",
                               paste(missing, collapse = ", ")))
     }
 
@@ -85,65 +85,65 @@ Calendar <- S7::new_class(
     } else if (any(timeframes %in% c("slice", "timeslice", "share",
                                      "weight"))) {
       # reserved leaf-table column names: a timeframe called `share` would
-      # silently corrupt the leaves table (`slice` stays reserved as the
+      # silently corrupt the leaftable (`slice` stays reserved as the
       # pre-rename spelling)
       errs <- c(errs, paste0("`timeframes` must not use the reserved names ",
                              "slice, timeslice, share, weight"))
     } else {
-      missing_cols <- setdiff(timeframes, names(leaves))
+      missing_cols <- setdiff(timeframes, names(leaftable))
       if (length(missing_cols) > 0) {
-        errs <- c(errs, sprintf("`leaves` missing timeframe columns: %s",
+        errs <- c(errs, sprintf("`leaftable` missing timeframe columns: %s",
                                 paste(missing_cols, collapse = ", ")))
       }
     }
 
     # levels ------------------------------------------------------------------
-    if (!is.list(levels)) {
-      errs <- c(errs, "`levels` must be a list")
+    if (!is.list(members)) {
+      errs <- c(errs, "`members` must be a list")
     } else if (length(errs) == 0L) {
-      missing_lv <- setdiff(timeframes, names(levels))
+      missing_lv <- setdiff(timeframes, names(members))
       if (length(missing_lv) > 0) {
-        errs <- c(errs, sprintf("`levels` missing entries for: %s",
+        errs <- c(errs, sprintf("`members` missing entries for: %s",
                                 paste(missing_lv, collapse = ", ")))
       }
-      for (tf in intersect(timeframes, names(levels))) {
-        lv <- levels[[tf]]
+      for (tf in intersect(timeframes, names(members))) {
+        lv <- members[[tf]]
         if (!is.character(lv) || length(lv) == 0L ||
             anyNA(lv) || any(lv == "") || anyDuplicated(lv)) {
           errs <- c(errs, sprintf(
-            "`levels[[\"%s\"]]` must be a unique non-empty character vector",
+            "`members[[\"%s\"]]` must be a unique non-empty character vector",
             tf))
           next
         }
-        seen <- unique(as.character(leaves[[tf]]))
+        seen <- unique(as.character(leaftable[[tf]]))
         if (!setequal(seen, lv)) {
           errs <- c(errs, sprintf(
-            paste0("`levels[[\"%s\"]]` must contain exactly the values ",
-                   "present in `leaves$%s`"),
+            paste0("`members[[\"%s\"]]` must contain exactly the values ",
+                   "present in `leaftable$%s`"),
             tf, tf))
         }
       }
     }
 
     # timeslice / share / weight columns -----------------------------------------
-    if ("timeslice" %in% names(leaves)) {
-      sid <- leaves$timeslice
+    if ("timeslice" %in% names(leaftable)) {
+      sid <- leaftable$timeslice
       if (!is.character(sid) || anyNA(sid) || any(sid == "") ||
           anyDuplicated(sid)) {
         errs <- c(errs,
-                  "`leaves$timeslice` must be a unique non-empty character vector")
+                  "`leaftable$timeslice` must be a unique non-empty character vector")
       }
     }
-    if ("share" %in% names(leaves)) {
-      sh <- leaves$share
+    if ("share" %in% names(leaftable)) {
+      sh <- leaftable$share
       if (!is.numeric(sh) || any(!is.finite(sh)) || any(sh <= 0)) {
-        errs <- c(errs, "`leaves$share` must be finite numeric values > 0")
+        errs <- c(errs, "`leaftable$share` must be finite numeric values > 0")
       }
     }
-    if ("weight" %in% names(leaves)) {
-      w <- leaves$weight
+    if ("weight" %in% names(leaftable)) {
+      w <- leaftable$weight
       if (!is.numeric(w) || any(!is.finite(w)) || any(w < 0)) {
-        errs <- c(errs, "`leaves$weight` must be finite numeric values >= 0")
+        errs <- c(errs, "`leaftable$weight` must be finite numeric values >= 0")
       }
     }
 
@@ -155,13 +155,13 @@ Calendar <- S7::new_class(
       if (!is.numeric(yf) || length(yf) != 1L || !is.finite(yf) || yf <= 0) {
         errs <- c(errs,
                   "`meta$year_fraction` must be a single finite numeric > 0")
-      } else if ("share" %in% names(leaves) && is.numeric(leaves$share) &&
-                 all(is.finite(leaves$share))) {
-        if (abs(sum(leaves$share) - yf) > 1e-9) {
+      } else if ("share" %in% names(leaftable) && is.numeric(leaftable$share) &&
+                 all(is.finite(leaftable$share))) {
+        if (abs(sum(leaftable$share) - yf) > 1e-9) {
           errs <- c(errs, sprintf(
-            paste0("sum(`leaves$share`) (%g) must equal ",
+            paste0("sum(`leaftable$share`) (%g) must equal ",
                    "`meta$year_fraction` (%g)"),
-            sum(leaves$share), yf))
+            sum(leaftable$share), yf))
         }
       }
 
@@ -201,7 +201,7 @@ Calendar <- S7::new_class(
 S7::method(format, Calendar) <- function(x, ...) {
   sprintf("<Calendar[%s] leaf=%d>",
           paste(S7::prop(x, "timeframes"), collapse = "/"),
-          nrow(S7::prop(x, "leaves")))
+          nrow(S7::prop(x, "leaftable")))
 }
 
 #' @export
@@ -209,8 +209,8 @@ S7::method(format, Calendar) <- function(x, ...) {
 print.Calendar <- function(x, ...) {
   meta <- S7::prop(x, "meta")
   tf   <- S7::prop(x, "timeframes")
-  lv   <- S7::prop(x, "levels")
-  lf   <- S7::prop(x, "leaves")
+  lv   <- S7::prop(x, "members")
+  lf   <- S7::prop(x, "leaftable")
 
   name <- meta$name %||% ""
   cat("Calendar:", if (nzchar(name)) name else "<unnamed>", "\n")

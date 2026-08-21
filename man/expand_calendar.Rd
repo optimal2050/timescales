@@ -2,35 +2,36 @@
 % Please edit documentation in R/recast.R
 \name{expand_calendar}
 \alias{expand_calendar}
-\title{Enumerate the instants of one or more model years mapped to timeslices}
+\title{Enumerate the base grid of one or more model years mapped to timeslices}
 \usage{
 expand_calendar(calendar, year, by = NULL, tz = "UTC", alignment = NULL)
 }
 \arguments{
 \item{calendar}{A \code{\link{Calendar}}.}
 
-\item{year}{Integer vector — the model year(s) to enumerate.}
+\item{year}{Integer vector -- the model year(s) to enumerate.}
 
 \item{by}{Resolution string passed to \code{seq.POSIXt}'s \code{by} argument
 (\code{"hour"}, \code{"day"}, \code{"15 min"}, ...). Defaults to the finest of the
 calendar's timeframes.}
 
-\item{tz}{Time zone of the returned instants. Defaults to \code{"UTC"}.}
+\item{tz}{Time zone of the returned datetimes. Defaults to \code{"UTC"}.}
 
 \item{alignment}{Optional alignment override, as in
-\code{\link[=instant_to_timeslice]{instant_to_timeslice()}}.}
+\code{\link[=datetime_to_timeslice]{datetime_to_timeslice()}}.}
 }
 \value{
 A \code{data.frame} with columns \code{datetime} (POSIXct), \code{year}
-(integer, model year) and \code{timeslice} (character). Rows where \code{timeslice} is
-\code{NA} are instants the calendar does not cover.
+(integer, model year) and \code{timeslice} (character). Rows where
+\code{timeslice} is \code{NA} are grid points the calendar does not cover.
 }
 \description{
-Materialises the calendar on the base instant grid: one row per instant of
-each requested model year, with the timeslice that instant belongs to (via
-\code{\link[=instant_to_timeslice]{instant_to_timeslice()}}). The model year spans \verb{[year_start(y), year_start(y + 1))} in the calendar's local time (\code{meta$year_start},
-\code{meta$utc_offset_minutes}); with the default metadata that is simply the
-Gregorian year in \code{tz}.
+Materialises the calendar on the base datetime grid: one row per grid
+point of each requested model year, with the timeslice that point belongs
+to (via \code{\link[=datetime_to_timeslice]{datetime_to_timeslice()}}). The model year spans
+\verb{[year_start(y), year_start(y + 1))} in the calendar's local time
+(\code{meta$year_start}, \code{meta$utc_offset_minutes}); with the default metadata
+that is simply the Gregorian year in \code{tz}.
 }
 \examples{
 cal <- calendar_build("m12")

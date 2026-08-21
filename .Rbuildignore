@@ -32,3 +32,4 @@
 ^docs$
 ^\.positai$
 ^\.claude$
+^drafts$

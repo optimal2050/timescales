@@ -2,7 +2,7 @@
 
 .month_cal <- function() {
   days <- c(31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
-  calendar_from_leaves(
+  calendar_from_leaftable(
     data.frame(MONTH = sprintf("m%02d", 1:12),
                share = days / 365, weight = days),
     timeframes = "MONTH", name = "m12"
@@ -11,7 +11,7 @@
 
 .quarter_cal <- function() {
   q_days <- c(90, 91, 92, 92)  # non-leap
-  calendar_from_leaves(
+  calendar_from_leaftable(
     data.frame(QUARTER = sprintf("Q%d", 1:4),
                share = q_days / 365, weight = q_days),
     timeframes = "QUARTER", name = "q4"
@@ -29,35 +29,35 @@
   )
   df$share  <- days[df$MONTH] / 365 / 24
   df$weight <- days[df$MONTH] / 24
-  calendar_from_leaves(df, timeframes = c("MONTH", "HOUR"), name = "m12_h24")
+  calendar_from_leaftable(df, timeframes = c("MONTH", "HOUR"), name = "m12_h24")
 }
 
-# instant_to_timeslice -----------------------------------------------------------
+# datetime_to_timeslice -----------------------------------------------------------
 
-test_that("instant_to_timeslice maps datetimes to timeslice IDs (single timeframe)", {
+test_that("datetime_to_timeslice maps datetimes to timeslice IDs (single timeframe)", {
   cal <- .month_cal()
   dtm <- lubridate::ymd(c("2021-01-15", "2021-07-04", "2021-12-31"))
-  expect_equal(instant_to_timeslice(dtm, cal), c("m01", "m07", "m12"))
+  expect_equal(datetime_to_timeslice(dtm, cal), c("m01", "m07", "m12"))
 })
 
-test_that("instant_to_timeslice maps to composite timeslice IDs (two timeframes)", {
+test_that("datetime_to_timeslice maps to composite timeslice IDs (two timeframes)", {
   cal <- .month_hour_cal()
   dtm <- lubridate::ymd_h(c("2021-01-15 00", "2021-07-04 13"), tz = "UTC")
-  expect_equal(instant_to_timeslice(dtm, cal), c("m01_h00", "m07_h13"))
+  expect_equal(datetime_to_timeslice(dtm, cal), c("m01_h00", "m07_h13"))
 })
 
-test_that("instant_to_timeslice returns NA for instants outside coverage", {
+test_that("datetime_to_timeslice returns NA for instants outside coverage", {
   # Calendar covers only Jan + Feb; July datetimes have no matching timeslice.
   df <- data.frame(MONTH = c("m01", "m02"),
                    share = c(31, 28) / 365, weight = c(31, 28))
-  cal <- calendar_from_leaves(df, timeframes = "MONTH",
+  cal <- calendar_from_leaftable(df, timeframes = "MONTH",
                               year_fraction = 59 / 365)
-  out <- instant_to_timeslice(lubridate::ymd(c("2021-01-15", "2021-07-04")), cal)
+  out <- datetime_to_timeslice(lubridate::ymd(c("2021-01-15", "2021-07-04")), cal)
   expect_equal(out, c("m01", NA_character_))
 })
 
-test_that("instant_to_timeslice rejects non-Calendar input", {
-  expect_error(instant_to_timeslice(lubridate::ymd("2021-01-01"), list()),
+test_that("datetime_to_timeslice rejects non-Calendar input", {
+  expect_error(datetime_to_timeslice(lubridate::ymd("2021-01-01"), list()),
                "Calendar")
 })
 
@@ -66,7 +66,7 @@ test_that("instant_to_timeslice rejects non-Calendar input", {
 test_that("enum vocabularies resolve positionally: m12a works", {
   cal <- calendar_build("m12a")
   dtm <- lubridate::ymd(c("2021-03-15", "2021-12-01"))
-  expect_equal(instant_to_timeslice(dtm, cal), c("MAR", "DEC"))
+  expect_equal(datetime_to_timeslice(dtm, cal), c("MAR", "DEC"))
 })
 
 test_that("h168 is hour-of-week (WHOUR), Monday-first", {
@@ -74,13 +74,13 @@ test_that("h168 is hour-of-week (WHOUR), Monday-first", {
   # 2021-03-15 is a Monday
   dtm <- lubridate::ymd_h(c("2021-03-15 00", "2021-03-15 14",
                             "2021-03-21 23"), tz = "UTC")
-  expect_equal(instant_to_timeslice(dtm, cal), c("h000", "h014", "h167"))
+  expect_equal(datetime_to_timeslice(dtm, cal), c("h000", "h014", "h167"))
 })
 
 test_that("wd7 maps weekday labels", {
   cal <- calendar_build("wd7")
   dtm <- lubridate::ymd(c("2021-03-15", "2021-03-21"))  # Mon, Sun
-  expect_equal(instant_to_timeslice(dtm, cal), c("MON", "SUN"))
+  expect_equal(datetime_to_timeslice(dtm, cal), c("MON", "SUN"))
 })
 
 # Alignment rules -------------------------------------------------------------
@@ -89,28 +89,28 @@ test_that("d365 drops Feb 29 and shifts later ydays (drop_feb29)", {
   cal <- calendar_build("d365")
   dtm <- lubridate::ymd(c("2020-02-28", "2020-02-29", "2020-03-01",
                           "2020-12-31"))
-  expect_equal(instant_to_timeslice(dtm, cal),
+  expect_equal(datetime_to_timeslice(dtm, cal),
                c("d059", NA_character_, "d060", "d365"))
   # Non-leap years are untouched
-  expect_equal(instant_to_timeslice(lubridate::ymd("2021-12-31"), cal), "d365")
+  expect_equal(datetime_to_timeslice(lubridate::ymd("2021-12-31"), cal), "d365")
 })
 
 test_that("d360 drops trailing days of the year (drop_last)", {
   cal <- calendar_build("d360")
   dtm <- lubridate::ymd(c("2021-12-26", "2021-12-27", "2021-12-31"))
-  expect_equal(instant_to_timeslice(dtm, cal),
+  expect_equal(datetime_to_timeslice(dtm, cal),
                c("d360", NA_character_, NA_character_))
 })
 
 test_that("w52 folds week 53 into w52 (repeat_last)", {
   cal <- calendar_build("w52")
-  expect_equal(instant_to_timeslice(lubridate::ymd("2021-12-31"), cal), "w52")
+  expect_equal(datetime_to_timeslice(lubridate::ymd("2021-12-31"), cal), "w52")
 })
 
 test_that("alignment override 'exact' errors on uncovered instants", {
   cal <- calendar_build("d360")
   expect_error(
-    instant_to_timeslice(lubridate::ymd("2021-12-31"), cal, alignment = "exact"),
+    datetime_to_timeslice(lubridate::ymd("2021-12-31"), cal, alignment = "exact"),
     "exact"
   )
 })
@@ -120,14 +120,14 @@ test_that("alignment override 'exact' errors on uncovered instants", {
 test_that("year_start anchors YDAY to the fiscal year start", {
   cal <- calendar_build("d365", year_start = list(month = 7L, day = 1L))
   dtm <- lubridate::ymd(c("2021-07-01", "2021-07-02", "2022-06-30"))
-  expect_equal(instant_to_timeslice(dtm, cal), c("d001", "d002", "d365"))
+  expect_equal(datetime_to_timeslice(dtm, cal), c("d001", "d002", "d365"))
 })
 
 test_that("utc_offset_minutes shifts extraction into local time", {
   cal <- calendar_build("m12", utc_offset_minutes = -480L)  # UTC-8
   # 03:00 UTC on Jan 1 is still Dec 31 19:00 local
   dtm <- lubridate::ymd_h("2021-01-01 03", tz = "UTC")
-  expect_equal(instant_to_timeslice(dtm, cal), "m12")
+  expect_equal(datetime_to_timeslice(dtm, cal), "m12")
 })
 
 # expand_calendar ------------------------------------------------------------
@@ -202,7 +202,7 @@ test_that("recast 'sum' conserves totals (the 0.1.0 defect)", {
 
 test_that("recast 'sum' conserves through a two-level hierarchy", {
   cal  <- calendar_build("q4", "h24")
-  x <- data.frame(timeslice = S7::prop(cal, "leaves")$timeslice, v = 1)
+  x <- data.frame(timeslice = S7::prop(cal, "leaftable")$timeslice, v = 1)
   out <- recast_calendar(x, from = cal, to = calendar_build("q4"), year = 2021,
                 rule = "sum")
   expect_equal(sum(out$v), 96)  # was 8760 before the fix
@@ -211,7 +211,7 @@ test_that("recast 'sum' conserves through a two-level hierarchy", {
 
 test_that("recast 'weighted_mean' reads declared shares (differs from mean)", {
   # Equal *declared* shares even though months differ in real length
-  cal_eq <- calendar_from_leaves(
+  cal_eq <- calendar_from_leaftable(
     data.frame(MONTH = sprintf("m%02d", 1:12),
                share = rep(1 / 12, 12), weight = rep(730, 12)),
     timeframes = "MONTH", name = "m12eq"
@@ -275,7 +275,8 @@ test_that("recast roundtrips identity on the same calendar", {
   cal <- .month_cal()
   x <- data.frame(timeslice = sprintf("m%02d", 1:12),
                   v = seq_len(12) * 1.5)
-  out <- recast_calendar(x, from = cal, to = cal, year = 2021, by = "day")
+  out <- recast_calendar(x, from = cal, to = cal, year = 2021, by = "day",
+                         rule = "mean")
   expect_equal(out$v, x$v, tolerance = 1e-10)
 })
 
@@ -283,7 +284,7 @@ test_that("recast roundtrips identity on the same calendar", {
 
 test_that("recast accepts a timeframe name for `to`", {
   cal <- calendar_build("q4", "h24")
-  x <- data.frame(timeslice = S7::prop(cal, "leaves")$timeslice, v = 1)
+  x <- data.frame(timeslice = S7::prop(cal, "leaftable")$timeslice, v = 1)
   out <- recast_calendar(x, cal, to = "QUARTER", year = 2021, rule = "sum")
   expect_equal(out$timeslice, sprintf("Q%d", 1:4))
   expect_equal(sum(out$v), 96)
@@ -291,7 +292,7 @@ test_that("recast accepts a timeframe name for `to`", {
 
 test_that("recast to = 'ANNUAL' aggregates to the root", {
   cal <- calendar_build("q4", "h24")
-  x <- data.frame(timeslice = S7::prop(cal, "leaves")$timeslice, v = 1)
+  x <- data.frame(timeslice = S7::prop(cal, "leaftable")$timeslice, v = 1)
   out <- recast_calendar(x, cal, to = "ANNUAL", year = 2021, rule = "sum")
   expect_equal(out$timeslice, "ANNUAL")
   expect_equal(out$v, 96)
@@ -336,14 +337,25 @@ test_that("na_action = 'keep' conserves totals in an explicit NA row", {
 test_that("recast consults the per-parameter rule registry", {
   on.exit(clear_rules(), add = TRUE)
   register_rule("energy", "sum")
+  register_rule("load", "weighted_mean")
   cal_m <- .month_cal()
   cal_q <- .quarter_cal()
   x <- data.frame(timeslice = sprintf("m%02d", 1:12),
                   energy = rep(1, 12),        # registered -> sum
-                  load   = rep(5, 12))        # unregistered -> weighted_mean
+                  load   = rep(5, 12))        # registered -> weighted_mean
   out <- recast_calendar(x, cal_m, cal_q, year = 2021, by = "day")
   expect_equal(sum(out$energy), 12)
   expect_equal(out$load, rep(5, 4))
+})
+
+test_that("an unregistered column without rule= is an error (no fallback)", {
+  on.exit(clear_rules(), add = TRUE)
+  cal_m <- .month_cal()
+  cal_q <- .quarter_cal()
+  x <- data.frame(timeslice = sprintf("m%02d", 1:12), mystery = rep(1, 12))
+  expect_error(
+    recast_calendar(x, cal_m, cal_q, year = 2021, by = "day"),
+    "no aggregation rule.*mystery")
 })
 
 test_that("a registered pairwise conversion short-circuits the grid route", {
@@ -363,7 +375,8 @@ test_that("recast warns when source timeslices are missing from x", {
   x <- data.frame(timeslice = sprintf("m%02d", 1:6),  # only first half-year
                   load  = 1:6 * 1.0)
   expect_warning(
-    recast_calendar(x, from = cal_m, to = cal_q, year = 2021, by = "day"),
+    recast_calendar(x, from = cal_m, to = cal_q, year = 2021, by = "day",
+           rule = "weighted_mean"),
     "missing from `x`"
   )
 })
@@ -384,7 +397,8 @@ test_that("recast handles multiple value columns", {
   x <- data.frame(timeslice = sprintf("m%02d", 1:12),
                   a = 1:12 * 1.0,
                   b = 12:1 * 1.0)
-  out <- recast_calendar(x, from = cal_m, to = cal_q, year = 2021, by = "day")
+  out <- recast_calendar(x, from = cal_m, to = cal_q, year = 2021, by = "day",
+                         rule = "weighted_mean")
   expect_named(out, c("timeslice", "a", "b"))
   expect_equal(nrow(out), 4)
 })
@@ -480,9 +494,9 @@ test_that("renamed functions keep deprecated aliases", {
                                         rule = "sum", by = "day"))
   expect_warning(p <- calendar_at_level(calendar("q4_h24"), "QUARTER"),
                  "deprecated|prune_calendar")
-  expect_identical(S7::prop(p, "leaves"),
+  expect_identical(S7::prop(p, "leaftable"),
                    S7::prop(prune_calendar(calendar("q4_h24"), "QUARTER"),
-                            "leaves"))
+                            "leaftable"))
   y <- data.frame(timeslice = sprintf("m%02d", 1:12), v = 1)
   expect_warning(j <- calendar_join(y, calendar("m12")),
                  "deprecated|join_calendar")
@@ -492,7 +506,7 @@ test_that("renamed functions keep deprecated aliases", {
 test_that("validator rejects reserved timeframe names", {
   df <- data.frame(weight = c("w1", "w2"), share = c(0.5, 0.5))
   expect_error(
-    calendar_from_leaves(df, timeframes = "weight"),
+    calendar_from_leaftable(df, timeframes = "weight"),
     "reserved"
   )
 })
@@ -501,6 +515,6 @@ test_that("instant_to_slice() is a deprecated alias", {
   cal <- calendar("m12")
   d <- lubridate::ymd("2021-03-15")
   expect_warning(old <- instant_to_slice(d, cal),
-                 "deprecated|instant_to_timeslice")
-  expect_identical(old, instant_to_timeslice(d, cal))
+                 "deprecated|datetime_to_timeslice")
+  expect_identical(old, datetime_to_timeslice(d, cal))
 })

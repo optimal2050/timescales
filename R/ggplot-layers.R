@@ -24,70 +24,9 @@
 # ggplot2 stays in Suggests; nothing here builds ggproto objects.
 # =============================================================================
 
-#' Attach a calendar's timeframe columns to timeslice-keyed data
-#'
-#' Joins the calendar's timeframe columns, `share`, and `weight` onto a
-#' `data.frame` keyed by timeslice ID — the attachment step for manual ggplot2
-#' work, faceting, or grouped summaries. Timeframe columns are added as
-#' factors in vocabulary order so axes and facets sort correctly.
-#'
-#' @param x A `data.frame` with a column of timeslice IDs.
-#' @param calendar A [`Calendar`].
-#' @param key Name of the timeslice key column in `x`. Default `"timeslice"`.
-#' @param timeframes Which timeframe columns to attach. Default: all of the
-#'   calendar's timeframes.
-#' @param as_factor Attach timeframe columns as vocabulary-ordered factors
-#'   (default `TRUE`) or plain character.
-#'
-#' @return `x` with the requested timeframe columns plus `share` and
-#'   `weight` appended. Rows whose key is not a timeslice of the calendar get
-#'   `NA`s (with a warning).
-#'
-#' @examples
-#' cal <- calendar("m12_h24")
-#' x <- data.frame(timeslice = S7::prop(cal, "leaves")$timeslice, load = 1)
-#' head(join_calendar(x, cal))
-#' @export
-join_calendar <- function(x, calendar, key = "timeslice", timeframes = NULL,
-                          as_factor = TRUE) {
-  if (!is.data.frame(x)) {
-    .stop("`x` must be a data.frame")
-  }
-  .check_calendar(calendar)
-  if (!key %in% names(x)) {
-    .stop("`x` has no column named `%s`; pass `key=`", key)
-  }
-  leaves <- S7::prop(calendar, "leaves")
-  tfs    <- S7::prop(calendar, "timeframes")
-  levels <- S7::prop(calendar, "levels")
-
-  if (is.null(timeframes)) {
-    timeframes <- tfs
-  } else {
-    bad <- setdiff(timeframes, tfs)
-    if (length(bad) > 0L) {
-      .stop("not timeframes of this calendar: %s", .preview(bad))
-    }
-  }
-
-  mi <- match(as.character(x[[key]]), leaves$timeslice)
-  if (all(is.na(mi))) {
-    .stop("no rows of `x` matched the calendar's timeslices; check `key=`")
-  }
-  unknown <- unique(as.character(x[[key]])[is.na(mi)])
-  if (length(unknown) > 0L) {
-    .warn("%d code(s) in `x$%s` are not timeslices of the calendar: %s",
-          length(unknown), key, .preview(unknown))
-  }
-
-  for (tf in timeframes) {
-    col <- leaves[[tf]][mi]
-    x[[tf]] <- if (as_factor) factor(col, levels = levels[[tf]]) else col
-  }
-  x$share  <- leaves$share[mi]
-  x$weight <- leaves$weight[mi]
-  x
-}
+# join_calendar() moved to R/join.R (multi-calendar attach: the label
+# column is named after the calendar, timeframe/share/weight columns come
+# "<name>."-prefixed, and any supported data backend works).
 
 # -----------------------------------------------------------------------------
 # Shared aggregation helper
@@ -100,9 +39,9 @@ join_calendar <- function(x, calendar, key = "timeslice", timeframes = NULL,
 #' @noRd
 .heat_aggregate <- function(timeslices, z, calendar, x_tf, y_tf, fun,
                             by_df = NULL) {
-  leaves <- S7::prop(calendar, "leaves")
+  leaves <- S7::prop(calendar, "leaftable")
   tfs    <- S7::prop(calendar, "timeframes")
-  levels <- S7::prop(calendar, "levels")
+  levels <- S7::prop(calendar, "members")
 
   # Default layout: finest timeframe on y, next-finest on x
   if (is.null(y_tf) && is.null(x_tf)) {
@@ -159,7 +98,7 @@ join_calendar <- function(x, calendar, key = "timeslice", timeframes = NULL,
 #'
 #' * `geom_calendar()` — **datetime mode**: name a POSIXct/Date column
 #'   (`datetime=`) and a measured column (`z=`); instants are cut to timeslices
-#'   via [`instant_to_timeslice()`] and aggregated with `fun`.
+#'   via [`datetime_to_timeslice()`] and aggregated with `fun`.
 #' * `geom_calendar_tile()` — **timeslice mode**: name a timeslice-ID column
 #'   (`timeslice=`) and the measured column (`z=`).
 #' * `theme_calendar()` — the compact heatmap theme the assembled plots
@@ -212,7 +151,7 @@ join_calendar <- function(x, calendar, key = "timeslice", timeframes = NULL,
 #'     theme_calendar()
 #'
 #'   # timeslice mode
-#'   y <- data.frame(timeslice = S7::prop(cal, "leaves")$timeslice, v = 1:288)
+#'   y <- data.frame(timeslice = S7::prop(cal, "leaftable")$timeslice, v = 1:288)
 #'   ggplot(y) +
 #'     geom_calendar_tile(calendar = cal, z = "v") +
 #'     theme_calendar()
@@ -234,7 +173,7 @@ geom_calendar <- function(calendar, z,
     if (!inherits(dtm, "POSIXt")) {
       .stop("column `%s` must be POSIXct/Date for geom_calendar()", datetime)
     }
-    timeslices <- instant_to_timeslice(dtm, calendar)
+    timeslices <- datetime_to_timeslice(dtm, calendar)
     .heat_aggregate(timeslices, d[[z]], calendar, x_tf, y_tf, fun,
                     by_df = if (length(by)) d[by] else NULL)
   }

@@ -4,7 +4,7 @@
 # Layer 2: `calendar_build(token1, token2, ...)` — declarative, by tokens.
 # Layer 1: `calendar(name)` — name-based shortcut; parses "d365_h24" etc.
 #
-# Both delegate to `calendar_from_leaves()` (layer 3) under the hood.
+# Both delegate to `calendar_from_leaftable()` (layer 3) under the hood.
 # =============================================================================
 
 #' Build a Calendar from token names
@@ -15,16 +15,37 @@
 #' `year_fraction`.
 #'
 #' @param ... Character token names (see [`list_tokens()`]) in coarsest-first
-#'   order. Each token's timeframe must be unique within the call.
+#'   order, as positional arguments; each token's timeframe must be unique
+#'   within the call. Additional NAMED entries are appended to `meta` of
+#'   the resulting [`Calendar`] (names colliding with construction
+#'   arguments are an error).
 #' @param name Calendar name. Defaults to `paste(tokens, collapse = "_")`.
 #' @param desc Free-text description.
-#' @param year_start `list(month = , day = )`; defaults to January 1.
-#' @param utc_offset_minutes Integer minutes; defaults to 0.
+#' @param year_start `list(month = , day = )`; defaults to January 1. A
+#'   nontrivial anchor makes the model year span
+#'   `[year_start(y), year_start(y + 1))`, anchors `YDAY`/`YEAR` to it, and
+#'   rotates the MONTH/QUARTER member order so the anchor month comes
+#'   first -- labels stay Gregorian (`m04` is April, always).
+#' @param utc_offset_minutes Integer minutes; defaults to 0 (UTC). Local
+#'   time = UTC + offset; e.g. `330L` for IST (UTC+5:30). Constant offsets
+#'   only -- Olson time zones / DST are a planned later phase.
 #' @param year_fraction Year fraction covered. Defaults to 1.
-#' @param ... (forwarded as `meta`) Additional named entries appended to
-#'   `meta` of the resulting [`Calendar`].
 #'
 #' @return A [`Calendar`].
+#'
+#' @section Fiscal calendars:
+#' The catalog ships April-start fiscal designs -- `fy04_m12`,
+#' `fy04_m12_h24`, `fy04_q4`, `fy04_q4_h24`, `fy04_d365`, `fy04_d365_h24`
+#' -- for reporting systems whose year runs April..March (India, Japan).
+#' The model year `y` spans `[y-04-01, y+1-04-01)` and the anchored `YEAR`
+#' is the STARTING Gregorian year (Indian "FY 2021-22" is model year
+#' 2021). Labels stay Gregorian (`m04` is April, `Q2` is Apr-Jun); the
+#' fiscal identity lives in the anchored `YEAR`/`YDAY` and the April-first
+#' member order. The entries are defined in UTC like the rest of the
+#' catalog -- data already in Indian local time maps as-is, and true-UTC
+#' instants use `calendar("fy04_m12", utc_offset_minutes = 330L)` (IST).
+#' Other anchors follow the same pattern by argument, e.g.
+#' `calendar("m12", year_start = list(month = 7L, day = 1L))`.
 #'
 #' @examples
 #' cal <- calendar_build("d365", "h24", name = "d365_h24")
@@ -64,8 +85,30 @@ calendar_build <- function(...,
          call. = FALSE)
   }
 
+  # Named extras in `...` are appended to `meta` (documented contract);
+  # names colliding with construction arguments are user errors, not meta
+  extra <- args[!is_token]
+  reserved <- unique(c(names(formals(calendar_from_leaftable)),
+                       "tokens", "alignment"))
+  bad_extra <- intersect(names(extra), reserved)
+  if (length(bad_extra) > 0L) {
+    stop("Named argument(s) ", paste0("`", bad_extra, "`", collapse = ", "),
+         " collide with construction arguments; rename the meta entr",
+         if (length(bad_extra) > 1L) "ies" else "y", call. = FALSE)
+  }
+
   # Expand each token; columns are kept as factors for stable ordering
   expansions <- lapply(defs, function(d) d$expand())
+
+  # Fiscal member ordering: a nontrivial year_start rotates the year-cyclic
+  # vocabularies (MONTH, QUARTER) so the anchor month's label comes first --
+  # m04..m03 for an April start. Labels stay GREGORIAN (m04 is April,
+  # always); only the ORDER changes, and each label keeps its own share.
+  if (.nontrivial_year_start(year_start)) {
+    expansions <- lapply(seq_along(expansions), function(i) {
+      .rotate_fiscal(expansions[[i]], tfs[i], year_start)
+    })
+  }
 
   # Build the Cartesian product
   label_lists <- lapply(seq_along(expansions), function(i) {
@@ -100,18 +143,40 @@ calendar_build <- function(...,
   names(alignment) <- tfs
   alignment <- alignment[!vapply(alignment, is.null, logical(1))]
 
-  calendar_from_leaves(
-    leaves             = grid,
-    timeframes         = tfs,
-    levels             = levels_list,
-    name               = name,
-    desc               = desc,
-    year_start         = year_start,
-    utc_offset_minutes = utc_offset_minutes,
-    year_fraction      = year_fraction,
-    tokens             = tokens_by_tf,
-    alignment          = if (length(alignment) > 0L) alignment else NULL
-  )
+  do.call(calendar_from_leaftable, c(
+    list(
+      leaftable          = grid,
+      timeframes         = tfs,
+      members            = levels_list,
+      name               = name,
+      desc               = desc,
+      year_start         = year_start,
+      utc_offset_minutes = utc_offset_minutes,
+      year_fraction      = year_fraction,
+      tokens             = tokens_by_tf,
+      alignment          = if (length(alignment) > 0L) alignment else NULL
+    ),
+    extra
+  ))
+}
+
+#' Rotate a year-cyclic token expansion to start at the fiscal anchor
+#'
+#' Only full-cardinality MONTH (12) and QUARTER (4) vocabularies rotate;
+#' everything else (YDAY is inherently anchored, HOUR is sub-daily, SEASON
+#' straddles the year boundary by design) is returned unchanged.
+#' @noRd
+.rotate_fiscal <- function(expansion, tf, year_start) {
+  n <- nrow(expansion)
+  start <- if (tf == "MONTH" && n == 12L) {
+    as.integer(year_start$month)
+  } else if (tf == "QUARTER" && n == 4L) {
+    (as.integer(year_start$month) - 1L) %/% 3L + 1L
+  } else {
+    1L
+  }
+  if (start <= 1L) return(expansion)
+  expansion[c(start:n, 1:(start - 1L)), , drop = FALSE]
 }
 
 #' Build a Calendar by name

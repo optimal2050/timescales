@@ -18,6 +18,9 @@
 #   regularity    "regular" | "irregular"   (renamed from timeslices'
 #                 symmetric/asymmetric)
 #   month_lengths integer(12), only on the m12_md* entries
+#   year_start    optional list(month =, day =) -- fiscal anchor (fy* family);
+#                 forwarded to calendar_build() unless the caller overrides
+#   utc_offset_minutes  optional integer -- same forwarding rule
 # =============================================================================
 
 # Month-length constants (also used by the m12/m12a token expanders in
@@ -110,6 +113,29 @@
   wk2_h24 = list(tokens = c("wk2", "h24"), coverage = "representative",
                  regularity = "regular"),
 
+  # fiscal years, April-start (India, Japan, ...). The model year spans
+  # [Apr 1 y, Apr 1 y+1); YEAR anchors to the STARTING Gregorian year
+  # (Indian "FY 2021-22" -> 2021). MONTH/QUARTER labels stay Gregorian
+  # (m04 = April, Q2 = Apr-Jun); the member ORDER starts at the anchor.
+  fy04_m12      = list(tokens = "m12", coverage = "complete",
+                       regularity = "regular",
+                       year_start = list(month = 4L, day = 1L)),
+  fy04_m12_h24  = list(tokens = c("m12", "h24"), coverage = "complete",
+                       regularity = "regular",
+                       year_start = list(month = 4L, day = 1L)),
+  fy04_q4       = list(tokens = "q4", coverage = "complete",
+                       regularity = "regular",
+                       year_start = list(month = 4L, day = 1L)),
+  fy04_q4_h24   = list(tokens = c("q4", "h24"),
+                       coverage = "representative", regularity = "regular",
+                       year_start = list(month = 4L, day = 1L)),
+  fy04_d365     = list(tokens = "d365", coverage = "truncated",
+                       regularity = "regular",
+                       year_start = list(month = 4L, day = 1L)),
+  fy04_d365_h24 = list(tokens = c("d365", "h24"), coverage = "truncated",
+                       regularity = "regular",
+                       year_start = list(month = 4L, day = 1L)),
+
   # hour types
   hp3      = list(tokens = "hp3", coverage = "representative",
                   regularity = "regular"),
@@ -154,9 +180,12 @@ calendar_catalog <- function() {
       n_timeslices   = n,
       coverage   = e$coverage,
       regularity = e$regularity,
-      desc       = sprintf("%s calendar (%d timeslices; %s, %s)",
+      desc       = sprintf("%s calendar (%d timeslices; %s, %s%s)",
                            paste(tfs, collapse = "/"), n,
-                           e$coverage, e$regularity),
+                           e$coverage, e$regularity,
+                           if (is.null(e$year_start)) "" else
+                             sprintf("; fiscal year from m%02d",
+                                     e$year_start$month)),
       stringsAsFactors = FALSE
     )
   })
@@ -193,14 +222,23 @@ calendar_catalog <- function() {
 #' Build a Calendar from a catalog entry
 #' @noRd
 .calendar_from_catalog <- function(id, entry, name, ...) {
+  # Optional entry-level construction fields (fiscal anchor, UTC offset);
+  # an explicit caller argument always wins over the catalog entry
+  extra <- list(...)
+  for (field in c("year_start", "utc_offset_minutes")) {
+    if (!is.null(entry[[field]]) && is.null(extra[[field]])) {
+      extra[[field]] <- entry[[field]]
+    }
+  }
   cal <- if (!is.null(entry$month_lengths)) {
-    .calendar_m12_mday(entry$month_lengths,
-                       hour24 = "h24" %in% entry$tokens,
-                       tokens = entry$tokens,
-                       name = name, ...)
+    do.call(.calendar_m12_mday,
+            c(list(entry$month_lengths,
+                   hour24 = "h24" %in% entry$tokens,
+                   tokens = entry$tokens,
+                   name = name), extra))
   } else {
     do.call(calendar_build,
-            c(as.list(entry$tokens), list(name = name, ...)))
+            c(as.list(entry$tokens), list(name = name), extra))
   }
   meta <- S7::prop(cal, "meta")
   meta$coverage <- entry$coverage
@@ -252,10 +290,10 @@ calendar_catalog <- function() {
                  MDAY  = sprintf("d%02d", 1:max(month_lengths)))
   if (hour24) levels$HOUR <- sprintf("h%02d", 0:23)
 
-  calendar_from_leaves(
-    leaves             = df,
+  calendar_from_leaftable(
+    leaftable          = df,
     timeframes         = tfs,
-    levels             = levels,
+    members            = levels,
     name               = name,
     desc               = desc,
     year_start         = year_start,

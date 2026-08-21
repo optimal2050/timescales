@@ -1,7 +1,7 @@
 # =============================================================================
 # Base calendar — the atom layer
 # =============================================================================
-# The analogue of geoscales' atom rows in `@leaves`: real POSIXct instants,
+# The analogue of geoscales' atom rows in `@leaftable`: real POSIXct instants,
 # multi-year (so leap years are representable), generated on demand and
 # cached rather than stored on any object. Every `recast_calendar()` routes through
 # this grid; `base_calendar()` exposes it directly for converting data
@@ -91,9 +91,9 @@ prune_calendar <- function(calendar, timeframe) {
     stop("`timeframe` must be a single character string", call. = FALSE)
   }
 
-  leaves <- S7::prop(calendar, "leaves")
+  leaves <- S7::prop(calendar, "leaftable")
   tfs    <- S7::prop(calendar, "timeframes")
-  levels <- S7::prop(calendar, "levels")
+  levels <- S7::prop(calendar, "members")
   meta   <- S7::prop(calendar, "meta")
 
   base_name <- meta$name %||% ""
@@ -112,9 +112,9 @@ prune_calendar <- function(calendar, timeframe) {
     meta_out$tokens <- NULL
     meta_out$alignment <- NULL
     return(Calendar(
-      leaves     = root,
+      leaftable  = root,
       timeframes = "ANNUAL",
-      levels     = list(ANNUAL = "ANNUAL"),
+      members    = list(ANNUAL = "ANNUAL"),
       meta       = meta_out
     ))
   }
@@ -159,9 +159,9 @@ prune_calendar <- function(calendar, timeframe) {
   }
 
   Calendar(
-    leaves     = agg,
+    leaftable  = agg,
     timeframes = keep,
-    levels     = levels[keep],
+    members    = levels[keep],
     meta       = meta_out
   )
 }

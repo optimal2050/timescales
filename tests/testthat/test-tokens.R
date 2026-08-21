@@ -95,17 +95,17 @@ test_that("register_token() rejects bad expand functions", {
 test_that("calendar_build('d365', 'h24') yields the expected leaf count", {
   cal <- calendar_build("d365", "h24")
   expect_equal(cal@timeframes, c("YDAY", "HOUR"))
-  expect_equal(nrow(cal@leaves), 365 * 24)
+  expect_equal(nrow(cal@leaftable), 365 * 24)
   expect_equal(cal@meta$name, "d365_h24")
   # share sums to 1
-  expect_equal(sum(cal@leaves$share), 1, tolerance = 1e-9)
+  expect_equal(sum(cal@leaftable$share), 1, tolerance = 1e-9)
 })
 
 test_that("calendar_build('m12', 'h24') uses day-weighted month shares", {
   cal <- calendar_build("m12", "h24")
-  expect_equal(nrow(cal@leaves), 12 * 24)
+  expect_equal(nrow(cal@leaftable), 12 * 24)
   # Sum of share over m01 leaves = 31 / 365
-  jan_share <- sum(cal@leaves$share[cal@leaves$MONTH == "m01"])
+  jan_share <- sum(cal@leaftable$share[cal@leaftable$MONTH == "m01"])
   expect_equal(jan_share, 31 / 365, tolerance = 1e-10)
 })
 
@@ -122,15 +122,15 @@ test_that("calendar_build requires at least one token", {
 test_that("calendar('d365_h24') == calendar_build('d365','h24')", {
   c1 <- calendar("d365_h24")
   c2 <- calendar_build("d365", "h24", name = "d365_h24")
-  expect_equal(nrow(c1@leaves), nrow(c2@leaves))
+  expect_equal(nrow(c1@leaftable), nrow(c2@leaftable))
   expect_equal(c1@timeframes, c2@timeframes)
-  expect_equal(sum(c1@leaves$share), sum(c2@leaves$share), tolerance = 1e-12)
+  expect_equal(sum(c1@leaftable$share), sum(c2@leaftable$share), tolerance = 1e-12)
 })
 
 test_that("calendar() handles single-token names", {
   cal <- calendar("d365")
   expect_equal(cal@timeframes, "YDAY")
-  expect_equal(nrow(cal@leaves), 365)
+  expect_equal(nrow(cal@leaftable), 365)
 })
 
 test_that("calendar() reports unknown tokens with helpful message", {
@@ -140,7 +140,7 @@ test_that("calendar() reports unknown tokens with helpful message", {
 test_that("calendar() recognises year-qualified prefix", {
   cal <- calendar("y_d365_h24")
   expect_true(isTRUE(cal@meta$year_qualified))
-  expect_equal(nrow(cal@leaves), 365 * 24)
+  expect_equal(nrow(cal@leaftable), 365 * 24)
 })
 
 # Round-trip with recast_calendar() ---------------------------------------------------

@@ -9,4 +9,6 @@
 #' spatial dimension.
 #'
 #' @keywords internal
+#' @importFrom rlang .data :=
+#' @importFrom dplyr %>%
 "_PACKAGE"

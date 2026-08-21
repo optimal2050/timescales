@@ -68,16 +68,16 @@ test_that("filter_calendar keeps raw shares and sets year_fraction", {
   cal <- calendar("s4_h24")
   win <- filter_calendar(cal, "SEASON", "WIN")
   expect_s3_class(win, "timescales::Calendar")
-  lv <- S7::prop(win, "leaves")
+  lv <- S7::prop(win, "leaftable")
   expect_equal(nrow(lv), 24L)
   expect_setequal(unique(lv$SEASON), "WIN")
   yf <- S7::prop(win, "meta")$year_fraction
   expect_equal(yf, sum(lv$share), tolerance = 1e-12)
   expect_equal(yf, 90 / 365, tolerance = 1e-9)
   # vocabulary subset to survivors
-  expect_equal(S7::prop(win, "levels")$SEASON, "WIN")
+  expect_equal(S7::prop(win, "members")$SEASON, "WIN")
   # `[` sugar is the same operation
   win2 <- cal["SEASON", "WIN"]
-  expect_identical(S7::prop(win2, "leaves"), lv)
+  expect_identical(S7::prop(win2, "leaftable"), lv)
   expect_error(filter_calendar(cal, "SEASON", "nope"), "unknown label")
 })

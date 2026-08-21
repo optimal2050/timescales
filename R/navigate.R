@@ -4,9 +4,9 @@
 # The mirror of geoscales' navigation family (geoscale_children(),
 # geoscale_family(), filter_geoscale(), ...) on the time hierarchy.
 # Time levels nest strictly — every finer timeframe partitions the
-# coarser one — so everything here is a closure over `@leaves`:
+# coarser one — so everything here is a closure over `@leaftable`:
 # label relationships are read off the leaf table, canonical order comes
-# from `@levels`.
+# from `@members`.
 #
 # Naming: properties/queries are calendar_*(); object transforms are
 # verb_calendar() (filter_calendar, prune_calendar in base-calendar.R).
@@ -25,6 +25,10 @@
 #'
 #' @param calendar A [Calendar].
 #' @param timeframe A timeframe name (see `calendar_timeframes()`).
+#' @param qualified `calendar_timeslices()` only: return the qualified
+#'   node IDs at `timeframe` -- the leaf IDs of
+#'   `prune_calendar(calendar, timeframe)` -- instead of the bare member
+#'   labels. This is the per-frame node view the energyRt bridge consumes.
 #' @return `calendar_timeframes()` and `calendar_timeslices()` return a
 #'   character vector; `calendar_rank()` an integer.
 #' @examples
@@ -51,15 +55,23 @@ calendar_rank <- function(calendar, timeframe) {
 
 #' @rdname calendar_queries
 #' @export
-calendar_timeslices <- function(calendar, timeframe = NULL) {
+calendar_timeslices <- function(calendar, timeframe = NULL,
+                                qualified = FALSE) {
   .check_calendar(calendar)
   if (is.null(timeframe)) {
-    return(S7::prop(calendar, "leaves")$timeslice)
+    return(S7::prop(calendar, "leaftable")$timeslice)
   }
   .check_leaf_timeframe(calendar, timeframe)
-  # the validator guarantees levels[[tf]] == values present, so the
-  # vocabulary IS the canonical ordered label set
-  S7::prop(calendar, "levels")[[timeframe]]
+  if (isTRUE(qualified)) {
+    # the NODE IDs at this timeframe = the leaf IDs of the calendar pruned
+    # there ("a timeslice at frame f is a leaf of prune(cal, f)") -- what
+    # the energyRt bridge consumes (its calendar@timeframes list)
+    return(S7::prop(prune_calendar(calendar, timeframe),
+                    "leaftable")$timeslice)
+  }
+  # the validator guarantees members[[tf]] == values present, so the
+  # member set IS the canonical ordered label set
+  S7::prop(calendar, "members")[[timeframe]]
 }
 
 #' Immediate parent-child pairs of a Calendar hierarchy
@@ -78,7 +90,7 @@ calendar_timeslices <- function(calendar, timeframe = NULL) {
 calendar_family <- function(calendar, parent = NULL, child = NULL) {
   .check_calendar(calendar)
   tfs <- S7::prop(calendar, "timeframes")
-  leaves <- S7::prop(calendar, "leaves")
+  leaves <- S7::prop(calendar, "leaftable")
   if (length(tfs) < 2L) {
     return(data.frame(parent_timeframe = character(), parent = character(),
                       child_timeframe = character(), child = character(),
@@ -127,13 +139,13 @@ calendar_family <- function(calendar, parent = NULL, child = NULL) {
   .check_calendar(calendar)
   .check_leaf_timeframe(calendar, timeframe)
   .check_leaf_timeframe(calendar, to, arg = "to")
-  levels <- S7::prop(calendar, "levels")
+  levels <- S7::prop(calendar, "members")
   unknown <- setdiff(label, levels[[timeframe]])
   if (length(unknown) > 0L) {
     .stop("unknown label(s) at timeframe '%s': %s", timeframe,
           .preview(unknown))
   }
-  leaves <- S7::prop(calendar, "leaves")
+  leaves <- S7::prop(calendar, "leaftable")
   hits <- unique(as.character(
     leaves[[to]][leaves[[timeframe]] %in% label]))
   hits[order(match(hits, levels[[to]]))]
@@ -249,8 +261,8 @@ calendar_ancestors <- function(calendar, timeframe, label, to = NULL) {
 calendar_share <- function(calendar, timeframe, within = NULL) {
   .check_calendar(calendar)
   .check_leaf_timeframe(calendar, timeframe)
-  leaves <- S7::prop(calendar, "leaves")
-  levels <- S7::prop(calendar, "levels")
+  leaves <- S7::prop(calendar, "leaftable")
+  levels <- S7::prop(calendar, "members")
   if (is.null(within)) {
     agg <- stats::aggregate(leaves$share,
                             by = stats::setNames(
@@ -309,13 +321,13 @@ calendar_share <- function(calendar, timeframe, within = NULL) {
 filter_calendar <- function(calendar, timeframe, labels) {
   .check_calendar(calendar)
   .check_leaf_timeframe(calendar, timeframe)
-  levels <- S7::prop(calendar, "levels")
+  levels <- S7::prop(calendar, "members")
   unknown <- setdiff(labels, levels[[timeframe]])
   if (length(unknown) > 0L) {
     .stop("unknown label(s) at timeframe '%s': %s", timeframe,
           .preview(unknown))
   }
-  leaves <- S7::prop(calendar, "leaves")
+  leaves <- S7::prop(calendar, "leaftable")
   keep <- as.character(leaves[[timeframe]]) %in% labels
   if (!any(keep)) {
     .stop("no timeslices left after filtering '%s' to %s", timeframe,
@@ -329,7 +341,7 @@ filter_calendar <- function(calendar, timeframe, labels) {
   })
   meta <- S7::prop(calendar, "meta")
   meta$year_fraction <- sum(lf$share)
-  Calendar(leaves = lf, timeframes = tfs, levels = lv, meta = meta)
+  Calendar(leaftable = lf, timeframes = tfs, members = lv, meta = meta)
 }
 
 #' @rdname filter_calendar

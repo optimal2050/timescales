@@ -5,7 +5,7 @@
 \alias{calendars}
 \title{Pre-built calendars from the catalog}
 \format{
-A named list of 37 \code{\link{Calendar}} objects. Names are the catalog
+A named list of 43 \code{\link{Calendar}} objects. Names are the catalog
 ids (\code{d365}, \code{d365_h24}, \code{m12}, \code{m12_h24}, \code{m12_md365}, \code{q4_h24},
 \code{s4_hp3}, ...); see \code{\link[=calendar_catalog]{calendar_catalog()}} for the full table with
 timeslice counts, coverage, and regularity.
@@ -29,8 +29,8 @@ where timeslices shipped uniform shares.
 names(calendars)
 calendars$m12
 identical(
-  S7::prop(calendars$q4, "leaves"),
-  S7::prop(calendar("q4"), "leaves")
+  S7::prop(calendars$q4, "leaftable"),
+  S7::prop(calendar("q4"), "leaftable")
 )
 }
 \keyword{datasets}

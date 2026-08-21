@@ -29,7 +29,7 @@ Two equivalent ways to get one:
 ```{r}
 cal <- calendar("m12_h24")     # build on demand
 cal2 <- calendars$m12_h24      # pre-built package data
-identical(cal@leaves, cal2@leaves)
+identical(cal@leaftable, cal2@leaftable)
 ```
 
 **Coverage** says how the design relates to a real year: `complete`
@@ -46,7 +46,7 @@ share — catalog calendars weight timeslices by real duration:
 
 ```{r}
 m12 <- calendars$m12
-data.frame(timeslice = m12@leaves$timeslice, share = round(m12@leaves$share, 4))[1:3, ]
+data.frame(timeslice = m12@leaftable$timeslice, share = round(m12@leaftable$share, 4))[1:3, ]
 ```
 
 January is `31/365` of the year, not `1/12`. This is what makes
@@ -68,10 +68,10 @@ day-of-month:
 
 ```{r}
 md <- calendars$m12_md365
-nrow(md@leaves)
-head(md@leaves[md@leaves$MONTH == "m02", ], 2)
-tail(md@leaves[md@leaves$MONTH == "m02", ], 1)   # Feb ends at d28
-instant_to_timeslice(as.Date(c("2021-03-15", "2020-02-29")), md)  # Feb 29 -> NA
+nrow(md@leaftable)
+head(md@leaftable[md@leaftable$MONTH == "m02", ], 2)
+tail(md@leaftable[md@leaftable$MONTH == "m02", ], 1)   # Feb ends at d28
+datetime_to_timeslice(as.Date(c("2021-03-15", "2020-02-29")), md)  # Feb 29 -> NA
 ```
 
 ## Type axes: SEASON, DAYTYPE, HOURTYPE
@@ -86,13 +86,47 @@ and unlike in timeslices, they are fully datetime-convertible:
 ```{r}
 dtm <- as.POSIXct(c("2021-01-15 03:00", "2021-01-16 18:00",
                     "2021-07-14 12:00"), tz = "UTC")
-instant_to_timeslice(dtm, calendars$s4_hp3)
-instant_to_timeslice(dtm, calendars$wk2_h24)
+datetime_to_timeslice(dtm, calendars$s4_hp3)
+datetime_to_timeslice(dtm, calendars$wk2_h24)
 ```
 
 The mappings are defaults, not dogma — register your own token (e.g. a
 different peak window) with `register_token()` and build a custom
 calendar from it.
+
+## Fiscal years: the `fy04_*` family
+
+Many reporting systems run April..March — Indian national statistics
+most prominently. The `fy04_*` entries (`fy04_m12`, `fy04_m12_h24`,
+`fy04_q4`, `fy04_q4_h24`, `fy04_d365`, `fy04_d365_h24`) anchor the model
+year to April 1: model year `y` spans `[y-04-01, y+1-04-01)`, and the
+anchored `YEAR` is the *starting* Gregorian year (Indian "FY 2021-22" is
+model year 2021).
+
+```{r}
+fy <- calendar("fy04_m12")
+fy@members$MONTH                       # April first
+g <- expand_calendar(fy, 2021, by = "day")
+range(as.Date(g$datetime))             # 2021-04-01 .. 2022-03-31
+datetime_to_timeslice(as.Date("2022-01-15"), fy)   # January stays m01
+```
+
+Two rules keep fiscal calendars unambiguous:
+
+- **Labels stay Gregorian.** April is `m04` and Apr–Jun is `Q2`, always;
+  only the member *order* starts at the anchor (`m04..m03`,
+  `Q2,Q3,Q4,Q1`). Fiscal-renumbered labels would silently collide with
+  the Gregorian label matcher.
+- **The catalog is UTC.** Data already in Indian local time maps as-is;
+  to map true-UTC instants at Indian midnight boundaries, pass the IST
+  offset: `calendar("fy04_m12", utc_offset_minutes = 330L)`. (Constant
+  offsets only for now — Olson time zones / DST are a planned later
+  phase.)
+
+Leap years take care of themselves: `fy04_d365` drops the Feb 29 that
+falls in the *following* Gregorian year (FY2023 contains 2024-02-29) and
+keeps March aligned to `d365`. Any other anchor works by argument on any
+design: `calendar("m12", year_start = list(month = 7L, day = 1L))`.
 
 ## Visualizing calendars
 
@@ -129,10 +163,39 @@ follows the hierarchy — finest timeframe on y, next on x, coarser levels
 as facets:
 
 ```{r, fig.width = 7, fig.height = 4, eval = requireNamespace("ggplot2", quietly = TRUE)}
-x <- data.frame(timeslice = calendars$m12_h24@leaves$timeslice)
+x <- data.frame(timeslice = calendars$m12_h24@leaftable$timeslice)
 x$load <- 80 + 40 * sin(seq(0, 6 * pi, length.out = nrow(x)))
 calendar_plot(calendars$m12_h24, x, palette = "C")
 ```
+
+## Wall calendars
+
+`calendar_wall_plot()` draws the familiar wall form: one facet per
+month, day cells in a week grid. The weekday arrangement is
+year-specific (which weekday a date falls on comes from the base grid),
+so pass `year=`; without it the layout falls back to a year-free
+7-wide sequence with a message.
+
+```{r, fig.width = 8, fig.height = 6}
+calendar_wall_plot(calendar("m12_md365"), year = 2021)
+```
+
+Daily (or finer -- aggregated by `fun`) data fills the cells, and the
+fiscal calendars facet April-first out of the box:
+
+```{r, fig.width = 8, fig.height = 6}
+cal <- calendar("fy04_d365")
+x <- data.frame(timeslice = cal@leaftable$timeslice,
+                v = cumsum(rnorm(365)))
+calendar_wall_plot(cal, x, z = "v", year = 2021)
+```
+
+The pieces are reusable on their own: `calendar_weekdays(cal, year,
+week_start = "MON")` tabulates the day layer's dates, weekdays,
+week-of-month rows and an anchored week-of-year (fiscal weeks from
+April 1 for `fy04_*`; `week_start` accepts any of `MON..SUN`), and
+`calendar_wall_layout()` returns the plain tile frame the figure is
+built from.
 
 ## Recasting across the catalog
 
@@ -140,7 +203,7 @@ Any two catalog calendars convert into each other; totals are conserved
 under `rule = "sum"`:
 
 ```{r}
-x <- data.frame(timeslice = calendars$m12@leaves$timeslice,
+x <- data.frame(timeslice = calendars$m12@leaftable$timeslice,
                 energy = c(310, 280, 300, 250, 220, 230,
                            260, 270, 240, 250, 280, 320))
 recast_calendar(x, calendars$m12, calendars$s4, year = 2021, rule = "sum",

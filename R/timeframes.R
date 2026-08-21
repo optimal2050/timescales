@@ -35,7 +35,7 @@ CORE_TIMEFRAMES <- c(
 
 # Enum label sets for the derived type axes. The numeric codes returned by
 # the extractors index these vectors, so token vocabularies in this order
-# work with the positional fallback in instant_to_timeslice().
+# work with the positional fallback in datetime_to_timeslice().
 .SEASON_LABELS   <- c("WIN", "SPR", "SUM", "FAL")
 .DAYTYPE_LABELS  <- c("WORKDAY", "WEEKEND")
 .HOURTYPE_LABELS <- c("DAY", "NIGHT", "PEAK")
