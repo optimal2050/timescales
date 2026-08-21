@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">timescales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.3.1.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.4.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -31,13 +31,16 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
+<li class="nav-item"><a class="nav-link" href="../articles/timescales.html">Get started</a></li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/getting-started.html">Getting started with timescales</a></li>
-    <li><hr class="dropdown-divider"></li>
-    <li><a class="dropdown-item" href="../articles/index.html">More articles...</a></li>
+<li><a class="dropdown-item" href="../articles/concepts.html">Concepts</a></li>
+    <li><a class="dropdown-item" href="../articles/data-structures.html">Data structures</a></li>
+    <li><a class="dropdown-item" href="../articles/data-manipulation.html">Data manipulation with calendars</a></li>
+    <li><a class="dropdown-item" href="../articles/calendars.html">Calendar catalog</a></li>
+    <li><a class="dropdown-item" href="../articles/visualization.html">Visualization with ggplot2</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -223,10 +226,10 @@ happens to such instants: <code>drop_feb29</code> (Feb 29 is
 (clamp to the last label — how week 53 folds into <code>w52</code>), and
 <code>exact</code> (error). Built-in tokens carry sensible defaults;
 calendars record them in <code>meta$alignment</code>, and
-<code><a href="../reference/instant_to_timeslice.html">instant_to_timeslice()</a></code> accepts an override.</p>
+<code><a href="../reference/datetime_to_timeslice.html">datetime_to_timeslice()</a></code> accepts an override.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">d365</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calendar_build.html">calendar_build</a></span><span class="op">(</span><span class="st">"d365"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/instant_to_timeslice.html">instant_to_timeslice</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"2020-02-29"</span>, <span class="st">"2020-12-31"</span><span class="op">)</span><span class="op">)</span>, <span class="va">d365</span><span class="op">)</span></span>
+<span><span class="fu"><a href="../reference/datetime_to_timeslice.html">datetime_to_timeslice</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"2020-02-29"</span>, <span class="st">"2020-12-31"</span><span class="op">)</span><span class="op">)</span>, <span class="va">d365</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] NA     "d365"</span></span></code></pre></div>
 </div>
 </div>
@@ -240,7 +243,7 @@ your model talks about.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/calendar_build.html">calendar</a></span><span class="op">(</span><span class="st">"m12_h24"</span><span class="op">)</span>                    <span class="co"># layer 1: by name</span></span>
 <span><span class="fu"><a href="../reference/calendar_build.html">calendar_build</a></span><span class="op">(</span><span class="st">"m12"</span>, <span class="st">"h24"</span><span class="op">)</span>           <span class="co"># layer 2: by token list</span></span>
-<span><span class="fu"><a href="../reference/calendar_from_leaves.html">calendar_from_leaves</a></span><span class="op">(</span><span class="va">leaves</span>, <span class="va">...</span><span class="op">)</span>      <span class="co"># layer 3: by raw leaf table</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/calendar_from_leaftable.html">calendar_from_leaftable</a></span><span class="op">(</span><span class="va">leaves</span>, <span class="va">...</span><span class="op">)</span>      <span class="co"># layer 3: by raw leaf table</span></span></code></pre></div>
 <p>The first two compose tokens with a Cartesian product; share is the
 product of per-token shares scaled to <code>year_fraction</code>. The
 third is the escape hatch for irregular calendars (e.g. representative
@@ -250,12 +253,12 @@ weeks that intentionally do not cover the full year).</p>
 </h3>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cal</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calendar_build.html">calendar</a></span><span class="op">(</span><span class="st">"q4_h24"</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">cal</span><span class="op">@</span><span class="va">leaves</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">cal</span><span class="op">@</span><span class="va">leaftable</span>, <span class="fl">3</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   QUARTER HOUR      share weight timeslice</span></span>
 <span><span class="co">#&gt; 1      Q1  h00 0.01027397     90    Q1_h00</span></span>
 <span><span class="co">#&gt; 2      Q2  h00 0.01038813     91    Q2_h00</span></span>
 <span><span class="co">#&gt; 3      Q3  h00 0.01050228     92    Q3_h00</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">cal</span><span class="op">@</span><span class="va">leaves</span><span class="op">)</span>, <span class="st">"leaves, share sums to"</span>, <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">cal</span><span class="op">@</span><span class="va">leaves</span><span class="op">$</span><span class="va">share</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">cal</span><span class="op">@</span><span class="va">leaftable</span><span class="op">)</span>, <span class="st">"leaves, share sums to"</span>, <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">cal</span><span class="op">@</span><span class="va">leaftable</span><span class="op">$</span><span class="va">share</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; 96 leaves, share sums to 1</span></span></code></pre></div>
 </div>
 </div>
@@ -271,7 +274,7 @@ calendars cover the same year fraction.</p>
 <span><span class="va">cal_q</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calendar_build.html">calendar</a></span><span class="op">(</span><span class="st">"q4"</span><span class="op">)</span>      <span class="co"># target: quarterly</span></span>
 <span></span>
 <span><span class="va">monthly</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
-<span>  timeslice <span class="op">=</span> <span class="va">cal_m</span><span class="op">@</span><span class="va">leaves</span><span class="op">$</span><span class="va">timeslice</span>,</span>
+<span>  timeslice <span class="op">=</span> <span class="va">cal_m</span><span class="op">@</span><span class="va">leaftable</span><span class="op">$</span><span class="va">timeslice</span>,</span>
 <span>  load  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">120</span>, <span class="fl">118</span>, <span class="fl">105</span>,  <span class="fl">92</span>,  <span class="fl">85</span>,  <span class="fl">88</span>,  <span class="fl">95</span>, <span class="fl">100</span>,  <span class="fl">98</span>,  <span class="fl">90</span>, <span class="fl">105</span>, <span class="fl">122</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -283,12 +286,36 @@ calendars cover the same year fraction.</p>
 <span><span class="co">#&gt; 3        Q3  97.66304</span></span>
 <span><span class="co">#&gt; 4        Q4 105.67391</span></span></code></pre></div>
 <div class="section level3">
+<h3 id="the-base-calendar-and-the-route">The base calendar and the route<a class="anchor" aria-label="anchor" href="#the-base-calendar-and-the-route"></a>
+</h3>
+<p>Every conversion routes <code>A -&gt; base -&gt; B</code> through the
+<strong>base calendar</strong> — the 1:1 datetime grid built by
+<code><a href="../reference/base_calendar.html">base_calendar()</a></code> (one row per hour, day, 15 minutes, … of
+real time; the data column is always <code>datetime</code>). Source
+values are projected <em>down</em> to the grid, then aggregated
+<em>up</em> to target timeslices, so aggregation and disaggregation are
+one operation. The route is collapsed once into a small crosswalk table
+— <code>calendar_map(from, to, year)</code> — and every conversion is
+then a single join-and-aggregate pipeline over it, which is what lets
+the converters run unchanged on a <code>data.frame</code>, tibble,
+<code>data.table</code>, or an arrow dataset (lazy inputs return
+uncollected queries).</p>
+<p>The two halves of the route are public:
+<code>recast_to_timebase(x, cal)</code> takes timeslice-keyed data down
+to datetime rows, <code>recast_from_timebase(x, cal)</code> brings
+datetime rows up into any calendar, and</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/recast_calendar.html">recast_calendar</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">from</span>, <span class="va">to</span>, <span class="va">year</span><span class="op">)</span> <span class="op">==</span></span>
+<span>  <span class="fu"><a href="../reference/recast_to_timebase.html">recast_from_timebase</a></span><span class="op">(</span><span class="fu"><a href="../reference/recast_to_timebase.html">recast_to_timebase</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">from</span>, <span class="va">year</span><span class="op">)</span>, <span class="va">to</span><span class="op">)</span></span></code></pre></div>
+<p>Direct routes between two named calendars can bypass the grid:
+register a function with <code><a href="../reference/register_conversion.html">register_conversion()</a></code> or an exact
+crosswalk table with <code><a href="../reference/register_calendar_map.html">register_calendar_map()</a></code>.</p>
+</div>
+<div class="section level3">
 <h3 id="aggregation-rules">Aggregation rules<a class="anchor" aria-label="anchor" href="#aggregation-rules"></a>
 </h3>
-<p>Conversion routes through the <strong>base grid</strong> of real
-instants: source values are projected <em>down</em> to instants, then
-aggregated <em>up</em> to target timeslices, so aggregation and
-disaggregation are one operation (<code>RECAST_RULES</code>):</p>
+<p>The rules (<code>RECAST_RULES</code>) define behaviour in both
+directions:</p>
 <table class="table">
 <colgroup>
 <col width="20%">
@@ -297,8 +324,8 @@ disaggregation are one operation (<code>RECAST_RULES</code>):</p>
 </colgroup>
 <thead><tr class="header">
 <th>Rule</th>
-<th>Down (timeslice → instants)</th>
-<th>Up (instants → timeslice)</th>
+<th>Down (timeslice → grid)</th>
+<th>Up (grid → timeslice)</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
@@ -308,7 +335,7 @@ disaggregation are one operation (<code>RECAST_RULES</code>):</p>
 </tr>
 <tr class="even">
 <td><code>sum</code></td>
-<td>split across grid instants</td>
+<td>split across grid points</td>
 <td>sum — <strong>totals are conserved</strong>
 </td>
 </tr>
@@ -332,11 +359,31 @@ disaggregation are one operation (<code>RECAST_RULES</code>):</p>
 <p><code>weighted_mean</code> and <code>mean</code> differ exactly when
 a calendar’s declared shares differ from its real-time coverage.
 Per-parameter defaults can be registered with
-<code><a href="../reference/register_rule.html">register_rule()</a></code>, and a pairwise calendar-to-calendar
-override with <code><a href="../reference/register_conversion.html">register_conversion()</a></code>. Instants not covered
-by one of the calendars are governed by <code>na_action = "drop"</code>
-(warns), <code>"error"</code>, or <code>"keep"</code> (an explicit
+<code><a href="../reference/register_rule.html">register_rule()</a></code>. Grid points not covered by one of the
+calendars are governed by <code>na_action = "drop"</code> (warns),
+<code>"error"</code>, or <code>"keep"</code> (an explicit
 <code>NA</code> row that conserves totals).</p>
+</div>
+<div class="section level3">
+<h3 id="attaching-calendars-to-data">Attaching calendars to data<a class="anchor" aria-label="anchor" href="#attaching-calendars-to-data"></a>
+</h3>
+<p><code>join_calendar(x, cal)</code> attaches a calendar to a dataset
+as a timeslice-label column <strong>named after the calendar</strong>
+(<code>meta$name</code>), from either a <code>datetime</code> column
+(labels computed on the base grid) or an existing timeslice column.
+Because each calendar attaches under its own name, several calendars
+coexist on one dataset — and a dataset carrying two label columns is
+itself a direct crosswalk between those calendars:</p>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">xt</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>datetime <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/as.POSIXlt.html" class="external-link">as.POSIXct</a></span><span class="op">(</span><span class="st">"2025-01-01"</span>, tz <span class="op">=</span> <span class="st">"UTC"</span><span class="op">)</span>,</span>
+<span>                                by <span class="op">=</span> <span class="st">"hour"</span>, length.out <span class="op">=</span> <span class="fl">48</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">xt</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/join_calendar.html">join_calendar</a></span><span class="op">(</span><span class="va">xt</span>, <span class="fu"><a href="../reference/calendar_build.html">calendar</a></span><span class="op">(</span><span class="st">"m12_h24"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">xt</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/join_calendar.html">join_calendar</a></span><span class="op">(</span><span class="va">xt</span>, <span class="fu"><a href="../reference/calendar_build.html">calendar</a></span><span class="op">(</span><span class="st">"q4_h24"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">xt</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt;              datetime m12_h24 q4_h24</span></span>
+<span><span class="co">#&gt; 1 2025-01-01 00:00:00 m01_h00 Q1_h00</span></span>
+<span><span class="co">#&gt; 2 2025-01-01 01:00:00 m01_h01 Q1_h01</span></span>
+<span><span class="co">#&gt; 3 2025-01-01 02:00:00 m01_h02 Q1_h02</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="within-calendar-aggregation-and-the-annual-root">Within-calendar aggregation and the ANNUAL root<a class="anchor" aria-label="anchor" href="#within-calendar-aggregation-and-the-annual-root"></a>
@@ -345,13 +392,124 @@ by one of the calendars are governed by <code>na_action = "drop"</code>
 <code>ANNUAL</code>. <code><a href="../reference/prune_calendar.html">prune_calendar()</a></code> truncates a calendar
 at one of its own timeframes, and <code><a href="../reference/recast_calendar.html">recast_calendar()</a></code> accepts
 a timeframe name for <code>to=</code>:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cal</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calendar_build.html">calendar</a></span><span class="op">(</span><span class="st">"q4_h24"</span><span class="op">)</span></span>
-<span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>timeslice <span class="op">=</span> <span class="va">cal</span><span class="op">@</span><span class="va">leaves</span><span class="op">$</span><span class="va">timeslice</span>, energy <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
+<span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>timeslice <span class="op">=</span> <span class="va">cal</span><span class="op">@</span><span class="va">leaftable</span><span class="op">$</span><span class="va">timeslice</span>, energy <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/recast_calendar.html">recast_calendar</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">cal</span>, to <span class="op">=</span> <span class="st">"ANNUAL"</span>, year <span class="op">=</span> <span class="fl">2025</span>, rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   timeslice energy</span></span>
 <span><span class="co">#&gt; 1    ANNUAL     96</span></span></code></pre></div>
 </div>
+</div>
+<div class="section level2">
+<h2 id="the-scales-naming-lattice-glossary">The *scales naming lattice (glossary)<a class="anchor" aria-label="anchor" href="#the-scales-naming-lattice-glossary"></a>
+</h2>
+<p>The sibling packages <code>timescales</code> (time) and
+<code>geoscales</code> (space) share one vocabulary, locked 2026-08. No
+surviving word changes meaning between the packages; the word “levels”
+is retired from both.</p>
+<table class="table">
+<colgroup>
+<col width="20%">
+<col width="20%">
+<col width="20%">
+<col width="20%">
+<col width="20%">
+</colgroup>
+<thead><tr class="header">
+<th>term</th>
+<th>definition</th>
+<th>timescales</th>
+<th>geoscales</th>
+<th>energyRt</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td>frame</td>
+<td>a named axis of resolution; the ordered frames form the hierarchy,
+coarsest first, with an implicit root</td>
+<td><code>@timeframes</code></td>
+<td><code>@geoframes</code></td>
+<td>
+<code>commodity@timeframe</code> / <code>@geoframe</code>
+</td>
+</tr>
+<tr class="even">
+<td>members</td>
+<td>the per-frame units — bare ordered labels, unique within their frame
+(<code>"h00"</code>; region codes); the components node IDs are made
+from</td>
+<td><code>@members[[tf]]</code></td>
+<td><code>@members[[gf]]</code></td>
+<td>derived</td>
+</tr>
+<tr class="odd">
+<td>node ID</td>
+<td>identity of a cell at any frame. The ID rule: time COMPOSES (members
+<code>_</code>-joined, coarsest to finest: <code>"d015_h00"</code>);
+space AUTHORS (the member is the ID, in its geoframe)</td>
+<td><code>leaftable$timeslice</code></td>
+<td><code>leaftable$region</code></td>
+<td>
+<code>@timeframes[[f]]</code> entries</td>
+</tr>
+<tr class="even">
+<td>leaftable</td>
+<td>the leaf enumeration: one row per finest node — bare members per
+frame, plus the leaf ID and weights</td>
+<td><code>@leaftable</code></td>
+<td><code>@leaftable</code></td>
+<td>
+<code>calendar@timetable</code> (legacy name; the bridge maps
+1:1)</td>
+</tr>
+<tr class="odd">
+<td>nodes at frame f</td>
+<td>the leaf IDs of the object pruned at f
+(<code><a href="../reference/prune_calendar.html">prune_calendar()</a></code> / <code>prune_geoscale()</code>)</td>
+<td>derived</td>
+<td>derived</td>
+<td>stored (cached view)</td>
+</tr>
+<tr class="even">
+<td>share / weight</td>
+<td>
+<code>share</code> = fraction of the whole; sums to coverage;
+aggregates by SUM (universal). Weight conventions are documented side by
+side; energyRt’s share-weighted-mean parent rule is the solver-facing
+one</td>
+<td>
+<code>share</code>, <code>weight</code> columns</td>
+<td>named weight columns, share derived</td>
+<td><code>timeslice_share</code></td>
+</tr>
+<tr class="odd">
+<td>tokens / providers</td>
+<td>domain-specific generators (grammar rules / data sources);
+deliberately separate concepts</td>
+<td>token registry</td>
+<td>provider registry</td>
+<td>—</td>
+</tr>
+<tr class="even">
+<td>year-qualified calendar</td>
+<td>YEAR as an explicit timeframe (<code>y2020_m01_h00</code>).
+Deferred: year stays an external dimension — the pair
+<code>(year, timeslice)</code> — matching what the solver consumes;
+<code>meta$year_qualified</code> reserves the flag</td>
+<td>flag only</td>
+<td>—</td>
+<td>year = model dimension</td>
+</tr>
+</tbody>
+</table>
+<p>The route halves are named per domain:
+<code><a href="../reference/recast_to_timebase.html">recast_to_timebase()</a></code> / <code><a href="../reference/recast_to_timebase.html">recast_from_timebase()</a></code>
+route through the base datetime grid; <code>recast_to_geoatoms()</code>
+/ <code>recast_from_geoatoms()</code> route through the atom layer. Both
+compose into their package’s fused <code>recast_*()</code> verb, and
+both packages resolve aggregation rules the same way: explicit
+<code>rule=</code>, then the registry, then an error — never a silent
+fallback.</p>
 </div>
 <div class="section level2">
 <h2 id="design-boundaries">Design boundaries<a class="anchor" aria-label="anchor" href="#design-boundaries"></a>
@@ -380,11 +538,11 @@ when you register into them.</li>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Oleg Lugovoy.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
+
 </div>
 
     </footer>

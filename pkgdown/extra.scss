@@ -1,0 +1,22 @@
+// pkgdown's dark theme inverts and hue-rotates plot images
+// ([data-bs-theme="dark"] img.r-plt { filter: invert(100%) hue-rotate(180deg) }).
+// Our figures use calibrated palettes (viridis, energypal ramps) whose
+// meaning the double transform falsifies -- an inverted heatmap reads
+// backwards. Figures are built on solid white by convention
+// (see energyRt/CONVENTIONS.md), so keep their literal colours in both
+// themes; the white card on a dark page is the deliberate trade.
+// Same pattern as energypal/pkgdown/extra.scss.
+
+[data-bs-theme="dark"] {
+  img.r-plt,
+  .cell-output-display img,
+  .html-widget {
+    filter: none !important;
+  }
+
+  // let the white figures read as deliberate cards rather than as glare
+  img.r-plt {
+    background-color: #fff;
+    border-radius: 0.25rem;
+  }
+}

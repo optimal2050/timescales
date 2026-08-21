@@ -11,6 +11,8 @@ vignette: >
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 library(timescales)
+library(dplyr, warn.conflicts = FALSE)
+gg <- requireNamespace("ggplot2", quietly = TRUE)
 ```
 
 ## The catalog
@@ -19,12 +21,6 @@ library(timescales)
 from the predecessor `timeslices` package. Every id can be built fresh
 with `calendar(id)`, and the same objects come pre-built in the
 `calendars` dataset:
-
-```{r}
-knitr::kable(calendar_catalog())
-```
-
-Two equivalent ways to get one:
 
 ```{r}
 cal <- calendar("m12_h24")     # build on demand
@@ -38,6 +34,126 @@ instants — `d365` has no Feb 29), or `representative` (timeslices stand for
 recurring types rather than a partition of the timeline — `q4_h24` is a
 representative day per quarter). **Regularity** flags designs whose
 timeslices differ in length within a level (`m12_md365`: February is short).
+
+The full table is one `calendar_catalog()` call; below it comes in
+families, each with one member drawn as an icicle (`autoplot()`; widths
+are the timeslice shares, the `ANNUAL` root on top).
+
+```{r catalog-helpers, include = FALSE}
+cat_df <- calendar_catalog() |>
+  select(id, timeframes, n_timeslices, coverage, regularity)
+fam <- function(pattern) {
+  cat_df |>
+    filter(grepl(pattern, id)) |>
+    knitr::kable(row.names = FALSE)
+}
+```
+
+### Days of the year
+
+Plain day counters, optionally with hours: the full-resolution
+workhorses (`d365_h24` is the classic 8,760) and the stylised 360/364-day
+years some models use.
+
+```{r}
+fam("^d3[0-9]{2}(_h24)?$")
+```
+
+```{r, fig.width = 8, fig.height = 1.9, eval = gg}
+ggplot2::autoplot(calendars$d365_h24)
+```
+
+### Months
+
+Twelve calendar months (`m01..m12`, or `JAN..DEC` as `m12a`), optionally
+with a representative day of 24 hours.
+
+```{r}
+fam("^m12(a|_h24|a_h24)?$")
+```
+
+```{r, fig.width = 8, fig.height = 1.9, eval = gg}
+ggplot2::autoplot(calendars$m12_h24)
+```
+
+### Month x day-of-month
+
+A real month/day structure — non-Cartesian, February is short — for data
+keyed by month and day-of-month.
+
+```{r}
+fam("^m12_md")
+```
+
+```{r, fig.width = 8, fig.height = 1.9, eval = gg}
+ggplot2::autoplot(calendars$m12_md365)
+```
+
+### Quarters and seasons
+
+Four calendar quarters, or the meteorological seasons (`WIN` = Dec-Feb —
+a season straddles the year boundary, which is why it is its own axis).
+
+```{r}
+fam("^(q4|s4)(_h24)?$")
+```
+
+```{r, fig.width = 8, fig.height = 1.9, eval = gg}
+ggplot2::autoplot(calendars$s4_h24)
+```
+
+### Weeks
+
+52 or 53 weeks, with a representative day (`_h24`) or the full 168-hour
+week (`_h168`).
+
+```{r}
+fam("^w5")
+```
+
+```{r, fig.width = 8, fig.height = 1.9, eval = gg}
+ggplot2::autoplot(calendars$w52_h24)
+```
+
+### Weekdays and day types
+
+The seven weekdays, or the compact workday/weekend pair — the smallest
+designs that still resolve a weekly demand cycle.
+
+```{r}
+fam("^(wd7|wk2)")
+```
+
+```{r, fig.width = 8, fig.height = 1.9, eval = gg}
+ggplot2::autoplot(calendars$wk2_h24)
+```
+
+### Hour types
+
+`DAY`/`NIGHT`/`PEAK` hour classes on their own or under a coarser axis —
+the "typical periods" family.
+
+```{r}
+fam("hp3$")
+```
+
+```{r, fig.width = 8, fig.height = 1.9, eval = gg}
+ggplot2::autoplot(calendars$s4_hp3)
+```
+
+### Fiscal years (April-start)
+
+The same designs anchored to April 1 — Indian fiscal reporting; note the
+member order starting at `m04`/`Q2` (details in the
+[Fiscal years](#fiscal-years-the-fy04_-family) section below).
+
+```{r}
+fam("^fy04")
+```
+
+```{r, fig.width = 8, fig.height = 1.9, eval = gg}
+ggplot2::autoplot(calendars$fy04_m12)
+```
 
 ## Shares are duration-proportional
 
@@ -130,24 +246,21 @@ design: `calendar("m12", year_start = list(month = 7L, day = 1L))`.
 
 ## Visualizing calendars
 
+(For the full plot-type tour on real data -- heatmap layers, wall
+calendars, profiles, ribbons, duration curves -- see
+[Visualization](visualization.html).)
+
 `autoplot()` (or `plot()`) draws a calendar's structure as an icicle: one
 band per timeframe with the `ANNUAL` root on top, rectangle widths equal
-to timeslice shares, x spanning the year on `[0, 1]`. The gradient restarts
-inside each parent (`color_pattern = "within"`), so nested structure is
-visible at a glance:
+to timeslice shares, x spanning the year on `[0, 1]`. The gradient
+restarts inside each parent (`color_pattern = "within"`), so nested
+structure is visible at a glance — the catalog tour above shows one per
+family. Dense calendars stay fast: rows beyond `max_segments` are binned
+before drawing:
 
-```{r, fig.width = 8, fig.height = 2.8, eval = requireNamespace("ggplot2", quietly = TRUE)}
+```{r, fig.width = 8, fig.height = 2.8, eval = gg}
 library(ggplot2)
-autoplot(calendars$m12_h24)
-autoplot(calendars$s4_hp3)
-autoplot(calendars$m12_md365)
-```
-
-Dense calendars stay fast — rows beyond `max_segments` are binned before
-drawing:
-
-```{r, fig.width = 8, fig.height = 2.8, eval = requireNamespace("ggplot2", quietly = TRUE)}
-autoplot(calendars$d365_h24)
+autoplot(calendars$d365_h24, max_segments = 1000)
 ```
 
 The geometry itself is available without ggplot2 via `calendar_layout()`

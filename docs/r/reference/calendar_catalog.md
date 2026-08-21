@@ -54,17 +54,23 @@ subset(cat_df, coverage == "complete")
 #> 20            s4            s4          SEASON            4 complete    regular
 #> 24           w53           w53            WEEK           53 complete    regular
 #> 28      w53_h168      w53+h168      WEEK/WHOUR         8904 complete  irregular
-#>                                                               desc
-#> 4                YDAY calendar (366 timeslices; complete, regular)
-#> 8          YDAY/HOUR calendar (8784 timeslices; complete, regular)
-#> 9                MONTH calendar (12 timeslices; complete, regular)
-#> 10               MONTH calendar (12 timeslices; complete, regular)
-#> 11         MONTH/HOUR calendar (288 timeslices; complete, regular)
-#> 12         MONTH/HOUR calendar (288 timeslices; complete, regular)
-#> 17       MONTH/MDAY calendar (366 timeslices; complete, irregular)
-#> 18 MONTH/MDAY/HOUR calendar (8784 timeslices; complete, irregular)
-#> 19              QUARTER calendar (4 timeslices; complete, regular)
-#> 20               SEASON calendar (4 timeslices; complete, regular)
-#> 24                WEEK calendar (53 timeslices; complete, regular)
-#> 28      WEEK/WHOUR calendar (8904 timeslices; complete, irregular)
+#> 33      fy04_m12           m12           MONTH           12 complete    regular
+#> 34  fy04_m12_h24       m12+h24      MONTH/HOUR          288 complete    regular
+#> 35       fy04_q4            q4         QUARTER            4 complete    regular
+#>                                                                             desc
+#> 4                              YDAY calendar (366 timeslices; complete, regular)
+#> 8                        YDAY/HOUR calendar (8784 timeslices; complete, regular)
+#> 9                              MONTH calendar (12 timeslices; complete, regular)
+#> 10                             MONTH calendar (12 timeslices; complete, regular)
+#> 11                       MONTH/HOUR calendar (288 timeslices; complete, regular)
+#> 12                       MONTH/HOUR calendar (288 timeslices; complete, regular)
+#> 17                     MONTH/MDAY calendar (366 timeslices; complete, irregular)
+#> 18               MONTH/MDAY/HOUR calendar (8784 timeslices; complete, irregular)
+#> 19                            QUARTER calendar (4 timeslices; complete, regular)
+#> 20                             SEASON calendar (4 timeslices; complete, regular)
+#> 24                              WEEK calendar (53 timeslices; complete, regular)
+#> 28                    WEEK/WHOUR calendar (8904 timeslices; complete, irregular)
+#> 33       MONTH calendar (12 timeslices; complete, regular; fiscal year from m04)
+#> 34 MONTH/HOUR calendar (288 timeslices; complete, regular; fiscal year from m04)
+#> 35      QUARTER calendar (4 timeslices; complete, regular; fiscal year from m04)
 ```

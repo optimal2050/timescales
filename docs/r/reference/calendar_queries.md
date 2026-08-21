@@ -3,7 +3,7 @@
 Read-only queries on the timeframe hierarchy of a
 [Calendar](https://optimal2050.github.io/timescales/r/reference/Calendar.md)
 — the time-side mirror of
-[`geoscales::geoscale_levels()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_levels.html)
+[`geoscales::geoscale_levels()`](https://optimal2050.github.io/geoscales/r/reference/geoscales-deprecated.html)
 and friends.
 
 ## Usage
@@ -13,7 +13,7 @@ calendar_timeframes(calendar)
 
 calendar_rank(calendar, timeframe)
 
-calendar_timeslices(calendar, timeframe = NULL)
+calendar_timeslices(calendar, timeframe = NULL, qualified = FALSE)
 ```
 
 ## Arguments
@@ -26,6 +26,13 @@ calendar_timeslices(calendar, timeframe = NULL)
 - timeframe:
 
   A timeframe name (see `calendar_timeframes()`).
+
+- qualified:
+
+  `calendar_timeslices()` only: return the qualified node IDs at
+  `timeframe` – the leaf IDs of `prune_calendar(calendar, timeframe)` –
+  instead of the bare member labels. This is the per-frame node view the
+  energyRt bridge consumes.
 
 ## Value
 

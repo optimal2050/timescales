@@ -7,9 +7,9 @@ properties:
 
 | Property | Type | Purpose |
 |----|----|----|
-| `@leaves` | `data.frame` | One row per timeslice (the terminal cells). |
+| `@leaftable` | `data.frame` | One row per timeslice (the terminal cells). |
 | `@timeframes` | `character` | Ordered timeframe names, coarsest first. |
-| `@levels` | `list` of `character` | Ordered label vocabulary per timeframe. |
+| `@members` | `list` of `character` | Ordered label vocabulary per timeframe. |
 | `@meta` | `list` | Free-form metadata (`name`, `desc`, …). |
 
 ``` r
@@ -18,16 +18,16 @@ cal <- calendar("q4_h24", desc = "Quarter × hour-of-day")
 S7::S7_class(cal)
 #> <timescales::Calendar> class
 #> @ parent     : <S7_object>
-#> @ constructor: function(leaves, timeframes, levels, meta) {...}
+#> @ constructor: function(leaftable, timeframes, members, meta) {...}
 #> @ validator  : function(self) {...}
 #> @ properties :
-#>  $ leaves    : S3<data.frame>
+#>  $ leaftable : S3<data.frame>
 #>  $ timeframes: <character>   
-#>  $ levels    : <list>        
+#>  $ members   : <list>        
 #>  $ meta      : <list>
 ```
 
-### `@leaves`
+### `@leaftable`
 
 A plain `data.frame` with three required columns plus one column per
 timeframe:
@@ -41,7 +41,7 @@ timeframe:
 
 ``` r
 
-str(cal@leaves)
+str(cal@leaftable)
 #> 'data.frame':    96 obs. of  5 variables:
 #>  $ QUARTER  : chr  "Q1" "Q2" "Q3" "Q4" ...
 #>  $ HOUR     : chr  "h00" "h00" "h00" "h00" ...
@@ -55,8 +55,8 @@ an internal separator when not supplied. Users never need to parse it.
 
 ### `@timeframes`
 
-The hierarchy, coarsest first. This sets the column order of `@leaves`
-and the join order during recasting.
+The hierarchy, coarsest first. This sets the column order of
+`@leaftable` and the join order during recasting.
 
 ``` r
 
@@ -64,14 +64,14 @@ cal@timeframes
 #> [1] "QUARTER" "HOUR"
 ```
 
-### `@levels`
+### `@members`
 
 Per-timeframe label vocabulary in the order the calendar uses. This
 fixes deterministic ordering for downstream sorting and plotting.
 
 ``` r
 
-cal@levels
+cal@members
 #> $QUARTER
 #> [1] "Q1" "Q2" "Q3" "Q4"
 #> 
@@ -88,8 +88,8 @@ A free-form named list. Recognised keys today:
 |----|----|----|----|
 | `name` | character | `""` | [`print()`](https://rdrr.io/r/base/print.html), [`register_conversion()`](https://optimal2050.github.io/timescales/r/reference/register_conversion.md) lookup |
 | `desc` | character | `""` | [`print()`](https://rdrr.io/r/base/print.html) |
-| `year_start` | list | `list(month=1L, day=1L)` | [`instant_to_timeslice()`](https://optimal2050.github.io/timescales/r/reference/instant_to_timeslice.md) (YDAY/YEAR anchor), [`expand_calendar()`](https://optimal2050.github.io/timescales/r/reference/expand_calendar.md) (year window) |
-| `utc_offset_minutes` | integer | `0L` | [`instant_to_timeslice()`](https://optimal2050.github.io/timescales/r/reference/instant_to_timeslice.md), [`expand_calendar()`](https://optimal2050.github.io/timescales/r/reference/expand_calendar.md) (local time = UTC + offset) |
+| `year_start` | list | `list(month=1L, day=1L)` | [`datetime_to_timeslice()`](https://optimal2050.github.io/timescales/r/reference/datetime_to_timeslice.md) (YDAY/YEAR anchor), [`expand_calendar()`](https://optimal2050.github.io/timescales/r/reference/expand_calendar.md) (year window) |
+| `utc_offset_minutes` | integer | `0L` | [`datetime_to_timeslice()`](https://optimal2050.github.io/timescales/r/reference/datetime_to_timeslice.md), [`expand_calendar()`](https://optimal2050.github.io/timescales/r/reference/expand_calendar.md) (local time = UTC + offset) |
 | `year_fraction` | numeric | `1` | validator (`sum(share)`) |
 | `year_qualified` | logical | `FALSE` | set by `calendar("y_...")` |
 | `tokens` | named chr | — | provenance: token per timeframe (set by [`calendar_build()`](https://optimal2050.github.io/timescales/r/reference/calendar_build.md)) |
@@ -170,7 +170,7 @@ calendar_build("d4q", "h24")
 
 The validator on `Calendar` enforces:
 
-- required columns present in `@leaves`,
+- required columns present in `@leaftable`,
 - `timeslice` unique and non-empty,
 - `share > 0` and `sum(share) == meta$year_fraction`,
 - `weight >= 0`,
@@ -201,7 +201,7 @@ recast_calendar(src, from = calendar("m12"), to = calendar("q4"),
 #> 4        Q4 200.0000
 ```
 
-[`instant_to_timeslice()`](https://optimal2050.github.io/timescales/r/reference/instant_to_timeslice.md)
+[`datetime_to_timeslice()`](https://optimal2050.github.io/timescales/r/reference/datetime_to_timeslice.md)
 is the inverse direction (datetime → timeslice ID) and returns a
 character vector of the same length as the input, with `NA` for instants
 outside the calendar’s coverage.

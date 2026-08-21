@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="index.html">timescales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.3.1.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.4.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -31,13 +31,16 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
+<li class="nav-item"><a class="nav-link" href="articles/timescales.html">Get started</a></li>
 <li class="nav-item"><a class="nav-link" href="reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="articles/getting-started.html">Getting started with timescales</a></li>
-    <li><hr class="dropdown-divider"></li>
-    <li><a class="dropdown-item" href="articles/index.html">More articles...</a></li>
+<li><a class="dropdown-item" href="articles/concepts.html">Concepts</a></li>
+    <li><a class="dropdown-item" href="articles/data-structures.html">Data structures</a></li>
+    <li><a class="dropdown-item" href="articles/data-manipulation.html">Data manipulation with calendars</a></li>
+    <li><a class="dropdown-item" href="articles/calendars.html">Calendar catalog</a></li>
+    <li><a class="dropdown-item" href="articles/visualization.html">Visualization with ggplot2</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
@@ -84,17 +87,17 @@
 <div class="section level2">
 <h2 id="status">Status<a class="anchor" aria-label="anchor" href="#status"></a>
 </h2>
-<p>🚧 Pre-release — APIs are unstable. Repository is private until first pre-release.</p>
+<p>🚧 In development — pre-1.0, APIs may still change between minor versions. Feedback and issues are welcome.</p>
 </div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># From GitHub (private during pre-release; requires access)</span></span>
-<span><span class="co"># remotes::install_github("optimal2050/timescales")</span></span></code></pre></div>
-<p>After pre-release, also via <a href="https://optimal2050.r-universe.dev/" class="external-link">r-universe</a>:</p>
+<code class="sourceCode R"><span><span class="co"># From GitHub</span></span>
+<span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"optimal2050/timescales"</span><span class="op">)</span></span></code></pre></div>
+<p>Or via <a href="https://optimal2050.r-universe.dev/" class="external-link">r-universe</a>:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># install.packages("timescales", repos = "https://optimal2050.r-universe.dev")</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"timescales"</span>, repos <span class="op">=</span> <span class="st">"https://optimal2050.r-universe.dev"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="repository-layout">Repository layout<a class="anchor" aria-label="anchor" href="#repository-layout"></a>
@@ -145,13 +148,6 @@
 </ul>
 </div>
 
-<div class="developers">
-<h2 data-toc-skip>Developers</h2>
-<ul class="list-unstyled">
-<li>Oleg Lugovoy <br><small class="roles"> Author, maintainer </small> <a href="https://orcid.org/0000-0001-5546-9875" target="orcid.widget" aria-label="ORCID" class="external-link"><span class="fab fa-orcid orcid" aria-hidden="true"></span></a>  </li>
-</ul>
-</div>
-
 <div class="dev-status">
 <h2 data-toc-skip>Dev status</h2>
 <ul class="list-unstyled">
@@ -167,11 +163,11 @@
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Oleg Lugovoy.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
+
 </div>
 
     </footer>

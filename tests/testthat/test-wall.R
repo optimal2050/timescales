@@ -128,3 +128,26 @@ test_that("calendar_wall_plot assembles figures", {
   expect_warning(calendar_wall_plot(cal, bad, z = "v", year = 2021),
                  "not timeslices")
 })
+
+test_that("calendar_breaks keeps the end values", {
+  b <- calendar_breaks(4)
+  x <- sprintf("h%02d", 0:23)
+  got <- b(x)
+  expect_equal(got[1], "h00")
+  expect_equal(got[length(got)], "h23")
+  expect_lte(length(got), 4L)
+  # degenerate vocabularies survive
+  expect_equal(calendar_breaks(6)(c("a", "b")), c("a", "b"))
+  expect_equal(calendar_breaks(1)(c("a", "b")), c("a", "b"))  # floor n = 2
+})
+
+test_that("month facets carry the Gregorian year across a fiscal wall", {
+  lay <- calendar_wall_layout(calendar("fy04_d365"), year = 2021)
+  yr <- .wall_month_years(lay)
+  expect_equal(unname(yr[c("m04", "m12")]), c(2021L, 2021L))
+  expect_equal(unname(yr[c("m01", "m03")]), c(2022L, 2022L))
+  # sequence mode has no dates -> all NA (labels stay year-free)
+  seq_lay <- calendar_wall_layout(calendar("fy04_d365"),
+                                  arrange = "sequence")
+  expect_true(all(is.na(.wall_month_years(seq_lay))))
+})

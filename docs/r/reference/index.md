@@ -6,7 +6,7 @@ Construct and inspect Calendar objects.
 
 - [`Calendar()`](https://optimal2050.github.io/timescales/r/reference/Calendar.md)
   : Calendar (S7 class)
-- [`calendar_from_leaves()`](https://optimal2050.github.io/timescales/r/reference/calendar_from_leaves.md)
+- [`calendar_from_leaftable()`](https://optimal2050.github.io/timescales/r/reference/calendar_from_leaftable.md)
   : Build a Calendar from a flat table of leaf timeslices
 - [`calendar_build()`](https://optimal2050.github.io/timescales/r/reference/calendar_build.md)
   [`calendar()`](https://optimal2050.github.io/timescales/r/reference/calendar_build.md)
@@ -69,19 +69,26 @@ The atomic units underneath every calendar.
 
 Move data between datetimes and calendars, and between calendars.
 
-- [`instant_to_timeslice()`](https://optimal2050.github.io/timescales/r/reference/instant_to_timeslice.md)
+- [`datetime_to_timeslice()`](https://optimal2050.github.io/timescales/r/reference/datetime_to_timeslice.md)
   : Map datetimes to calendar timeslice IDs
-- [`instant_to_slice()`](https://optimal2050.github.io/timescales/r/reference/instant_to_slice.md)
-  : Deprecated alias of instant_to_timeslice()
 - [`expand_calendar()`](https://optimal2050.github.io/timescales/r/reference/expand_calendar.md)
-  : Enumerate the instants of one or more model years mapped to
+  : Enumerate the base grid of one or more model years mapped to
   timeslices
 - [`recast_calendar()`](https://optimal2050.github.io/timescales/r/reference/recast_calendar.md)
   : Recast values from one calendar to another
 - [`recast()`](https://optimal2050.github.io/timescales/r/reference/recast.md)
   : Recast data between scales
+- [`recast_to_timebase()`](https://optimal2050.github.io/timescales/r/reference/recast_to_timebase.md)
+  [`recast_from_timebase()`](https://optimal2050.github.io/timescales/r/reference/recast_to_timebase.md)
+  : Recast timeslice data down to the base grid, and back
+- [`calendar_map()`](https://optimal2050.github.io/timescales/r/reference/calendar_map.md)
+  : Crosswalk between two calendars over the base grid
+- [`register_calendar_map()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_map.md)
+  : Register / look up a direct calendar crosswalk
+- [`clear_calendar_maps()`](https://optimal2050.github.io/timescales/r/reference/clear_calendar_maps.md)
+  : Clear the crosswalk cache (and optionally the registered maps)
 - [`join_calendar()`](https://optimal2050.github.io/timescales/r/reference/join_calendar.md)
-  : Attach a calendar's timeframe columns to timeslice-keyed data
+  : Attach a calendar to a dataset
 - [`base_calendar()`](https://optimal2050.github.io/timescales/r/reference/base_calendar.md)
   : Enumerate the base instant grid for one or more years
 
@@ -97,10 +104,18 @@ Draw calendar structures and data on calendars.
   : Plot a calendar's structure as an icicle
 - [`calendar_plot()`](https://optimal2050.github.io/timescales/r/reference/calendar_plot.md)
   : Heatmap of data on a calendar
+- [`calendar_wall_plot()`](https://optimal2050.github.io/timescales/r/reference/calendar_wall_plot.md)
+  : Wall-calendar figure
+- [`calendar_wall_layout()`](https://optimal2050.github.io/timescales/r/reference/calendar_wall_layout.md)
+  : Wall-calendar tile layout
+- [`calendar_weekdays()`](https://optimal2050.github.io/timescales/r/reference/calendar_weekdays.md)
+  : Weekdays of a calendar's day layer in a given model year
 - [`geom_calendar()`](https://optimal2050.github.io/timescales/r/reference/geom_calendar.md)
   [`geom_calendar_tile()`](https://optimal2050.github.io/timescales/r/reference/geom_calendar.md)
   [`theme_calendar()`](https://optimal2050.github.io/timescales/r/reference/geom_calendar.md)
   : Calendar layers for ggplot2
+- [`calendar_breaks()`](https://optimal2050.github.io/timescales/r/reference/calendar_breaks.md)
+  : Thinned discrete breaks that keep the end values
 
 ## Rules and registries
 
@@ -129,6 +144,9 @@ Aggregation and alignment semantics, and their registries.
 - [`calendar_recast()`](https://optimal2050.github.io/timescales/r/reference/timescales-deprecated.md)
   [`calendar_join()`](https://optimal2050.github.io/timescales/r/reference/timescales-deprecated.md)
   [`calendar_at_level()`](https://optimal2050.github.io/timescales/r/reference/timescales-deprecated.md)
+  [`instant_to_timeslice()`](https://optimal2050.github.io/timescales/r/reference/timescales-deprecated.md)
+  [`instant_to_slice()`](https://optimal2050.github.io/timescales/r/reference/timescales-deprecated.md)
+  [`calendar_from_leaves()`](https://optimal2050.github.io/timescales/r/reference/timescales-deprecated.md)
   : Deprecated timescales functions
 
 ## Package

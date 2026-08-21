@@ -47,11 +47,17 @@ calendar(name, ...)
 
 - year_start:
 
-  `list(month = , day = )`; defaults to January 1.
+  `list(month = , day = )`; defaults to January 1. A nontrivial anchor
+  makes the model year span `[year_start(y), year_start(y + 1))`,
+  anchors `YDAY`/`YEAR` to it, and rotates the MONTH/QUARTER member
+  order so the anchor month comes first – labels stay Gregorian (`m04`
+  is April, always).
 
 - utc_offset_minutes:
 
-  Integer minutes; defaults to 0.
+  Integer minutes; defaults to 0 (UTC). Local time = UTC + offset; e.g.
+  `330L` for IST (UTC+5:30). Constant offsets only – Olson time zones /
+  DST are a planned later phase.
 
 - year_fraction:
 
@@ -64,6 +70,21 @@ A
 
 A
 [`Calendar`](https://optimal2050.github.io/timescales/r/reference/Calendar.md).
+
+## Fiscal calendars
+
+The catalog ships April-start fiscal designs – `fy04_m12`,
+`fy04_m12_h24`, `fy04_q4`, `fy04_q4_h24`, `fy04_d365`, `fy04_d365_h24` –
+for reporting systems whose year runs April..March (India, Japan). The
+model year `y` spans `[y-04-01, y+1-04-01)` and the anchored `YEAR` is
+the STARTING Gregorian year (Indian "FY 2021-22" is model year 2021).
+Labels stay Gregorian (`m04` is April, `Q2` is Apr-Jun); the fiscal
+identity lives in the anchored `YEAR`/`YDAY` and the April-first member
+order. The entries are defined in UTC like the rest of the catalog –
+data already in Indian local time maps as-is, and true-UTC instants use
+`calendar("fy04_m12", utc_offset_minutes = 330L)` (IST). Other anchors
+follow the same pattern by argument, e.g.
+`calendar("m12", year_start = list(month = 7L, day = 1L))`.
 
 ## Examples
 

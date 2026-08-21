@@ -16,7 +16,7 @@ calendars
 
 ## Format
 
-A named list of 37
+A named list of 43
 [`Calendar`](https://optimal2050.github.io/timescales/r/reference/Calendar.md)
 objects. Names are the catalog ids (`d365`, `d365_h24`, `m12`,
 `m12_h24`, `m12_md365`, `q4_h24`, `s4_hp3`, ...); see
@@ -40,8 +40,9 @@ names(calendars)
 #> [21] "q4_h24"        "s4_h24"        "w52"           "w53"          
 #> [25] "w52_h24"       "w53_h24"       "w52_h168"      "w53_h168"     
 #> [29] "wd7"           "wd7_h24"       "wk2"           "wk2_h24"      
-#> [33] "hp3"           "d365_hp3"      "m12a_hp3"      "s4_hp3"       
-#> [37] "q4_hp3"       
+#> [33] "fy04_m12"      "fy04_m12_h24"  "fy04_q4"       "fy04_q4_h24"  
+#> [37] "fy04_d365"     "fy04_d365_h24" "hp3"           "d365_hp3"     
+#> [41] "m12a_hp3"      "s4_hp3"        "q4_hp3"       
 calendars$m12
 #> Calendar: m12 
 #> Timeframes (1):
@@ -51,8 +52,8 @@ calendars$m12
 #> year_start: month=1, day=1
 #> utc_offset_minutes: 0
 identical(
-  S7::prop(calendars$q4, "leaves"),
-  S7::prop(calendar("q4"), "leaves")
+  S7::prop(calendars$q4, "leaftable"),
+  S7::prop(calendar("q4"), "leaftable")
 )
 #> [1] TRUE
 ```

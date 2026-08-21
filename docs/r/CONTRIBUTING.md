@@ -1,12 +1,17 @@
 # Contributing to timescales
 
+> Stack-wide conventions (naming, style, git policy, API principles) are
+> unified in [optimal2050
+> CONVENTIONS.md](https://github.com/optimal2050/energyRt/blob/main/CONVENTIONS.md);
+> this file covers the workflow of this repo.
+
 Thanks for your interest! `timescales` is part of the optimal2050
 modeling stack and is developed alongside its spatial companion
 [`geoscales`](https://github.com/optimal2050/geoscales).
 
-> **Note**: this repository is **private during pre-release**. Until the
-> first public pre-release, contributions are limited to invited
-> collaborators.
+> The repository is public and contributions are welcome — issues,
+> ideas, and pull requests alike. The package is pre-1.0, so APIs may
+> still move; open an issue first for larger changes.
 
 ## Languages and phases
 

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">timescales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.3.1.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.4.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -15,12 +15,15 @@
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
-      <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+      <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/timescales.html">Get started</a></li>
+<li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/getting-started.html">Getting started with timescales</a></li>
-    <li><hr class="dropdown-divider"></li>
-    <li><a class="dropdown-item" href="../articles/index.html">More articles...</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/concepts.html">Concepts</a></li>
+    <li><a class="dropdown-item" href="../articles/data-structures.html">Data structures</a></li>
+    <li><a class="dropdown-item" href="../articles/data-manipulation.html">Data manipulation with calendars</a></li>
+    <li><a class="dropdown-item" href="../articles/calendars.html">Calendar catalog</a></li>
+    <li><a class="dropdown-item" href="../articles/visualization.html">Visualization with ggplot2</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -62,7 +65,7 @@
 
         <dt>
 
-          <code><a href="calendar_from_leaves.html">calendar_from_leaves()</a></code>
+          <code><a href="calendar_from_leaftable.html">calendar_from_leaftable()</a></code>
 
         </dt>
         <dd>Build a Calendar from a flat table of leaf timeslices</dd>
@@ -205,24 +208,17 @@
 
       <dl><dt>
 
-          <code><a href="instant_to_timeslice.html">instant_to_timeslice()</a></code>
+          <code><a href="datetime_to_timeslice.html">datetime_to_timeslice()</a></code>
 
         </dt>
         <dd>Map datetimes to calendar timeslice IDs</dd>
 
         <dt>
 
-          <code><a href="instant_to_slice.html">instant_to_slice()</a></code>
-
-        </dt>
-        <dd>Deprecated alias of instant_to_timeslice()</dd>
-
-        <dt>
-
           <code><a href="expand_calendar.html">expand_calendar()</a></code>
 
         </dt>
-        <dd>Enumerate the instants of one or more model years mapped to timeslices</dd>
+        <dd>Enumerate the base grid of one or more model years mapped to timeslices</dd>
 
         <dt>
 
@@ -240,10 +236,38 @@
 
         <dt>
 
+          <code><a href="recast_to_timebase.html">recast_to_timebase()</a></code> <code><a href="recast_to_timebase.html">recast_from_timebase()</a></code>
+
+        </dt>
+        <dd>Recast timeslice data down to the base grid, and back</dd>
+
+        <dt>
+
+          <code><a href="calendar_map.html">calendar_map()</a></code>
+
+        </dt>
+        <dd>Crosswalk between two calendars over the base grid</dd>
+
+        <dt>
+
+          <code><a href="register_calendar_map.html">register_calendar_map()</a></code>
+
+        </dt>
+        <dd>Register / look up a direct calendar crosswalk</dd>
+
+        <dt>
+
+          <code><a href="clear_calendar_maps.html">clear_calendar_maps()</a></code>
+
+        </dt>
+        <dd>Clear the crosswalk cache (and optionally the registered maps)</dd>
+
+        <dt>
+
           <code><a href="join_calendar.html">join_calendar()</a></code>
 
         </dt>
-        <dd>Attach a calendar's timeframe columns to timeslice-keyed data</dd>
+        <dd>Attach a calendar to a dataset</dd>
 
         <dt>
 
@@ -284,10 +308,38 @@
 
         <dt>
 
+          <code><a href="calendar_wall_plot.html">calendar_wall_plot()</a></code>
+
+        </dt>
+        <dd>Wall-calendar figure</dd>
+
+        <dt>
+
+          <code><a href="calendar_wall_layout.html">calendar_wall_layout()</a></code>
+
+        </dt>
+        <dd>Wall-calendar tile layout</dd>
+
+        <dt>
+
+          <code><a href="calendar_weekdays.html">calendar_weekdays()</a></code>
+
+        </dt>
+        <dd>Weekdays of a calendar's day layer in a given model year</dd>
+
+        <dt>
+
           <code><a href="geom_calendar.html">geom_calendar()</a></code> <code><a href="geom_calendar.html">geom_calendar_tile()</a></code> <code><a href="geom_calendar.html">theme_calendar()</a></code>
 
         </dt>
         <dd>Calendar layers for ggplot2</dd>
+
+        <dt>
+
+          <code><a href="calendar_breaks.html">calendar_breaks()</a></code>
+
+        </dt>
+        <dd>Thinned discrete breaks that keep the end values</dd>
       </dl></div><div class="section level2">
       <h2 id="rules-and-registries">Rules and registries<a class="anchor" aria-label="anchor" href="#rules-and-registries"></a></h2>
 
@@ -358,7 +410,7 @@
 
       <dl><dt>
 
-          <code><a href="timescales-deprecated.html">calendar_recast()</a></code> <code><a href="timescales-deprecated.html">calendar_join()</a></code> <code><a href="timescales-deprecated.html">calendar_at_level()</a></code>
+          <code><a href="timescales-deprecated.html">calendar_recast()</a></code> <code><a href="timescales-deprecated.html">calendar_join()</a></code> <code><a href="timescales-deprecated.html">calendar_at_level()</a></code> <code><a href="timescales-deprecated.html">instant_to_timeslice()</a></code> <code><a href="timescales-deprecated.html">instant_to_slice()</a></code> <code><a href="timescales-deprecated.html">calendar_from_leaves()</a></code>
 
         </dt>
         <dd>Deprecated timescales functions</dd>
@@ -384,11 +436,11 @@
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Oleg Lugovoy.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
+
 </div>
 
     </footer></div>

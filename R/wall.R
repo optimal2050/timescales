@@ -242,12 +242,16 @@ calendar_wall_plot <- function(calendar, data = NULL, z = NULL,
   }
   p <- p +
     ggplot2::scale_y_reverse(breaks = NULL) +
-    ggplot2::facet_wrap(~MONTH, labeller = .wall_month_labeller()) +
+    ggplot2::facet_wrap(~MONTH, labeller = .wall_month_labeller(
+      years = if (weekday_mode) .wall_month_years(lay))) +
     theme_calendar(...) +
     ggplot2::labs(x = NULL, y = NULL)
   p <- if (weekday_mode) {
+    # single letters (M T W T F S S, rotated to week_start): full names
+    # overlay each other across twelve narrow facets
     p + ggplot2::scale_x_continuous(breaks = 1:7,
-                                    labels = levels(lay$wday),
+                                    labels = substr(levels(lay$wday),
+                                                    1, 1),
                                     position = "top")
   } else {
     p + ggplot2::scale_x_continuous(breaks = NULL)
@@ -329,12 +333,29 @@ calendar_wall_plot <- function(calendar, data = NULL, z = NULL,
              stringsAsFactors = FALSE)
 }
 
-#' Month facet labeller: m01 -> JAN where the labels are month tokens
+#' Gregorian year of each MONTH facet, from the layout's real dates
+#' (weekday mode). NA where a month has no dated cells.
 #' @noRd
-.wall_month_labeller <- function() {
+.wall_month_years <- function(lay) {
+  vapply(split(lay$date, lay$MONTH), function(d) {
+    d <- d[!is.na(d)]
+    if (length(d) == 0L) NA_integer_ else as.integer(format(d[1], "%Y"))
+  }, integer(1))
+}
+
+#' Month facet labeller: m01 -> JAN, or "JAN 2020" when the facet's year
+#' is known -- on a fiscal wall the facets then read APR 2019 .. MAR 2020,
+#' making the year rollover explicit.
+#' @noRd
+.wall_month_labeller <- function(years = NULL) {
   ggplot2::as_labeller(function(x) {
     i <- match(x, sprintf("m%02d", 1:12))
-    ifelse(is.na(i), x, .MONTH_ABBR[i])
+    lab <- ifelse(is.na(i), x, .MONTH_ABBR[i])
+    if (!is.null(years)) {
+      y <- years[x]
+      lab <- ifelse(is.na(y), lab, paste(lab, y))
+    }
+    lab
   })
 }
 

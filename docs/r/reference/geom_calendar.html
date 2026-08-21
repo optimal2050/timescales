@@ -11,7 +11,7 @@ calendar_autoplot() and calendar_plot()):"></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">timescales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.3.1.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.4.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -19,12 +19,15 @@ calendar_autoplot() and calendar_plot()):"></head><body>
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
-      <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+      <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/timescales.html">Get started</a></li>
+<li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/getting-started.html">Getting started with timescales</a></li>
-    <li><hr class="dropdown-divider"></li>
-    <li><a class="dropdown-item" href="../articles/index.html">More articles...</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/concepts.html">Concepts</a></li>
+    <li><a class="dropdown-item" href="../articles/data-structures.html">Data structures</a></li>
+    <li><a class="dropdown-item" href="../articles/data-manipulation.html">Data manipulation with calendars</a></li>
+    <li><a class="dropdown-item" href="../articles/calendars.html">Calendar catalog</a></li>
+    <li><a class="dropdown-item" href="../articles/visualization.html">Visualization with ggplot2</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -139,7 +142,7 @@ Default <code>"timeslice"</code>.</p></dd>
 
 <ul><li><p><code>geom_calendar()</code> — <strong>datetime mode</strong>: name a POSIXct/Date column
 (<code>datetime=</code>) and a measured column (<code>z=</code>); instants are cut to timeslices
-via <code><a href="instant_to_timeslice.html">instant_to_timeslice()</a></code> and aggregated with <code>fun</code>.</p></li>
+via <code><a href="datetime_to_timeslice.html">datetime_to_timeslice()</a></code> and aggregated with <code>fun</code>.</p></li>
 <li><p><code>geom_calendar_tile()</code> — <strong>timeslice mode</strong>: name a timeslice-ID column
 (<code>timeslice=</code>) and the measured column (<code>z=</code>).</p></li>
 <li><p><code>theme_calendar()</code> — the compact heatmap theme the assembled plots
@@ -174,7 +177,7 @@ layer data (see the example).</p>
 <span class="r-in"><span>    <span class="fu">theme_calendar</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span>  <span class="co"># timeslice mode</span></span></span>
-<span class="r-in"><span>  <span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>timeslice <span class="op">=</span> <span class="fu">S7</span><span class="fu">::</span><span class="fu"><a href="https://rconsortium.github.io/S7/reference/prop.html" class="external-link">prop</a></span><span class="op">(</span><span class="va">cal</span>, <span class="st">"leaves"</span><span class="op">)</span><span class="op">$</span><span class="va">timeslice</span>, v <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">288</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="va">y</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>timeslice <span class="op">=</span> <span class="fu">S7</span><span class="fu">::</span><span class="fu"><a href="https://rconsortium.github.io/S7/reference/prop.html" class="external-link">prop</a></span><span class="op">(</span><span class="va">cal</span>, <span class="st">"leaftable"</span><span class="op">)</span><span class="op">$</span><span class="va">timeslice</span>, v <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">288</span><span class="op">)</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span> <span class="op">+</span></span></span>
 <span class="r-in"><span>    <span class="fu">geom_calendar_tile</span><span class="op">(</span>calendar <span class="op">=</span> <span class="va">cal</span>, z <span class="op">=</span> <span class="st">"v"</span><span class="op">)</span> <span class="op">+</span></span></span>
 <span class="r-in"><span>    <span class="fu">theme_calendar</span><span class="op">(</span><span class="op">)</span></span></span>
@@ -187,11 +190,11 @@ layer data (see the example).</p>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Oleg Lugovoy.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
+
 </div>
 
     </footer></div>

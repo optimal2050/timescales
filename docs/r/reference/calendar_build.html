@@ -27,7 +27,7 @@ year-prefix semantics arrive in a later phase."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">timescales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.3.1.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.4.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -35,12 +35,15 @@ year-prefix semantics arrive in a later phase."></head><body>
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
-      <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+      <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/timescales.html">Get started</a></li>
+<li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/getting-started.html">Getting started with timescales</a></li>
-    <li><hr class="dropdown-divider"></li>
-    <li><a class="dropdown-item" href="../articles/index.html">More articles...</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/concepts.html">Concepts</a></li>
+    <li><a class="dropdown-item" href="../articles/data-structures.html">Data structures</a></li>
+    <li><a class="dropdown-item" href="../articles/data-manipulation.html">Data manipulation with calendars</a></li>
+    <li><a class="dropdown-item" href="../articles/calendars.html">Calendar catalog</a></li>
+    <li><a class="dropdown-item" href="../articles/visualization.html">Visualization with ggplot2</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -112,11 +115,17 @@ year-prefix semantics arrive in a later phase.</p>
 
 
 <dt id="arg-year-start">year_start<a class="anchor" aria-label="anchor" href="#arg-year-start"></a></dt>
-<dd><p><code>list(month = , day = )</code>; defaults to January 1.</p></dd>
+<dd><p><code>list(month = , day = )</code>; defaults to January 1. A
+nontrivial anchor makes the model year span
+<code>[year_start(y), year_start(y + 1))</code>, anchors <code>YDAY</code>/<code>YEAR</code> to it, and
+rotates the MONTH/QUARTER member order so the anchor month comes
+first – labels stay Gregorian (<code>m04</code> is April, always).</p></dd>
 
 
 <dt id="arg-utc-offset-minutes">utc_offset_minutes<a class="anchor" aria-label="anchor" href="#arg-utc-offset-minutes"></a></dt>
-<dd><p>Integer minutes; defaults to 0.</p></dd>
+<dd><p>Integer minutes; defaults to 0 (UTC). Local
+time = UTC + offset; e.g. <code>330L</code> for IST (UTC+5:30). Constant offsets
+only – Olson time zones / DST are a planned later phase.</p></dd>
 
 
 <dt id="arg-year-fraction">year_fraction<a class="anchor" aria-label="anchor" href="#arg-year-fraction"></a></dt>
@@ -127,6 +136,23 @@ year-prefix semantics arrive in a later phase.</p>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A <code><a href="Calendar.html">Calendar</a></code>.</p>
 <p>A <code><a href="Calendar.html">Calendar</a></code>.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="fiscal-calendars">Fiscal calendars<a class="anchor" aria-label="anchor" href="#fiscal-calendars"></a></h2>
+
+
+<p>The catalog ships April-start fiscal designs – <code>fy04_m12</code>,
+<code>fy04_m12_h24</code>, <code>fy04_q4</code>, <code>fy04_q4_h24</code>, <code>fy04_d365</code>, <code>fy04_d365_h24</code>
+– for reporting systems whose year runs April..March (India, Japan).
+The model year <code>y</code> spans <code>[y-04-01, y+1-04-01)</code> and the anchored <code>YEAR</code>
+is the STARTING Gregorian year (Indian "FY 2021-22" is model year
+2021). Labels stay Gregorian (<code>m04</code> is April, <code>Q2</code> is Apr-Jun); the
+fiscal identity lives in the anchored <code>YEAR</code>/<code>YDAY</code> and the April-first
+member order. The entries are defined in UTC like the rest of the
+catalog – data already in Indian local time maps as-is, and true-UTC
+instants use <code>calendar("fy04_m12", utc_offset_minutes = 330L)</code> (IST).
+Other anchors follow the same pattern by argument, e.g.
+<code>calendar("m12", year_start = list(month = 7L, day = 1L))</code>.</p>
     </div>
 
     <div class="section level2">
@@ -177,11 +203,11 @@ year-prefix semantics arrive in a later phase.</p>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Oleg Lugovoy.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
+
 </div>
 
     </footer></div>

@@ -9,7 +9,7 @@ the time-side mirror of geoscales::geoscale_levels() and friends."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">timescales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.3.1.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.4.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -17,12 +17,15 @@ the time-side mirror of geoscales::geoscale_levels() and friends."></head><body>
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
-      <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+      <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/timescales.html">Get started</a></li>
+<li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/getting-started.html">Getting started with timescales</a></li>
-    <li><hr class="dropdown-divider"></li>
-    <li><a class="dropdown-item" href="../articles/index.html">More articles...</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/concepts.html">Concepts</a></li>
+    <li><a class="dropdown-item" href="../articles/data-structures.html">Data structures</a></li>
+    <li><a class="dropdown-item" href="../articles/data-manipulation.html">Data manipulation with calendars</a></li>
+    <li><a class="dropdown-item" href="../articles/calendars.html">Calendar catalog</a></li>
+    <li><a class="dropdown-item" href="../articles/visualization.html">Visualization with ggplot2</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -49,7 +52,7 @@ the time-side mirror of geoscales::geoscale_levels() and friends."></head><body>
 
     <div class="ref-description section level2">
     <p>Read-only queries on the timeframe hierarchy of a <a href="Calendar.html">Calendar</a> —
-the time-side mirror of <code><a href="https://optimal2050.github.io/geoscales/r/reference/geoscale_levels.html" class="external-link">geoscales::geoscale_levels()</a></code> and friends.</p>
+the time-side mirror of <code><a href="https://optimal2050.github.io/geoscales/r/reference/geoscales-deprecated.html" class="external-link">geoscales::geoscale_levels()</a></code> and friends.</p>
     </div>
 
     <div class="section level2">
@@ -58,7 +61,7 @@ the time-side mirror of <code><a href="https://optimal2050.github.io/geoscales/r
 <span></span>
 <span><span class="fu">calendar_rank</span><span class="op">(</span><span class="va">calendar</span>, <span class="va">timeframe</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">calendar_timeslices</span><span class="op">(</span><span class="va">calendar</span>, timeframe <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">calendar_timeslices</span><span class="op">(</span><span class="va">calendar</span>, timeframe <span class="op">=</span> <span class="cn">NULL</span>, qualified <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -71,6 +74,13 @@ the time-side mirror of <code><a href="https://optimal2050.github.io/geoscales/r
 
 <dt id="arg-timeframe">timeframe<a class="anchor" aria-label="anchor" href="#arg-timeframe"></a></dt>
 <dd><p>A timeframe name (see <code>calendar_timeframes()</code>).</p></dd>
+
+
+<dt id="arg-qualified">qualified<a class="anchor" aria-label="anchor" href="#arg-qualified"></a></dt>
+<dd><p><code>calendar_timeslices()</code> only: return the qualified
+node IDs at <code>timeframe</code> – the leaf IDs of
+<code>prune_calendar(calendar, timeframe)</code> – instead of the bare member
+labels. This is the per-frame node view the energyRt bridge consumes.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -104,11 +114,11 @@ labels at that level; without, the leaf <code>timeslice</code> ids.</p></li>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Oleg Lugovoy.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
+
 </div>
 
     </footer></div>

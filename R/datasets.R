@@ -32,8 +32,10 @@
 #'
 #' NASA MERRA-2 reanalysis extracted for Helsinki, Lima, and Sydney — a
 #' high-latitude / equatorial / southern-hemisphere contrast, used by the
-#' weather-data vignette to demonstrate mapping instants onto calendars,
-#' calendar heatmaps, and recasting across resolutions.
+#' visualization vignette (`vignette("visualization")`) to demonstrate
+#' mapping datetimes onto calendars, calendar heatmaps and wall
+#' calendars, profiles/ribbons/duration curves, and recasting across
+#' resolutions.
 #'
 #' @format A `data.frame` with 26,280 rows (3 cities x 8,760 hours) and
 #'   5 columns:

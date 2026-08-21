@@ -2,249 +2,204 @@
 
 ## timescales (development version)
 
-### Harmonized naming with geoscales
+The development line rewrites the 0.1 skeleton around a conserving
+conversion core, a curated calendar catalog, and a ggplot2 viz layer,
+sharing one naming convention with the sibling package geoscales.
 
-The sibling packages now share one convention: **`verb_class()`** for
-data operations and object transforms, **class-prefixed nouns** for
-properties and queries, constructors and registries unchanged.
+### Breaking changes
 
-- Renamed (old names warn and forward; removal before 1.0):
-  [`calendar_recast()`](https://optimal2050.github.io/timescales/r/reference/timescales-deprecated.md)
-  -\>
-  [`recast_calendar()`](https://optimal2050.github.io/timescales/r/reference/recast_calendar.md),
-  [`calendar_join()`](https://optimal2050.github.io/timescales/r/reference/timescales-deprecated.md)
-  -\>
-  [`join_calendar()`](https://optimal2050.github.io/timescales/r/reference/join_calendar.md),
-  [`calendar_at_level()`](https://optimal2050.github.io/timescales/r/reference/timescales-deprecated.md)
-  -\>
-  [`prune_calendar()`](https://optimal2050.github.io/timescales/r/reference/prune_calendar.md)
-  (pairs with
-  [`geoscales::prune_geoscale()`](https://optimal2050.github.io/geoscales/r/reference/prune_geoscale.html)).
-- **[`recast()`](https://optimal2050.github.io/timescales/r/reference/recast.md)
-  is now an S7 generic owned by timescales** (it was a deprecated
-  alias), dispatching on the scale object in `from`:
-  `x |> recast(cal_a, cal_b) |> recast(gs, to = "country")` — geoscales
-  registers the `Geoscale` method.
-- New navigation/query family mirroring geoscales:
-  [`calendar_timeframes()`](https://optimal2050.github.io/timescales/r/reference/calendar_queries.md),
-  [`calendar_timeslices()`](https://optimal2050.github.io/timescales/r/reference/calendar_queries.md),
-  [`calendar_rank()`](https://optimal2050.github.io/timescales/r/reference/calendar_queries.md),
-  [`calendar_family()`](https://optimal2050.github.io/timescales/r/reference/calendar_family.md),
-  [`calendar_children()`](https://optimal2050.github.io/timescales/r/reference/calendar_navigate.md),
-  [`calendar_parents()`](https://optimal2050.github.io/timescales/r/reference/calendar_navigate.md),
-  [`calendar_descendants()`](https://optimal2050.github.io/timescales/r/reference/calendar_navigate.md),
-  [`calendar_ancestors()`](https://optimal2050.github.io/timescales/r/reference/calendar_navigate.md),
-  [`calendar_share()`](https://optimal2050.github.io/timescales/r/reference/calendar_share.md).
-- New subsetting: `filter_calendar(cal, timeframe, labels)` and
-  `cal[timeframe, labels]`. Shares are kept raw; the result is a
-  partial-year calendar with `meta$year_fraction = sum(share)`.
-
-### The time dimension is now `timeslice`
-
-Stack-wide rename `slice` -\> `timeslice` (pre-first-release; energyRt
-follows on its v0.80 branch): the term matches the TIMES/OSeMOSYS
-vocabulary and pairs with geoscales’ `region` in mixed panels.
-
-- The leaf/key column is `timeslice` everywhere: `leaves$timeslice`,
-  [`expand_calendar()`](https://optimal2050.github.io/timescales/r/reference/expand_calendar.md)/[`calendar_layout()`](https://optimal2050.github.io/timescales/r/reference/calendar_layout.md)/[`calendar_recast()`](https://optimal2050.github.io/timescales/r/reference/timescales-deprecated.md)
-  outputs, `key` defaults, `geom_calendar_tile(timeslice=)`.
-- [`instant_to_slice()`](https://optimal2050.github.io/timescales/r/reference/instant_to_slice.md)
-  is deprecated in favor of
-  [`instant_to_timeslice()`](https://optimal2050.github.io/timescales/r/reference/instant_to_timeslice.md).
-- [`calendar_catalog()`](https://optimal2050.github.io/timescales/r/reference/calendar_catalog.md)
+- `recast_calendar(rule = "sum")` conserves totals; `"weighted_mean"`
+  weights by the declared `share`s. Previously values were broadcast to
+  every grid instant and added.
+- A value column with neither `rule=` nor a
+  [`register_rule()`](https://optimal2050.github.io/timescales/r/reference/register_rule.md)
+  entry is now an error; the silent `weighted_mean` fallback is gone.
+- Uncovered grid points are no longer dropped silently:
+  `na_action = c("drop", "error", "keep")` (`"drop"` warns; `"keep"`
+  retains an explicit `NA` timeslice row so totals conserve).
+- [`join_calendar()`](https://optimal2050.github.io/timescales/r/reference/join_calendar.md)
+  attaches only a label column named after the calendar by default;
+  `timeframes = TRUE` / `meta = TRUE` restore the timeframe and
+  share/weight columns, now `"<name>."`-prefixed. Existing columns are
+  never overwritten (error).
+- `Calendar@levels` is now `@members` and `@leaves` is `@leaftable`,
+  matching geoscales;
+  [`calendar_from_leaftable()`](https://optimal2050.github.io/timescales/r/reference/calendar_from_leaftable.md)
+  replaces
+  [`calendar_from_leaves()`](https://optimal2050.github.io/timescales/r/reference/timescales-deprecated.md).
+- The time dimension is `timeslice` (was `slice`) in every output and
+  key default;
+  [`calendar_catalog()`](https://optimal2050.github.io/timescales/r/reference/calendar_catalog.md)
   column `n_slices` is now `n_timeslices`.
-- `slice` remains a reserved timeframe name alongside `timeslice`.
-- The bundled `calendars` dataset is regenerated with the new column.
-- (Entries below this section predate the rename and are written with
-  the new vocabulary.)
-
-### `calendar_recast()`, panel data, and the naming convention
-
-- **[`recast()`](https://optimal2050.github.io/timescales/r/reference/recast.md)
-  is deprecated; the verb is now
-  [`calendar_recast()`](https://optimal2050.github.io/timescales/r/reference/timescales-deprecated.md).**
-  The stack-wide convention reserves bare names for foreign generics
-  (`plot`, `autoplot`, `print`) and prefixes owned operations by their
-  object —
-  [`calendar_recast()`](https://optimal2050.github.io/timescales/r/reference/timescales-deprecated.md)
-  pairs with
-  [`geoscales::geo_recast()`](https://optimal2050.github.io/geoscales/r/reference/geoscales-deprecated.html),
-  so mixed pipelines read
-  `x |> calendar_recast(...) |> geo_recast(...)`. (Bare `recast` also
-  risked masking against the retired reshape2; bare `filter`/`rank`/
-  `expand`/`children` are outright collisions and will never be used.)
-- **Behavior fix: identifier (panel) columns are preserved.** Previously
-  a city x timeslice table silently returned only the first city’s
-  values; now non-key, non-value columns group the aggregation, keep
-  their types, and pass through to the output — per group, the full
-  target timeslice vocabulary is emitted.
-- **Behavior fix: `values` auto-detection excludes `from`’s timeframe
-  columns** (a joined `MONTH` column no longer gets swept into the
-  values); numeric identifiers like `year` still need explicit
-  exclusion.
-- `key = NULL` default (resolving to `"timeslice"`), a warning for
-  source keys unknown to the calendar, geoscales-style error messages
-  via new internal `.stop()`/`.warn()`/`.preview()` helpers, and a
-  validator guard rejecting reserved timeframe names (`timeslice`,
-  `share`, `weight`).
-
-### ggplot2 layers and weather sample
-
-- **[`calendar_join()`](https://optimal2050.github.io/timescales/r/reference/timescales-deprecated.md)**
-  attaches a calendar’s timeframe columns (as vocabulary-ordered
-  factors) plus `share`/`weight` to timeslice-keyed data — the
-  foundation for manual ggplot2 workflows.
-- **[`geom_calendar()`](https://optimal2050.github.io/timescales/r/reference/geom_calendar.md)**
-  (datetime mode) and
-  **[`geom_calendar_tile()`](https://optimal2050.github.io/timescales/r/reference/geom_calendar.md)**
-  (timeslice mode): composable single tile layers, plus the shared
-  **[`theme_calendar()`](https://optimal2050.github.io/timescales/r/reference/geom_calendar.md)**.
-  Implemented as layer factories over the plot data rather than ggproto
-  Stats — ggplot2 maps positional scales before statistics run, so a
-  Stat cannot emit the discrete axes a calendar heatmap needs (the
-  reason timeslices carried 600+ lines of custom scale code, which is
-  deliberately not ported). Calendar inputs are column-name arguments
-  (`datetime=`, `timeslice=`, `z=`); `by=` carries facet columns through
-  aggregation.
-- **`merra2_cities`** dataset: hourly 2019 weather (temperature, wind,
-  solar) for Helsinki, Lima, and Sydney from NASA MERRA-2 (~60 KB), and
-  a new **weather-data vignette** combining the layers, energypal
-  palettes, and cross-calendar recasting. energypal joins Suggests.
-
-### Calendar visualization
-
-First viz layer, mirroring `geoscales` (ggplot2 in Suggests, no custom
-ggproto — plot-level functions over an exported plain-data layout):
-
-- [`calendar_layout()`](https://optimal2050.github.io/timescales/r/reference/calendar_layout.md)
-  — plotting-system-agnostic icicle geometry: one band per timeframe
-  (`ANNUAL` root on top), x normalized to `[0, 1]`.
-- [`calendar_autoplot()`](https://optimal2050.github.io/timescales/r/reference/calendar_autoplot.md)
-  — the structure icicle;
-  [`autoplot()`](https://ggplot2.tidyverse.org/reference/autoplot.html)
-  and [`plot()`](https://rdrr.io/r/graphics/plot.default.html) on a
-  Calendar dispatch here. Fill by chronological `order` (gradient
-  recycling `within` each parent, or `global`), `share`, or `weight`;
-  auto white/dark labels; rows denser than `max_segments` (default 2000)
-  are binned so hourly calendars render instantly.
-- [`calendar_plot()`](https://optimal2050.github.io/timescales/r/reference/calendar_plot.md)
-  — the single data-on-calendar heatmap: data keyed by timeslice, layout
-  finest-on-y / next-on-x / coarser-as-facets, aggregation with `fun=`
-  when timeframes are dropped; no data plots the share structure.
-- Naming convention settled: class-word prefixes (`calendar_*` now,
-  `horizon_*` when Horizon lands); generics stay bare. Custom
-  `stat_*`/`geom_*` layers are deferred and will wrap the same helpers.
-
-### Calendar catalog
-
-The curated calendar library returns, ported from `timeslices` (37
-designs) — with a correctness upgrade: catalog calendars carry
-**duration-proportional shares** (January is `31/365` of the year),
-where the timeslices originals shipped uniform shares (`1/12`) in
-contradiction with their own documentation.
-
-- [`calendar_catalog()`](https://optimal2050.github.io/timescales/r/reference/calendar_catalog.md)
-  — the discoverable table of built-in designs (id, tokens, timeframes,
-  timeslice count, coverage, regularity).
-- `calendars` dataset — all 37 pre-built as lean package data (~40 KB vs
-  timeslices’ 1.9 MB).
-- `calendar(id)` now consults the catalog first: catalog builds carry
-  `meta$coverage` / `meta$regularity`, and the non-Cartesian `m12_md*`
-  family (ragged month/day grids — February is short) routes to a
-  dedicated builder. Feb 29 under `m12_md365` and day 31 under
-  `m12_md360` map to `NA` naturally.
-- New timeframes `SEASON` (meteorological, `WIN` = Dec–Feb), `DAYTYPE`
-  (`WORKDAY`/`WEEKEND`), and `HOURTYPE` (`DAY`/`NIGHT` h22–h05/`PEAK`
-  h17–h20) join `CORE_TIMEFRAMES` with full datetime extraction — the 9
-  type-axis designs (`s4*`, `wk2*`, `hp3`, `*_hp3`) are
-  datetime-convertible for the first time (timeslices could construct
-  but never populate them).
-- New tokens `s4`, `wk2`, `hp3` with duration-weighted shares.
-
-### Conversion core rewrite (v0.2 line)
-
-Fixes the five conversion defects diagnosed in
-`dev/review-core-plan.md`; the design decisions are recorded in
-`dev/review-core.md`.
-[`recast()`](https://optimal2050.github.io/timescales/r/reference/recast.md)
-now routes every conversion `A -> base -> B` through a multi-year grid
-of real instants (the geoscales atom pattern), projecting source values
-down to instants and aggregating up to target timeslices.
-
-#### Breaking changes
-
-- `recast(rule = "sum")` now **conserves totals** — each source value is
-  split across its timeslice’s grid instants before summing. Previously
-  values were broadcast to every instant and added (96 unit leaves
-  recast `q4_h24 -> q4` returned 8760; it now returns 96).
-- `recast(rule = "weighted_mean")` now weights by the declared
-  `leaves$share`. It differs from `"mean"` (the plain time-weighted grid
-  mean) exactly when declared shares differ from real-time coverage.
 - [`expand_calendar()`](https://optimal2050.github.io/timescales/r/reference/expand_calendar.md)
-  gains a `year` column in its output (`datetime, year, timeslice`) and
-  accepts a vector of years.
-- The `h168` token now lives on the new `WHOUR` timeframe (hour of week,
-  Monday-first ISO, `h000`..`h167`) instead of being mis-declared as
-  `HOUR`, and maps datetimes correctly.
-- Uncovered grid instants are no longer dropped silently:
-  `recast(na_action = c("drop", "error", "keep"))` — `"drop"` warns,
-  `"keep"` retains an explicit `NA` timeslice row so totals conserve.
+  gains a `year` output column and accepts a vector of years.
+- The `h168` token lives on the new `WHOUR` timeframe (hour of week,
+  Monday-first) and now maps datetimes correctly.
 
-#### New features
+### New features
 
-- **Base calendar**: `base_calendar(years, by, tz)` enumerates the
-  cached multi-year grid of real POSIXct instants — the 1:1
-  correspondence between calendars and date-time (leap years included:
-  2020 has 8784 hourly rows).
-- **ANNUAL root and within-calendar aggregation**:
-  `calendar_at_level(cal, tf)` truncates a calendar at one of its own
-  timeframes (`"ANNUAL"` returns the implicit one-timeslice whole-year
-  root), and
-  [`recast()`](https://optimal2050.github.io/timescales/r/reference/recast.md)
-  accepts a timeframe name for `to=`.
-- **Alignment rules** (`ALIGNMENT_RULES`): `exact`, `drop_last`,
-  `drop_feb29`, `repeat_last` declare how real instants beyond a
-  calendar’s vocabulary map onto it. Stored per-timeframe in
-  `meta$alignment`, seeded by tokens (`d365 -> drop_feb29`,
-  `d360`/`d364` -\> `drop_last`, `w52 -> repeat_last`), overridable in
-  [`instant_to_timeslice()`](https://optimal2050.github.io/timescales/r/reference/instant_to_timeslice.md).
-  [`register_token()`](https://optimal2050.github.io/timescales/r/reference/register_token.md)
-  gains an `alignment` argument.
-- **New rules**: `"copy"` (common value, error if non-constant) and
-  `"sd"` join `RECAST_RULES`.
-- **Registries** (mirroring `geoscales`):
+#### Conversion
+
+- `recast_calendar(x, from, to, year, rule)` converts values between any
+  two calendars via the base datetime grid; identifier (panel) columns
+  are preserved as groups, and `to =` accepts a timeframe name
+  (`"ANNUAL"` = the root) for within-calendar aggregation.
+- [`recast()`](https://optimal2050.github.io/timescales/r/reference/recast.md)
+  is an S7 generic dispatching on the scale object, so pipelines chain
+  across packages:
+  `x |> recast(cal_a, cal_b) |> recast(gs, to = "country")`.
+- [`recast_to_timebase()`](https://optimal2050.github.io/timescales/r/reference/recast_to_timebase.md)
+  /
+  [`recast_from_timebase()`](https://optimal2050.github.io/timescales/r/reference/recast_to_timebase.md)
+  expose the route halves; their composition equals
+  [`recast_calendar()`](https://optimal2050.github.io/timescales/r/reference/recast_calendar.md).
+- `calendar_map(from, to, year)` materialises the conversion as a small
+  crosswalk table;
+  [`register_calendar_map()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_map.md)
+  installs exact crosswalks and
+  [`register_conversion()`](https://optimal2050.github.io/timescales/r/reference/register_conversion.md)
+  functional overrides, both keyed by calendar names.
+- All converters run over `data.frame`, tibble, `data.table`, dtplyr,
+  and arrow inputs; results come back in the input’s class, and lazy
+  inputs return the uncollected query unless `collect = TRUE`.
+- [`join_calendar()`](https://optimal2050.github.io/timescales/r/reference/join_calendar.md)
+  supports several calendars on one dataset (the pair of label columns
+  is itself a crosswalk); keys auto-detect from a calendar-named,
+  `timeslice`, or POSIXct `datetime` column.
+- `base_calendar(years, by, tz)` enumerates the cached multi-year
+  datetime grid;
+  [`datetime_to_timeslice()`](https://optimal2050.github.io/timescales/r/reference/datetime_to_timeslice.md)
+  maps datetimes to timeslice IDs under per-timeframe alignment rules
+  (`ALIGNMENT_RULES`: `exact`, `drop_last`, `drop_feb29`,
+  `repeat_last`).
+- `meta$year_start` and `meta$utc_offset_minutes` are honoured
+  throughout: the model year spans `[anchor(y), anchor(y+1))` and local
+  time = UTC + offset.
+- Rules `"copy"` and `"sd"` join `RECAST_RULES`; per-column defaults via
   [`register_rule()`](https://optimal2050.github.io/timescales/r/reference/register_rule.md)
   /
   [`get_rule()`](https://optimal2050.github.io/timescales/r/reference/get_rule.md)
   /
   [`list_rules()`](https://optimal2050.github.io/timescales/r/reference/list_rules.md)
   /
-  [`clear_rules()`](https://optimal2050.github.io/timescales/r/reference/clear_rules.md)
-  map value-column names to default rules;
-  [`register_conversion()`](https://optimal2050.github.io/timescales/r/reference/register_conversion.md)
-  /
-  [`get_conversion()`](https://optimal2050.github.io/timescales/r/reference/register_conversion.md)
-  /
-  [`list_conversions()`](https://optimal2050.github.io/timescales/r/reference/register_conversion.md)
-  /
-  [`clear_conversions()`](https://optimal2050.github.io/timescales/r/reference/register_conversion.md)
-  register pairwise calendar-to-calendar overrides consulted before the
-  base route.
-- **Vocabulary unification**:
-  [`instant_to_timeslice()`](https://optimal2050.github.io/timescales/r/reference/instant_to_timeslice.md)
-  resolves labels by formatted-token match first, then a positional
-  fallback for full-cardinality enum vocabularies — `m12a`
-  (`JAN`..`DEC`) and custom enum tokens now map instead of returning
-  `NA`.
-- **`meta$year_start` and `meta$utc_offset_minutes` are live**: the
-  model year spans `[anchor(y), anchor(y+1))`, `YDAY`/`YEAR` are
-  anchored to `year_start`, and local time = UTC + offset throughout
-  [`instant_to_timeslice()`](https://optimal2050.github.io/timescales/r/reference/instant_to_timeslice.md)
-  and
-  [`expand_calendar()`](https://optimal2050.github.io/timescales/r/reference/expand_calendar.md).
-- **Token provenance** restored:
+  [`clear_rules()`](https://optimal2050.github.io/timescales/r/reference/clear_rules.md).
+
+#### Calendars and catalog
+
+- [`calendar_catalog()`](https://optimal2050.github.io/timescales/r/reference/calendar_catalog.md)
+  lists 43 curated designs; all ship pre-built in the `calendars`
+  dataset with duration-proportional shares (January is 31/365 of a
+  year, not 1/12).
+- Six April-start fiscal designs: `fy04_m12`, `fy04_m12_h24`, `fy04_q4`,
+  `fy04_q4_h24`, `fy04_d365`, `fy04_d365_h24`. The anchored `YEAR` is
+  the starting Gregorian year (“FY 2021-22” -\> 2021); labels stay
+  Gregorian (`m04` is April) while the member order starts at the
+  anchor. Catalog entries may carry `year_start`/`utc_offset_minutes`
+  (caller arguments win), e.g.
+  `calendar("fy04_m12", utc_offset_minutes = 330L)` for IST.
+- A nontrivial `year_start` rotates the MONTH/QUARTER member order in
   [`calendar_build()`](https://optimal2050.github.io/timescales/r/reference/calendar_build.md)
-  records `meta$tokens` (token per timeframe).
+  (fiscal axes read April-first everywhere).
+- New timeframes `SEASON`, `DAYTYPE`, `HOURTYPE` (with tokens `s4`,
+  `wk2`, `hp3`) are fully datetime-convertible.
+- Navigation and subsetting:
+  [`calendar_timeframes()`](https://optimal2050.github.io/timescales/r/reference/calendar_queries.md),
+  [`calendar_timeslices()`](https://optimal2050.github.io/timescales/r/reference/calendar_queries.md)
+  (with `qualified = TRUE` node IDs),
+  [`calendar_rank()`](https://optimal2050.github.io/timescales/r/reference/calendar_queries.md),
+  [`calendar_family()`](https://optimal2050.github.io/timescales/r/reference/calendar_family.md),
+  [`calendar_children()`](https://optimal2050.github.io/timescales/r/reference/calendar_navigate.md)
+  / `_parents()` / `_descendants()` / `_ancestors()`,
+  [`calendar_share()`](https://optimal2050.github.io/timescales/r/reference/calendar_share.md),
+  [`filter_calendar()`](https://optimal2050.github.io/timescales/r/reference/filter_calendar.md)
+  / `cal[timeframe, labels]`,
+  [`prune_calendar()`](https://optimal2050.github.io/timescales/r/reference/prune_calendar.md).
+- `merra2_cities` dataset: hourly 2019 weather for Helsinki, Lima, and
+  Sydney (NASA MERRA-2).
+
+#### Visualization
+
+- [`theme_calendar()`](https://optimal2050.github.io/timescales/r/reference/geom_calendar.md)
+  draws a solid white plot background (transparent figures are illegible
+  on dark-mode pages); article figures build on a solid background
+  site-wide.
+- Composable layers
+  [`geom_calendar()`](https://optimal2050.github.io/timescales/r/reference/geom_calendar.md)
+  (datetime mode) and
+  [`geom_calendar_tile()`](https://optimal2050.github.io/timescales/r/reference/geom_calendar.md)
+  (timeslice mode) with
+  [`theme_calendar()`](https://optimal2050.github.io/timescales/r/reference/geom_calendar.md);
+  facet columns ride through `by=`; `calendar_breaks(n)` thins dense
+  discrete axes while keeping the end values.
+- Wall calendars:
+  [`calendar_wall_plot()`](https://optimal2050.github.io/timescales/r/reference/calendar_wall_plot.md)
+  (month facets in member order, single-letter weekday headers,
+  year-labelled facets — a fiscal wall reads APR 2019 .. MAR 2020), with
+  [`calendar_wall_layout()`](https://optimal2050.github.io/timescales/r/reference/calendar_wall_layout.md)
+  and
+  [`calendar_weekdays()`](https://optimal2050.github.io/timescales/r/reference/calendar_weekdays.md)
+  (weekday, week-of-month, anchored week-of-year) underneath.
+- Structure figures:
+  [`calendar_autoplot()`](https://optimal2050.github.io/timescales/r/reference/calendar_autoplot.md)
+  (icicle;
+  [`autoplot()`](https://ggplot2.tidyverse.org/reference/autoplot.html)/
+  [`plot()`](https://rdrr.io/r/graphics/plot.default.html) dispatch
+  here) and
+  [`calendar_plot()`](https://optimal2050.github.io/timescales/r/reference/calendar_plot.md)
+  (heatmap), over the exported
+  [`calendar_layout()`](https://optimal2050.github.io/timescales/r/reference/calendar_layout.md)
+  geometry.
+
+### Deprecations
+
+Old names warn and forward; removal before 1.0:
+[`calendar_recast()`](https://optimal2050.github.io/timescales/r/reference/timescales-deprecated.md)
+-\>
+[`recast_calendar()`](https://optimal2050.github.io/timescales/r/reference/recast_calendar.md),
+[`calendar_join()`](https://optimal2050.github.io/timescales/r/reference/timescales-deprecated.md)
+-\>
+[`join_calendar()`](https://optimal2050.github.io/timescales/r/reference/join_calendar.md),
+[`calendar_at_level()`](https://optimal2050.github.io/timescales/r/reference/timescales-deprecated.md)
+-\>
+[`prune_calendar()`](https://optimal2050.github.io/timescales/r/reference/prune_calendar.md),
+[`instant_to_timeslice()`](https://optimal2050.github.io/timescales/r/reference/timescales-deprecated.md)
+/
+[`instant_to_slice()`](https://optimal2050.github.io/timescales/r/reference/timescales-deprecated.md)
+-\>
+[`datetime_to_timeslice()`](https://optimal2050.github.io/timescales/r/reference/datetime_to_timeslice.md),
+[`calendar_from_leaves()`](https://optimal2050.github.io/timescales/r/reference/timescales-deprecated.md)
+-\>
+[`calendar_from_leaftable()`](https://optimal2050.github.io/timescales/r/reference/calendar_from_leaftable.md).
+
+### Bug fixes
+
+- [`recast_calendar()`](https://optimal2050.github.io/timescales/r/reference/recast_calendar.md)
+  preserves identifier columns (a city x timeslice panel previously
+  returned only the first group) and no longer sweeps `from`’s timeframe
+  columns into the auto-detected values.
+- [`calendar_build()`](https://optimal2050.github.io/timescales/r/reference/calendar_build.md)
+  forwards named `...` to `meta` as documented (previously dropped
+  silently); collisions with construction arguments error.
+- `m12a` and other full-cardinality enum vocabularies map datetimes
+  (label match with positional fallback) instead of returning `NA`.
+
+### Documentation
+
+- The intro is the package-named
+  [`vignette("timescales")`](https://optimal2050.github.io/timescales/r/articles/timescales.md),
+  surfaced as the site’s top-level “Get started” item; all articles sit
+  directly in the Articles menu; superseded URLs redirect.
+- New
+  [`vignette("data-manipulation")`](https://optimal2050.github.io/timescales/r/articles/data-manipulation.md)
+  (attach, recast, crosswalks, backends) and
+  [`vignette("visualization")`](https://optimal2050.github.io/timescales/r/articles/visualization.md)
+  (the ggplot2 integration contract and plot-type tour; absorbs the
+  weather-data vignette).
+- [`vignette("calendars")`](https://optimal2050.github.io/timescales/r/articles/calendars.md)
+  presents the catalog by family, one icicle per family; the shared
+  \*scales glossary ships in
+  [`vignette("concepts")`](https://optimal2050.github.io/timescales/r/articles/concepts.md).
+  Vignette code follows the stack-wide tidyverse + `|>` style.
 
 ## timescales 0.1.0.9000
 
@@ -255,10 +210,10 @@ down to instants and aggregating up to target timeslices.
   three-layer constructors
   ([`calendar()`](https://optimal2050.github.io/timescales/r/reference/calendar_build.md),
   [`calendar_build()`](https://optimal2050.github.io/timescales/r/reference/calendar_build.md),
-  [`calendar_from_leaves()`](https://optimal2050.github.io/timescales/r/reference/calendar_from_leaves.md)),
+  [`calendar_from_leaves()`](https://optimal2050.github.io/timescales/r/reference/timescales-deprecated.md)),
   [`as_timeframe()`](https://optimal2050.github.io/timescales/r/reference/as_timeframe.md),
   first-generation
-  [`instant_to_timeslice()`](https://optimal2050.github.io/timescales/r/reference/instant_to_timeslice.md)
+  [`instant_to_timeslice()`](https://optimal2050.github.io/timescales/r/reference/timescales-deprecated.md)
   /
   [`expand_calendar()`](https://optimal2050.github.io/timescales/r/reference/expand_calendar.md)
   /

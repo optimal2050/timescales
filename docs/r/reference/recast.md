@@ -2,7 +2,7 @@
 
 The pipeline verb of the \*scales family: convert `x` between two
 resolutions of one dimension, dispatching on the scale object given as
-`from` — a
+`from` – a
 [Calendar](https://optimal2050.github.io/timescales/r/reference/Calendar.md)
 here; a `Geoscale` when the geoscales package is loaded (which registers
 its own method). This lets one verb chain across dimensions:
@@ -17,7 +17,7 @@ recast(x, from, ...)
 
 - x:
 
-  A data.frame of values to convert.
+  The data to convert, in any supported backend.
 
 - from:
 
@@ -29,11 +29,12 @@ recast(x, from, ...)
   Passed to the dispatched worker; for the Calendar method the arguments
   of
   [`recast_calendar()`](https://optimal2050.github.io/timescales/r/reference/recast_calendar.md)
-  (`to`, `year`, `key`, `values`, `rule`, `by`, `tz`, `na_action`).
+  (`to`, `year`, `key`, `values`, `rule`, `by`, `tz`, `na_action`,
+  `collect`).
 
 ## Value
 
-The converted data.frame (see the worker's documentation).
+The converted data (see the worker's documentation).
 
 ## Details
 

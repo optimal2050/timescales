@@ -1,9 +1,9 @@
-# Enumerate the instants of one or more model years mapped to timeslices
+# Enumerate the base grid of one or more model years mapped to timeslices
 
-Materialises the calendar on the base instant grid: one row per instant
-of each requested model year, with the timeslice that instant belongs to
-(via
-[`instant_to_timeslice()`](https://optimal2050.github.io/timescales/r/reference/instant_to_timeslice.md)).
+Materialises the calendar on the base datetime grid: one row per grid
+point of each requested model year, with the timeslice that point
+belongs to (via
+[`datetime_to_timeslice()`](https://optimal2050.github.io/timescales/r/reference/datetime_to_timeslice.md)).
 The model year spans `[year_start(y), year_start(y + 1))` in the
 calendar's local time (`meta$year_start`, `meta$utc_offset_minutes`);
 with the default metadata that is simply the Gregorian year in `tz`.
@@ -23,7 +23,7 @@ expand_calendar(calendar, year, by = NULL, tz = "UTC", alignment = NULL)
 
 - year:
 
-  Integer vector — the model year(s) to enumerate.
+  Integer vector – the model year(s) to enumerate.
 
 - by:
 
@@ -33,18 +33,18 @@ expand_calendar(calendar, year, by = NULL, tz = "UTC", alignment = NULL)
 
 - tz:
 
-  Time zone of the returned instants. Defaults to `"UTC"`.
+  Time zone of the returned datetimes. Defaults to `"UTC"`.
 
 - alignment:
 
   Optional alignment override, as in
-  [`instant_to_timeslice()`](https://optimal2050.github.io/timescales/r/reference/instant_to_timeslice.md).
+  [`datetime_to_timeslice()`](https://optimal2050.github.io/timescales/r/reference/datetime_to_timeslice.md).
 
 ## Value
 
 A `data.frame` with columns `datetime` (POSIXct), `year` (integer, model
 year) and `timeslice` (character). Rows where `timeslice` is `NA` are
-instants the calendar does not cover.
+grid points the calendar does not cover.
 
 ## Examples
 

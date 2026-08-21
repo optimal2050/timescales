@@ -1,7 +1,7 @@
 linters: linters_with_defaults(
     line_length_linter(80),
-    # S3 methods for S7 classes are named `print.geoscales::Geoscale`, and
-    # exported constants are UPPERCASE (CORE_LEVELS, GEO_RULES, NE_POV).
+    # S3 methods for S7 classes are named `print.timescales::Calendar`, and
+    # exported constants are UPPERCASE (CORE_TIMEFRAMES, RECAST_RULES).
     object_name_linter = NULL,
     # Hanging-indent rules fight with multi-line sprintf()/paste0() message
     # construction, which is used heavily in the validators.

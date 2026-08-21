@@ -39,8 +39,8 @@ A character vector of length 4.
 Alignment lives per-timeframe in a calendar's `meta$alignment` (a named
 list), seeded by the tokens that built it and overridable at
 construction or in
-[`instant_to_timeslice()`](https://optimal2050.github.io/timescales/r/reference/instant_to_timeslice.md).
-Unaligned out-of-vocabulary instants map to `NA`, surfaced by
+[`datetime_to_timeslice()`](https://optimal2050.github.io/timescales/r/reference/datetime_to_timeslice.md).
+Unaligned out-of-vocabulary grid points map to `NA`, surfaced by
 [`recast_calendar()`](https://optimal2050.github.io/timescales/r/reference/recast_calendar.md)'s
 `na_action`.
 

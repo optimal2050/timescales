@@ -233,6 +233,38 @@ theme_calendar <- function(...) {
   .need_ggplot("theme_calendar()")
   ggplot2::theme_minimal() +
     ggplot2::theme(panel.grid = ggplot2::element_blank(),
+                   panel.spacing = grid::unit(1, "lines"),
                    axis.text = ggplot2::element_text(size = 8),
+                   axis.ticks.length = grid::unit(2, "pt"),
+                   strip.text = ggplot2::element_text(size = 9,
+                                                      margin = ggplot2::margin(
+                                                        2, 2, 4, 2)),
+                   # solid background by convention: transparent figures
+                   # are illegible on dark-mode pages
+                   plot.background = ggplot2::element_rect(fill = "white",
+                                                           colour = NA),
                    ...)
+}
+
+#' Thinned discrete breaks that keep the end values
+#'
+#' A breaks *function* for discrete timeslice axes: picks about `n`
+#' evenly spaced labels and ALWAYS includes the first and last -- dense
+#' vocabularies (`d001..d365`, `h00..h23`) stop overlapping without
+#' losing the axis range. Pass it to `ggplot2::scale_x_discrete()` /
+#' `scale_y_discrete()`:
+#'
+#' ```r
+#' ggplot(x) +
+#'   geom_calendar(calendar = cal, datetime = "t", z = "v") +
+#'   scale_x_discrete(breaks = calendar_breaks()) +
+#'   theme_calendar()
+#' ```
+#'
+#' @param n Approximate number of labels (>= 2; default 6).
+#' @return A function of the level vector, for `breaks =`.
+#' @export
+calendar_breaks <- function(n = 6) {
+  n <- max(2L, as.integer(n))
+  function(x) x[unique(round(seq(1L, length(x), length.out = n)))]
 }

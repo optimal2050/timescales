@@ -91,7 +91,7 @@ A single ggplot2 layer (`theme_calendar()` returns a theme).
 - `geom_calendar()` — **datetime mode**: name a POSIXct/Date column
   (`datetime=`) and a measured column (`z=`); instants are cut to
   timeslices via
-  [`instant_to_timeslice()`](https://optimal2050.github.io/timescales/r/reference/instant_to_timeslice.md)
+  [`datetime_to_timeslice()`](https://optimal2050.github.io/timescales/r/reference/datetime_to_timeslice.md)
   and aggregated with `fun`.
 
 - `geom_calendar_tile()` — **timeslice mode**: name a timeslice-ID
@@ -134,7 +134,7 @@ if (requireNamespace("ggplot2", quietly = TRUE)) {
     theme_calendar()
 
   # timeslice mode
-  y <- data.frame(timeslice = S7::prop(cal, "leaves")$timeslice, v = 1:288)
+  y <- data.frame(timeslice = S7::prop(cal, "leaftable")$timeslice, v = 1:288)
   ggplot(y) +
     geom_calendar_tile(calendar = cal, z = "v") +
     theme_calendar()

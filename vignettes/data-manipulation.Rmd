@@ -1,0 +1,235 @@
+---
+title: "Data manipulation with calendars"
+description: "The tidy workflow end to end: map datetimes to timeslices, attach calendars to tables, recast between resolutions, inspect the crosswalk, and run the same pipelines over data.table and arrow backends."
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Data manipulation with calendars}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+library(timescales)
+library(dplyr, warn.conflicts = FALSE)
+has_dt <- requireNamespace("data.table", quietly = TRUE) &&
+  requireNamespace("dtplyr", quietly = TRUE)
+```
+
+## The toolkit at a glance
+
+| verb | direction | what it does |
+|---|---|---|
+| `datetime_to_timeslice()` | datetimes → labels | cut a datetime vector to a calendar's timeslice IDs |
+| `expand_calendar()` | calendar → grid | enumerate the base datetime grid of a model year |
+| `join_calendar()` | calendar → columns | *attach* labels, timeframe columns, share/weight to a table (no aggregation) |
+| `recast_calendar()` | calendar A → calendar B | *convert* values between two resolutions, one rule per column |
+| `recast_to_timebase()` / `recast_from_timebase()` | the route halves | project down to the base grid / aggregate up from it |
+| `calendar_map()` | A → B crosswalk | the conversion, materialised as a small table |
+| `register_rule()` / `register_calendar_map()` / `register_conversion()` | registries | per-column rules, exact crosswalks, functional overrides |
+
+Everything below runs on the shipped `merra2_cities` sample (three
+cities × 8,760 hours of 2019) in tidyverse style — data flows through
+`|>`, and every verb accepts a `data.frame`, tibble, `data.table`,
+dtplyr, or arrow input (see [Backends](#backends)).
+
+## From datetimes to timeslices
+
+`datetime_to_timeslice()` is the entry point: it applies the calendar's
+alignment rules and returns the timeslice ID each instant falls in
+(instants the calendar does not cover come back `NA`):
+
+```{r}
+cal <- calendars$m12_h24
+
+merra2_cities |>
+  mutate(timeslice = datetime_to_timeslice(datetime, cal)) |>
+  select(city, datetime, timeslice, T10M) |>
+  head(3)
+```
+
+The inverse view is `expand_calendar()`: one row per base-grid point of
+a model year, with the timeslice that point belongs to — the
+year-aware, leap-aware grid every conversion routes through:
+
+```{r}
+expand_calendar(calendars$m12, year = 2020, by = "day") |> head(3)
+```
+
+## Attaching a calendar to a table
+
+`join_calendar()` *decorates* rather than converts: it adds a label
+column **named after the calendar**, plus optional timeframe columns and
+share/weight, all `"<name>."`-prefixed. Keys are auto-detected — a
+column named like the calendar, else `timeslice`, else a `datetime`
+column (labels then computed on the base grid):
+
+```{r}
+panel <- merra2_cities |>
+  mutate(timeslice = datetime_to_timeslice(datetime, cal)) |>
+  summarise(across(c(T10M, SWGDN), mean), .by = c(city, timeslice))
+
+panel |>
+  join_calendar(cal, timeframes = TRUE, meta = TRUE) |>
+  head(3)
+```
+
+Because every calendar attaches under its own name, several can coexist
+on one dataset — and a table carrying two label columns is itself an
+empirical crosswalk between those calendars:
+
+```{r}
+two <- merra2_cities |>
+  filter(city == "Helsinki") |>
+  join_calendar(calendars$m12_h24) |>
+  join_calendar(calendars$q4_hp3)
+two |> select(datetime, m12_h24, q4_hp3) |> head(3)
+```
+
+Existing columns are never overwritten — a clashing attach errors
+instead.
+
+## Recasting between calendars
+
+`recast_calendar()` converts values from one calendar to another —
+aggregation and disaggregation are the same operation, routed
+`A -> base -> B` through the shared grid. Three things to know:
+
+**1. One rule per value column, and the rule is mandatory.** Pass
+`rule=` for all columns, or register per-column rules once; a column
+with neither errors — a silently guessed rule is a silent unit error.
+
+```{r}
+register_rule("T10M",  "weighted_mean")   # intensive: temperature
+register_rule("SWGDN", "sum")             # extensive proxy: energy
+
+q <- panel |>
+  recast_calendar(cal, calendars$q4, year = 2019)
+head(q, 4)
+```
+
+| rule | meaning |
+|---|---|
+| `sum` | conserve totals (split down, sum up) |
+| `weighted_mean` | share-weighted mean (declared `share`s) |
+| `mean` | plain time-weighted mean over grid points |
+| `copy` | constant within the target, error otherwise |
+| `sd` | dispersion over grid points (aggregation only) |
+
+**2. Identifier columns ride along.** Columns that are neither the key
+nor values (here `city`) are grouping columns, so panel data converts
+in one call — and totals conserve *per group*:
+
+```{r}
+annual <- panel |>
+  select(city, timeslice, SWGDN) |>
+  recast_calendar(cal, to = "ANNUAL", year = 2019)
+annual
+
+# the same totals, straight from the panel:
+panel |> summarise(SWGDN = sum(SWGDN), .by = city)
+```
+
+(`to =` also accepts a timeframe name of the source calendar — the
+within-calendar aggregation shortcut, `"ANNUAL"` being the root.)
+
+**3. Coverage is explicit.** Grid points the target does not cover are
+dropped with a warning by default; `na_action = "keep"` retains them as
+an explicit `NA`-timeslice row so totals conserve, and
+`na_action = "error"` refuses. Materialised results always return the
+FULL target vocabulary (with `NA` where nothing landed), so downstream
+joins see a stable schema.
+
+```{r, include = FALSE}
+clear_rules()
+```
+
+## The route halves
+
+`recast_calendar()` is the fused route; its halves are public.
+`recast_to_timebase()` projects timeslice data DOWN to the base grid
+(extensive columns split so totals conserve; a `weight` column carries
+the source shares), and `recast_from_timebase()` aggregates
+datetime-keyed rows UP into any calendar — their composition is exactly
+`recast_calendar()`:
+
+```{r}
+m <- data.frame(timeslice = sprintf("m%02d", 1:12), energy = 1:12)
+
+g <- m |>
+  recast_to_timebase(calendars$m12, year = 2019, rule = "sum", by = "day")
+head(g, 2)
+sum(g$energy)                      # 78 -- conserved on the grid
+
+g |>
+  recast_from_timebase(calendars$q4, rule = "sum", by = "day")
+```
+
+Use the halves when you need to *do something on the grid* between the
+two ends — join weather covariates by datetime, filter a season out,
+resample — with conservation guarantees intact.
+
+## The crosswalk, inspectable and overridable
+
+Every recast is a join against a small crosswalk table — one row per
+overlapping timeslice pair with grid counts and share weights.
+`calendar_map()` exposes it:
+
+```{r}
+calendar_map(calendars$m12, calendars$q4, year = 2019) |> head(4)
+```
+
+When an exact correspondence is known (hand-audited concordances,
+provably nested designs), `register_calendar_map()` short-circuits the
+grid derivation for that pair; `register_conversion()` goes one step
+further and replaces the whole conversion with your function. Both are
+keyed by calendar names, like the attach.
+
+## Backends
+
+The verbs above are single dplyr pipelines, so the SAME code runs over
+an in-memory `data.frame`/tibble, a `data.table` (via dtplyr), or an
+arrow Dataset/query. Eager inputs come back in their own class; lazy
+inputs return the *uncollected query* unless `collect = TRUE`:
+
+```{r, eval = has_dt}
+dt <- data.table::as.data.table(panel)
+
+dt |>
+  recast_calendar(cal, calendars$q4, year = 2019, rule = "sum") |>
+  class()                          # data.table in, data.table out
+
+lazy <- dtplyr::lazy_dt(dt) |>
+  recast_calendar(cal, calendars$q4, year = 2019, rule = "sum")
+class(lazy)                        # the query, not the result
+head(as.data.frame(dplyr::collect(lazy)), 3)
+```
+
+Two contract details worth knowing for lazy sources (dtplyr, arrow):
+results carry the *observed* target timeslices only — the
+full-vocabulary completion happens on materialisation — and the
+calendar side of every join is a small in-memory frame, so an on-disk
+arrow dataset is never pulled into memory for the calendar arithmetic.
+
+## Across dimensions
+
+The bare `recast()` generic dispatches on the scale object, so one verb
+chains time and space when the sibling package geoscales is loaded:
+
+```{r, eval = FALSE}
+x |>
+  recast(cal_hourly, cal_monthly, year = 2021, rule = "sum") |>
+  recast(gs, to = "r32o11", rule = "sum")     # a geoscales Geoscale
+```
+
+Same contract on both sides: explicit rules (never a silent fallback),
+identifier columns preserved, backends welcome.
+
+## Where to next?
+
+- [Concepts](concepts.html) — why the route always goes through the
+  base grid, and the shared *scales naming lattice.
+- [Calendar catalog](calendars.html) — the 43 shipped designs, by
+  family.
+- [Visualization](visualization.html) — the same pipelines flowing into
+  ggplot2.

@@ -22,7 +22,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">timescales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.3.1.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.4.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -31,13 +31,16 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
+<li class="nav-item"><a class="nav-link" href="../articles/timescales.html">Get started</a></li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/getting-started.html">Getting started with timescales</a></li>
-    <li><hr class="dropdown-divider"></li>
-    <li><a class="dropdown-item" href="../articles/index.html">More articles...</a></li>
+<li><a class="dropdown-item" href="../articles/concepts.html">Concepts</a></li>
+    <li><a class="dropdown-item" href="../articles/data-structures.html">Data structures</a></li>
+    <li><a class="dropdown-item" href="../articles/data-manipulation.html">Data manipulation with calendars</a></li>
+    <li><a class="dropdown-item" href="../articles/calendars.html">Calendar catalog</a></li>
+    <li><a class="dropdown-item" href="../articles/visualization.html">Visualization with ggplot2</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -95,7 +98,7 @@ properties:</p>
 </tr></thead>
 <tbody>
 <tr class="odd">
-<td><code>@leaves</code></td>
+<td><code>@leaftable</code></td>
 <td><code>data.frame</code></td>
 <td>One row per timeslice (the terminal cells).</td>
 </tr>
@@ -105,7 +108,7 @@ properties:</p>
 <td>Ordered timeframe names, coarsest first.</td>
 </tr>
 <tr class="odd">
-<td><code>@levels</code></td>
+<td><code>@members</code></td>
 <td>
 <code>list</code> of <code>character</code>
 </td>
@@ -123,16 +126,16 @@ properties:</p>
 <span><span class="fu">S7</span><span class="fu">::</span><span class="fu"><a href="https://rconsortium.github.io/S7/reference/S7_class.html" class="external-link">S7_class</a></span><span class="op">(</span><span class="va">cal</span><span class="op">)</span></span>
 <span><span class="co">#&gt; &lt;timescales::Calendar&gt; class</span></span>
 <span><span class="co">#&gt; @ parent     : &lt;S7_object&gt;</span></span>
-<span><span class="co">#&gt; @ constructor: function(leaves, timeframes, levels, meta) {...}</span></span>
+<span><span class="co">#&gt; @ constructor: function(leaftable, timeframes, members, meta) {...}</span></span>
 <span><span class="co">#&gt; @ validator  : function(self) {...}</span></span>
 <span><span class="co">#&gt; @ properties :</span></span>
-<span><span class="co">#&gt;  $ leaves    : S3&lt;data.frame&gt;</span></span>
+<span><span class="co">#&gt;  $ leaftable : S3&lt;data.frame&gt;</span></span>
 <span><span class="co">#&gt;  $ timeframes: &lt;character&gt;   </span></span>
-<span><span class="co">#&gt;  $ levels    : &lt;list&gt;        </span></span>
+<span><span class="co">#&gt;  $ members   : &lt;list&gt;        </span></span>
 <span><span class="co">#&gt;  $ meta      : &lt;list&gt;</span></span></code></pre></div>
 <div class="section level3">
-<h3 id="leaves">
-<code>@leaves</code><a class="anchor" aria-label="anchor" href="#leaves"></a>
+<h3 id="leaftable">
+<code>@leaftable</code><a class="anchor" aria-label="anchor" href="#leaftable"></a>
 </h3>
 <p>A plain <code>data.frame</code> with three required columns plus one
 column per timeframe:</p>
@@ -179,7 +182,7 @@ column per timeframe:</p>
 </tbody>
 </table>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">cal</span><span class="op">@</span><span class="va">leaves</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">cal</span><span class="op">@</span><span class="va">leaftable</span><span class="op">)</span></span>
 <span><span class="co">#&gt; 'data.frame':    96 obs. of  5 variables:</span></span>
 <span><span class="co">#&gt;  $ QUARTER  : chr  "Q1" "Q2" "Q3" "Q4" ...</span></span>
 <span><span class="co">#&gt;  $ HOUR     : chr  "h00" "h00" "h00" "h00" ...</span></span>
@@ -195,19 +198,19 @@ parse it.</p>
 <code>@timeframes</code><a class="anchor" aria-label="anchor" href="#timeframes"></a>
 </h3>
 <p>The hierarchy, coarsest first. This sets the column order of
-<code>@leaves</code> and the join order during recasting.</p>
+<code>@leaftable</code> and the join order during recasting.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cal</span><span class="op">@</span><span class="va">timeframes</span></span>
 <span><span class="co">#&gt; [1] "QUARTER" "HOUR"</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="levels">
-<code>@levels</code><a class="anchor" aria-label="anchor" href="#levels"></a>
+<h3 id="members">
+<code>@members</code><a class="anchor" aria-label="anchor" href="#members"></a>
 </h3>
 <p>Per-timeframe label vocabulary in the order the calendar uses. This
 fixes deterministic ordering for downstream sorting and plotting.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">cal</span><span class="op">@</span><span class="va">levels</span></span>
+<code class="sourceCode R"><span><span class="va">cal</span><span class="op">@</span><span class="va">members</span></span>
 <span><span class="co">#&gt; $QUARTER</span></span>
 <span><span class="co">#&gt; [1] "Q1" "Q2" "Q3" "Q4"</span></span>
 <span><span class="co">#&gt; </span></span>
@@ -252,7 +255,7 @@ fixes deterministic ordering for downstream sorting and plotting.</p>
 <td>list</td>
 <td><code>list(month=1L, day=1L)</code></td>
 <td>
-<code><a href="../reference/instant_to_timeslice.html">instant_to_timeslice()</a></code> (YDAY/YEAR anchor),
+<code><a href="../reference/datetime_to_timeslice.html">datetime_to_timeslice()</a></code> (YDAY/YEAR anchor),
 <code><a href="../reference/expand_calendar.html">expand_calendar()</a></code> (year window)</td>
 </tr>
 <tr class="even">
@@ -260,7 +263,7 @@ fixes deterministic ordering for downstream sorting and plotting.</p>
 <td>integer</td>
 <td><code>0L</code></td>
 <td>
-<code><a href="../reference/instant_to_timeslice.html">instant_to_timeslice()</a></code>, <code><a href="../reference/expand_calendar.html">expand_calendar()</a></code>
+<code><a href="../reference/datetime_to_timeslice.html">datetime_to_timeslice()</a></code>, <code><a href="../reference/expand_calendar.html">expand_calendar()</a></code>
 (local time = UTC + offset)</td>
 </tr>
 <tr class="odd">
@@ -362,7 +365,7 @@ token.</li>
 </h2>
 <p>The validator on <code>Calendar</code> enforces:</p>
 <ul>
-<li>required columns present in <code>@leaves</code>,</li>
+<li>required columns present in <code>@leaftable</code>,</li>
 <li>
 <code>timeslice</code> unique and non-empty,</li>
 <li>
@@ -397,7 +400,7 @@ value columns — but with the target calendar’s timeslice IDs.</p>
 <span><span class="co">#&gt; 2        Q2 140.0000</span></span>
 <span><span class="co">#&gt; 3        Q3 169.8913</span></span>
 <span><span class="co">#&gt; 4        Q4 200.0000</span></span></code></pre></div>
-<p><code><a href="../reference/instant_to_timeslice.html">instant_to_timeslice()</a></code> is the inverse direction
+<p><code><a href="../reference/datetime_to_timeslice.html">datetime_to_timeslice()</a></code> is the inverse direction
 (datetime → timeslice ID) and returns a character vector of the same
 length as the input, with <code>NA</code> for instants outside the
 calendar’s coverage.</p>
@@ -409,11 +412,11 @@ calendar’s coverage.</p>
 
 
     <footer><div class="pkgdown-footer-left">
-  <p>Developed by Oleg Lugovoy.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.1.</p>
+
 </div>
 
     </footer>

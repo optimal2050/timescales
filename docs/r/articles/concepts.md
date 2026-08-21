@@ -95,13 +95,13 @@ later ydays shift down so Dec 31 is still `d365`), `drop_last`,
 `repeat_last` (clamp to the last label — how week 53 folds into `w52`),
 and `exact` (error). Built-in tokens carry sensible defaults; calendars
 record them in `meta$alignment`, and
-[`instant_to_timeslice()`](https://optimal2050.github.io/timescales/r/reference/instant_to_timeslice.md)
+[`datetime_to_timeslice()`](https://optimal2050.github.io/timescales/r/reference/datetime_to_timeslice.md)
 accepts an override.
 
 ``` r
 
 d365 <- calendar_build("d365")
-instant_to_timeslice(as.Date(c("2020-02-29", "2020-12-31")), d365)
+datetime_to_timeslice(as.Date(c("2020-02-29", "2020-12-31")), d365)
 #> [1] NA     "d365"
 ```
 
@@ -117,7 +117,7 @@ Three constructors, in increasing flexibility:
 
 calendar("m12_h24")                    # layer 1: by name
 calendar_build("m12", "h24")           # layer 2: by token list
-calendar_from_leaves(leaves, ...)      # layer 3: by raw leaf table
+calendar_from_leaftable(leaves, ...)      # layer 3: by raw leaf table
 ```
 
 The first two compose tokens with a Cartesian product; share is the
@@ -130,12 +130,12 @@ intentionally do not cover the full year).
 ``` r
 
 cal <- calendar("q4_h24")
-head(cal@leaves, 3)
+head(cal@leaftable, 3)
 #>   QUARTER HOUR      share weight timeslice
 #> 1      Q1  h00 0.01027397     90    Q1_h00
 #> 2      Q2  h00 0.01038813     91    Q2_h00
 #> 3      Q3  h00 0.01050228     92    Q3_h00
-cat(nrow(cal@leaves), "leaves, share sums to", sum(cal@leaves$share))
+cat(nrow(cal@leaftable), "leaves, share sums to", sum(cal@leaftable$share))
 #> 96 leaves, share sums to 1
 ```
 
@@ -152,7 +152,7 @@ cal_m <- calendar("m12")     # source: monthly
 cal_q <- calendar("q4")      # target: quarterly
 
 monthly <- data.frame(
-  timeslice = cal_m@leaves$timeslice,
+  timeslice = cal_m@leaftable$timeslice,
   load  = c(120, 118, 105,  92,  85,  88,  95, 100,  98,  90, 105, 122)
 )
 
@@ -165,17 +165,45 @@ recast_calendar(monthly, from = cal_m, to = cal_q, year = 2025,
 #> 4        Q4 105.67391
 ```
 
+### The base calendar and the route
+
+Every conversion routes `A -> base -> B` through the **base calendar** —
+the 1:1 datetime grid built by
+[`base_calendar()`](https://optimal2050.github.io/timescales/r/reference/base_calendar.md)
+(one row per hour, day, 15 minutes, … of real time; the data column is
+always `datetime`). Source values are projected *down* to the grid, then
+aggregated *up* to target timeslices, so aggregation and disaggregation
+are one operation. The route is collapsed once into a small crosswalk
+table — `calendar_map(from, to, year)` — and every conversion is then a
+single join-and-aggregate pipeline over it, which is what lets the
+converters run unchanged on a `data.frame`, tibble, `data.table`, or an
+arrow dataset (lazy inputs return uncollected queries).
+
+The two halves of the route are public: `recast_to_timebase(x, cal)`
+takes timeslice-keyed data down to datetime rows,
+`recast_from_timebase(x, cal)` brings datetime rows up into any
+calendar, and
+
+``` r
+
+recast_calendar(x, from, to, year) ==
+  recast_from_timebase(recast_to_timebase(x, from, year), to)
+```
+
+Direct routes between two named calendars can bypass the grid: register
+a function with
+[`register_conversion()`](https://optimal2050.github.io/timescales/r/reference/register_conversion.md)
+or an exact crosswalk table with
+[`register_calendar_map()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_map.md).
+
 ### Aggregation rules
 
-Conversion routes through the **base grid** of real instants: source
-values are projected *down* to instants, then aggregated *up* to target
-timeslices, so aggregation and disaggregation are one operation
-(`RECAST_RULES`):
+The rules (`RECAST_RULES`) define behaviour in both directions:
 
-| Rule | Down (timeslice → instants) | Up (instants → timeslice) |
+| Rule | Down (timeslice → grid) | Up (grid → timeslice) |
 |----|----|----|
 | `weighted_mean` | copy | mean weighted by declared `share` (default) |
-| `sum` | split across grid instants | sum — **totals are conserved** |
+| `sum` | split across grid points | sum — **totals are conserved** |
 | `mean` | copy | plain (time-weighted) mean |
 | `copy` | copy | the common value; error if not constant |
 | `sd` | copy | spread of the fine signal |
@@ -183,12 +211,32 @@ timeslices, so aggregation and disaggregation are one operation
 `weighted_mean` and `mean` differ exactly when a calendar’s declared
 shares differ from its real-time coverage. Per-parameter defaults can be
 registered with
-[`register_rule()`](https://optimal2050.github.io/timescales/r/reference/register_rule.md),
-and a pairwise calendar-to-calendar override with
-[`register_conversion()`](https://optimal2050.github.io/timescales/r/reference/register_conversion.md).
-Instants not covered by one of the calendars are governed by
+[`register_rule()`](https://optimal2050.github.io/timescales/r/reference/register_rule.md).
+Grid points not covered by one of the calendars are governed by
 `na_action = "drop"` (warns), `"error"`, or `"keep"` (an explicit `NA`
 row that conserves totals).
+
+### Attaching calendars to data
+
+`join_calendar(x, cal)` attaches a calendar to a dataset as a
+timeslice-label column **named after the calendar** (`meta$name`), from
+either a `datetime` column (labels computed on the base grid) or an
+existing timeslice column. Because each calendar attaches under its own
+name, several calendars coexist on one dataset — and a dataset carrying
+two label columns is itself a direct crosswalk between those calendars:
+
+``` r
+
+xt <- data.frame(datetime = seq(as.POSIXct("2025-01-01", tz = "UTC"),
+                                by = "hour", length.out = 48))
+xt <- join_calendar(xt, calendar("m12_h24"))
+xt <- join_calendar(xt, calendar("q4_h24"))
+head(xt, 3)
+#>              datetime m12_h24 q4_h24
+#> 1 2025-01-01 00:00:00 m01_h00 Q1_h00
+#> 2 2025-01-01 01:00:00 m01_h01 Q1_h01
+#> 3 2025-01-01 02:00:00 m01_h02 Q1_h02
+```
 
 ### Within-calendar aggregation and the ANNUAL root
 
@@ -201,11 +249,38 @@ accepts a timeframe name for `to=`:
 ``` r
 
 cal <- calendar("q4_h24")
-x <- data.frame(timeslice = cal@leaves$timeslice, energy = 1)
+x <- data.frame(timeslice = cal@leaftable$timeslice, energy = 1)
 recast_calendar(x, cal, to = "ANNUAL", year = 2025, rule = "sum")
 #>   timeslice energy
 #> 1    ANNUAL     96
 ```
+
+## The \*scales naming lattice (glossary)
+
+The sibling packages `timescales` (time) and `geoscales` (space) share
+one vocabulary, locked 2026-08. No surviving word changes meaning
+between the packages; the word “levels” is retired from both.
+
+| term | definition | timescales | geoscales | energyRt |
+|----|----|----|----|----|
+| frame | a named axis of resolution; the ordered frames form the hierarchy, coarsest first, with an implicit root | `@timeframes` | `@geoframes` | `commodity@timeframe` / `@geoframe` |
+| members | the per-frame units — bare ordered labels, unique within their frame (`"h00"`; region codes); the components node IDs are made from | `@members[[tf]]` | `@members[[gf]]` | derived |
+| node ID | identity of a cell at any frame. The ID rule: time COMPOSES (members `_`-joined, coarsest to finest: `"d015_h00"`); space AUTHORS (the member is the ID, in its geoframe) | `leaftable$timeslice` | `leaftable$region` | `@timeframes[[f]]` entries |
+| leaftable | the leaf enumeration: one row per finest node — bare members per frame, plus the leaf ID and weights | `@leaftable` | `@leaftable` | `calendar@timetable` (legacy name; the bridge maps 1:1) |
+| nodes at frame f | the leaf IDs of the object pruned at f ([`prune_calendar()`](https://optimal2050.github.io/timescales/r/reference/prune_calendar.md) / `prune_geoscale()`) | derived | derived | stored (cached view) |
+| share / weight | `share` = fraction of the whole; sums to coverage; aggregates by SUM (universal). Weight conventions are documented side by side; energyRt’s share-weighted-mean parent rule is the solver-facing one | `share`, `weight` columns | named weight columns, share derived | `timeslice_share` |
+| tokens / providers | domain-specific generators (grammar rules / data sources); deliberately separate concepts | token registry | provider registry | — |
+| year-qualified calendar | YEAR as an explicit timeframe (`y2020_m01_h00`). Deferred: year stays an external dimension — the pair `(year, timeslice)` — matching what the solver consumes; `meta$year_qualified` reserves the flag | flag only | — | year = model dimension |
+
+The route halves are named per domain:
+[`recast_to_timebase()`](https://optimal2050.github.io/timescales/r/reference/recast_to_timebase.md)
+/
+[`recast_from_timebase()`](https://optimal2050.github.io/timescales/r/reference/recast_to_timebase.md)
+route through the base datetime grid; `recast_to_geoatoms()` /
+`recast_from_geoatoms()` route through the atom layer. Both compose into
+their package’s fused `recast_*()` verb, and both packages resolve
+aggregation rules the same way: explicit `rule=`, then the registry,
+then an error — never a silent fallback.
 
 ## Design boundaries
 

@@ -7,6 +7,12 @@ destination: docs/r
 template:
   bootstrap: 5
   light-switch: true
+  # Twin-site theming: the siblings share structure and typography and
+  # differ by one hue -- timescales #31688E (viridis blue, time),
+  # geoscales #1F9E89 (viridis teal-green, space).
+  bslib:
+    primary: "#31688E"
+    link-color: "#31688E"
 
 # Pinned rather than `auto`: with `auto`, the first released version silently
 # switches pkgdown to devel mode and relocates the whole site into `r/dev/`.
@@ -14,12 +20,33 @@ development:
   mode: unreleased
   version_label: danger
 
+# Convention: figures are built on a SOLID background -- transparent PNGs
+# are illegible in the site's dark mode.
+figures:
+  bg: "white"
+
+# Home sidebar without the "Developers" box (citation covers attribution);
+# footer without "Developed by ..." (built_with only).
+home:
+  sidebar:
+    structure: [links, license, community, citation, dev]
+
+footer:
+  structure:
+    left: built_with
+    right: blank
+  components:
+    blank: ""
+
+navbar:
+  bg: primary
+
 reference:
   - title: "Calendars"
     desc: "Construct and inspect Calendar objects."
     contents:
       - Calendar
-      - calendar_from_leaves
+      - calendar_from_leaftable
       - calendar_build
       - prune_calendar
   - title: "Navigation and subsetting"
@@ -48,11 +75,14 @@ reference:
   - title: "Conversions"
     desc: "Move data between datetimes and calendars, and between calendars."
     contents:
-      - instant_to_timeslice
-      - instant_to_slice
+      - datetime_to_timeslice
       - expand_calendar
       - recast_calendar
       - recast
+      - recast_to_timebase
+      - calendar_map
+      - register_calendar_map
+      - clear_calendar_maps
       - join_calendar
       - base_calendar
   - title: "Visualization"
@@ -61,7 +91,11 @@ reference:
       - calendar_layout
       - calendar_autoplot
       - calendar_plot
+      - calendar_wall_plot
+      - calendar_wall_layout
+      - calendar_weekdays
       - geom_calendar
+      - calendar_breaks
   - title: "Rules and registries"
     desc: "Aggregation and alignment semantics, and their registries."
     contents:
@@ -79,14 +113,21 @@ reference:
     contents:
       - timescales-package
 
+# Old article URLs kept alive: weather-data merged into visualization,
+# getting-started renamed to the package-named intro (2026-08).
+redirects:
+  - ["articles/weather-data.html", "articles/visualization.html"]
+  - ["articles/getting-started.html", "articles/timescales.html"]
+
+# The intro (vignettes/timescales.Rmd) surfaces as the top-level
+# "Get started" navbar item; everything else sits DIRECTLY in the
+# Articles dropdown (`navbar: ~` = no "More articles..." detour).
 articles:
-  - title: "Get started"
-    navbar: ~
-    contents:
-      - getting-started
   - title: "Reference"
+    navbar: ~
     contents:
       - concepts
       - data-structures
+      - data-manipulation
       - calendars
-      - weather-data
+      - visualization

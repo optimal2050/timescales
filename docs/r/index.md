@@ -21,23 +21,22 @@ This is a **multi-language** project. The R package is the current focus
 
 ## Status
 
-🚧 Pre-release — APIs are unstable. Repository is private until first
-pre-release.
+🚧 In development — pre-1.0, APIs may still change between minor
+versions. Feedback and issues are welcome.
 
 ## Installation
 
 ``` r
 
-# From GitHub (private during pre-release; requires access)
-# remotes::install_github("optimal2050/timescales")
+# From GitHub
+remotes::install_github("optimal2050/timescales")
 ```
 
-After pre-release, also via
-[r-universe](https://optimal2050.r-universe.dev/):
+Or via [r-universe](https://optimal2050.r-universe.dev/):
 
 ``` r
 
-# install.packages("timescales", repos = "https://optimal2050.r-universe.dev")
+install.packages("timescales", repos = "https://optimal2050.r-universe.dev")
 ```
 
 ## Repository layout
