@@ -76,6 +76,77 @@
 <p><code>timescales</code> is the <strong>time-domain</strong> package of the optimal2050 modeling stack and the successor to <a href="https://github.com/optimal2050/timeslices" class="external-link"><code>timeslices</code></a>. Its companion package <a href="https://github.com/optimal2050/geoscales" class="external-link"><code>geoscales</code></a> covers the spatial dimension.</p>
 <p>This is a <strong>multi-language</strong> project. The R package is the current focus (Phase 1); a C++ core (Phase 2) and a Python port (Phase 3) are planned.</p>
 <div class="section level2">
+<h2 id="quick-demo">Quick demo<a class="anchor" aria-label="anchor" href="#quick-demo"></a>
+</h2>
+<p>A <strong>Calendar</strong> is a named slicing of the year — 43 curated designs ship pre-built in the <code>calendars</code> catalog, from <code>d365_h24</code> down to typical-period compressions and April-anchored fiscal years (<code>calendar("m12")</code> builds any of them fresh). Inside: one leaftable row per timeslice, with duration-proportional shares:</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://optimal2050.github.io/timescales/r/">timescales</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">cal</span> <span class="op">&lt;-</span> <span class="va">calendars</span><span class="op">$</span><span class="va">m12</span></span>
+<span><span class="va">cal</span></span>
+<span><span class="co">#&gt; Calendar: m12 </span></span>
+<span><span class="co">#&gt; Timeframes (1):</span></span>
+<span><span class="co">#&gt;   - MONTH (12) [token: m12]</span></span>
+<span><span class="co">#&gt; Leaf timeslices: 12</span></span>
+<span><span class="co">#&gt; year_fraction: 1</span></span>
+<span><span class="co">#&gt; year_start: month=1, day=1</span></span>
+<span><span class="co">#&gt; utc_offset_minutes: 0</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">cal</span><span class="op">@</span><span class="va">leaftable</span>, <span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   MONTH      share weight timeslice</span></span>
+<span><span class="co">#&gt; 1   m01 0.08493151    744       m01</span></span>
+<span><span class="co">#&gt; 2   m02 0.07671233    672       m02</span></span>
+<span><span class="co">#&gt; 3   m03 0.08493151    744       m03</span></span></code></pre></div>
+<p>Key your data by its timeslices and the calendar decorates the table — <code><a href="reference/join_calendar.html">join_calendar()</a></code> attaches the label and share/weight columns under the calendar’s own name:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">monthly</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>  timeslice <span class="op">=</span> <span class="va">cal</span><span class="op">@</span><span class="va">leaftable</span><span class="op">$</span><span class="va">timeslice</span>,</span>
+<span>  load <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">120</span>, <span class="fl">118</span>, <span class="fl">105</span>, <span class="fl">92</span>, <span class="fl">85</span>, <span class="fl">88</span>, <span class="fl">95</span>, <span class="fl">100</span>, <span class="fl">98</span>, <span class="fl">90</span>, <span class="fl">105</span>, <span class="fl">122</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">monthly</span> <span class="op">|&gt;</span> <span class="fu"><a href="reference/join_calendar.html">join_calendar</a></span><span class="op">(</span><span class="va">cal</span>, meta <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">3</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   timeslice load m12  m12.share m12.weight</span></span>
+<span><span class="co">#&gt; 1       m01  120 m01 0.08493151        744</span></span>
+<span><span class="co">#&gt; 2       m02  118 m02 0.07671233        672</span></span>
+<span><span class="co">#&gt; 3       m03  105 m03 0.08493151        744</span></span></code></pre></div>
+<p>Converting between two calendars is one verb, with one rule per value column and conserved totals:</p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">monthly</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="reference/recast_calendar.html">recast_calendar</a></span><span class="op">(</span>from <span class="op">=</span> <span class="va">cal</span>, to <span class="op">=</span> <span class="fu"><a href="reference/calendar_build.html">calendar</a></span><span class="op">(</span><span class="st">"q4"</span><span class="op">)</span>,</span>
+<span>                  year <span class="op">=</span> <span class="fl">2025</span>, rule <span class="op">=</span> <span class="st">"weighted_mean"</span>, by <span class="op">=</span> <span class="st">"day"</span><span class="op">)</span></span>
+<span><span class="co">#&gt;   timeslice      load</span></span>
+<span><span class="co">#&gt; 1        Q1 114.21111</span></span>
+<span><span class="co">#&gt; 2        Q2  88.29670</span></span>
+<span><span class="co">#&gt; 3        Q3  97.66304</span></span>
+<span><span class="co">#&gt; 4        Q4 105.67391</span></span></code></pre></div>
+<p>Datetime data lands on a calendar as one ggplot2 layer (<code><a href="reference/geom_calendar.html">geom_calendar()</a></code>), and the same day-level story draws as a wall calendar:</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
+<span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>  t <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.POSIXlt.html" class="external-link">as.POSIXct</a></span><span class="op">(</span><span class="st">"2021-01-01"</span>, tz <span class="op">=</span> <span class="st">"UTC"</span><span class="op">)</span> <span class="op">+</span> <span class="fl">3600</span> <span class="op">*</span> <span class="op">(</span><span class="fl">0</span><span class="op">:</span><span class="fl">8759</span><span class="op">)</span>,</span>
+<span>  v <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">sin</a></span><span class="op">(</span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">8760</span><span class="op">)</span> <span class="op">/</span> <span class="fl">1394</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">sin</a></span><span class="op">(</span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">8760</span><span class="op">)</span> <span class="op"><a href="https://rdrr.io/r/base/Arithmetic.html" class="external-link">%%</a></span> <span class="fl">24</span> <span class="op">/</span> <span class="fl">3.8</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="reference/geom_calendar.html">geom_calendar</a></span><span class="op">(</span>calendar <span class="op">=</span> <span class="va">calendars</span><span class="op">$</span><span class="va">d365_h24</span>, datetime <span class="op">=</span> <span class="st">"t"</span>, z <span class="op">=</span> <span class="st">"v"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_viridis.html" class="external-link">scale_fill_viridis_c</a></span><span class="op">(</span>option <span class="op">=</span> <span class="st">"H"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_discrete.html" class="external-link">scale_x_discrete</a></span><span class="op">(</span>breaks <span class="op">=</span> <span class="fu"><a href="reference/calendar_breaks.html">calendar_breaks</a></span><span class="op">(</span><span class="fl">10</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_discrete.html" class="external-link">scale_y_discrete</a></span><span class="op">(</span>breaks <span class="op">=</span> <span class="fu"><a href="reference/calendar_breaks.html">calendar_breaks</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>x <span class="op">=</span> <span class="st">"day of year"</span>, y <span class="op">=</span> <span class="st">"hour"</span>, fill <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>       title <span class="op">=</span> <span class="st">"A year of hourly data on the d365_h24 calendar"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="reference/geom_calendar.html">theme_calendar</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p><img src="reference/figures/README-demo-heatmap-1.png" alt="" width="100%"></p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">42</span><span class="op">)</span></span>
+<span><span class="va">daily</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span>
+<span>  timeslice <span class="op">=</span> <span class="va">calendars</span><span class="op">$</span><span class="va">m12_md365</span><span class="op">@</span><span class="va">leaftable</span><span class="op">$</span><span class="va">timeslice</span>,</span>
+<span>  v <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/cumsum.html" class="external-link">cumsum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">365</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="fu"><a href="reference/calendar_wall_plot.html">calendar_wall_plot</a></span><span class="op">(</span><span class="fu"><a href="reference/calendar_build.html">calendar</a></span><span class="op">(</span><span class="st">"m12_md365"</span><span class="op">)</span>, <span class="va">daily</span>, z <span class="op">=</span> <span class="st">"v"</span>, year <span class="op">=</span> <span class="fl">2021</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_viridis.html" class="external-link">scale_fill_viridis_c</a></span><span class="op">(</span>option <span class="op">=</span> <span class="st">"G"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>fill <span class="op">=</span> <span class="cn">NULL</span>, title <span class="op">=</span> <span class="st">"The same year as a wall calendar"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="reference/figures/README-demo-wall-1.png" alt="" width="100%"></p>
+<p>See <code><a href="articles/timescales.html">vignette("timescales")</a></code> for the 5-minute tour, and the <a href="https://optimal2050.github.io/timescales/r/articles/visualization.html">visualization article</a> for heatmaps, profiles, ribbons, and duration curves on real weather data.</p>
+</div>
+<div class="section level2">
 <h2 id="documentation">Documentation<a class="anchor" aria-label="anchor" href="#documentation"></a>
 </h2>
 <ul>
@@ -92,26 +163,26 @@
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># From GitHub</span></span>
 <span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"optimal2050/timescales"</span><span class="op">)</span></span></code></pre></div>
 <p>Or via <a href="https://optimal2050.r-universe.dev/" class="external-link">r-universe</a>:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"timescales"</span>, repos <span class="op">=</span> <span class="st">"https://optimal2050.r-universe.dev"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="repository-layout">Repository layout<a class="anchor" aria-label="anchor" href="#repository-layout"></a>
 </h2>
-<pre><code>timescales/
-├── DESCRIPTION, NAMESPACE, R/, man/, tests/, vignettes/   # R package (root)
-├── inst/include/timescales/                               # C++ headers (Phase 2)
-├── src/                                                   # Rcpp glue (Phase 2)
-├── cpp/                                                   # standalone C++ core (Phase 2)
-├── python/                                                # Python package (Phase 3)
-├── docs/                                                  # unified Quarto site
-├── specs/                                                 # cross-language golden tests
-├── benchmark/                                             # cross-language benchmarks
-└── .github/workflows/                                     # CI</code></pre>
+<div class="sourceCode" id="cb8"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>timescales<span class="sc">/</span></span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>├── DESCRIPTION, NAMESPACE, R<span class="sc">/</span>, man<span class="sc">/</span>, tests<span class="sc">/</span>, vignettes<span class="sc">/</span>   <span class="co"># R package (root)</span></span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>├── inst<span class="sc">/</span>include<span class="sc">/</span>timescales<span class="sc">/</span>                               <span class="co"># C++ headers (Phase 2)</span></span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>├── src<span class="sc">/</span>                                                   <span class="co"># Rcpp glue (Phase 2)</span></span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>├── cpp<span class="sc">/</span>                                                   <span class="co"># standalone C++ core (Phase 2)</span></span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a>├── python<span class="sc">/</span>                                                <span class="co"># Python package (Phase 3)</span></span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>├── docs<span class="sc">/</span>                                                  <span class="co"># unified Quarto site</span></span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a>├── specs<span class="sc">/</span>                                                 <span class="co"># cross-language golden tests</span></span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a>├── benchmark<span class="sc">/</span>                                             <span class="co"># cross-language benchmarks</span></span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a>└── .github<span class="sc">/</span>workflows<span class="sc">/</span>                                     <span class="co"># CI</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="license">License<a class="anchor" aria-label="anchor" href="#license"></a>

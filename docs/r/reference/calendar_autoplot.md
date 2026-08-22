@@ -2,9 +2,10 @@
 
 One horizontal band per timeframe (`ANNUAL` root on top, coarsest
 first), rectangle widths proportional to timeslice shares, x spanning
-the covered year on `[0, 1]`. `autoplot()` and
-[`plot()`](https://rdrr.io/r/graphics/plot.default.html) on a Calendar
-dispatch here.
+the covered year on `[0, 1]`.
+[`autoplot()`](https://ggplot2.tidyverse.org/reference/autoplot.html)
+and [`plot()`](https://rdrr.io/r/graphics/plot.default.html) on a
+Calendar dispatch here.
 
 ## Usage
 
