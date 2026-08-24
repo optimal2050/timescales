@@ -82,6 +82,8 @@ reference:
       - recast_to_timebase
       - calendar_map
       - register_calendar_map
+      - get_calendar_map
+      - list_calendar_maps
       - clear_calendar_maps
       - join_calendar
       - base_calendar

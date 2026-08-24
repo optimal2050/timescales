@@ -2,7 +2,7 @@
 <!-- README.md is generated from README.Rmd. Edit THIS file, then knit:
      devtools::build_readme()  (or knitr::knit("README.Rmd"))          -->
 
-# timescales
+# timescales <a href="https://optimal2050.github.io/timescales/r/"><img src="man/figures/logo.png" align="right" height="136" alt="timescales website" /></a>
 
 <!-- badges: start -->
 
@@ -16,11 +16,61 @@ experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](h
 > Nested timeframes and calendars for optimization and simulation
 > models.
 
+One `Calendar`, three resolutions of the same year: Reykjavik’s hourly
+wind (NASA MERRA-2, 2019) on the `m12_h24` calendar — the annual mean on
+top, months in the middle, the full month-by-hour texture at the bottom,
+every plane on one shared wind-speed scale. Its spatial twin — Iceland’s
+wind resource on the map — opens the [geoscales
+README](https://github.com/optimal2050/geoscales).
+
+``` r
+library(timescales)
+library(dplyr, warn.conflicts = FALSE)
+
+cal  <- calendars$m12_h24
+wind <- merra2_cities |>
+  filter(city == "Reykjavik") |>
+  mutate(timeslice = datetime_to_timeslice(datetime, cal)) |>
+  summarise(W50M = mean(W50M), .by = timeslice)
+
+calendar_autoplot(cal, type = "stack",
+                  data = wind, z = "W50M",
+                  rule = "weighted_mean", year = 2019,
+                  labels = "MONTH",
+                  colour = c("grey35", "grey35", NA),  # no borders on the
+                  frame = TRUE,                        # dense HOUR plane
+                  frame_fill = ggplot2::alpha("#6FA8DC", 0.15)) +
+  energypal::scale_fill_energy_b(limits = c(3.5, 10)) +
+  ggplot2::labs(fill = "m/s at 50m")
+```
+
+<img src="man/figures/README-hero-reykjavik-wind-1.png" alt="" width="100%" />
+
+*Weather data: NASA MERRA-2 reanalysis (Global Modeling and Assimilation
+Office) — public domain; extracted with
+[merra2ools](https://github.com/optimal2050/merra2ools).*
+
+## What timescales offers
+
 `timescales` is the **time-domain** package of the optimal2050 modeling
-stack and the successor to
-[`timeslices`](https://github.com/optimal2050/timeslices). Its companion
-package [`geoscales`](https://github.com/optimal2050/geoscales) covers
-the spatial dimension.
+stack (its spatial companion is
+[`geoscales`](https://github.com/optimal2050/geoscales)):
+
+- **Organize model data in nested time structures** — a `Calendar` is
+  ordered timeframes, their members, and one leaftable row per timeslice
+  with duration-proportional shares.
+- **Reshape between calendars** — recast up or down with explicit rules
+  and conserved totals; joins decorate your tables instead of replacing
+  them.
+- **Your tables stay tables** — data.frame, tibble, or data.table in,
+  the same class out; dtplyr/arrow queries stay lazy. Keep the data in
+  csv, R data files, or arrow/parquet — the package never owns a storage
+  format.
+- **Flexible model design** — pick the timeframes a model run needs;
+  prune and filter partial-year subsets; representative typical-period
+  designs ship in the 43-calendar catalog.
+- **See every level** — calendar heatmaps, wall calendars, icicles, and
+  axonometric stacks, all data-aware and multi-level.
 
 This is a **multi-language** project. The R package is the current focus
 (Phase 1); a C++ core (Phase 2) and a Python port (Phase 3) are planned.
@@ -84,39 +134,49 @@ monthly |>
 ```
 
 Datetime data lands on a calendar as one ggplot2 layer
-(`geom_calendar()`), and the same day-level story draws as a wall
-calendar:
+(`geom_calendar()`) — here Reykjavik’s wind year at full hourly
+resolution — and the same weather draws as a wall calendar:
 
 ``` r
 library(ggplot2)
-x <- data.frame(
-  t = as.POSIXct("2021-01-01", tz = "UTC") + 3600 * (0:8759),
-  v = sin((1:8760) / 1394) + sin((1:8760) %% 24 / 3.8)
-)
-ggplot(x) +
-  geom_calendar(calendar = calendars$d365_h24, datetime = "t", z = "v") +
-  scale_fill_viridis_c(option = "H") +
+rey <- merra2_cities |> filter(city == "Reykjavik")
+
+ggplot(rey) +
+  geom_calendar(calendar = calendars$d365_h24,
+                datetime = "datetime", z = "W50M") +
+  scale_fill_viridis_c(option = "G") +
   scale_x_discrete(breaks = calendar_breaks(10)) +
   scale_y_discrete(breaks = calendar_breaks()) +
-  labs(x = "day of year", y = "hour", fill = NULL,
-       title = "A year of hourly data on the d365_h24 calendar") +
+  labs(x = "day of year", y = "hour", fill = "m/s",
+       title = "Reykjavik wind on the d365_h24 calendar") +
   theme_calendar()
 ```
 
 <img src="man/figures/README-demo-heatmap-1.png" alt="" width="100%" />
 
 ``` r
-set.seed(42)
-daily <- data.frame(
-  timeslice = calendars$m12_md365@leaftable$timeslice,
-  v = cumsum(rnorm(365))
-)
-calendar_wall_plot(calendar("m12_md365"), daily, z = "v", year = 2021) +
-  scale_fill_viridis_c(option = "G") +
-  labs(fill = NULL, title = "The same year as a wall calendar")
+calendar_wall_plot(calendar("m12_md365"), rey, z = "T10M", year = 2019) +
+  scale_fill_viridis_c(option = "C") +
+  labs(fill = "degC", title = "Reykjavik temperature as a wall calendar")
 ```
 
 <img src="man/figures/README-demo-wall-1.png" alt="" width="100%" />
+
+And the structure figures carry data too: the icicle fills every band
+with the value recast to that band’s resolution — the same recast
+machinery that converts your model tables:
+
+``` r
+wind <- rey |>
+  mutate(timeslice = datetime_to_timeslice(datetime, calendars$m12_h24)) |>
+  summarise(W50M = mean(W50M), .by = timeslice)
+
+calendar_autoplot(calendars$m12_h24, data = wind, z = "W50M",
+                  rule = "weighted_mean", year = 2019) +
+  labs(fill = "m/s")
+```
+
+<img src="man/figures/README-demo-icicle-data-1.png" alt="" width="100%" />
 
 See `vignette("timescales")` for the 5-minute tour, and the
 [visualization

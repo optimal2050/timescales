@@ -117,3 +117,114 @@ test_that("calendar_plot validates inputs", {
   )
   expect_error(calendar_plot(cal, x_tf = "HOUR"), "not timeframes")
 })
+
+test_that("the stack view returns a ggplot with one plane per timeframe", {
+  skip_if_not_installed("ggplot2")
+  p <- calendar_autoplot(calendar("s4_hp3"), type = "stack")
+  expect_s3_class(p, "ggplot")
+  # ANNUAL + SEASON + HOURTYPE planes; 1 + 4 + 12 segments
+  expect_equal(length(unique(p$data$tf)), 3L)
+  expect_equal(length(unique(p$data$id)), 1L + 4L + 12L)
+  # annual = FALSE drops the root plane
+  p2 <- calendar_autoplot(calendar("s4_hp3"), type = "stack",
+                          annual = FALSE)
+  expect_equal(length(unique(p2$data$tf)), 2L)
+})
+
+test_that("stack views, rotation and direction all render", {
+  skip_if_not_installed("ggplot2")
+  cal <- calendar("s4_hp3")
+  for (vw in c("top-down", "cabinet", "military", "isometric",
+               "perspective")) {
+    expect_s3_class(calendar_autoplot(cal, type = "stack", view = vw),
+                    "ggplot")
+  }
+  p <- calendar_autoplot(cal, type = "stack", angle = 30, ratio = 0.4,
+                         rotate = 15, direction = "down")
+  expect_s3_class(p, "ggplot")
+  # painter order: rows sorted by plane height (lower planes first)
+  expect_true(!is.unsorted(p$data$z))
+})
+
+test_that("stack frames, connectors and border styling render", {
+  skip_if_not_installed("ggplot2")
+  cal <- calendar("s4_hp3")
+  base_n <- length(ggplot2::ggplot_build(
+    calendar_autoplot(cal, type = "stack"))$plot$layers)
+  # frame = one polygon per plane; connectors = one segment layer
+  p <- calendar_autoplot(cal, type = "stack", frame = TRUE,
+                         connectors = TRUE)
+  expect_equal(length(ggplot2::ggplot_build(p)$plot$layers),
+               base_n + 3 + 1)
+  # per-plane border colours land on the polygon layers
+  p2 <- calendar_autoplot(cal, type = "stack",
+                          colour = c("grey20", "red", "white"))
+  cols <- unlist(lapply(p2$layers, function(l) l$aes_params$colour))
+  expect_true(all(c("grey20", "red", "white") %in% cols))
+  expect_s3_class(calendar_autoplot(cal, type = "stack",
+                                    frame = "steelblue"), "ggplot")
+  # frame_fill alone activates the sheets
+  p3 <- calendar_autoplot(cal, type = "stack", frame_fill = "#6FA8DC26")
+  expect_equal(length(ggplot2::ggplot_build(p3)$plot$layers), base_n + 3)
+})
+
+test_that("stack value fill recasts data onto every plane", {
+  skip_if_not_installed("ggplot2")
+  cal <- calendar("s4_hp3")
+  ts <- calendar_timeslices(cal, "HOURTYPE", qualified = TRUE)
+  x <- data.frame(timeslice = ts, v = 1)    # one unit per leaf timeslice
+  p <- calendar_autoplot(cal, type = "stack", data = x, z = "v",
+                         rule = "sum", year = 2019)
+  expect_s3_class(p, "ggplot")
+  d <- p$data
+  expect_true(all(is.finite(d$.z)))
+  # the ANNUAL plane carries the conserved total (12 leaves x 1)
+  expect_equal(unique(d$.z[d$tf == "ANNUAL"]), 12)
+  # the SEASON planes split it 3 hourtypes each
+  seas <- unique(d[d$tf == "SEASON", c("timeslice", ".z")])
+  expect_equal(sum(seas$.z), 12)
+  expect_true(all(seas$.z == 3))
+  # errors are explicit
+  expect_error(calendar_autoplot(cal, type = "stack", data = x,
+                                 rule = "sum", year = 2019),
+               "`z` must name")
+  expect_error(calendar_autoplot(cal, type = "stack", data = x, z = "v",
+                                 rule = "sum"),
+               "needs `year =`")
+})
+
+test_that("stack labels draw member names of chosen timeframes", {
+  skip_if_not_installed("ggplot2")
+  cal <- calendar("s4_hp3")
+  p <- calendar_autoplot(cal, type = "stack", labels = "SEASON")
+  lyrs <- ggplot2::ggplot_build(p)$plot$layers
+  txt <- NULL
+  for (l in lyrs) if (".label" %in% names(l$data)) txt <- l$data
+  expect_setequal(txt$.label, c("WIN", "SPR", "SUM", "FAL"))
+  expect_error(calendar_autoplot(cal, type = "stack", labels = "nope"),
+               "unknown")
+})
+
+test_that("stack palette = NULL leaves the fill scale to the caller", {
+  skip_if_not_installed("ggplot2")
+  cal <- calendar("s4_hp3")
+  p <- calendar_autoplot(cal, type = "stack", palette = NULL)
+  expect_length(p$scales$scales, 0)
+  p2 <- calendar_autoplot(cal, type = "stack")
+  expect_length(p2$scales$scales, 1)
+})
+
+test_that("icicle data fill recasts values onto every band", {
+  skip_if_not_installed("ggplot2")
+  cal <- calendar("s4_hp3")
+  ts <- calendar_timeslices(cal, "HOURTYPE", qualified = TRUE)
+  x <- data.frame(timeslice = ts, v = 1)
+  p <- calendar_autoplot(cal, data = x, z = "v", rule = "sum", year = 2019)
+  expect_s3_class(p, "ggplot")
+  d <- p$data
+  expect_true(all(is.finite(d$.fill)))
+  expect_equal(d$.fill[d$timeframe == "ANNUAL"], 12)
+  expect_equal(sum(d$.fill[d$timeframe == "SEASON"]), 12)
+  expect_error(calendar_autoplot(cal, data = x, z = "v", rule = "sum"),
+               "needs `year =`")
+})

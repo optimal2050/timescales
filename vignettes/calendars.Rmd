@@ -263,6 +263,21 @@ library(ggplot2)
 autoplot(calendars$d365_h24, max_segments = 1000)
 ```
 
+The same figure carries data: pass `data =`/`z =` and every band fills
+with the value recast to that band's resolution — here a year of
+Reykjavik wind, from the annual mean down to the month × hour grid:
+
+```{r icicle-data, fig.width = 8, fig.height = 2.6, eval = gg}
+wind <- merra2_cities |>
+  filter(city == "Reykjavik") |>
+  mutate(timeslice = datetime_to_timeslice(datetime, calendars$m12_h24)) |>
+  summarise(W50M = mean(W50M), .by = timeslice)
+
+autoplot(calendars$m12_h24, data = wind, z = "W50M",
+         rule = "weighted_mean", year = 2019) +
+  labs(fill = "m/s")
+```
+
 The geometry itself is available without ggplot2 via `calendar_layout()`
 — a plain `data.frame` of rectangles, usable from any plotting system:
 

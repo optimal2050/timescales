@@ -191,6 +191,28 @@ irr |>
 irr |> summarise(SWGDN = sum(SWGDN), .by = city)
 ```
 
+## One resource, three calendars
+
+Model design is choosing a resolution. The same Reykjavik wind year on
+three calendars of decreasing size — the full month × hour grid, one
+representative day per quarter, and four seasons × three hour-types —
+shows exactly what each compression keeps. (The spatial twin of this
+figure — one wind resource at three map resolutions — lives in the
+[geoscales visualization
+article](https://optimal2050.github.io/geoscales/r/articles/visualization.html).)
+
+```{r scales-trio, fig.width = 7, fig.height = 2.8, eval = viz}
+rey <- merra2_cities |> filter(city == "Reykjavik")
+for (id in c("m12_h24", "q4_h24", "s4_hp3")) {
+  cal_i <- calendars[[id]]
+  w <- rey |>
+    mutate(timeslice = datetime_to_timeslice(datetime, cal_i)) |>
+    summarise(W50M = mean(W50M), .by = timeslice)
+  print(calendar_plot(cal_i, w, palette = "G") +
+          labs(title = paste("Reykjavik wind on", id), fill = "m/s"))
+}
+```
+
 ## Profiles: lines over timeslices
 
 Because timeslices come back as ordered factors, line plots need only
@@ -290,6 +312,42 @@ Their shared geometry is available without ggplot2 via
 `calendar_layout()`; the wall form's frames come from
 `calendar_wall_layout()` and `calendar_weekdays()` — all plain data
 frames, ready for whatever figure this vignette did not anticipate.
+
+## The stack view
+
+`type = "stack"` draws the same structure axonometrically — one plane
+per timeframe, `ANNUAL` on top, each plane segmented at the true
+duration shares. Points of view come as presets (`view =` `"oblique"`,
+`"top-down"`, `"cavalier"`, `"cabinet"`, `"military"`, `"isometric"`,
+`"dimetric"`, `"trimetric"`, `"perspective"`), with `rotate =` and
+`direction =` to turn and flip the stack; `frame =` draws each plane's
+sheet, `frame_fill =` tints it like glass, and `connectors =` adds the
+corner guides that keep the projection readable:
+
+```{r stack-structure, fig.width = 7, fig.height = 4, eval = viz}
+calendar_autoplot(calendars$s4_hp3, type = "stack",
+                  frame = TRUE, connectors = TRUE,
+                  frame_fill = alpha("grey60", 0.12))
+```
+
+The stack also takes data. `data`/`z` hand a timeslice-keyed value to
+the plot, and every plane receives it recast to its own timeframe
+(`rule =` and `year =` are the `recast_calendar()` arguments; the base
+grid is hourly by default), so the whole stack shares one continuous
+scale — the annual mean on top, the finest resolution at the bottom.
+`labels =` names timeframes whose member names are written on the
+plane, and `palette = NULL` lets you attach your own fill scale:
+
+```{r stack-data, fig.width = 7, fig.height = 4, eval = viz}
+calendar_autoplot(cal, type = "stack",
+                  data = hel_timeslices, z = "T10M",
+                  rule = "weighted_mean", year = 2019,
+                  labels = "MONTH",
+                  colour = c("grey35", "grey35", NA),  # no borders on the
+                  frame = TRUE,                        # dense HOUR plane
+                  frame_fill = alpha("grey60", 0.10)) +
+  labs(fill = "degC")
+```
 
 ## Fiscal figures
 

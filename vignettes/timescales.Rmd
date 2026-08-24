@@ -110,7 +110,8 @@ converting it.
 ### 5. Visualize
 
 Every figure tier works through normal ggplot2 — a heatmap layer here;
-wall calendars, profiles, and duration curves in
+wall calendars, profiles, duration curves, and the data-filled
+structure figures (icicles and stacks take `data =`/`z =`) in
 `vignette("visualization")`:
 
 ```{r, fig.width = 7, fig.height = 3, eval = requireNamespace("ggplot2", quietly = TRUE)}

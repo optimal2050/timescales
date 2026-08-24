@@ -139,6 +139,13 @@ calendar_map <- function(from, to, year, by = NULL, tz = "UTC") {
 #'   `n_overlap` and `w`. `NULL` removes a previously registered map.
 #'
 #' @return Invisibly, the registry key (`"from->to"`).
+#'
+#' @examples
+#' m12 <- calendar_map(calendar("m12"), calendar("q4"), year = 2021)
+#' register_calendar_map("m12", "q4", m12)
+#' get_calendar_map("m12", "q4")
+#' list_calendar_maps()
+#' register_calendar_map("m12", "q4", NULL)   # remove again
 #' @export
 register_calendar_map <- function(from, to, map) {
   nm_of <- function(z, arg) {
@@ -176,6 +183,47 @@ register_calendar_map <- function(from, to, map) {
   get(key, envir = .MAP_REGISTRY, inherits = FALSE)
 }
 
+#' Look up one registered crosswalk
+#'
+#' Returns the map registered with [`register_calendar_map()`] for the
+#' pair, or `NULL` when none is registered (mirrors
+#' `geoscales::get_geo_map()`).
+#'
+#' @inheritParams register_calendar_map
+#' @return The registered `data.frame`, or `NULL`.
+#' @export
+#'
+#' @examples
+#' get_calendar_map("m12", "q4")   # NULL unless registered
+get_calendar_map <- function(from, to) {
+  nm_of <- function(z, arg) {
+    if (is.character(z) && length(z) == 1L && nzchar(z)) return(z)
+    .check_calendar(z, arg)
+    .calendar_name(z, arg = arg)
+  }
+  .get_calendar_map(nm_of(from, "from"), nm_of(to, "to"))
+}
+
+#' List the registered crosswalks
+#'
+#' @return A `data.frame` with one row per registered map: `key`
+#'   (`"from->to"`), `from`, `to`. Zero rows when none are registered
+#'   (mirrors `geoscales::list_geo_maps()`).
+#' @export
+#'
+#' @examples
+#' list_calendar_maps()
+list_calendar_maps <- function() {
+  keys <- sort(ls(envir = .MAP_REGISTRY, all.names = TRUE))
+  parts <- strsplit(keys, "->", fixed = TRUE)
+  data.frame(
+    key  = keys,
+    from = vapply(parts, `[`, "", 1),
+    to   = vapply(parts, `[`, "", 2),
+    stringsAsFactors = FALSE
+  )
+}
+
 #' Clear the crosswalk cache (and optionally the registered maps)
 #'
 #' Mainly useful in tests, or after mutating a Calendar object in place
@@ -185,6 +233,10 @@ register_calendar_map <- function(from, to, map) {
 #'   [`register_calendar_map()`]. Default `FALSE`.
 #' @return Invisibly `NULL`.
 #' @export
+#'
+#' @examples
+#' clear_calendar_maps()                 # drop the memo cache only
+#' clear_calendar_maps(registry = TRUE)  # ... and the registered maps
 clear_calendar_maps <- function(registry = FALSE) {
   rm(list = ls(envir = .MAP_CACHE, all.names = TRUE), envir = .MAP_CACHE)
   if (isTRUE(registry)) {

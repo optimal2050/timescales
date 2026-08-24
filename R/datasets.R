@@ -28,32 +28,43 @@
 #' )
 "calendars"
 
-#' Hourly weather sample: three cities, year 2019
+#' Hourly weather sample: twelve cities, year 2019
 #'
-#' NASA MERRA-2 reanalysis extracted for Helsinki, Lima, and Sydney — a
-#' high-latitude / equatorial / southern-hemisphere contrast, used by the
-#' visualization vignette (`vignette("visualization")`) to demonstrate
-#' mapping datetimes onto calendars, calendar heatmaps and wall
-#' calendars, profiles/ribbons/duration curves, and recasting across
-#' resolutions.
+#' NASA MERRA-2 reanalysis extracted for twelve cities across every
+#' populated continent and both hemispheres: Beijing, Cape Town, Dakar,
+#' Delhi, Helsinki, Honolulu, Jakarta, Lima, Lisbon, Reykjavik, Sydney,
+#' and Tokyo. Used by the README and the visualization vignette
+#' (`vignette("visualization")`) to demonstrate mapping datetimes onto
+#' calendars, calendar heatmaps and wall calendars,
+#' profiles/ribbons/duration curves, and recasting across resolutions —
+#' and, through `locid`, shared with the geoscales documentation as the
+#' time half of "the same data on time and geo scales".
 #'
-#' @format A `data.frame` with 26,280 rows (3 cities x 8,760 hours) and
-#'   5 columns:
+#' @format A `data.frame` with 105,120 rows (12 cities x 8,760 hours)
+#'   and 11 columns:
 #' \describe{
-#'   \item{`city`}{`"Helsinki"`, `"Lima"`, or `"Sydney"`.}
+#'   \item{`city`}{City name.}
+#'   \item{`locid`}{Integer id of the MERRA-2 grid cell the city falls
+#'     in (the join key to the MERRA-2 grid, e.g. via the `merra2ools`
+#'     package's `locid` table — the bridge to the space dimension).}
 #'   \item{`datetime`}{POSIXct, UTC; hourly instants of 2019 stamped at
 #'     30 minutes past the hour (the MERRA-2 hourly-mean convention).}
 #'   \item{`T10M`}{Air temperature at 10 m, degrees C.}
-#'   \item{`W50M`}{Wind speed at 50 m, m/s.}
+#'   \item{`W10M`, `W50M`}{Wind speed at 10 m / 50 m, m/s.}
+#'   \item{`WDIR`}{Wind direction, degrees.}
 #'   \item{`SWGDN`}{Surface incoming shortwave irradiance, W/m2.}
+#'   \item{`ALBEDO`}{Surface albedo, fraction.}
+#'   \item{`PRECTOTCORR`}{Bias-corrected total precipitation.}
+#'   \item{`RHOA`}{Air density, kg/m3.}
 #' }
 #'
 #' @source NASA MERRA-2 reanalysis, Global Modeling and Assimilation
-#'   Office (GMAO), extracted with the `merra2ools` package
+#'   Office (GMAO) — a public-domain dataset; extracted with the
+#'   `merra2ools` package
 #'   (\url{https://github.com/optimal2050/merra2ools}); subset built by
 #'   `data-raw/merra2_cities.R`.
 #'
 #' @examples
 #' head(merra2_cities)
-#' with(subset(merra2_cities, city == "Helsinki"), range(T10M))
+#' with(subset(merra2_cities, city == "Reykjavik"), range(W50M))
 "merra2_cities"

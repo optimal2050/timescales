@@ -144,14 +144,19 @@ calendar_layout <- function(calendar, annual = TRUE) {
 #' year on `[0, 1]`. `autoplot()` and `plot()` on a Calendar dispatch here.
 #'
 #' @param object A [`Calendar`].
+#' @param type `"icicle"` (default) or `"stack"` — the axonometric
+#'   stacked-planes view (see below).
 #' @param fill What drives the fill gradient: `"order"` (chronological
 #'   position, default), `"share"`, or `"weight"`.
 #' @param color_pattern For `fill = "order"`: `"within"` (default) restarts
 #'   the gradient inside each parent timeslice (hours recycle every day);
 #'   `"global"` sweeps once across the whole year.
-#' @param labels Segment labels: `"name"` (level value, e.g. `h00`;
-#'   default), `"timeslice"` (full path, e.g. `Q1_h00`), or `"none"`.
-#'   `TRUE`/`FALSE` are accepted as shorthands.
+#' @param labels Segment labels. Icicle: `"name"` (level value, e.g.
+#'   `h00`; default), `"timeslice"` (full path, e.g. `Q1_h00`), or
+#'   `"none"`; `TRUE`/`FALSE` are accepted as shorthands.
+#'   `type = "stack"`: a character vector of timeframes whose member
+#'   names are drawn on their plane's segments (e.g.
+#'   `labels = "SEASON"`); unset = none.
 #' @param max_labels Rows with more segments than this get no labels.
 #'   Default 60.
 #' @param max_segments Rows with more segments than this are binned by
@@ -161,8 +166,68 @@ calendar_layout <- function(calendar, annual = TRUE) {
 #'   render as smooth gradients.
 #' @param palette Viridis option letter or name (`"D"`/`"viridis"`,
 #'   `"C"`/`"plasma"`, `"B"`, `"A"`, `"E"`, `"turbo"`...). Default `"D"`.
+#'   `type = "stack"` also accepts `NULL`: no fill scale is added, so
+#'   you can supply your own (e.g. an energypal scale).
 #' @param annual Include the `ANNUAL` root band. Default `TRUE`.
+#' @param view `type = "stack"` only: a predefined point of view --
+#'   `"oblique"` (the shear/depth default), `"top-down"`, `"cavalier"`,
+#'   `"cabinet"`, `"military"`, `"isometric"`, `"dimetric"`,
+#'   `"trimetric"`, or `"perspective"` (receding planes shrink).
+#' @param angle,ratio `type = "stack"` only: oblique view by angle
+#'   (degrees of the receding axis) and foreshortening ratio --
+#'   `e2 = ratio * (cos(angle), sin(angle))`. Overridden by `view`.
+#' @param shear,depth,gap `type = "stack"` only: the raw receding-axis
+#'   components (`e2 = (shear, depth)`; used when neither `view` nor
+#'   `angle`/`ratio` is given) and the vertical spacing between planes.
+#'   `gap = NULL` (default) spaces planes almost touching, with a slight
+#'   overlap (0.85 x the plane's screen height).
+#' @param rotate `type = "stack"` only: in-plane rotation of each plane
+#'   (degrees, counter-clockwise) before projection.
+#' @param direction `type = "stack"` only: `"up"` (default) stacks the
+#'   coarsest timeframe on top; `"down"` puts it at the bottom.
+#' @param colour,linewidth `type = "stack"` only: segment border colour
+#'   and width, recycled across the planes (one entry per plane styles
+#'   them individually). Defaults `"grey35"` and `0.2` -- ggplot2's own
+#'   sf polygon border. (The icicle's rectangle border is the separate
+#'   `border` argument.)
+#' @param frame `type = "stack"` only: draw each plane's outline (the
+#'   unit box run through the same projection) as a guide. `TRUE` uses
+#'   `"grey80"`, a colour string uses that colour, `NULL` (default)
+#'   draws no frames.
+#' @param frame_fill `type = "stack"` only: fill for the plane sheets;
+#'   best mostly transparent, e.g.
+#'   `frame_fill = ggplot2::alpha("grey60", 0.12)`. Setting a fill
+#'   draws the frames even without `frame`; `NA` (default) = no fill.
+#' @param data,z Colour the figure by a value instead of by structure:
+#'   works for BOTH types -- the icicle fills each band's rectangles,
+#'   the stack fills each plane. `data` is a data.frame with a
+#'   `timeslice` column at the calendar's resolution (or a
+#'   calendar-named label column) plus the value column named by `z`;
+#'   every timeframe gets the value recast to its resolution, so the
+#'   whole figure shares one continuous fill scale (legend title via
+#'   `labs(fill = )`). On the icicle, `data` overrides
+#'   `fill`/`color_pattern`, and dense bands are binned with
+#'   width-weighted means.
+#' @param rule With `data`: aggregation rule for the per-timeframe
+#'   recasts (`"sum"`, `"mean"`, `"weighted_mean"`, ... -- see
+#'   [`recast_calendar()`]; explicit or registered, never guessed).
+#' @param year With `data`: the model year the recast routes through
+#'   (required by [`recast_calendar()`]).
+#' @param by With `data`: base-grid granularity for the per-timeframe
+#'   recasts. Defaults to `"hour"` -- always correct (the automatic
+#'   choice can pick a daily grid for sub-daily calendars, which
+#'   silently collapses hour-type slices).
+#' @param connectors `type = "stack"` only: dashed lines joining the
+#'   corresponding frame corners of adjacent planes. `TRUE` uses the
+#'   frame colour, a colour string picks its own; default `FALSE`.
 #' @param ... Ignored (future extension).
+#'
+#' @section The stack view:
+#' `type = "stack"` draws the same structure axonometrically — one
+#' sheared plane per timeframe, `ANNUAL` on top, each plane segmented by
+#' the true duration shares, with segments visibly nesting into the
+#' plane above. `fill`/`labels`/`max_segments` apply to the icicle only;
+#' the stack colours each plane by its own segment order.
 #'
 #' @return A ggplot object (returned, not printed).
 #'
@@ -170,9 +235,11 @@ calendar_layout <- function(calendar, annual = TRUE) {
 #' if (requireNamespace("ggplot2", quietly = TRUE)) {
 #'   calendar_autoplot(calendar("q4_h24"))
 #'   ggplot2::autoplot(calendar("m12"))   # same via the generic
+#'   calendar_autoplot(calendar("s4_hp3"), type = "stack")
 #' }
 #' @export
 calendar_autoplot <- function(object,
+                              type = c("icicle", "stack"),
                               fill = c("order", "share", "weight"),
                               color_pattern = c("within", "global"),
                               labels = c("name", "timeslice", "none"),
@@ -181,8 +248,33 @@ calendar_autoplot <- function(object,
                               border = NA,
                               palette = "D",
                               annual = TRUE,
+                              view = NULL, angle = NULL, ratio = NULL,
+                              shear = 0.5, depth = 0.3, gap = NULL,
+                              rotate = 0, direction = c("up", "down"),
+                              colour = "grey35", linewidth = 0.2,
+                              frame = NULL, frame_fill = NA,
+                              connectors = FALSE,
+                              data = NULL, z = NULL, rule = NULL,
+                              year = NULL, by = "hour",
                               ...) {
   .need_ggplot("calendar_autoplot()")
+  type <- match.arg(type)
+  if (type == "stack") {
+    # `labels` means something else on the stack (a vector of timeframes
+    # whose member names go on the planes, mirroring geoscales); the
+    # icicle's c("name","timeslice","none") default must not leak in
+    stack_labels <- if (missing(labels)) NULL else labels
+    return(.calendar_stack_plot(object, annual = annual, palette = palette,
+                                view = view, angle = angle, ratio = ratio,
+                                shear = shear, depth = depth, gap = gap,
+                                rotate = rotate, direction = direction,
+                                colour = colour, linewidth = linewidth,
+                                frame = frame, frame_fill = frame_fill,
+                                connectors = connectors,
+                                data = data, z = z, rule = rule,
+                                year = year, by = by,
+                                labels = stack_labels))
+  }
   fill <- match.arg(fill)
   color_pattern <- match.arg(color_pattern)
   if (isTRUE(labels)) labels <- "name"
@@ -197,7 +289,22 @@ calendar_autoplot <- function(object,
   n_leaf <- nrow(S7::prop(object, "leaftable"))
 
   # Fill values ---------------------------------------------------------------
-  if (fill == "order" && color_pattern == "within") {
+  if (!is.null(data)) {
+    # data fill: each band's rectangles carry the value recast to that
+    # band's timeframe (widths still encode duration shares). Overrides
+    # `fill`/`color_pattern`. Dense bands are binned below with
+    # width-weighted means, which is the right downsample for a value.
+    row_tfs <- unique(d$timeframe)
+    vals <- .calendar_frame_values(object, row_tfs, data, z, rule, year, by)
+    d$.fill <- NA_real_
+    for (tf in row_tfs) {
+      i <- d$timeframe == tf
+      d$.fill[i] <- vals[[tf]][[z]][match(d$timeslice[i],
+                                          vals[[tf]]$timeslice)]
+    }
+    # legend title via labs() below so callers can retitle
+    fill_scale <- ggplot2::scale_fill_viridis_c(option = palette)
+  } else if (fill == "order" && color_pattern == "within") {
     # 0-1 gradient recycling inside each parent; scaled by the timeframe's
     # vocabulary size so h00..h23 always spans the full palette
     klev <- c(ANNUAL = 1L,
@@ -251,6 +358,7 @@ calendar_autoplot <- function(object,
       title = meta$name,
       subtitle = if (!is.null(meta$desc) && nzchar(meta$desc)) meta$desc)
   }
+  if (!is.null(data)) p <- p + ggplot2::labs(fill = z)
 
   # Labels ---------------------------------------------------------------------
   if (labels != "none") {
@@ -271,6 +379,33 @@ calendar_autoplot <- function(object,
     }
   }
   p
+}
+
+#' Per-timeframe recast of a timeslice-keyed value table
+#'
+#' The shared engine behind the data fills of both calendar figures
+#' (icicle bands and stack planes): recast `data[[z]]` to every
+#' timeframe in `tfs` with [`recast_calendar()`]. `data` is keyed the
+#' way recast_calendar() accepts (a `timeslice` column at the
+#' calendar's resolution, or a calendar-named label column). Returns
+#' NULL when `data` is NULL; a named list of data.frames (one per
+#' timeframe, keyed by `timeslice`) otherwise.
+#' @noRd
+.calendar_frame_values <- function(calendar, tfs, data, z, rule, year, by) {
+  if (is.null(data)) return(NULL)
+  if (is.null(z) || !z %in% names(data)) {
+    stop("`z` must name a value column of `data`", call. = FALSE)
+  }
+  if (is.null(year)) {
+    stop("`data` needs `year =`: the per-timeframe recasts route ",
+         "through recast_calendar(), which requires it", call. = FALSE)
+  }
+  vals <- lapply(tfs, function(tf) {
+    as.data.frame(recast_calendar(data, from = calendar, to = tf,
+                                  year = year, values = z, rule = rule,
+                                  by = by))
+  })
+  stats::setNames(vals, tfs)
 }
 
 #' Bin one layout row to at most `k` segments by x-midpoint
@@ -478,7 +613,7 @@ calendar_plot <- function(x, data = NULL,
 
 #' @rdname calendar_autoplot
 #' @param ... Passed on to [`calendar_autoplot()`].
-#' @export
+#' @exportS3Method ggplot2::autoplot
 autoplot.Calendar <- function(object, ...) {
   calendar_autoplot(object, ...)
 }
@@ -499,4 +634,263 @@ plot.Calendar <- function(x, ...) {
 `plot.timescales::Calendar` <- plot.Calendar
 
 utils::globalVariables(c("xmin", "xmax", "ymin", "ymax",
-                         ".fill", ".label", ".x", ".y", ".facet"))
+                         ".fill", ".label", ".x", ".y", ".facet",
+                         "id", "ord", "tf", "x", "y", "xend", "yend",
+                         ".z"))
+
+# -----------------------------------------------------------------------------
+# The axonometric stack view (type = "stack")
+# -----------------------------------------------------------------------------
+
+#' Resolve a stack point of view to screen axes
+#'
+#' A view places the two in-plane unit axes on screen: `e1` (the layer's
+#' x axis) and `e2` (its depth axis), plus a per-layer `scale` (< 1 =
+#' receding planes shrink -- the perspective approximation). Precedence:
+#' `view` preset > `angle`/`ratio` (oblique: `e2 = ratio * (cos, sin)`)
+#' > raw `shear`/`depth` (`e2 = (shear, depth)`).
+#' Duplicated verbatim in geoscales/R/plot.R -- keep in sync.
+#' @noRd
+.stack_view <- function(view = NULL, angle = NULL, ratio = NULL,
+                        shear = 0.5, depth = 0.3) {
+  deg <- pi / 180
+  if (!is.null(view)) {
+    view <- match.arg(view, c("oblique", "top-down", "cavalier",
+                              "cabinet", "military", "isometric",
+                              "dimetric", "trimetric", "perspective"))
+    return(switch(view,
+      "oblique"     = list(e1 = c(1, 0), e2 = c(shear, depth), scale = 1),
+      "top-down"    = list(e1 = c(1, 0), e2 = c(0, 1), scale = 1),
+      "cavalier"    = list(e1 = c(1, 0),
+                           e2 = c(cos(45 * deg), sin(45 * deg)),
+                           scale = 1),
+      "cabinet"     = list(e1 = c(1, 0),
+                           e2 = 0.5 * c(cos(45 * deg), sin(45 * deg)),
+                           scale = 1),
+      "military"    = list(e1 = c(cos(45 * deg), sin(45 * deg)),
+                           e2 = c(-sin(45 * deg), cos(45 * deg)),
+                           scale = 1),
+      "isometric"   = list(e1 = c(cos(30 * deg), sin(30 * deg)),
+                           e2 = c(-cos(30 * deg), sin(30 * deg)),
+                           scale = 1),
+      "dimetric"    = list(e1 = c(cos(26.565 * deg), sin(26.565 * deg)),
+                           e2 = c(-cos(26.565 * deg), sin(26.565 * deg)),
+                           scale = 1),
+      "trimetric"   = list(e1 = c(cos(10 * deg), sin(10 * deg)),
+                           e2 = 0.9 * c(-cos(40 * deg), sin(40 * deg)),
+                           scale = 1),
+      "perspective" = list(e1 = c(1, 0),
+                           e2 = 0.5 * c(cos(45 * deg), sin(45 * deg)),
+                           scale = 0.82)
+    ))
+  }
+  if (!is.null(angle) || !is.null(ratio)) {
+    a <- (angle %||% 45) * deg
+    return(list(e1 = c(1, 0), e2 = (ratio %||% 0.5) * c(cos(a), sin(a)),
+                scale = 1))
+  }
+  list(e1 = c(1, 0), e2 = c(shear, depth), scale = 1)
+}
+
+#' Draw the calendar as stacked planes under a chosen point of view
+#'
+#' One plane per timeframe, coarsest on top; each plane's segments are
+#' the timeframe's members at their true duration shares. Colours cycle
+#' per plane (normalized segment order). Planes may overlap when `gap`
+#' is smaller than a plane's screen height -- painter order (bottom
+#' first) keeps the stack readable.
+#' @noRd
+.calendar_stack_plot <- function(calendar, annual = TRUE, palette = "D",
+                                 view = NULL, angle = NULL, ratio = NULL,
+                                 shear = 0.5, depth = 0.3, gap = NULL,
+                                 rotate = 0,
+                                 direction = c("up", "down"),
+                                 colour = "grey35", linewidth = 0.2,
+                                 frame = NULL, frame_fill = NA,
+                                 connectors = FALSE,
+                                 data = NULL, z = NULL, rule = NULL,
+                                 year = NULL, by = "hour",
+                                 labels = NULL) {
+  v <- .stack_view(view, angle, ratio, shear, depth)
+  direction <- match.arg(direction)
+  # default spacing: planes almost touching, slight overlap (the plane's
+  # screen height is |e1_y| + |e2_y| for a unit footprint)
+  gap <- gap %||% (0.85 * (abs(v$e1[2]) + abs(v$e2[2])))
+  lay <- calendar_layout(calendar, annual = annual)
+  tfs <- unique(lay$timeframe)
+  nk <- length(tfs)
+
+  # value fill: every plane gets the value recast to its timeframe so
+  # one continuous scale spans the stack
+  vals <- .calendar_frame_values(calendar, tfs, data, z, rule, year, by)
+  if (!is.null(labels)) {
+    bad <- setdiff(labels, tfs)
+    if (length(bad)) {
+      stop("`labels` must name timeframes of the calendar (unknown: ",
+           paste(bad, collapse = ", "), ")", call. = FALSE)
+    }
+  }
+
+  rad <- rotate * pi / 180
+  corner <- function(u, w) {
+    du <- u - 0.5; dw <- w - 0.5                 # in-plane rotation first
+    ur <- 0.5 + du * cos(rad) - dw * sin(rad)
+    wr <- 0.5 + du * sin(rad) + dw * cos(rad)
+    cbind(ur * v$e1[1] + wr * v$e2[1],
+          ur * v$e1[2] + wr * v$e2[2])
+  }
+  ctr <- corner(0.5, 0.5)                        # plane center, pre-lift
+
+  # vertical placement: coarsest on top ("up", default) or bottom
+  zlev <- if (direction == "up") (nk - seq_len(nk)) * gap
+          else (seq_len(nk) - 1) * gap
+  top_rank <- if (direction == "up") seq_len(nk) - 1 else nk - seq_len(nk)
+
+  quads <- do.call(rbind, lapply(seq_along(tfs), function(k) {
+    d <- lay[lay$timeframe == tfs[k], , drop = FALSE]
+    sk <- v$scale^top_rank[k]                    # top plane is largest
+    n <- nrow(d)
+    do.call(rbind, lapply(seq_len(n), function(i) {
+      p <- corner(c(d$xmin[i], d$xmax[i], d$xmax[i], d$xmin[i]),
+                  c(0, 0, 1, 1))
+      p <- sweep(sweep(p, 2, ctr) * sk, 2, ctr, `+`)
+      data.frame(
+        id  = paste(tfs[k], i),
+        tf  = tfs[k],
+        timeslice = d$timeslice[i],
+        z   = zlev[k],
+        ord = if (n > 1) (i - 1) / (n - 1) else 0.5,
+        x   = p[, 1],
+        y   = p[, 2] + zlev[k],
+        stringsAsFactors = FALSE
+      )
+    }))
+  }))
+  if (!is.null(vals)) {                  # recast output ids == layout ids
+    quads$.z <- NA_real_
+    for (tf in tfs) {
+      i <- quads$tf == tf
+      quads$.z[i] <- vals[[tf]][[z]][
+        match(quads$timeslice[i], vals[[tf]]$timeslice)]
+    }
+  }
+  # painter order: lower planes first, so upper planes overpaint at
+  # overlaps (matters now that the default gap lets planes touch)
+  quads <- quads[order(quads$z), , drop = FALSE]
+  quads$id <- factor(quads$id, levels = unique(quads$id))
+  quads$tf <- factor(quads$tf, levels = rev(tfs))
+
+  # plane frames ("sheets"): the padded unit box through the same
+  # projection -- guide lines for the stack; connectors join the
+  # corresponding corners of adjacent planes
+  frame_col <- if (isTRUE(frame)) "grey80"
+               else if (is.character(frame)) frame else NULL
+  conn_col  <- if (isTRUE(connectors)) frame_col %||% "grey80"
+               else if (is.character(connectors)) connectors else NULL
+  draw_frame <- !is.null(frame_col) || !is.na(frame_fill)
+  frames <- NULL
+  if (draw_frame || !is.null(conn_col)) {
+    fp <- 0.03
+    cn <- corner(c(-fp, 1 + fp, 1 + fp, -fp),
+                 c(-fp, -fp, 1 + fp, 1 + fp))
+    frames <- lapply(seq_len(nk), function(k) {
+      q <- sweep(sweep(cn, 2, ctr) * v$scale^top_rank[k], 2, ctr, `+`)
+      data.frame(x = q[, 1], y = q[, 2] + zlev[k])
+    })
+  }
+
+  xr <- range(quads$x, unlist(lapply(frames, `[[`, "x")))
+  yr <- range(quads$y, unlist(lapply(frames, `[[`, "y")))
+  span <- xr[2] - xr[1]
+
+  lab <- do.call(rbind, lapply(seq_along(tfs), function(k) {
+    if (draw_frame) {                    # anchor to the plane's frame
+      data.frame(tf = tfs[k], x = min(frames[[k]]$x) - 0.02 * span,
+                 y = mean(range(frames[[k]]$y)), stringsAsFactors = FALSE)
+    } else {
+      q <- quads[quads$tf == tfs[k], ]
+      data.frame(tf = tfs[k], x = min(q$x) - 0.02 * span,
+                 y = mean(range(q$y)), stringsAsFactors = FALSE)
+    }
+  }))
+
+  col_k <- rep_len(colour, nk)
+  lwd_k <- rep_len(linewidth, nk)
+  p <- ggplot2::ggplot(quads, ggplot2::aes(x = x, y = y, group = id))
+  if (!is.null(conn_col)) {              # under everything
+    ord <- order(zlev)
+    seg <- do.call(rbind, lapply(seq_len(nk - 1), function(i) {
+      data.frame(x = frames[[ord[i]]]$x, y = frames[[ord[i]]]$y,
+                 xend = frames[[ord[i + 1]]]$x,
+                 yend = frames[[ord[i + 1]]]$y)
+    }))
+    p <- p + ggplot2::geom_segment(
+      data = seg,
+      ggplot2::aes(x = x, y = y, xend = xend, yend = yend),
+      inherit.aes = FALSE,
+      colour = conn_col, linewidth = 0.25, linetype = "22"
+    )
+  }
+  for (k in order(zlev)) {               # lower planes first
+    if (draw_frame) {                    # the plane's sheet
+      p <- p + ggplot2::geom_polygon(data = frames[[k]],
+                                     ggplot2::aes(x = x, y = y),
+                                     inherit.aes = FALSE,
+                                     fill = frame_fill,
+                                     colour = frame_col %||% NA,
+                                     linewidth = 0.3)
+    }
+    p <- p + if (is.null(vals)) {
+      ggplot2::geom_polygon(data = quads[quads$tf == tfs[k], ],
+                            ggplot2::aes(fill = ord),
+                            colour = col_k[k], linewidth = lwd_k[k],
+                            show.legend = FALSE)
+    } else {
+      ggplot2::geom_polygon(data = quads[quads$tf == tfs[k], ],
+                            ggplot2::aes(fill = .z),
+                            colour = col_k[k], linewidth = lwd_k[k])
+    }
+  }
+  if (!is.null(labels)) {                # member names, over all planes
+    labdf <- do.call(rbind, lapply(match(labels, tfs), function(k) {
+      d <- lay[lay$timeframe == tfs[k], , drop = FALSE]
+      pc <- corner((d$xmin + d$xmax) / 2, rep(0.5, nrow(d)))
+      pc <- sweep(sweep(pc, 2, ctr) * v$scale^top_rank[k], 2, ctr, `+`)
+      data.frame(x = pc[, 1], y = pc[, 2] + zlev[k], .label = d$label,
+                 stringsAsFactors = FALSE)
+    }))
+    p <- p + ggplot2::geom_text(data = labdf,
+                                ggplot2::aes(x = x, y = y, label = .label),
+                                inherit.aes = FALSE,
+                                size = 2.4, colour = "grey10")
+  }
+
+  # legend title via labs() so callers can retitle with `+ labs(fill = )`
+  if (!is.null(vals)) p <- p + ggplot2::labs(fill = z)
+  if (!is.null(palette)) {               # NULL = caller adds a scale
+    p <- p + if (is.null(vals)) {
+      ggplot2::scale_fill_viridis_c(option = palette, guide = "none")
+    } else {
+      ggplot2::scale_fill_viridis_c(option = palette)
+    }
+  }
+
+  # fit the canvas to the content: left room sized by the longest
+  # timeframe name (clip = "off" catches what still overflows)
+  pad_l <- (0.02 + 0.016 * max(nchar(tfs))) * span
+  pad_y <- 0.02 * (yr[2] - yr[1])
+  p +
+    ggplot2::geom_text(data = lab,
+                       ggplot2::aes(x = x, y = y, label = tf),
+                       inherit.aes = FALSE, hjust = 1, size = 3.2,
+                       colour = "grey25") +
+    ggplot2::coord_equal(xlim = c(xr[1] - pad_l, xr[2] + 0.01 * span),
+                         ylim = c(yr[1] - pad_y, yr[2] + pad_y),
+                         expand = FALSE, clip = "off") +
+    ggplot2::theme_void() +
+    ggplot2::theme(
+      plot.background = ggplot2::element_rect(fill = "white", colour = NA),
+      plot.margin = ggplot2::margin(4, 8, 4, 4),
+      legend.box.spacing = ggplot2::unit(6, "pt")
+    )
+}

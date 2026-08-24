@@ -63,3 +63,25 @@ test_that("register_calendar_map validates the shape", {
   expect_error(register_calendar_map("a", "b", data.frame(x = 1)),
                "missing column")
 })
+
+test_that("get_calendar_map and list_calendar_maps mirror the geo registry", {
+  clear_calendar_maps(registry = TRUE)
+  expect_null(get_calendar_map("m12", "q4"))
+  expect_equal(nrow(list_calendar_maps()), 0L)
+
+  m <- calendar_map(calendar("m12"), calendar("q4"), year = 2021)
+  register_calendar_map("m12", "q4", m)
+  got <- get_calendar_map("m12", "q4")
+  expect_equal(got, as.data.frame(m))
+  # calendar objects are accepted like names
+  expect_equal(get_calendar_map(calendar("m12"), calendar("q4")), got)
+
+  reg <- list_calendar_maps()
+  expect_equal(reg$key, "m12->q4")
+  expect_equal(reg$from, "m12")
+  expect_equal(reg$to, "q4")
+
+  register_calendar_map("m12", "q4", NULL)
+  expect_null(get_calendar_map("m12", "q4"))
+  clear_calendar_maps(registry = TRUE)
+})
