@@ -4,10 +4,10 @@
 \alias{calendar_family}
 \title{Immediate parent-child pairs of a Calendar hierarchy}
 \usage{
-calendar_family(calendar, parent = NULL, child = NULL)
+calendar_family(x, parent = NULL, child = NULL)
 }
 \arguments{
-\item{calendar}{A \link{Calendar}.}
+\item{x}{A \link{Calendar}.}
 
 \item{parent, child}{Optional timeframe names restricting the output
 to one hierarchy step.}

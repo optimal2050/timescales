@@ -7,7 +7,7 @@ scaled to `year_fraction`.
 
 Convenience shortcut. Names listed in
 [`calendar_catalog()`](https://optimal2050.github.io/timescales/r/reference/calendar_catalog.md)
-build the catalog design (with `coverage`/`regularity` metadata
+build the catalog design (with `coverage_class`/`regularity` metadata
 attached; the `m12_md*` family uses a dedicated ragged month/day
 builder). Any other name is parsed as `_`-joined tokens and dispatched
 to `calendar_build()`. The leading `y_` prefix (year-qualified) is

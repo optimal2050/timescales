@@ -11,12 +11,12 @@ backs
 ## Usage
 
 ``` r
-calendar_layout(calendar, annual = TRUE)
+calendar_layout(x, annual = TRUE)
 ```
 
 ## Arguments
 
-- calendar:
+- x:
 
   A
   [`Calendar`](https://optimal2050.github.io/timescales/r/reference/Calendar.md).

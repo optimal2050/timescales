@@ -25,7 +25,7 @@
 #' Stylized days with no real date in that year (`m12_md360`'s day 31,
 #' the `d366` label in a non-leap year) get `date = NA` with one warning.
 #'
-#' @param calendar A [`Calendar`] with a day-resolution timeframe
+#' @param x A [`Calendar`] with a day-resolution timeframe
 #'   (`YDAY` or `MDAY`). Sub-daily timeframes are collapsed to the day
 #'   layer via [`prune_calendar()`].
 #' @param year Integer scalar model year.
@@ -48,15 +48,15 @@
 #' # fiscal weeks: April 1 opens week 1
 #' head(calendar_weekdays(calendar("fy04_d365"), 2021))
 #' @export
-calendar_weekdays <- function(calendar, year, week_start = "MON") {
-  .check_calendar(calendar)
+calendar_weekdays <- function(x, year, week_start = "MON") {
+  .check_calendar(x)
   year <- as.integer(year)
   if (length(year) != 1L || is.na(year)) {
     .stop("`year` must be a single integer")
   }
   ws <- .wall_week_start(week_start)
 
-  day <- .wall_day_layer(calendar)
+  day <- .wall_day_layer(x)
   out <- .wall_days(day)
 
   # Real dates of the model year for each day timeslice, via the base
@@ -73,7 +73,7 @@ calendar_weekdays <- function(calendar, year, week_start = "MON") {
   # YDAY-only calendars: with real dates in hand, month/mday come from the
   # dates themselves (the stylized month-length template only approximates
   # real month boundaries -- d360's 30-day months would misplace Jan 31);
-  # facet level order = first appearance in calendar order (fiscal-safe)
+  # facet level order = first appearance in x order (fiscal-safe)
   if (day$day_tf == "YDAY" && any(!undated)) {
     m_lab <- as.character(out$MONTH)
     m_lab[!undated] <- sprintf("m%02d",
@@ -90,7 +90,7 @@ calendar_weekdays <- function(calendar, year, week_start = "MON") {
 
   # Anchored week-of-year: week 1 = the week (breaking on week_start)
   # containing the model-year anchor
-  ys <- S7::prop(calendar, "meta")$year_start %||% list(month = 1L, day = 1L)
+  ys <- S7::prop(x, "meta")$year_start %||% list(month = 1L, day = 1L)
   anchor <- as.Date(sprintf("%04d-%02d-%02d", year,
                             as.integer(ys$month), as.integer(ys$day)))
   wfloor <- anchor -
@@ -127,10 +127,10 @@ calendar_weekdays <- function(calendar, year, week_start = "MON") {
 #' head(calendar_wall_layout(calendar("m12_md365"), year = 2021))
 #' head(calendar_wall_layout(calendar("m12_md365")))  # sequence fallback
 #' @export
-calendar_wall_layout <- function(calendar, year = NULL,
+calendar_wall_layout <- function(x, year = NULL,
                                  arrange = c("weekday", "sequence"),
                                  week_start = "MON") {
-  .check_calendar(calendar)
+  .check_calendar(x)
   arrange <- match.arg(arrange)
   if (arrange == "weekday" && is.null(year)) {
     message("weekday arrangement needs `year=` (weekdays are ",
@@ -139,7 +139,7 @@ calendar_wall_layout <- function(calendar, year = NULL,
   }
 
   if (arrange == "weekday") {
-    wd <- calendar_weekdays(calendar, year, week_start = week_start)
+    wd <- calendar_weekdays(x, year, week_start = week_start)
     dated <- !is.na(wd$date)
     if (!all(dated)) wd <- wd[dated, , drop = FALSE]
     out <- data.frame(
@@ -153,7 +153,7 @@ calendar_wall_layout <- function(calendar, year = NULL,
       stringsAsFactors = FALSE
     )
   } else {
-    d <- .wall_days(.wall_day_layer(calendar))
+    d <- .wall_days(.wall_day_layer(x))
     out <- data.frame(
       timeslice = d$timeslice,
       MONTH     = d$MONTH,
@@ -209,14 +209,14 @@ calendar_wall_layout <- function(calendar, year = NULL,
 #'   calendar_wall_plot(cal, x, z = "v", year = 2021)
 #' }
 #' @export
-calendar_wall_plot <- function(calendar, data = NULL, z = NULL,
+calendar_wall_plot <- function(x, data = NULL, z = NULL,
                                year = NULL,
                                arrange = c("weekday", "sequence"),
                                week_start = "MON",
                                fun = mean, label = TRUE, key = NULL,
                                ...) {
   .need_ggplot("calendar_wall_plot()")
-  lay <- calendar_wall_layout(calendar, year = year, arrange = arrange,
+  lay <- calendar_wall_layout(x, year = year, arrange = arrange,
                               week_start = week_start)
   weekday_mode <- !all(is.na(lay$wday))
 
@@ -224,7 +224,7 @@ calendar_wall_plot <- function(calendar, data = NULL, z = NULL,
     if (is.null(z)) {
       .stop("`z` must name the value column of `data`")
     }
-    vals <- .wall_values(calendar, data, z, key, fun)
+    vals <- .wall_values(x, data, z, key, fun)
     lay$value <- vals[lay$timeslice]
   }
 

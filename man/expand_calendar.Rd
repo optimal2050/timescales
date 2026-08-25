@@ -4,10 +4,10 @@
 \alias{expand_calendar}
 \title{Enumerate the base grid of one or more model years mapped to timeslices}
 \usage{
-expand_calendar(calendar, year, by = NULL, tz = "UTC", alignment = NULL)
+expand_calendar(x, year, by = NULL, tz = "UTC", alignment = NULL)
 }
 \arguments{
-\item{calendar}{A \code{\link{Calendar}}.}
+\item{x}{A \code{\link{Calendar}}.}
 
 \item{year}{Integer vector -- the model year(s) to enumerate.}
 

@@ -3,7 +3,7 @@
 Returns the map registered with
 [`register_calendar_map()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_map.md)
 for the pair, or `NULL` when none is registered (mirrors
-[`geoscales::get_geo_map()`](https://optimal2050.github.io/geoscales/r/reference/register_geo_map.html)).
+[`geoscales::get_geoscale_map()`](https://optimal2050.github.io/geoscales/r/reference/register_geoscale_map.html)).
 
 ## Usage
 

@@ -20,7 +20,7 @@
 # calendar. The order of tokens fixes the timeframe order.
 # =============================================================================
 
-# Internal: the live registry (mutable through register_token)
+# Internal: the live registry (mutable through register_calendar_token)
 .TOKEN_REGISTRY <- new.env(parent = emptyenv())
 
 # A token expands to a data.frame(label, share). `share` MUST sum to 1
@@ -132,7 +132,7 @@ local({
 #' timeframe in a calendar hierarchy. A handful of built-in tokens covers the
 #' common cases (`d365`, `m12`, `m12a`, `q4`, `w52`, `w53`, `wd7`, `h24`,
 #' `h168`, `min60`, `d360`, `d364`, `d366`). Custom tokens may be added with
-#' [`register_token()`].
+#' [`register_calendar_token()`].
 #'
 #' @param name Character scalar — the token name (e.g. `"m12"`).
 #' @param timeframe One of [`CORE_TIMEFRAMES`].
@@ -144,20 +144,20 @@ local({
 #'   vocabulary map onto it (e.g. `"drop_feb29"` for `d365`). Calendars built
 #'   from the token inherit it in `meta$alignment`.
 #'
-#' @return `register_token()` invisibly returns the token name.
-#'   `get_token()` returns the token definition (a list with `timeframe`,
-#'   `expand`, and optionally `alignment`). `list_tokens()` returns a
+#' @return `register_calendar_token()` invisibly returns the token name.
+#'   `get_calendar_token()` returns the token definition (a list with `timeframe`,
+#'   `expand`, and optionally `alignment`). `list_calendar_tokens()` returns a
 #'   character vector of all registered token names.
 #'
 #' @examples
 #' # Register a custom 4-period day-of-year partition
-#' register_token("d4q", "YDAY", function() {
+#' register_calendar_token("d4q", "YDAY", function() {
 #'   data.frame(label = c("Q1d", "Q2d", "Q3d", "Q4d"),
 #'              share = c(90, 91, 92, 92) / 365)
 #' })
-#' "d4q" %in% list_tokens()
+#' "d4q" %in% list_calendar_tokens()
 #' @export
-register_token <- function(name, timeframe, expand, alignment = NULL) {
+register_calendar_token <- function(name, timeframe, expand, alignment = NULL) {
   if (!is.character(name) || length(name) != 1L || !nzchar(name)) {
     stop("`name` must be a single non-empty character string", call. = FALSE)
   }
@@ -186,18 +186,18 @@ register_token <- function(name, timeframe, expand, alignment = NULL) {
   invisible(name)
 }
 
-#' @rdname register_token
+#' @rdname register_calendar_token
 #' @export
-get_token <- function(name) {
+get_calendar_token <- function(name) {
   if (!exists(name, envir = .TOKEN_REGISTRY, inherits = FALSE)) {
     stop("Unknown token: '", name,
-         "'. Use list_tokens() to see available tokens.", call. = FALSE)
+         "'. Use list_calendar_tokens() to see available tokens.", call. = FALSE)
   }
   get(name, envir = .TOKEN_REGISTRY, inherits = FALSE)
 }
 
-#' @rdname register_token
+#' @rdname register_calendar_token
 #' @export
-list_tokens <- function() {
+list_calendar_tokens <- function() {
   sort(ls(envir = .TOKEN_REGISTRY))
 }

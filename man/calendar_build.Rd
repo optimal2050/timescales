@@ -49,7 +49,7 @@ table; each leaf's share is the product of its tokens' shares, scaled to
 \code{year_fraction}.
 
 Convenience shortcut. Names listed in \code{\link[=calendar_catalog]{calendar_catalog()}} build the
-catalog design (with \code{coverage}/\code{regularity} metadata attached; the
+catalog design (with \code{coverage_class}/\code{regularity} metadata attached; the
 \verb{m12_md*} family uses a dedicated ragged month/day builder). Any other
 name is parsed as \verb{_}-joined tokens and dispatched to
 \code{\link[=calendar_build]{calendar_build()}}. The leading \code{y_} prefix (year-qualified) is

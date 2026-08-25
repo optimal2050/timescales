@@ -35,9 +35,9 @@
 #'
 #' @format A character vector of length 5.
 #' @examples
-#' RECAST_RULES
+#' CALENDAR_RULES
 #' @export
-RECAST_RULES <- c("weighted_mean", "sum", "mean", "copy", "sd")
+CALENDAR_RULES <- c("weighted_mean", "sum", "mean", "copy", "sd")
 
 #' Supported alignment rules
 #'
@@ -84,21 +84,21 @@ ALIGNMENT_RULES <- c("exact", "drop_last", "drop_feb29", "repeat_last")
 #' `"weighted_mean"`.
 #'
 #' @param param Name of the value column.
-#' @param rule One of [`RECAST_RULES`].
+#' @param rule One of [`CALENDAR_RULES`].
 #'
 #' @return Invisibly, the registered entry.
 #'
 #' @examples
-#' register_rule("energy", "sum")
-#' register_rule("price", "weighted_mean")
-#' get_rule("energy")
+#' register_calendar_rule("energy", "sum")
+#' register_calendar_rule("price", "weighted_mean")
+#' get_calendar_rule("energy")
 #' @export
-register_rule <- function(param, rule) {
+register_calendar_rule <- function(param, rule) {
   if (!is.character(param) || length(param) != 1L || is.na(param) ||
       !nzchar(param)) {
     stop("`param` must be a single non-empty string", call. = FALSE)
   }
-  rule <- match.arg(rule, RECAST_RULES)
+  rule <- match.arg(rule, CALENDAR_RULES)
   entry <- list(rule = rule)
   assign(param, entry, envir = .RULE_REGISTRY)
   invisible(entry)
@@ -112,11 +112,11 @@ register_rule <- function(param, rule) {
 #'   registered.
 #'
 #' @examples
-#' register_rule("demand", "sum")
-#' get_rule("demand")
-#' get_rule("not_registered")
+#' register_calendar_rule("demand", "sum")
+#' get_calendar_rule("demand")
+#' get_calendar_rule("not_registered")
 #' @export
-get_rule <- function(param) {
+get_calendar_rule <- function(param) {
   if (!is.character(param) || length(param) != 1L) return(NULL)
   if (!exists(param, envir = .RULE_REGISTRY, inherits = FALSE)) return(NULL)
   get(param, envir = .RULE_REGISTRY, inherits = FALSE)
@@ -127,14 +127,14 @@ get_rule <- function(param) {
 #' @return A `data.frame` with columns `param` and `rule`.
 #'
 #' @examples
-#' register_rule("invcost", "weighted_mean")
-#' list_rules()
+#' register_calendar_rule("invcost", "weighted_mean")
+#' list_calendar_rules()
 #' @export
-list_rules <- function() {
+list_calendar_rules <- function() {
   nms <- sort(ls(envir = .RULE_REGISTRY, all.names = FALSE))
   data.frame(
     param = nms,
-    rule  = vapply(nms, function(p) get_rule(p)$rule, character(1),
+    rule  = vapply(nms, function(p) get_calendar_rule(p)$rule, character(1),
                    USE.NAMES = FALSE),
     stringsAsFactors = FALSE
   )
@@ -150,10 +150,10 @@ list_rules <- function() {
 #' @return Invisibly `NULL`.
 #'
 #' @examples
-#' register_rule("tmp_param", "sum")
-#' clear_rules("tmp_param")
+#' register_calendar_rule("tmp_param", "sum")
+#' clear_calendar_rules("tmp_param")
 #' @export
-clear_rules <- function(param = NULL) {
+clear_calendar_rules <- function(param = NULL) {
   if (is.null(param)) {
     rm(list = ls(envir = .RULE_REGISTRY, all.names = TRUE),
        envir = .RULE_REGISTRY)
@@ -181,16 +181,16 @@ clear_rules <- function(param = NULL) {
 #' @return Invisibly, the registry key (`"from->to"`).
 #'
 #' @examples
-#' register_conversion("m12", "q4", function(x, from, to, ...) {
+#' register_calendar_conversion("m12", "q4", function(x, from, to, ...) {
 #'   # trivial exact nesting: quarters are consecutive month triples
 #'   q <- rep(sprintf("Q%d", 1:4), each = 3)
 #'   stats::aggregate(x[-1], list(timeslice = q[match(x$timeslice,
 #'     S7::prop(from, "leaftable")$timeslice)]), sum)
 #' })
-#' "m12->q4" %in% list_conversions()$key
-#' clear_conversions()
+#' "m12->q4" %in% list_calendar_conversions()$key
+#' clear_calendar_conversions()
 #' @export
-register_conversion <- function(from, to, fun) {
+register_calendar_conversion <- function(from, to, fun) {
   for (nm in c(from, to)) {
     if (!is.character(nm) || length(nm) != 1L || is.na(nm) || !nzchar(nm)) {
       stop("`from` and `to` must be single non-empty calendar names",
@@ -211,10 +211,10 @@ register_conversion <- function(from, to, fun) {
   invisible(key)
 }
 
-#' @rdname register_conversion
-#' @return `get_conversion()` returns the registered function or `NULL`.
+#' @rdname register_calendar_conversion
+#' @return `get_calendar_conversion()` returns the registered function or `NULL`.
 #' @export
-get_conversion <- function(from, to) {
+get_calendar_conversion <- function(from, to) {
   key <- paste0(from, "->", to)
   if (!exists(key, envir = .CONVERSION_REGISTRY, inherits = FALSE)) {
     return(NULL)
@@ -222,19 +222,19 @@ get_conversion <- function(from, to) {
   get(key, envir = .CONVERSION_REGISTRY, inherits = FALSE)
 }
 
-#' @rdname register_conversion
-#' @return `list_conversions()` returns a `data.frame` with column `key`.
+#' @rdname register_calendar_conversion
+#' @return `list_calendar_conversions()` returns a `data.frame` with column `key`.
 #' @export
-list_conversions <- function() {
+list_calendar_conversions <- function() {
   data.frame(key = sort(ls(envir = .CONVERSION_REGISTRY, all.names = FALSE)),
              stringsAsFactors = FALSE)
 }
 
-#' @rdname register_conversion
+#' @rdname register_calendar_conversion
 #' @param key Optional character vector of `"from->to"` keys to remove;
 #'   `NULL` (default) clears everything.
 #' @export
-clear_conversions <- function(key = NULL) {
+clear_calendar_conversions <- function(key = NULL) {
   if (is.null(key)) {
     rm(list = ls(envir = .CONVERSION_REGISTRY, all.names = TRUE),
        envir = .CONVERSION_REGISTRY)

@@ -1,7 +1,7 @@
 # Heatmap of data on a calendar
 
 The package's single data-on-calendar renderer (the analogue of
-[`geoscales::geo_plot()`](https://optimal2050.github.io/geoscales/r/reference/geoscales-deprecated.html)):
+[`geoscales::geoscale_plot()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_plot.html)):
 callers prepare a `data.frame` keyed by timeslice and hand it over. With
 no data, the calendar's own `share` is drawn — a quick structural view.
 Layout follows the calendar's hierarchy: finest timeframe on y,

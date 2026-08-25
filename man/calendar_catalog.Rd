@@ -8,7 +8,7 @@ calendar_catalog()
 }
 \value{
 A \code{data.frame} with one row per catalog entry: \code{id}, \code{tokens}
-(\code{+}-joined), \code{timeframes} (\code{/}-joined), \code{n_timeslices}, \code{coverage}
+(\code{+}-joined), \code{timeframes} (\code{/}-joined), \code{n_timeslices}, \code{coverage_class}
 (\code{complete}/\code{truncated}/\code{representative}), \code{regularity}
 (\code{regular}/\code{irregular}), and a generated \code{desc}.
 }
@@ -22,5 +22,5 @@ duration-proportional shares. Every id here can be built with
 \examples{
 cat_df <- calendar_catalog()
 head(cat_df)
-subset(cat_df, coverage == "complete")
+subset(cat_df, coverage_class == "complete")
 }

@@ -4,10 +4,10 @@
 \alias{calendar_share}
 \title{Duration shares at a timeframe}
 \usage{
-calendar_share(calendar, timeframe, within = NULL)
+calendar_share(x, timeframe, within = NULL)
 }
 \arguments{
-\item{calendar}{A \link{Calendar}.}
+\item{x}{A \link{Calendar}.}
 
 \item{timeframe}{Timeframe to aggregate the shares at.}
 

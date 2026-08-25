@@ -8,7 +8,7 @@ one row per day cell with facet key and grid position. Two arrangements:
 
 ``` r
 calendar_wall_layout(
-  calendar,
+  x,
   year = NULL,
   arrange = c("weekday", "sequence"),
   week_start = "MON"
@@ -17,7 +17,7 @@ calendar_wall_layout(
 
 ## Arguments
 
-- calendar:
+- x:
 
   A
   [`Calendar`](https://optimal2050.github.io/timescales/r/reference/Calendar.md)

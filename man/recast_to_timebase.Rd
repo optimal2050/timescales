@@ -14,7 +14,7 @@ recast_to_timebase(
   rule = NULL,
   by = NULL,
   tz = "UTC",
-  weight = TRUE,
+  attach_weight = TRUE,
   collect = NULL
 )
 
@@ -50,7 +50,7 @@ datetime column, default \code{"datetime"}.}
 
 \item{values, rule, by, tz}{As in \code{\link[=recast_calendar]{recast_calendar()}}.}
 
-\item{weight}{\code{to_base} only: attach the \code{weight} column (default
+\item{attach_weight}{\code{to_base} only: attach the \code{weight} column (default
 \code{TRUE}).}
 
 \item{collect}{For lazy inputs: materialise (\code{TRUE}) or return the
@@ -81,7 +81,7 @@ timeslice's grid points so totals conserve; intensive columns are
 repeated. A \code{weight} column (the source timeslice's \code{share} divided by
 its grid-point count) is attached by default so that the return trip's
 \code{"weighted_mean"} reproduces the source calendar's weighting exactly;
-pass \code{weight = FALSE} to omit it.
+pass \code{attach_weight = FALSE} to omit it.
 
 Going up, rules act on the grid rows directly: \code{"sum"} sums,
 \code{"mean"} averages, \code{"weighted_mean"} uses the \code{weight} column when

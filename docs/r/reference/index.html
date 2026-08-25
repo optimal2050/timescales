@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">timescales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.4.2.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -101,10 +101,24 @@
 
         <dt>
 
+          <code><a href="calendar_leaftable.html">calendar_leaftable()</a></code>
+
+        </dt>
+        <dd>The leaftable of a Calendar</dd>
+
+        <dt>
+
           <code><a href="calendar_family.html">calendar_family()</a></code>
 
         </dt>
         <dd>Immediate parent-child pairs of a Calendar hierarchy</dd>
+
+        <dt>
+
+          <code><a href="calendar_ancestry.html">calendar_ancestry()</a></code>
+
+        </dt>
+        <dd>All ancestor-descendant pairs of a Calendar hierarchy</dd>
 
         <dt>
 
@@ -126,6 +140,13 @@
 
         </dt>
         <dd>Filter a Calendar to selected labels</dd>
+
+        <dt>
+
+          <code><a href="calendar_coverage.html">calendar_coverage()</a></code>
+
+        </dt>
+        <dd>Coverage of a sampled Calendar</dd>
       </dl></div><div class="section level2">
       <h2 id="catalog-and-data">Catalog and data<a class="anchor" aria-label="anchor" href="#catalog-and-data"></a></h2>
 
@@ -168,7 +189,7 @@
 
       <dl><dt>
 
-          <code><a href="register_token.html">register_token()</a></code> <code><a href="register_token.html">get_token()</a></code> <code><a href="register_token.html">list_tokens()</a></code>
+          <code><a href="register_calendar_token.html">register_calendar_token()</a></code> <code><a href="register_calendar_token.html">get_calendar_token()</a></code> <code><a href="register_calendar_token.html">list_calendar_tokens()</a></code>
 
         </dt>
         <dd>Register or look up a calendar token</dd>
@@ -365,7 +386,7 @@
 
       <dl><dt>
 
-          <code><a href="RECAST_RULES.html">RECAST_RULES</a></code>
+          <code><a href="CALENDAR_RULES.html">CALENDAR_RULES</a></code>
 
         </dt>
         <dd>Supported aggregation rules</dd>
@@ -379,54 +400,38 @@
 
         <dt>
 
-          <code><a href="register_rule.html">register_rule()</a></code>
+          <code><a href="register_calendar_rule.html">register_calendar_rule()</a></code>
 
         </dt>
         <dd>Register how a parameter should be recast</dd>
 
         <dt>
 
-          <code><a href="get_rule.html">get_rule()</a></code>
+          <code><a href="get_calendar_rule.html">get_calendar_rule()</a></code>
 
         </dt>
         <dd>Look up a registered rule</dd>
 
         <dt>
 
-          <code><a href="list_rules.html">list_rules()</a></code>
+          <code><a href="list_calendar_rules.html">list_calendar_rules()</a></code>
 
         </dt>
         <dd>List registered rules</dd>
 
         <dt>
 
-          <code><a href="clear_rules.html">clear_rules()</a></code>
+          <code><a href="clear_calendar_rules.html">clear_calendar_rules()</a></code>
 
         </dt>
         <dd>Clear the rule registry</dd>
 
         <dt>
 
-          <code><a href="register_conversion.html">register_conversion()</a></code> <code><a href="register_conversion.html">get_conversion()</a></code> <code><a href="register_conversion.html">list_conversions()</a></code> <code><a href="register_conversion.html">clear_conversions()</a></code>
+          <code><a href="register_calendar_conversion.html">register_calendar_conversion()</a></code> <code><a href="register_calendar_conversion.html">get_calendar_conversion()</a></code> <code><a href="register_calendar_conversion.html">list_calendar_conversions()</a></code> <code><a href="register_calendar_conversion.html">clear_calendar_conversions()</a></code>
 
         </dt>
         <dd>Register a pairwise calendar conversion override</dd>
-      </dl></div><div class="section level2">
-      <h2 id="deprecated">Deprecated<a class="anchor" aria-label="anchor" href="#deprecated"></a></h2>
-
-
-
-      <dl></dl></div><div class="section level2">
-
-
-
-
-      <dl><dt>
-
-          <code><a href="timescales-deprecated.html">calendar_recast()</a></code> <code><a href="timescales-deprecated.html">calendar_join()</a></code> <code><a href="timescales-deprecated.html">calendar_at_level()</a></code> <code><a href="timescales-deprecated.html">instant_to_timeslice()</a></code> <code><a href="timescales-deprecated.html">instant_to_slice()</a></code> <code><a href="timescales-deprecated.html">calendar_from_leaves()</a></code>
-
-        </dt>
-        <dd>Deprecated timescales functions</dd>
       </dl></div><div class="section level2">
       <h2 id="package">Package<a class="anchor" aria-label="anchor" href="#package"></a></h2>
 

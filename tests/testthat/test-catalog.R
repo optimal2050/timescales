@@ -4,8 +4,8 @@ test_that("calendar_catalog() lists 43 designs with consistent metadata", {
   cat_df <- calendar_catalog()
   expect_equal(nrow(cat_df), 43L)
   expect_named(cat_df, c("id", "tokens", "timeframes", "n_timeslices",
-                         "coverage", "regularity", "desc"))
-  expect_true(all(cat_df$coverage %in%
+                         "coverage_class", "regularity", "desc"))
+  expect_true(all(cat_df$coverage_class %in%
                     c("complete", "truncated", "representative")))
   expect_true(all(cat_df$regularity %in% c("regular", "irregular")))
 })
@@ -35,10 +35,10 @@ test_that("well-known timeslice counts hold", {
 
 test_that("catalog calendars carry coverage/regularity metadata", {
   meta <- S7::prop(calendar("q4_h24"), "meta")
-  expect_equal(meta$coverage, "representative")
+  expect_equal(meta$coverage_class, "representative")
   expect_equal(meta$regularity, "regular")
   meta2 <- S7::prop(calendar("m12_md365"), "meta")
-  expect_equal(meta2$coverage, "truncated")
+  expect_equal(meta2$coverage_class, "truncated")
   expect_equal(meta2$regularity, "irregular")
 })
 

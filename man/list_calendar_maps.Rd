@@ -9,7 +9,7 @@ list_calendar_maps()
 \value{
 A \code{data.frame} with one row per registered map: \code{key}
 (\code{"from->to"}), \code{from}, \code{to}. Zero rows when none are registered
-(mirrors \code{geoscales::list_geo_maps()}).
+(mirrors \code{geoscales::list_geoscale_maps()}).
 }
 \description{
 List the registered crosswalks

@@ -9,7 +9,7 @@ aggregated value; without, a plain calendar (day numbers only).
 
 ``` r
 calendar_wall_plot(
-  calendar,
+  x,
   data = NULL,
   z = NULL,
   year = NULL,
@@ -24,7 +24,7 @@ calendar_wall_plot(
 
 ## Arguments
 
-- calendar:
+- x:
 
   A
   [`Calendar`](https://optimal2050.github.io/timescales/r/reference/Calendar.md)

@@ -7,7 +7,7 @@ projected down to grid points, then aggregated up to target timeslices,
 so aggregation and disaggregation are one operation. The route is
 evaluated as one dplyr pipeline against the calendar_map()
 crosswalk, so x may live in any supported backend (see below). A
-pairwise override registered with register_conversion() (or a
+pairwise override registered with register_calendar_conversion() (or a
 crosswalk registered with register_calendar_map()) short-circuits
 the grid route."><meta property="og:description" content="The central conversion verb. Takes a table keyed by timeslice in
 calendar from with one or more numeric value columns, and returns the
@@ -17,7 +17,7 @@ projected down to grid points, then aggregated up to target timeslices,
 so aggregation and disaggregation are one operation. The route is
 evaluated as one dplyr pipeline against the calendar_map()
 crosswalk, so x may live in any supported backend (see below). A
-pairwise override registered with register_conversion() (or a
+pairwise override registered with register_calendar_conversion() (or a
 crosswalk registered with register_calendar_map()) short-circuits
 the grid route."><meta property="og:image" content="https://optimal2050.github.io/timescales/r/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -27,7 +27,7 @@ the grid route."><meta property="og:image" content="https://optimal2050.github.i
 
     <a class="navbar-brand me-2" href="../index.html">timescales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.4.2.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -76,7 +76,7 @@ projected down to grid points, then aggregated up to target timeslices,
 so aggregation and disaggregation are one operation. The route is
 evaluated as one dplyr pipeline against the <code><a href="calendar_map.html">calendar_map()</a></code>
 crosswalk, so <code>x</code> may live in any supported backend (see below). A
-pairwise override registered with <code><a href="register_conversion.html">register_conversion()</a></code> (or a
+pairwise override registered with <code><a href="register_calendar_conversion.html">register_calendar_conversion()</a></code> (or a
 crosswalk registered with <code><a href="register_calendar_map.html">register_calendar_map()</a></code>) short-circuits
 the grid route.</p>
     </div>
@@ -135,8 +135,8 @@ Numeric identifiers (e.g. <code>year</code>) must be excluded explicitly.</p></d
 
 
 <dt id="arg-rule">rule<a class="anchor" aria-label="anchor" href="#arg-rule"></a></dt>
-<dd><p>One of <code><a href="RECAST_RULES.html">RECAST_RULES</a></code>, applied to every value column; or
-<code>NULL</code> (default) to look each column up with <code><a href="get_rule.html">get_rule()</a></code>. A column
+<dd><p>One of <code><a href="CALENDAR_RULES.html">CALENDAR_RULES</a></code>, applied to every value column; or
+<code>NULL</code> (default) to look each column up with <code><a href="get_calendar_rule.html">get_calendar_rule()</a></code>. A column
 with neither an explicit <code>rule=</code> nor a registry entry is an ERROR –
 there is deliberately no fallback (a silently guessed rule is a
 silent unit error).</p></dd>
@@ -169,7 +169,7 @@ carry no data and are always dropped.</p></dd>
     <p>The recast table in the input's class, with columns
 <code>c(key, identifiers, values)</code>: per identifier combination, one row per
 timeslice in <code>to</code> (the full target vocabulary, <code>NA</code> where uncovered –
-a deliberate divergence from <code>geo_recast()</code>, which emits observed
+a deliberate divergence from <code>recast_geoscale()</code>, which emits observed
 combinations only), plus an <code>NA</code> timeslice row under
 <code>na_action = "keep"</code>. Identifier column types are preserved.</p>
     </div>
@@ -179,12 +179,12 @@ combinations only), plus an <code>NA</code> timeslice row under
 as identifiers (panel columns – a <code>city</code>, a scenario) and preserved as
 grouping columns, so panel data recasts correctly in one call; this is
 what makes mixed pipelines like
-<code>x |&gt; recast_calendar(...) |&gt; geo_recast(...)</code> work. Columns named like
+<code>x |&gt; recast_calendar(...) |&gt; recast_geoscale(...)</code> work. Columns named like
 <code>from</code>'s timeframes are treated as timeslice attributes and dropped.</p>
 <p>The public halves of the route are <code><a href="recast_to_timebase.html">recast_to_timebase()</a></code> and
 <code><a href="recast_to_timebase.html">recast_from_timebase()</a></code>; <code>recast_calendar(x, from, to)</code> is equivalent to
 <code>recast_from_timebase(recast_to_timebase(x, from), to)</code>.</p>
-<p>Rules (see <code><a href="RECAST_RULES.html">RECAST_RULES</a></code>): <code>"sum"</code> splits each source value equally
+<p>Rules (see <code><a href="CALENDAR_RULES.html">CALENDAR_RULES</a></code>): <code>"sum"</code> splits each source value equally
 across its timeslice's grid points before summing up, so totals are
 conserved. <code>"weighted_mean"</code> weights by the declared <code>leaves$share</code> of
 each source timeslice; <code>"mean"</code> is the plain (time-weighted) mean over

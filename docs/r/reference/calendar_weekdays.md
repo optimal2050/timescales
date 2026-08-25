@@ -10,12 +10,12 @@ from April 1) and `meta$utc_offset_minutes`.
 ## Usage
 
 ``` r
-calendar_weekdays(calendar, year, week_start = "MON")
+calendar_weekdays(x, year, week_start = "MON")
 ```
 
 ## Arguments
 
-- calendar:
+- x:
 
   A
   [`Calendar`](https://optimal2050.github.io/timescales/r/reference/Calendar.md)

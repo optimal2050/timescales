@@ -20,7 +20,7 @@ recast_to_timebase(
   rule = NULL,
   by = NULL,
   tz = "UTC",
-  weight = TRUE,
+  attach_weight = TRUE,
   collect = NULL
 )
 
@@ -70,7 +70,7 @@ recast_from_timebase(
   As in
   [`recast_calendar()`](https://optimal2050.github.io/timescales/r/reference/recast_calendar.md).
 
-- weight:
+- attach_weight:
 
   `to_base` only: attach the `weight` column (default `TRUE`).
 
@@ -99,7 +99,7 @@ timeslice's grid points so totals conserve; intensive columns are
 repeated. A `weight` column (the source timeslice's `share` divided by
 its grid-point count) is attached by default so that the return trip's
 `"weighted_mean"` reproduces the source calendar's weighting exactly;
-pass `weight = FALSE` to omit it.
+pass `attach_weight = FALSE` to omit it.
 
 Going up, rules act on the grid rows directly: `"sum"` sums, `"mean"`
 averages, `"weighted_mean"` uses the `weight` column when present (else

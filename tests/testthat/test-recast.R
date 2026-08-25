@@ -335,9 +335,9 @@ test_that("na_action = 'keep' conserves totals in an explicit NA row", {
 # recast: registries ----------------------------------------------------------
 
 test_that("recast consults the per-parameter rule registry", {
-  on.exit(clear_rules(), add = TRUE)
-  register_rule("energy", "sum")
-  register_rule("load", "weighted_mean")
+  on.exit(clear_calendar_rules(), add = TRUE)
+  register_calendar_rule("energy", "sum")
+  register_calendar_rule("load", "weighted_mean")
   cal_m <- .month_cal()
   cal_q <- .quarter_cal()
   x <- data.frame(timeslice = sprintf("m%02d", 1:12),
@@ -349,7 +349,7 @@ test_that("recast consults the per-parameter rule registry", {
 })
 
 test_that("an unregistered column without rule= is an error (no fallback)", {
-  on.exit(clear_rules(), add = TRUE)
+  on.exit(clear_calendar_rules(), add = TRUE)
   cal_m <- .month_cal()
   cal_q <- .quarter_cal()
   x <- data.frame(timeslice = sprintf("m%02d", 1:12), mystery = rep(1, 12))
@@ -359,9 +359,9 @@ test_that("an unregistered column without rule= is an error (no fallback)", {
 })
 
 test_that("a registered pairwise conversion short-circuits the grid route", {
-  on.exit(clear_conversions(), add = TRUE)
+  on.exit(clear_calendar_conversions(), add = TRUE)
   marker <- data.frame(timeslice = "override", v = -1)
-  register_conversion("m12", "q4", function(x, from, to, ...) marker)
+  register_calendar_conversion("m12", "q4", function(x, from, to, ...) marker)
   out <- recast_calendar(data.frame(timeslice = "m01", v = 1),
                 .month_cal(), .quarter_cal(), year = 2021)
   expect_identical(out, marker)
@@ -482,39 +482,10 @@ test_that("recast() generic dispatches the Calendar method", {
   expect_error(recast(x, 42, to = "x"), "recast")
 })
 
-test_that("renamed functions keep deprecated aliases", {
-  cal_m <- .month_cal()
-  cal_q <- .quarter_cal()
-  x <- data.frame(timeslice = sprintf("m%02d", 1:12), v = rep(1, 12))
-  expect_warning(
-    old <- calendar_recast(x, cal_m, cal_q, year = 2021, rule = "sum",
-                           by = "day"),
-    "deprecated|recast_calendar")
-  expect_identical(old, recast_calendar(x, cal_m, cal_q, year = 2021,
-                                        rule = "sum", by = "day"))
-  expect_warning(p <- calendar_at_level(calendar("q4_h24"), "QUARTER"),
-                 "deprecated|prune_calendar")
-  expect_identical(S7::prop(p, "leaftable"),
-                   S7::prop(prune_calendar(calendar("q4_h24"), "QUARTER"),
-                            "leaftable"))
-  y <- data.frame(timeslice = sprintf("m%02d", 1:12), v = 1)
-  expect_warning(j <- calendar_join(y, calendar("m12")),
-                 "deprecated|join_calendar")
-  expect_identical(j, join_calendar(y, calendar("m12")))
-})
-
 test_that("validator rejects reserved timeframe names", {
   df <- data.frame(weight = c("w1", "w2"), share = c(0.5, 0.5))
   expect_error(
     calendar_from_leaftable(df, timeframes = "weight"),
     "reserved"
   )
-})
-
-test_that("instant_to_slice() is a deprecated alias", {
-  cal <- calendar("m12")
-  d <- lubridate::ymd("2021-03-15")
-  expect_warning(old <- instant_to_slice(d, cal),
-                 "deprecated|datetime_to_timeslice")
-  expect_identical(old, datetime_to_timeslice(d, cal))
 })

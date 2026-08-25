@@ -14,7 +14,7 @@
 #
 # Entry fields:
 #   tokens        character vector of registered token names (coarse first)
-#   coverage      "complete" | "truncated" | "representative"
+#   coverage_class "complete" | "truncated" | "representative"
 #   regularity    "regular" | "irregular"   (renamed from timeslices'
 #                 symmetric/asymmetric)
 #   month_lengths integer(12), only on the m12_md* entries
@@ -32,120 +32,120 @@
 
 .CALENDAR_CATALOG <- list(
   # day-of-year
-  d360     = list(tokens = "d360", coverage = "truncated",
+  d360     = list(tokens = "d360", coverage_class = "truncated",
                   regularity = "regular"),
-  d364     = list(tokens = "d364", coverage = "truncated",
+  d364     = list(tokens = "d364", coverage_class = "truncated",
                   regularity = "regular"),
-  d365     = list(tokens = "d365", coverage = "truncated",
+  d365     = list(tokens = "d365", coverage_class = "truncated",
                   regularity = "regular"),
-  d366     = list(tokens = "d366", coverage = "complete",
+  d366     = list(tokens = "d366", coverage_class = "complete",
                   regularity = "regular"),
-  d360_h24 = list(tokens = c("d360", "h24"), coverage = "truncated",
+  d360_h24 = list(tokens = c("d360", "h24"), coverage_class = "truncated",
                   regularity = "regular"),
-  d364_h24 = list(tokens = c("d364", "h24"), coverage = "truncated",
+  d364_h24 = list(tokens = c("d364", "h24"), coverage_class = "truncated",
                   regularity = "regular"),
-  d365_h24 = list(tokens = c("d365", "h24"), coverage = "truncated",
+  d365_h24 = list(tokens = c("d365", "h24"), coverage_class = "truncated",
                   regularity = "regular"),
-  d366_h24 = list(tokens = c("d366", "h24"), coverage = "complete",
+  d366_h24 = list(tokens = c("d366", "h24"), coverage_class = "complete",
                   regularity = "regular"),
 
   # months
-  m12      = list(tokens = "m12", coverage = "complete",
+  m12      = list(tokens = "m12", coverage_class = "complete",
                   regularity = "regular"),
-  m12a     = list(tokens = "m12a", coverage = "complete",
+  m12a     = list(tokens = "m12a", coverage_class = "complete",
                   regularity = "regular"),
-  m12_h24  = list(tokens = c("m12", "h24"), coverage = "complete",
+  m12_h24  = list(tokens = c("m12", "h24"), coverage_class = "complete",
                   regularity = "regular"),
-  m12a_h24 = list(tokens = c("m12a", "h24"), coverage = "complete",
+  m12a_h24 = list(tokens = c("m12a", "h24"), coverage_class = "complete",
                   regularity = "regular"),
 
   # month x day-of-month (non-Cartesian: month lengths vary)
-  m12_md360     = list(tokens = c("m12", "md360"), coverage = "truncated",
+  m12_md360     = list(tokens = c("m12", "md360"), coverage_class = "truncated",
                        regularity = "regular",
                        month_lengths = .MONTH_LENGTHS_360),
   m12_md360_h24 = list(tokens = c("m12", "md360", "h24"),
-                       coverage = "truncated", regularity = "regular",
+                       coverage_class = "truncated", regularity = "regular",
                        month_lengths = .MONTH_LENGTHS_360),
-  m12_md365     = list(tokens = c("m12", "md365"), coverage = "truncated",
+  m12_md365     = list(tokens = c("m12", "md365"), coverage_class = "truncated",
                        regularity = "irregular",
                        month_lengths = .MONTH_LENGTHS_365),
   m12_md365_h24 = list(tokens = c("m12", "md365", "h24"),
-                       coverage = "truncated", regularity = "irregular",
+                       coverage_class = "truncated", regularity = "irregular",
                        month_lengths = .MONTH_LENGTHS_365),
-  m12_md366     = list(tokens = c("m12", "md366"), coverage = "complete",
+  m12_md366     = list(tokens = c("m12", "md366"), coverage_class = "complete",
                        regularity = "irregular",
                        month_lengths = .MONTH_LENGTHS_366),
   m12_md366_h24 = list(tokens = c("m12", "md366", "h24"),
-                       coverage = "complete", regularity = "irregular",
+                       coverage_class = "complete", regularity = "irregular",
                        month_lengths = .MONTH_LENGTHS_366),
 
   # quarters and seasons
-  q4     = list(tokens = "q4", coverage = "complete",
+  q4     = list(tokens = "q4", coverage_class = "complete",
                 regularity = "regular"),
-  s4     = list(tokens = "s4", coverage = "complete",
+  s4     = list(tokens = "s4", coverage_class = "complete",
                 regularity = "regular"),
-  q4_h24 = list(tokens = c("q4", "h24"), coverage = "representative",
+  q4_h24 = list(tokens = c("q4", "h24"), coverage_class = "representative",
                 regularity = "regular"),
-  s4_h24 = list(tokens = c("s4", "h24"), coverage = "representative",
+  s4_h24 = list(tokens = c("s4", "h24"), coverage_class = "representative",
                 regularity = "regular"),
 
   # weeks
-  w52      = list(tokens = "w52", coverage = "truncated",
+  w52      = list(tokens = "w52", coverage_class = "truncated",
                   regularity = "regular"),
-  w53      = list(tokens = "w53", coverage = "complete",
+  w53      = list(tokens = "w53", coverage_class = "complete",
                   regularity = "regular"),
-  w52_h24  = list(tokens = c("w52", "h24"), coverage = "representative",
+  w52_h24  = list(tokens = c("w52", "h24"), coverage_class = "representative",
                   regularity = "regular"),
-  w53_h24  = list(tokens = c("w53", "h24"), coverage = "representative",
+  w53_h24  = list(tokens = c("w53", "h24"), coverage_class = "representative",
                   regularity = "regular"),
-  w52_h168 = list(tokens = c("w52", "h168"), coverage = "truncated",
+  w52_h168 = list(tokens = c("w52", "h168"), coverage_class = "truncated",
                   regularity = "regular"),
-  w53_h168 = list(tokens = c("w53", "h168"), coverage = "complete",
+  w53_h168 = list(tokens = c("w53", "h168"), coverage_class = "complete",
                   regularity = "irregular"),
 
   # weekdays and day types
-  wd7     = list(tokens = "wd7", coverage = "representative",
+  wd7     = list(tokens = "wd7", coverage_class = "representative",
                  regularity = "regular"),
-  wd7_h24 = list(tokens = c("wd7", "h24"), coverage = "representative",
+  wd7_h24 = list(tokens = c("wd7", "h24"), coverage_class = "representative",
                  regularity = "regular"),
-  wk2     = list(tokens = "wk2", coverage = "representative",
+  wk2     = list(tokens = "wk2", coverage_class = "representative",
                  regularity = "regular"),
-  wk2_h24 = list(tokens = c("wk2", "h24"), coverage = "representative",
+  wk2_h24 = list(tokens = c("wk2", "h24"), coverage_class = "representative",
                  regularity = "regular"),
 
   # fiscal years, April-start (India, Japan, ...). The model year spans
   # [Apr 1 y, Apr 1 y+1); YEAR anchors to the STARTING Gregorian year
   # (Indian "FY 2021-22" -> 2021). MONTH/QUARTER labels stay Gregorian
   # (m04 = April, Q2 = Apr-Jun); the member ORDER starts at the anchor.
-  fy04_m12      = list(tokens = "m12", coverage = "complete",
+  fy04_m12      = list(tokens = "m12", coverage_class = "complete",
                        regularity = "regular",
                        year_start = list(month = 4L, day = 1L)),
-  fy04_m12_h24  = list(tokens = c("m12", "h24"), coverage = "complete",
+  fy04_m12_h24  = list(tokens = c("m12", "h24"), coverage_class = "complete",
                        regularity = "regular",
                        year_start = list(month = 4L, day = 1L)),
-  fy04_q4       = list(tokens = "q4", coverage = "complete",
+  fy04_q4       = list(tokens = "q4", coverage_class = "complete",
                        regularity = "regular",
                        year_start = list(month = 4L, day = 1L)),
   fy04_q4_h24   = list(tokens = c("q4", "h24"),
-                       coverage = "representative", regularity = "regular",
+                       coverage_class = "representative", regularity = "regular",
                        year_start = list(month = 4L, day = 1L)),
-  fy04_d365     = list(tokens = "d365", coverage = "truncated",
+  fy04_d365     = list(tokens = "d365", coverage_class = "truncated",
                        regularity = "regular",
                        year_start = list(month = 4L, day = 1L)),
-  fy04_d365_h24 = list(tokens = c("d365", "h24"), coverage = "truncated",
+  fy04_d365_h24 = list(tokens = c("d365", "h24"), coverage_class = "truncated",
                        regularity = "regular",
                        year_start = list(month = 4L, day = 1L)),
 
   # hour types
-  hp3      = list(tokens = "hp3", coverage = "representative",
+  hp3      = list(tokens = "hp3", coverage_class = "representative",
                   regularity = "regular"),
-  d365_hp3 = list(tokens = c("d365", "hp3"), coverage = "representative",
+  d365_hp3 = list(tokens = c("d365", "hp3"), coverage_class = "representative",
                   regularity = "regular"),
-  m12a_hp3 = list(tokens = c("m12a", "hp3"), coverage = "representative",
+  m12a_hp3 = list(tokens = c("m12a", "hp3"), coverage_class = "representative",
                   regularity = "regular"),
-  s4_hp3   = list(tokens = c("s4", "hp3"), coverage = "representative",
+  s4_hp3   = list(tokens = c("s4", "hp3"), coverage_class = "representative",
                   regularity = "regular"),
-  q4_hp3   = list(tokens = c("q4", "hp3"), coverage = "representative",
+  q4_hp3   = list(tokens = c("q4", "hp3"), coverage_class = "representative",
                   regularity = "regular")
 )
 
@@ -158,14 +158,14 @@
 #' [`calendars`] dataset.
 #'
 #' @return A `data.frame` with one row per catalog entry: `id`, `tokens`
-#'   (`+`-joined), `timeframes` (`/`-joined), `n_timeslices`, `coverage`
+#'   (`+`-joined), `timeframes` (`/`-joined), `n_timeslices`, `coverage_class`
 #'   (`complete`/`truncated`/`representative`), `regularity`
 #'   (`regular`/`irregular`), and a generated `desc`.
 #'
 #' @examples
 #' cat_df <- calendar_catalog()
 #' head(cat_df)
-#' subset(cat_df, coverage == "complete")
+#' subset(cat_df, coverage_class == "complete")
 #' @export
 calendar_catalog <- function() {
   ids <- names(.CALENDAR_CATALOG)
@@ -178,11 +178,11 @@ calendar_catalog <- function() {
       tokens     = paste(e$tokens, collapse = "+"),
       timeframes = paste(tfs, collapse = "/"),
       n_timeslices   = n,
-      coverage   = e$coverage,
+      coverage_class = e$coverage_class,
       regularity = e$regularity,
       desc       = sprintf("%s calendar (%d timeslices; %s, %s%s)",
                            paste(tfs, collapse = "/"), n,
-                           e$coverage, e$regularity,
+                           e$coverage_class, e$regularity,
                            if (is.null(e$year_start)) "" else
                              sprintf("; fiscal year from m%02d",
                                      e$year_start$month)),
@@ -202,7 +202,7 @@ calendar_catalog <- function() {
     if ("h24" %in% entry$tokens) tfs <- c(tfs, "HOUR")
     return(tfs)
   }
-  vapply(entry$tokens, function(tok) get_token(tok)$timeframe, character(1),
+  vapply(entry$tokens, function(tok) get_calendar_token(tok)$timeframe, character(1),
          USE.NAMES = FALSE)
 }
 
@@ -215,7 +215,7 @@ calendar_catalog <- function() {
     return(as.integer(n))
   }
   as.integer(prod(vapply(entry$tokens, function(tok) {
-    nrow(get_token(tok)$expand())
+    nrow(get_calendar_token(tok)$expand())
   }, numeric(1))))
 }
 
@@ -241,7 +241,7 @@ calendar_catalog <- function() {
             c(as.list(entry$tokens), list(name = name), extra))
   }
   meta <- S7::prop(cal, "meta")
-  meta$coverage <- entry$coverage
+  meta$coverage_class <- entry$coverage_class
   meta$regularity <- entry$regularity
   S7::prop(cal, "meta") <- meta
   cal

@@ -11,7 +11,7 @@ Calendar dispatch here.
 
 ``` r
 calendar_autoplot(
-  object,
+  x,
   type = c("icicle", "stack"),
   fill = c("order", "share", "weight"),
   color_pattern = c("within", "global"),
@@ -36,7 +36,7 @@ calendar_autoplot(
   connectors = FALSE,
   data = NULL,
   z = NULL,
-  rule = NULL,
+  rule = "weighted_mean",
   year = NULL,
   by = "hour",
   ...
@@ -51,10 +51,11 @@ plot(x, ...)
 
 ## Arguments
 
-- object:
+- x:
 
   A
-  [`Calendar`](https://optimal2050.github.io/timescales/r/reference/Calendar.md).
+  [`Calendar`](https://optimal2050.github.io/timescales/r/reference/Calendar.md)
+  (for [`plot()`](https://rdrr.io/r/graphics/plot.default.html)).
 
 - type:
 
@@ -198,11 +199,13 @@ plot(x, ...)
 
   Passed on to `calendar_autoplot()`.
 
-- x:
+- object:
 
   A
   [`Calendar`](https://optimal2050.github.io/timescales/r/reference/Calendar.md)
-  (for [`plot()`](https://rdrr.io/r/graphics/plot.default.html)).
+  (the S3
+  [`autoplot()`](https://ggplot2.tidyverse.org/reference/autoplot.html)
+  generic's argument name; `calendar_autoplot()` itself takes `x`).
 
 ## Value
 

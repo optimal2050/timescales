@@ -16,7 +16,7 @@ The registered \code{data.frame}, or \code{NULL}.
 \description{
 Returns the map registered with \code{\link[=register_calendar_map]{register_calendar_map()}} for the
 pair, or \code{NULL} when none is registered (mirrors
-\code{geoscales::get_geo_map()}).
+\code{geoscales::get_geoscale_map()}).
 }
 \examples{
 get_calendar_map("m12", "q4")   # NULL unless registered

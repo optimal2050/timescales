@@ -9,12 +9,12 @@ never `YEAR`, which is reserved for the Gregorian-year axis).
 ## Usage
 
 ``` r
-prune_calendar(calendar, timeframe)
+prune_calendar(x, timeframe)
 ```
 
 ## Arguments
 
-- calendar:
+- x:
 
   A
   [`Calendar`](https://optimal2050.github.io/timescales/r/reference/Calendar.md).

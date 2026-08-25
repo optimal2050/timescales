@@ -10,7 +10,7 @@
 | [`recast_calendar()`](https://optimal2050.github.io/timescales/r/reference/recast_calendar.md) | calendar A → calendar B | *convert* values between two resolutions, one rule per column |
 | [`recast_to_timebase()`](https://optimal2050.github.io/timescales/r/reference/recast_to_timebase.md) / [`recast_from_timebase()`](https://optimal2050.github.io/timescales/r/reference/recast_to_timebase.md) | the route halves | project down to the base grid / aggregate up from it |
 | [`calendar_map()`](https://optimal2050.github.io/timescales/r/reference/calendar_map.md) | A → B crosswalk | the conversion, materialised as a small table |
-| [`register_rule()`](https://optimal2050.github.io/timescales/r/reference/register_rule.md) / [`register_calendar_map()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_map.md) / [`register_conversion()`](https://optimal2050.github.io/timescales/r/reference/register_conversion.md) | registries | per-column rules, exact crosswalks, functional overrides |
+| [`register_calendar_rule()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_rule.md) / [`register_calendar_map()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_map.md) / [`register_calendar_conversion()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_conversion.md) | registries | per-column rules, exact crosswalks, functional overrides |
 
 Everything below runs on the shipped `merra2_cities` sample (three
 cities × 8,760 hours of 2019) in tidyverse style — data flows through
@@ -114,8 +114,8 @@ with neither errors — a silently guessed rule is a silent unit error.
 
 ``` r
 
-register_rule("T10M",  "weighted_mean")   # intensive: temperature
-register_rule("SWGDN", "sum")             # extensive proxy: energy
+register_calendar_rule("T10M",  "weighted_mean")   # intensive: temperature
+register_calendar_rule("SWGDN", "sum")             # extensive proxy: energy
 
 q <- panel |>
   recast_calendar(cal, calendars$q4, year = 2019)
@@ -245,7 +245,7 @@ When an exact correspondence is known (hand-audited concordances,
 provably nested designs),
 [`register_calendar_map()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_map.md)
 short-circuits the grid derivation for that pair;
-[`register_conversion()`](https://optimal2050.github.io/timescales/r/reference/register_conversion.md)
+[`register_calendar_conversion()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_conversion.md)
 goes one step further and replaces the whole conversion with your
 function. Both are keyed by calendar names, like the attach.
 

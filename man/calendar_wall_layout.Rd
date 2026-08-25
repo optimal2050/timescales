@@ -5,14 +5,14 @@
 \title{Wall-calendar tile layout}
 \usage{
 calendar_wall_layout(
-  calendar,
+  x,
   year = NULL,
   arrange = c("weekday", "sequence"),
   week_start = "MON"
 )
 }
 \arguments{
-\item{calendar}{A \code{\link{Calendar}} with a day-resolution timeframe
+\item{x}{A \code{\link{Calendar}} with a day-resolution timeframe
 (\code{YDAY} or \code{MDAY}). Sub-daily timeframes are collapsed to the day
 layer via \code{\link[=prune_calendar]{prune_calendar()}}.}
 

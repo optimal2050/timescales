@@ -4,10 +4,10 @@
 \alias{calendar_layout}
 \title{Icicle layout of a calendar's structure}
 \usage{
-calendar_layout(calendar, annual = TRUE)
+calendar_layout(x, annual = TRUE)
 }
 \arguments{
-\item{calendar}{A \code{\link{Calendar}}.}
+\item{x}{A \code{\link{Calendar}}.}
 
 \item{annual}{Include the \code{ANNUAL} root band on top? Default \code{TRUE}.}
 }

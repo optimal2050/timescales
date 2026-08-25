@@ -11,12 +11,12 @@ with the default metadata that is simply the Gregorian year in `tz`.
 ## Usage
 
 ``` r
-expand_calendar(calendar, year, by = NULL, tz = "UTC", alignment = NULL)
+expand_calendar(x, year, by = NULL, tz = "UTC", alignment = NULL)
 ```
 
 ## Arguments
 
-- calendar:
+- x:
 
   A
   [`Calendar`](https://optimal2050.github.io/timescales/r/reference/Calendar.md).

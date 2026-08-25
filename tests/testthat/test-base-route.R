@@ -20,7 +20,7 @@ test_that("recast_to_timebase repeats intensive columns and attaches weight", {
   expect_true(all(jan$price == 21))
   expect_equal(sum(g$weight), 1, tolerance = 1e-9)
   g2 <- recast_to_timebase(x, m12, year = 2021, by = "day",
-                           rule = "weighted_mean", weight = FALSE)
+                           rule = "weighted_mean", attach_weight = FALSE)
   expect_false("weight" %in% names(g2))
 })
 
@@ -76,11 +76,4 @@ test_that("from_base na_action handles uncovered datetimes", {
                            by = "day", na_action = "keep")
   expect_equal(sum(res2$v, na.rm = TRUE), 365)
   expect_true(anyNA(res2$timeslice))
-})
-
-test_that("deprecated instant_to_timeslice() still forwards", {
-  cal <- calendar_build("m12")
-  d <- lubridate::ymd("2021-03-15")
-  expect_warning(old <- instant_to_timeslice(d, cal), "deprecated")
-  expect_identical(old, datetime_to_timeslice(d, cal))
 })

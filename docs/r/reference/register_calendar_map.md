@@ -5,7 +5,7 @@ A registered map short-circuits the base-grid derivation in
 (and thereby
 [`recast_calendar()`](https://optimal2050.github.io/timescales/r/reference/recast_calendar.md))
 for one calendar pair – the table analogue of the functional override in
-[`register_conversion()`](https://optimal2050.github.io/timescales/r/reference/register_conversion.md),
+[`register_calendar_conversion()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_conversion.md),
 for cases where the exact correspondence is known (provably nested
 calendars, hand-audited crosswalks).
 

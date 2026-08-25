@@ -9,12 +9,12 @@ Without `within`, shares sum to 1 over the whole calendar; with `within`
 ## Usage
 
 ``` r
-calendar_share(calendar, timeframe, within = NULL)
+calendar_share(x, timeframe, within = NULL)
 ```
 
 ## Arguments
 
-- calendar:
+- x:
 
   A
   [Calendar](https://optimal2050.github.io/timescales/r/reference/Calendar.md).

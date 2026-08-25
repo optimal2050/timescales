@@ -14,7 +14,7 @@
 #' table; each leaf's share is the product of its tokens' shares, scaled to
 #' `year_fraction`.
 #'
-#' @param ... Character token names (see [`list_tokens()`]) in coarsest-first
+#' @param ... Character token names (see [`list_calendar_tokens()`]) in coarsest-first
 #'   order, as positional arguments; each token's timeframe must be unique
 #'   within the call. Additional NAMED entries are appended to `meta` of
 #'   the resulting [`Calendar`] (names colliding with construction
@@ -77,7 +77,7 @@ calendar_build <- function(...,
   tokens <- vapply(tokens, identity, character(1))
 
   # Look up tokens
-  defs <- lapply(tokens, get_token)
+  defs <- lapply(tokens, get_calendar_token)
   tfs  <- vapply(defs, `[[`, character(1), "timeframe")
   if (anyDuplicated(tfs)) {
     stop("Duplicate timeframes among tokens: ",
@@ -182,7 +182,7 @@ calendar_build <- function(...,
 #' Build a Calendar by name
 #'
 #' Convenience shortcut. Names listed in [`calendar_catalog()`] build the
-#' catalog design (with `coverage`/`regularity` metadata attached; the
+#' catalog design (with `coverage_class`/`regularity` metadata attached; the
 #' `m12_md*` family uses a dedicated ragged month/day builder). Any other
 #' name is parsed as `_`-joined tokens and dispatched to
 #' [`calendar_build()`]. The leading `y_` prefix (year-qualified) is
@@ -213,7 +213,7 @@ calendar <- function(name, ...) {
     parsed_name <- sub("^y_", "", parsed_name)
   }
 
-  # Catalog entries first: they carry coverage/regularity metadata, and the
+  # Catalog entries first: they carry coverage_class/regularity metadata, and the
   # m12_md* designs are non-Cartesian (not expressible as a token product)
   entry <- .CALENDAR_CATALOG[[parsed_name]]
   if (!is.null(entry)) {
@@ -225,12 +225,12 @@ calendar <- function(name, ...) {
   }
 
   tokens <- strsplit(parsed_name, "_", fixed = TRUE)[[1]]
-  unknown <- setdiff(tokens, list_tokens())
+  unknown <- setdiff(tokens, list_calendar_tokens())
   if (length(unknown) > 0L) {
     stop("Unknown token(s) in '", name, "': ",
          paste(unknown, collapse = ", "),
-         ". Use list_tokens() to see available tokens and calendar_catalog() ",
-         "for the named designs, or register_token() to add custom tokens.",
+         ". Use list_calendar_tokens() to see available tokens and calendar_catalog() ",
+         "for the named designs, or register_calendar_token() to add custom tokens.",
          call. = FALSE)
   }
 

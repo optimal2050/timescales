@@ -7,7 +7,7 @@
 \title{Plot a calendar's structure as an icicle}
 \usage{
 calendar_autoplot(
-  object,
+  x,
   type = c("icicle", "stack"),
   fill = c("order", "share", "weight"),
   color_pattern = c("within", "global"),
@@ -32,7 +32,7 @@ calendar_autoplot(
   connectors = FALSE,
   data = NULL,
   z = NULL,
-  rule = NULL,
+  rule = "weighted_mean",
   year = NULL,
   by = "hour",
   ...
@@ -43,7 +43,7 @@ calendar_autoplot(
 \method{plot}{Calendar}(x, ...)
 }
 \arguments{
-\item{object}{A \code{\link{Calendar}}.}
+\item{x}{A \code{\link{Calendar}} (for \code{plot()}).}
 
 \item{type}{\code{"icicle"} (default) or \code{"stack"} — the axonometric
 stacked-planes view (see below).}
@@ -145,7 +145,8 @@ silently collapses hour-type slices).}
 
 \item{...}{Passed on to \code{\link[=calendar_autoplot]{calendar_autoplot()}}.}
 
-\item{x}{A \code{\link{Calendar}} (for \code{plot()}).}
+\item{object}{A \code{\link{Calendar}} (the S3 \code{autoplot()} generic's argument
+name; \code{calendar_autoplot()} itself takes \code{x}).}
 }
 \value{
 A ggplot object (returned, not printed).

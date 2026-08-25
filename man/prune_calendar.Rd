@@ -4,10 +4,10 @@
 \alias{prune_calendar}
 \title{Derive a coarser calendar by truncating the hierarchy at a timeframe}
 \usage{
-prune_calendar(calendar, timeframe)
+prune_calendar(x, timeframe)
 }
 \arguments{
-\item{calendar}{A \code{\link{Calendar}}.}
+\item{x}{A \code{\link{Calendar}}.}
 
 \item{timeframe}{One of \code{calendar}'s timeframes, or \code{"ANNUAL"} for the
 whole-year root.}

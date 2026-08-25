@@ -19,7 +19,7 @@
 # that run unchanged over data.frame / tibble / data.table / arrow inputs
 # (see R/backend.R for the format contract).
 #
-# Aggregation rules (RECAST_RULES) and alignment rules (ALIGNMENT_RULES)
+# Aggregation rules (CALENDAR_RULES) and alignment rules (ALIGNMENT_RULES)
 # are separate axes -- see R/rules.R and dev/review-core.md.
 # =============================================================================
 
@@ -247,7 +247,7 @@ datetime_to_timeslice <- function(dtm, calendar, alignment = NULL) {
 #' (`meta$year_start`, `meta$utc_offset_minutes`); with the default metadata
 #' that is simply the Gregorian year in `tz`.
 #'
-#' @param calendar A [`Calendar`].
+#' @param x A [`Calendar`].
 #' @param year Integer vector -- the model year(s) to enumerate.
 #' @param by Resolution string passed to `seq.POSIXt`'s `by` argument
 #'   (`"hour"`, `"day"`, `"15 min"`, ...). Defaults to the finest of the
@@ -266,10 +266,10 @@ datetime_to_timeslice <- function(dtm, calendar, alignment = NULL) {
 #' nrow(grid)                                  # 365
 #' nrow(expand_calendar(cal, 2020, by = "day"))  # 366 (leap year)
 #' @export
-expand_calendar <- function(calendar, year, by = NULL, tz = "UTC",
+expand_calendar <- function(x, year, by = NULL, tz = "UTC",
                             alignment = NULL) {
-  if (!S7::S7_inherits(calendar, Calendar)) {
-    stop("`calendar` must be a Calendar object", call. = FALSE)
+  if (!S7::S7_inherits(x, Calendar)) {
+    stop("`x` must be a Calendar object", call. = FALSE)
   }
   year <- as.integer(year)
   if (length(year) == 0L || anyNA(year)) {
@@ -277,15 +277,15 @@ expand_calendar <- function(calendar, year, by = NULL, tz = "UTC",
   }
 
   if (is.null(by)) {
-    by <- .default_step(S7::prop(calendar, "timeframes"))
+    by <- .default_step(S7::prop(x, "timeframes"))
   }
 
   chunks <- lapply(year, function(y) {
-    dtm <- .model_year_datetimes(calendar, y, by, tz)
+    dtm <- .model_year_datetimes(x, y, by, tz)
     data.frame(
       datetime = dtm,
       year     = y,
-      timeslice = datetime_to_timeslice(dtm, calendar, alignment = alignment),
+      timeslice = datetime_to_timeslice(dtm, x, alignment = alignment),
       stringsAsFactors = FALSE
     )
   })
@@ -341,11 +341,11 @@ expand_calendar <- function(calendar, year, by = NULL, tz = "UTC",
 #' @noRd
 .rules_for <- function(values, rule) {
   vapply(values, function(v) {
-    if (!is.null(rule)) return(match.arg(rule, RECAST_RULES))
-    reg <- get_rule(v)
+    if (!is.null(rule)) return(match.arg(rule, CALENDAR_RULES))
+    reg <- get_calendar_rule(v)
     if (is.null(reg)) {
       .stop(paste0("no aggregation rule for value column `%s`; pass `rule=` ",
-                   "or register one with register_rule(\"%s\", ...)"), v, v)
+                   "or register one with register_calendar_rule(\"%s\", ...)"), v, v)
     }
     reg$rule
   }, character(1))
@@ -475,7 +475,7 @@ expand_calendar <- function(calendar, year, by = NULL, tz = "UTC",
 #' so aggregation and disaggregation are one operation. The route is
 #' evaluated as one dplyr pipeline against the [`calendar_map()`]
 #' crosswalk, so `x` may live in any supported backend (see below). A
-#' pairwise override registered with [`register_conversion()`] (or a
+#' pairwise override registered with [`register_calendar_conversion()`] (or a
 #' crosswalk registered with [`register_calendar_map()`]) short-circuits
 #' the grid route.
 #'
@@ -483,7 +483,7 @@ expand_calendar <- function(calendar, year, by = NULL, tz = "UTC",
 #' as identifiers (panel columns -- a `city`, a scenario) and preserved as
 #' grouping columns, so panel data recasts correctly in one call; this is
 #' what makes mixed pipelines like
-#' `x |> recast_calendar(...) |> geo_recast(...)` work. Columns named like
+#' `x |> recast_calendar(...) |> recast_geoscale(...)` work. Columns named like
 #' `from`'s timeframes are treated as timeslice attributes and dropped.
 #'
 #' The public halves of the route are [`recast_to_timebase()`] and
@@ -512,8 +512,8 @@ expand_calendar <- function(calendar, year, by = NULL, tz = "UTC",
 #' @param values Character vector of value columns to transform. Default:
 #'   all numeric columns other than `key` and `from`'s timeframe columns.
 #'   Numeric identifiers (e.g. `year`) must be excluded explicitly.
-#' @param rule One of [`RECAST_RULES`], applied to every value column; or
-#'   `NULL` (default) to look each column up with [`get_rule()`]. A column
+#' @param rule One of [`CALENDAR_RULES`], applied to every value column; or
+#'   `NULL` (default) to look each column up with [`get_calendar_rule()`]. A column
 #'   with neither an explicit `rule=` nor a registry entry is an ERROR --
 #'   there is deliberately no fallback (a silently guessed rule is a
 #'   silent unit error).
@@ -531,12 +531,12 @@ expand_calendar <- function(calendar, year, by = NULL, tz = "UTC",
 #' @return The recast table in the input's class, with columns
 #'   `c(key, identifiers, values)`: per identifier combination, one row per
 #'   timeslice in `to` (the full target vocabulary, `NA` where uncovered --
-#'   a deliberate divergence from `geo_recast()`, which emits observed
+#'   a deliberate divergence from `recast_geoscale()`, which emits observed
 #'   combinations only), plus an `NA` timeslice row under
 #'   `na_action = "keep"`. Identifier column types are preserved.
 #'
 #' @details
-#' Rules (see [`RECAST_RULES`]): `"sum"` splits each source value equally
+#' Rules (see [`CALENDAR_RULES`]): `"sum"` splits each source value equally
 #' across its timeslice's grid points before summing up, so totals are
 #' conserved. `"weighted_mean"` weights by the declared `leaves$share` of
 #' each source timeslice; `"mean"` is the plain (time-weighted) mean over
@@ -602,7 +602,7 @@ recast_calendar <- function(x, from, to, year,
   to_meta   <- S7::prop(to, "meta")
   if (!is.null(from_meta$name) && !is.null(to_meta$name) &&
       nzchar(from_meta$name) && nzchar(to_meta$name)) {
-    fn <- get_conversion(from_meta$name, to_meta$name)
+    fn <- get_calendar_conversion(from_meta$name, to_meta$name)
     if (!is.null(fn)) {
       return(fn(x, from, to, year = year, key = key, values = values,
                 rule = rule, by = by, tz = tz, na_action = na_action))
@@ -748,7 +748,7 @@ recast_calendar <- function(x, from, to, year,
 #' repeated. A `weight` column (the source timeslice's `share` divided by
 #' its grid-point count) is attached by default so that the return trip's
 #' `"weighted_mean"` reproduces the source calendar's weighting exactly;
-#' pass `weight = FALSE` to omit it.
+#' pass `attach_weight = FALSE` to omit it.
 #'
 #' Going up, rules act on the grid rows directly: `"sum"` sums,
 #' `"mean"` averages, `"weighted_mean"` uses the `weight` column when
@@ -772,7 +772,7 @@ recast_calendar <- function(x, from, to, year,
 #'   (falling back to a column named like the calendar). `from_base`: the
 #'   datetime column, default `"datetime"`.
 #' @param values,rule,by,tz As in [`recast_calendar()`].
-#' @param weight `to_base` only: attach the `weight` column (default
+#' @param attach_weight `to_base` only: attach the `weight` column (default
 #'   `TRUE`).
 #' @param na_action `from_base` only: what to do with rows whose datetime
 #'   the calendar does not cover -- `"drop"` (default, warning), `"error"`,
@@ -798,7 +798,7 @@ recast_calendar <- function(x, from, to, year,
 #' @export
 recast_to_timebase <- function(x, calendar, year = NULL,
                            key = NULL, values = NULL, rule = NULL,
-                           by = NULL, tz = "UTC", weight = TRUE,
+                           by = NULL, tz = "UTC", attach_weight = TRUE,
                            collect = NULL) {
   backend <- .ts_backend(x)
   if (is.na(backend)) {
@@ -817,7 +817,7 @@ recast_to_timebase <- function(x, calendar, year = NULL,
   if (!key %in% names(schema)) {
     .stop("`x` has no column named `%s`; pass `key=`", key)
   }
-  for (cc in c("datetime", if (isTRUE(weight)) "weight")) {
+  for (cc in c("datetime", if (isTRUE(attach_weight)) "weight")) {
     if (cc %in% names(schema)) {
       .stop("`x` already has a `%s` column; rename it first", cc)
     }
@@ -857,7 +857,7 @@ recast_to_timebase <- function(x, calendar, year = NULL,
     dplyr::mutate(.ts_n_from = dplyr::n()) |>
     dplyr::ungroup() |>
     as.data.frame()
-  if (isTRUE(weight)) {
+  if (isTRUE(attach_weight)) {
     grid$weight <- as.numeric(share_map[grid$timeslice]) / grid$.ts_n_from
   }
   names(grid)[names(grid) == "timeslice"] <- key
@@ -875,7 +875,7 @@ recast_to_timebase <- function(x, calendar, year = NULL,
 
   id_cols <- setdiff(names(schema), c(key, values, tfs, "year"))
   keep <- c("datetime", "year", id_cols, values,
-            if (isTRUE(weight)) "weight")
+            if (isTRUE(attach_weight)) "weight")
   out <- dplyr::select(out, dplyr::all_of(keep))
   .ts_restore(out, backend, collect = collect)
 }

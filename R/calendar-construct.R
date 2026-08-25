@@ -102,8 +102,7 @@ calendar_from_leaftable <- function(leaftable,
   extra_names <- names(list(...))
   if (any(c("leaves", "levels") %in% extra_names)) {
     stop("arguments `leaves`/`levels` were renamed `leaftable`/`members` ",
-         "(2026-08 lattice); update the call or use the deprecated ",
-         "calendar_from_leaves()", call. = FALSE)
+         "(2026-08 lattice); update the call", call. = FALSE)
   }
   meta <- list(
     name               = as.character(name),

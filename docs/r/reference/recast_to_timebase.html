@@ -17,7 +17,7 @@ recast_from_timebase(recast_to_timebase(x, from), to)."><meta property="og:image
 
     <a class="navbar-brand me-2" href="../index.html">timescales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.4.2.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -77,7 +77,7 @@ composition is <code><a href="recast_calendar.html">recast_calendar()</a></code>
 <span>  rule <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  by <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  tz <span class="op">=</span> <span class="st">"UTC"</span>,</span>
-<span>  weight <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  attach_weight <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  collect <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -127,7 +127,7 @@ datetime column, default <code>"datetime"</code>.</p></dd>
 <dd><p>As in <code><a href="recast_calendar.html">recast_calendar()</a></code>.</p></dd>
 
 
-<dt id="arg-weight">weight<a class="anchor" aria-label="anchor" href="#arg-weight"></a></dt>
+<dt id="arg-attach-weight">attach_weight<a class="anchor" aria-label="anchor" href="#arg-attach-weight"></a></dt>
 <dd><p><code>to_base</code> only: attach the <code>weight</code> column (default
 <code>TRUE</code>).</p></dd>
 
@@ -158,7 +158,7 @@ timeslice's grid points so totals conserve; intensive columns are
 repeated. A <code>weight</code> column (the source timeslice's <code>share</code> divided by
 its grid-point count) is attached by default so that the return trip's
 <code>"weighted_mean"</code> reproduces the source calendar's weighting exactly;
-pass <code>weight = FALSE</code> to omit it.</p>
+pass <code>attach_weight = FALSE</code> to omit it.</p>
 <p>Going up, rules act on the grid rows directly: <code>"sum"</code> sums,
 <code>"mean"</code> averages, <code>"weighted_mean"</code> uses the <code>weight</code> column when
 present (else it equals <code>"mean"</code>), <code>"copy"</code> requires constancy, <code>"sd"</code>

@@ -22,8 +22,12 @@ Query the timeframe hierarchy and subset calendars.
   [`calendar_rank()`](https://optimal2050.github.io/timescales/r/reference/calendar_queries.md)
   [`calendar_timeslices()`](https://optimal2050.github.io/timescales/r/reference/calendar_queries.md)
   : Calendar hierarchy queries
+- [`calendar_leaftable()`](https://optimal2050.github.io/timescales/r/reference/calendar_leaftable.md)
+  : The leaftable of a Calendar
 - [`calendar_family()`](https://optimal2050.github.io/timescales/r/reference/calendar_family.md)
   : Immediate parent-child pairs of a Calendar hierarchy
+- [`calendar_ancestry()`](https://optimal2050.github.io/timescales/r/reference/calendar_ancestry.md)
+  : All ancestor-descendant pairs of a Calendar hierarchy
 - [`calendar_children()`](https://optimal2050.github.io/timescales/r/reference/calendar_navigate.md)
   [`calendar_parents()`](https://optimal2050.github.io/timescales/r/reference/calendar_navigate.md)
   [`calendar_descendants()`](https://optimal2050.github.io/timescales/r/reference/calendar_navigate.md)
@@ -35,6 +39,8 @@ Query the timeframe hierarchy and subset calendars.
   [`` `[`( ``*`<Calendar>`*`)`](https://optimal2050.github.io/timescales/r/reference/filter_calendar.md)
   [`` `[`( ``*`<timescales::Calendar>`*`)`](https://optimal2050.github.io/timescales/r/reference/filter_calendar.md)
   : Filter a Calendar to selected labels
+- [`calendar_coverage()`](https://optimal2050.github.io/timescales/r/reference/calendar_coverage.md)
+  : Coverage of a sampled Calendar
 
 ## Catalog and data
 
@@ -51,9 +57,9 @@ The built-in calendar designs and sample data.
 
 Reusable label vocabularies for one timeframe.
 
-- [`register_token()`](https://optimal2050.github.io/timescales/r/reference/register_token.md)
-  [`get_token()`](https://optimal2050.github.io/timescales/r/reference/register_token.md)
-  [`list_tokens()`](https://optimal2050.github.io/timescales/r/reference/register_token.md)
+- [`register_calendar_token()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_token.md)
+  [`get_calendar_token()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_token.md)
+  [`list_calendar_tokens()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_token.md)
   : Register or look up a calendar token
 
 ## Timeframes
@@ -125,33 +131,23 @@ Draw calendar structures and data on calendars.
 
 Aggregation and alignment semantics, and their registries.
 
-- [`RECAST_RULES`](https://optimal2050.github.io/timescales/r/reference/RECAST_RULES.md)
+- [`CALENDAR_RULES`](https://optimal2050.github.io/timescales/r/reference/CALENDAR_RULES.md)
   : Supported aggregation rules
 - [`ALIGNMENT_RULES`](https://optimal2050.github.io/timescales/r/reference/ALIGNMENT_RULES.md)
   : Supported alignment rules
-- [`register_rule()`](https://optimal2050.github.io/timescales/r/reference/register_rule.md)
+- [`register_calendar_rule()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_rule.md)
   : Register how a parameter should be recast
-- [`get_rule()`](https://optimal2050.github.io/timescales/r/reference/get_rule.md)
+- [`get_calendar_rule()`](https://optimal2050.github.io/timescales/r/reference/get_calendar_rule.md)
   : Look up a registered rule
-- [`list_rules()`](https://optimal2050.github.io/timescales/r/reference/list_rules.md)
+- [`list_calendar_rules()`](https://optimal2050.github.io/timescales/r/reference/list_calendar_rules.md)
   : List registered rules
-- [`clear_rules()`](https://optimal2050.github.io/timescales/r/reference/clear_rules.md)
+- [`clear_calendar_rules()`](https://optimal2050.github.io/timescales/r/reference/clear_calendar_rules.md)
   : Clear the rule registry
-- [`register_conversion()`](https://optimal2050.github.io/timescales/r/reference/register_conversion.md)
-  [`get_conversion()`](https://optimal2050.github.io/timescales/r/reference/register_conversion.md)
-  [`list_conversions()`](https://optimal2050.github.io/timescales/r/reference/register_conversion.md)
-  [`clear_conversions()`](https://optimal2050.github.io/timescales/r/reference/register_conversion.md)
+- [`register_calendar_conversion()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_conversion.md)
+  [`get_calendar_conversion()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_conversion.md)
+  [`list_calendar_conversions()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_conversion.md)
+  [`clear_calendar_conversions()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_conversion.md)
   : Register a pairwise calendar conversion override
-
-## Deprecated
-
-- [`calendar_recast()`](https://optimal2050.github.io/timescales/r/reference/timescales-deprecated.md)
-  [`calendar_join()`](https://optimal2050.github.io/timescales/r/reference/timescales-deprecated.md)
-  [`calendar_at_level()`](https://optimal2050.github.io/timescales/r/reference/timescales-deprecated.md)
-  [`instant_to_timeslice()`](https://optimal2050.github.io/timescales/r/reference/timescales-deprecated.md)
-  [`instant_to_slice()`](https://optimal2050.github.io/timescales/r/reference/timescales-deprecated.md)
-  [`calendar_from_leaves()`](https://optimal2050.github.io/timescales/r/reference/timescales-deprecated.md)
-  : Deprecated timescales functions
 
 ## Package
 

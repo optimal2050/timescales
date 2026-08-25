@@ -1,13 +1,13 @@
-test_that("list_tokens() includes the built-in set", {
-  toks <- list_tokens()
+test_that("list_calendar_tokens() includes the built-in set", {
+  toks <- list_calendar_tokens()
   expect_true(all(c("d360", "d364", "d365", "d366",
                     "m12", "m12a", "q4",
                     "w52", "w53", "wd7",
                     "h24", "h168", "min60") %in% toks))
 })
 
-test_that("get_token() returns timeframe + expand", {
-  d365 <- get_token("d365")
+test_that("get_calendar_token() returns timeframe + expand", {
+  d365 <- get_calendar_token("d365")
   expect_equal(d365$timeframe, "YDAY")
   df <- d365$expand()
   expect_equal(nrow(df), 365)
@@ -17,54 +17,54 @@ test_that("get_token() returns timeframe + expand", {
 })
 
 test_that("built-in tokens declare their alignment and axis", {
-  expect_equal(get_token("d365")$alignment, "drop_feb29")
-  expect_equal(get_token("d360")$alignment, "drop_last")
-  expect_equal(get_token("d364")$alignment, "drop_last")
-  expect_equal(get_token("w52")$alignment, "repeat_last")
-  expect_null(get_token("d366")$alignment)
+  expect_equal(get_calendar_token("d365")$alignment, "drop_feb29")
+  expect_equal(get_calendar_token("d360")$alignment, "drop_last")
+  expect_equal(get_calendar_token("d364")$alignment, "drop_last")
+  expect_equal(get_calendar_token("w52")$alignment, "repeat_last")
+  expect_null(get_calendar_token("d366")$alignment)
   # h168 is hour-of-week, not hour-of-day
-  expect_equal(get_token("h168")$timeframe, "WHOUR")
-  expect_equal(get_token("h24")$timeframe, "HOUR")
+  expect_equal(get_calendar_token("h168")$timeframe, "WHOUR")
+  expect_equal(get_calendar_token("h24")$timeframe, "HOUR")
 })
 
 test_that("month tokens have day-weighted shares", {
-  m12 <- get_token("m12")$expand()
+  m12 <- get_calendar_token("m12")$expand()
   expect_equal(m12$label, sprintf("m%02d", 1:12))
   # share should equal days-in-month / 365
   expect_equal(m12$share[1], 31 / 365)
   expect_equal(m12$share[2], 28 / 365)
   expect_equal(sum(m12$share), 1)
 
-  m12a <- get_token("m12a")$expand()
+  m12a <- get_calendar_token("m12a")$expand()
   expect_equal(m12a$label, c("JAN", "FEB", "MAR", "APR", "MAY", "JUN",
                              "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"))
   expect_equal(m12a$share, m12$share)
 })
 
-test_that("get_token() errors on unknown token", {
-  expect_error(get_token("totally_made_up"), "Unknown token")
+test_that("get_calendar_token() errors on unknown token", {
+  expect_error(get_calendar_token("totally_made_up"), "Unknown token")
 })
 
-test_that("register_token() adds and can be retrieved", {
-  register_token("my_d2", "YDAY", function() {
+test_that("register_calendar_token() adds and can be retrieved", {
+  register_calendar_token("my_d2", "YDAY", function() {
     data.frame(label = c("first_half", "second_half"),
                share = c(0.5, 0.5))
   })
   on.exit(rm("my_d2", envir = timescales:::.TOKEN_REGISTRY), add = TRUE)
-  expect_true("my_d2" %in% list_tokens())
-  expect_equal(get_token("my_d2")$timeframe, "YDAY")
+  expect_true("my_d2" %in% list_calendar_tokens())
+  expect_equal(get_calendar_token("my_d2")$timeframe, "YDAY")
 })
 
-test_that("register_token() records an alignment and calendars inherit it", {
-  register_token("d180", "YDAY", function() {
+test_that("register_calendar_token() records an alignment and calendars inherit it", {
+  register_calendar_token("d180", "YDAY", function() {
     data.frame(label = sprintf("d%03d", 1:180), share = rep(1 / 180, 180))
   }, alignment = "drop_last")
   on.exit(rm("d180", envir = timescales:::.TOKEN_REGISTRY), add = TRUE)
 
-  expect_equal(get_token("d180")$alignment, "drop_last")
+  expect_equal(get_calendar_token("d180")$alignment, "drop_last")
   cal <- calendar_build("d180")
   expect_equal(S7::prop(cal, "meta")$alignment$YDAY, "drop_last")
-  expect_error(register_token("d181", "YDAY", function() {
+  expect_error(register_calendar_token("d181", "YDAY", function() {
     data.frame(label = "a", share = 1)
   }, alignment = "not_a_rule"))
 })
@@ -75,15 +75,15 @@ test_that("calendar_build records token provenance in meta$tokens", {
                c(MONTH = "m12", HOUR = "h24"))
 })
 
-test_that("register_token() rejects bad expand functions", {
+test_that("register_calendar_token() rejects bad expand functions", {
   expect_error(
-    register_token("bad", "YDAY", function() {
+    register_calendar_token("bad", "YDAY", function() {
       data.frame(label = c("a", "a"), share = c(0.5, 0.5))  # duplicate
     }),
     "expand"
   )
   expect_error(
-    register_token("bad", "YDAY", function() {
+    register_calendar_token("bad", "YDAY", function() {
       data.frame(label = c("a", "b"), share = c(0.6, 0.5))  # sum > 1
     }),
     "share"

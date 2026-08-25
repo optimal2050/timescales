@@ -56,9 +56,9 @@ plus each label's within-year share. Tokens are how vocabularies are
 shared across calendars.
 
 ```{r}
-list_tokens()
-get_token("m12")$expand() |> head(3)
-get_token("h24")$expand() |> head(3)
+list_calendar_tokens()
+get_calendar_token("m12")$expand() |> head(3)
+get_calendar_token("h24")$expand() |> head(3)
 ```
 
 A few built-ins:
@@ -74,7 +74,7 @@ A few built-ins:
 | `h24`   | HOUR      | `h00..h23`          | hour-of-day                     |
 | `h168`  | WHOUR     | `h000..h167`        | hour-of-week (Mon 00:00 = `h000`) |
 
-Custom tokens are added with `register_token()`, optionally declaring an
+Custom tokens are added with `register_calendar_token()`, optionally declaring an
 *alignment* rule (see below).
 
 ### Alignment: mapping real years onto stylised ones
@@ -114,8 +114,8 @@ that intentionally do not cover the full year).
 
 ```{r}
 cal <- calendar("q4_h24")
-head(cal@leaftable, 3)
-cat(nrow(cal@leaftable), "leaves, share sums to", sum(cal@leaftable$share))
+head(calendar_leaftable(cal), 3)
+cat(nrow(calendar_leaftable(cal)), "leaves, share sums to", sum(calendar_leaftable(cal)$share))
 ```
 
 ## 4. Recasting between calendars
@@ -129,7 +129,7 @@ cal_m <- calendar("m12")     # source: monthly
 cal_q <- calendar("q4")      # target: quarterly
 
 monthly <- data.frame(
-  timeslice = cal_m@leaftable$timeslice,
+  timeslice = calendar_leaftable(cal_m)$timeslice,
   load  = c(120, 118, 105,  92,  85,  88,  95, 100,  98,  90, 105, 122)
 )
 
@@ -160,12 +160,12 @@ recast_calendar(x, from, to, year) ==
 ```
 
 Direct routes between two named calendars can bypass the grid: register
-a function with `register_conversion()` or an exact crosswalk table with
+a function with `register_calendar_conversion()` or an exact crosswalk table with
 `register_calendar_map()`.
 
 ### Aggregation rules
 
-The rules (`RECAST_RULES`) define behaviour in both directions:
+The rules (`CALENDAR_RULES`) define behaviour in both directions:
 
 | Rule              | Down (timeslice → grid)      | Up (grid → timeslice)                    |
 |-------------------|------------------------------|------------------------------------------|
@@ -177,7 +177,7 @@ The rules (`RECAST_RULES`) define behaviour in both directions:
 
 `weighted_mean` and `mean` differ exactly when a calendar's declared
 shares differ from its real-time coverage. Per-parameter defaults can be
-registered with `register_rule()`. Grid points not covered by one of
+registered with `register_calendar_rule()`. Grid points not covered by one of
 the calendars are governed by `na_action = "drop"` (warns), `"error"`,
 or `"keep"` (an explicit `NA` row that conserves totals).
 
@@ -206,7 +206,7 @@ and `recast_calendar()` accepts a timeframe name for `to=`:
 
 ```{r}
 cal <- calendar("q4_h24")
-x <- data.frame(timeslice = cal@leaftable$timeslice, energy = 1)
+x <- data.frame(timeslice = calendar_leaftable(cal)$timeslice, energy = 1)
 recast_calendar(x, cal, to = "ANNUAL", year = 2025, rule = "sum")
 ```
 

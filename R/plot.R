@@ -35,7 +35,7 @@
 #' layout can be drawn with something other than ggplot2; the same frame
 #' backs [`calendar_autoplot()`].
 #'
-#' @param calendar A [`Calendar`].
+#' @param x A [`Calendar`].
 #' @param annual Include the `ANNUAL` root band on top? Default `TRUE`.
 #'
 #' @return A `data.frame` with columns `timeframe`, `label` (the level value
@@ -49,14 +49,14 @@
 #' @examples
 #' head(calendar_layout(calendar("q4_h24")))
 #' @export
-calendar_layout <- function(calendar, annual = TRUE) {
-  if (!S7::S7_inherits(calendar, Calendar)) {
-    stop("`calendar` must be a Calendar object", call. = FALSE)
+calendar_layout <- function(x, annual = TRUE) {
+  if (!S7::S7_inherits(x, Calendar)) {
+    stop("`x` must be a Calendar object", call. = FALSE)
   }
-  leaves <- S7::prop(calendar, "leaftable")
-  tfs    <- S7::prop(calendar, "timeframes")
-  levels <- S7::prop(calendar, "members")
-  meta   <- S7::prop(calendar, "meta")
+  leaves <- S7::prop(x, "leaftable")
+  tfs    <- S7::prop(x, "timeframes")
+  levels <- S7::prop(x, "members")
+  meta   <- S7::prop(x, "meta")
   yf     <- meta$year_fraction %||% 1
 
   # Chronological order = vocabulary order of each timeframe, coarsest key
@@ -143,7 +143,7 @@ calendar_layout <- function(calendar, annual = TRUE) {
 #' rectangle widths proportional to timeslice shares, x spanning the covered
 #' year on `[0, 1]`. `autoplot()` and `plot()` on a Calendar dispatch here.
 #'
-#' @param object A [`Calendar`].
+#' @param x A [`Calendar`].
 #' @param type `"icicle"` (default) or `"stack"` — the axonometric
 #'   stacked-planes view (see below).
 #' @param fill What drives the fill gradient: `"order"` (chronological
@@ -238,7 +238,7 @@ calendar_layout <- function(calendar, annual = TRUE) {
 #'   calendar_autoplot(calendar("s4_hp3"), type = "stack")
 #' }
 #' @export
-calendar_autoplot <- function(object,
+calendar_autoplot <- function(x,
                               type = c("icicle", "stack"),
                               fill = c("order", "share", "weight"),
                               color_pattern = c("within", "global"),
@@ -254,7 +254,7 @@ calendar_autoplot <- function(object,
                               colour = "grey35", linewidth = 0.2,
                               frame = NULL, frame_fill = NA,
                               connectors = FALSE,
-                              data = NULL, z = NULL, rule = NULL,
+                              data = NULL, z = NULL, rule = "weighted_mean",
                               year = NULL, by = "hour",
                               ...) {
   .need_ggplot("calendar_autoplot()")
@@ -264,7 +264,7 @@ calendar_autoplot <- function(object,
     # whose member names go on the planes, mirroring geoscales); the
     # icicle's c("name","timeslice","none") default must not leak in
     stack_labels <- if (missing(labels)) NULL else labels
-    return(.calendar_stack_plot(object, annual = annual, palette = palette,
+    return(.calendar_stack_plot(x, annual = annual, palette = palette,
                                 view = view, angle = angle, ratio = ratio,
                                 shear = shear, depth = depth, gap = gap,
                                 rotate = rotate, direction = direction,
@@ -281,12 +281,12 @@ calendar_autoplot <- function(object,
   if (isFALSE(labels)) labels <- "none"
   labels <- match.arg(labels)
 
-  tfs    <- S7::prop(object, "timeframes")
-  levels <- S7::prop(object, "members")
-  meta   <- S7::prop(object, "meta")
+  tfs    <- S7::prop(x, "timeframes")
+  levels <- S7::prop(x, "members")
+  meta   <- S7::prop(x, "meta")
 
-  d <- calendar_layout(object, annual = annual)
-  n_leaf <- nrow(S7::prop(object, "leaftable"))
+  d <- calendar_layout(x, annual = annual)
+  n_leaf <- nrow(S7::prop(x, "leaftable"))
 
   # Fill values ---------------------------------------------------------------
   if (!is.null(data)) {
@@ -295,7 +295,7 @@ calendar_autoplot <- function(object,
     # `fill`/`color_pattern`. Dense bands are binned below with
     # width-weighted means, which is the right downsample for a value.
     row_tfs <- unique(d$timeframe)
-    vals <- .calendar_frame_values(object, row_tfs, data, z, rule, year, by)
+    vals <- .calendar_frame_values(x, row_tfs, data, z, rule, year, by)
     d$.fill <- NA_real_
     for (tf in row_tfs) {
       i <- d$timeframe == tf
@@ -336,7 +336,7 @@ calendar_autoplot <- function(object,
   }
 
   # Base plot ------------------------------------------------------------------
-  row_order <- unique(calendar_layout(object, annual = annual)$timeframe)
+  row_order <- unique(calendar_layout(x, annual = annual)$timeframe)
   n_rows <- length(row_order)
   p <- ggplot2::ggplot(d) +
     ggplot2::geom_rect(
@@ -436,7 +436,7 @@ calendar_autoplot <- function(object,
 #' Heatmap of data on a calendar
 #'
 #' The package's single data-on-calendar renderer (the analogue of
-#' `geoscales::geo_plot()`): callers prepare a `data.frame` keyed by timeslice
+#' `geoscales::geoscale_plot()`): callers prepare a `data.frame` keyed by timeslice
 #' and hand it over. With no data, the calendar's own `share` is drawn — a
 #' quick structural view. Layout follows the calendar's hierarchy: finest
 #' timeframe on y, next-finest on x, anything coarser as facets
@@ -612,6 +612,8 @@ calendar_plot <- function(x, data = NULL,
 # -----------------------------------------------------------------------------
 
 #' @rdname calendar_autoplot
+#' @param object A [`Calendar`] (the S3 `autoplot()` generic's argument
+#'   name; `calendar_autoplot()` itself takes `x`).
 #' @param ... Passed on to [`calendar_autoplot()`].
 #' @exportS3Method ggplot2::autoplot
 autoplot.Calendar <- function(object, ...) {
@@ -708,7 +710,7 @@ utils::globalVariables(c("xmin", "xmax", "ymin", "ymax",
                                  colour = "grey35", linewidth = 0.2,
                                  frame = NULL, frame_fill = NA,
                                  connectors = FALSE,
-                                 data = NULL, z = NULL, rule = NULL,
+                                 data = NULL, z = NULL, rule = "weighted_mean",
                                  year = NULL, by = "hour",
                                  labels = NULL) {
   v <- .stack_view(view, angle, ratio, shear, depth)

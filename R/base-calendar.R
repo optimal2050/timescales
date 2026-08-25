@@ -72,7 +72,7 @@ base_calendar <- function(years, by = "hour", tz = "UTC") {
 #' this covers within-calendar aggregation (e.g. `q4_h24 -> q4`) without
 #' constructing a second calendar by hand.
 #'
-#' @param calendar A [`Calendar`].
+#' @param x A [`Calendar`].
 #' @param timeframe One of `calendar`'s timeframes, or `"ANNUAL"` for the
 #'   whole-year root.
 #'
@@ -83,18 +83,18 @@ base_calendar <- function(years, by = "hour", tz = "UTC") {
 #' prune_calendar(cal, "QUARTER")   # 4 timeslices, shares summed over hours
 #' prune_calendar(cal, "ANNUAL")    # 1 timeslice covering the year
 #' @export
-prune_calendar <- function(calendar, timeframe) {
-  if (!S7::S7_inherits(calendar, Calendar)) {
-    stop("`calendar` must be a Calendar object", call. = FALSE)
+prune_calendar <- function(x, timeframe) {
+  if (!S7::S7_inherits(x, Calendar)) {
+    stop("`x` must be a Calendar object", call. = FALSE)
   }
   if (!is.character(timeframe) || length(timeframe) != 1L) {
     stop("`timeframe` must be a single character string", call. = FALSE)
   }
 
-  leaves <- S7::prop(calendar, "leaftable")
-  tfs    <- S7::prop(calendar, "timeframes")
-  levels <- S7::prop(calendar, "members")
-  meta   <- S7::prop(calendar, "meta")
+  leaves <- S7::prop(x, "leaftable")
+  tfs    <- S7::prop(x, "timeframes")
+  levels <- S7::prop(x, "members")
+  meta   <- S7::prop(x, "meta")
 
   base_name <- meta$name %||% ""
 
@@ -109,6 +109,7 @@ prune_calendar <- function(calendar, timeframe) {
     meta_out <- meta
     meta_out$name <- if (nzchar(base_name)) paste0(base_name, "@ANNUAL")
                      else "ANNUAL"
+    if (nzchar(base_name)) meta_out$parent_name <- base_name
     meta_out$tokens <- NULL
     meta_out$alignment <- NULL
     return(Calendar(
@@ -121,7 +122,7 @@ prune_calendar <- function(calendar, timeframe) {
 
   pos <- match(timeframe, tfs)
   if (is.na(pos)) {
-    stop("`timeframe` must be \"ANNUAL\" or one of the calendar's ",
+    stop("`timeframe` must be \"ANNUAL\" or one of the x's ",
          "timeframes: ", paste(tfs, collapse = ", "), call. = FALSE)
   }
   keep <- tfs[seq_len(pos)]
@@ -149,6 +150,7 @@ prune_calendar <- function(calendar, timeframe) {
   meta_out <- meta
   meta_out$name <- if (nzchar(base_name)) paste0(base_name, "@", timeframe)
                    else timeframe
+  if (nzchar(base_name)) meta_out$parent_name <- base_name
   if (!is.null(meta$tokens)) {
     meta_out$tokens <- meta$tokens[intersect(names(meta$tokens), keep)]
   }

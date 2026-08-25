@@ -8,16 +8,16 @@
 \alias{calendar_ancestors}
 \title{Navigate a Calendar hierarchy}
 \usage{
-calendar_children(calendar, timeframe, label, to = NULL)
+calendar_children(x, timeframe, label, to = NULL)
 
-calendar_parents(calendar, timeframe, label, to = NULL)
+calendar_parents(x, timeframe, label, to = NULL)
 
-calendar_descendants(calendar, timeframe, label, to = NULL)
+calendar_descendants(x, timeframe, label, to = NULL)
 
-calendar_ancestors(calendar, timeframe, label, to = NULL)
+calendar_ancestors(x, timeframe, label, to = NULL)
 }
 \arguments{
-\item{calendar}{A \link{Calendar}.}
+\item{x}{A \link{Calendar}.}
 
 \item{timeframe}{The timeframe \code{label} lives at.}
 

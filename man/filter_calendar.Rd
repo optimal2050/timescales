@@ -6,20 +6,18 @@
 \alias{[.timescales::Calendar}
 \title{Filter a Calendar to selected labels}
 \usage{
-filter_calendar(calendar, timeframe, labels)
+filter_calendar(x, timeframe, labels)
 
 \method{[}{Calendar}(x, i, j, ...)
 
 \method{[}{`timescales::Calendar`}(x, i, j, ...)
 }
 \arguments{
-\item{calendar}{A \link{Calendar}.}
+\item{x}{A \link{Calendar} (the \code{[} method's object).}
 
 \item{timeframe}{Timeframe the labels live at.}
 
 \item{labels}{Labels at \code{timeframe} to keep.}
-
-\item{x}{A \link{Calendar} (the \code{[} method's object).}
 
 \item{i, j}{\code{x[i, j]} is \code{filter_calendar(x, timeframe = i, labels = j)}.}
 
@@ -37,9 +35,24 @@ NOT renormalized: the result is a partial-year calendar whose
 vocabularies are subset to the surviving labels.
 }
 \details{
+A real sample (fewer leaves than the parent) is book-kept exactly like
+a geoscales sample: the result is renamed
+\code{"base[timeframe:labels-or-hash]"} (so two different samples of one
+parent never collide in registries or joins), the root parent's name
+and totals are recorded in \code{meta$parent_name}/\code{meta$parent_totals},
+and \code{meta$coverage} holds the surviving fraction of \code{share} and
+\code{weight} (read it with \code{\link[=calendar_coverage]{calendar_coverage()}}). Filter-of-filter
+composes against the root parent. A filter that keeps everything is a
+true no-op: the calendar is returned unchanged.
+
+There is no \verb{drop_empty_timeframes=} twin of the geoscales argument:
+a calendar leaftable is total (no \code{NA} memberships), so no timeframe
+can empty out under filtering.
+
 \code{cal[timeframe, labels]} is subsetting sugar for the same operation.
 }
 \examples{
 win <- filter_calendar(calendar("s4_h24"), "SEASON", "WIN")
 win <- calendar("s4_h24")["SEASON", "WIN"]   # same
+calendar_coverage(win)
 }

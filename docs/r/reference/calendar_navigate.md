@@ -7,18 +7,18 @@ and friends. Time levels nest strictly, so these are exact partitions:
 ## Usage
 
 ``` r
-calendar_children(calendar, timeframe, label, to = NULL)
+calendar_children(x, timeframe, label, to = NULL)
 
-calendar_parents(calendar, timeframe, label, to = NULL)
+calendar_parents(x, timeframe, label, to = NULL)
 
-calendar_descendants(calendar, timeframe, label, to = NULL)
+calendar_descendants(x, timeframe, label, to = NULL)
 
-calendar_ancestors(calendar, timeframe, label, to = NULL)
+calendar_ancestors(x, timeframe, label, to = NULL)
 ```
 
 ## Arguments
 
-- calendar:
+- x:
 
   A
   [Calendar](https://optimal2050.github.io/timescales/r/reference/Calendar.md).

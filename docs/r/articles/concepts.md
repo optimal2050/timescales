@@ -54,15 +54,15 @@ shared across calendars.
 
 ``` r
 
-list_tokens()
+list_calendar_tokens()
 #>  [1] "d360"  "d364"  "d365"  "d366"  "h168"  "h24"   "hp3"   "m12"   "m12a" 
 #> [10] "min60" "q4"    "s4"    "w52"   "w53"   "wd7"   "wk2"
-get_token("m12")$expand() |> head(3)
+get_calendar_token("m12")$expand() |> head(3)
 #>   label      share
 #> 1   m01 0.08493151
 #> 2   m02 0.07671233
 #> 3   m03 0.08493151
-get_token("h24")$expand() |> head(3)
+get_calendar_token("h24")$expand() |> head(3)
 #>   label      share
 #> 1   h00 0.04166667
 #> 2   h01 0.04166667
@@ -83,7 +83,7 @@ A few built-ins:
 | `h168` | WHOUR     | `h000..h167` | hour-of-week (Mon 00:00 = `h000`) |
 
 Custom tokens are added with
-[`register_token()`](https://optimal2050.github.io/timescales/r/reference/register_token.md),
+[`register_calendar_token()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_token.md),
 optionally declaring an *alignment* rule (see below).
 
 ### Alignment: mapping real years onto stylised ones
@@ -130,12 +130,12 @@ intentionally do not cover the full year).
 ``` r
 
 cal <- calendar("q4_h24")
-head(cal@leaftable, 3)
+head(calendar_leaftable(cal), 3)
 #>   QUARTER HOUR      share weight timeslice
 #> 1      Q1  h00 0.01027397     90    Q1_h00
 #> 2      Q2  h00 0.01038813     91    Q2_h00
 #> 3      Q3  h00 0.01050228     92    Q3_h00
-cat(nrow(cal@leaftable), "leaves, share sums to", sum(cal@leaftable$share))
+cat(nrow(calendar_leaftable(cal)), "leaves, share sums to", sum(calendar_leaftable(cal)$share))
 #> 96 leaves, share sums to 1
 ```
 
@@ -152,7 +152,7 @@ cal_m <- calendar("m12")     # source: monthly
 cal_q <- calendar("q4")      # target: quarterly
 
 monthly <- data.frame(
-  timeslice = cal_m@leaftable$timeslice,
+  timeslice = calendar_leaftable(cal_m)$timeslice,
   load  = c(120, 118, 105,  92,  85,  88,  95, 100,  98,  90, 105, 122)
 )
 
@@ -192,13 +192,13 @@ recast_calendar(x, from, to, year) ==
 
 Direct routes between two named calendars can bypass the grid: register
 a function with
-[`register_conversion()`](https://optimal2050.github.io/timescales/r/reference/register_conversion.md)
+[`register_calendar_conversion()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_conversion.md)
 or an exact crosswalk table with
 [`register_calendar_map()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_map.md).
 
 ### Aggregation rules
 
-The rules (`RECAST_RULES`) define behaviour in both directions:
+The rules (`CALENDAR_RULES`) define behaviour in both directions:
 
 | Rule | Down (timeslice → grid) | Up (grid → timeslice) |
 |----|----|----|
@@ -211,7 +211,7 @@ The rules (`RECAST_RULES`) define behaviour in both directions:
 `weighted_mean` and `mean` differ exactly when a calendar’s declared
 shares differ from its real-time coverage. Per-parameter defaults can be
 registered with
-[`register_rule()`](https://optimal2050.github.io/timescales/r/reference/register_rule.md).
+[`register_calendar_rule()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_rule.md).
 Grid points not covered by one of the calendars are governed by
 `na_action = "drop"` (warns), `"error"`, or `"keep"` (an explicit `NA`
 row that conserves totals).
@@ -249,7 +249,7 @@ accepts a timeframe name for `to=`:
 ``` r
 
 cal <- calendar("q4_h24")
-x <- data.frame(timeslice = cal@leaftable$timeslice, energy = 1)
+x <- data.frame(timeslice = calendar_leaftable(cal)$timeslice, energy = 1)
 recast_calendar(x, cal, to = "ANNUAL", year = 2025, rule = "sum")
 #>   timeslice energy
 #> 1    ANNUAL     96

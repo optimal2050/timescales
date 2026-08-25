@@ -41,7 +41,7 @@ timeframe:
 
 ``` r
 
-str(cal@leaftable)
+str(calendar_leaftable(cal))
 #> 'data.frame':    96 obs. of  5 variables:
 #>  $ QUARTER  : chr  "Q1" "Q2" "Q3" "Q4" ...
 #>  $ HOUR     : chr  "h00" "h00" "h00" "h00" ...
@@ -86,7 +86,7 @@ A free-form named list. Recognised keys today:
 
 | Key | Type | Default | Used by |
 |----|----|----|----|
-| `name` | character | `""` | [`print()`](https://rdrr.io/r/base/print.html), [`register_conversion()`](https://optimal2050.github.io/timescales/r/reference/register_conversion.md) lookup |
+| `name` | character | `""` | [`print()`](https://rdrr.io/r/base/print.html), [`register_calendar_conversion()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_conversion.md) lookup |
 | `desc` | character | `""` | [`print()`](https://rdrr.io/r/base/print.html) |
 | `year_start` | list | `list(month=1L, day=1L)` | [`datetime_to_timeslice()`](https://optimal2050.github.io/timescales/r/reference/datetime_to_timeslice.md) (YDAY/YEAR anchor), [`expand_calendar()`](https://optimal2050.github.io/timescales/r/reference/expand_calendar.md) (year window) |
 | `utc_offset_minutes` | integer | `0L` | [`datetime_to_timeslice()`](https://optimal2050.github.io/timescales/r/reference/datetime_to_timeslice.md), [`expand_calendar()`](https://optimal2050.github.io/timescales/r/reference/expand_calendar.md) (local time = UTC + offset) |
@@ -102,7 +102,7 @@ Anything else you put in `@meta` is preserved untouched.
 names(cal@meta)
 #> [1] "name"               "desc"               "year_start"        
 #> [4] "utc_offset_minutes" "year_fraction"      "tokens"            
-#> [7] "coverage"           "regularity"
+#> [7] "coverage_class"     "regularity"
 cal@meta$year_start
 #> $month
 #> [1] 1
@@ -115,11 +115,11 @@ cal@meta$year_start
 
 Tokens live in an internal environment, populated at load time with the
 built-in set and extensible at run time with
-[`register_token()`](https://optimal2050.github.io/timescales/r/reference/register_token.md).
+[`register_calendar_token()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_token.md).
 
 ``` r
 
-list_tokens()
+list_calendar_tokens()
 #>  [1] "d360"  "d364"  "d365"  "d366"  "h168"  "h24"   "hp3"   "m12"   "m12a" 
 #> [10] "min60" "q4"    "s4"    "w52"   "w53"   "wd7"   "wk2"
 ```
@@ -134,7 +134,7 @@ A token is a list with two required fields and one optional:
 
 ``` r
 
-m12 <- get_token("m12")
+m12 <- get_calendar_token("m12")
 m12$timeframe
 #> [1] "MONTH"
 head(m12$expand())
@@ -151,7 +151,7 @@ Custom tokens behave identically to built-ins:
 
 ``` r
 
-register_token("d4q", "YDAY", function() {
+register_calendar_token("d4q", "YDAY", function() {
   data.frame(label = c("Q1d", "Q2d", "Q3d", "Q4d"),
              share = c(90, 91, 92, 92) / 365)
 })

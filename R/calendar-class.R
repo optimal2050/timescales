@@ -165,6 +165,38 @@ Calendar <- S7::new_class(
         }
       }
 
+      # sample bookkeeping: coverage must be verifiable from the object
+      # (the exact mirror of the geoscales Geoscale validator)
+      # [[ ]] indexing: `meta$coverage` would partial-match the catalog's
+      # `meta$coverage_class`
+      if (!is.null(meta[["coverage"]])) {
+        cov <- meta[["coverage"]]
+        wts <- c("share", "weight")
+        if (!is.numeric(cov) || is.null(names(cov)) ||
+            !all(names(cov) %in% wts)) {
+          errs <- c(errs, paste0("`meta$coverage` must be a named numeric ",
+                                 "over \"share\"/\"weight\""))
+        } else if (!all(is.finite(cov)) || any(cov <= 0) || any(cov > 1)) {
+          errs <- c(errs, "`meta$coverage` values must lie in (0, 1]")
+        } else if (!is.null(meta[["parent_totals"]])) {
+          pt <- meta[["parent_totals"]]
+          for (w in intersect(names(cov), names(pt))) {
+            if (!w %in% names(leaftable) || !is.numeric(leaftable[[w]])) next
+            got <- sum(leaftable[[w]], na.rm = TRUE) / pt[[w]]
+            if (abs(got - cov[[w]]) > 1e-8) {
+              errs <- c(errs, sprintf(
+                "`meta$coverage[\"%s\"]` (%.6g) does not match the leaftable (%.6g)",
+                w, cov[[w]], got))
+            }
+          }
+        }
+        if (!is.null(meta[["parent_name"]]) &&
+            !(is.character(meta[["parent_name"]]) &&
+              length(meta[["parent_name"]]) == 1L)) {
+          errs <- c(errs, "`meta$parent_name` must be a single string")
+        }
+      }
+
       ys <- meta$year_start
       if (!is.null(ys)) {
         if (!is.list(ys) || is.null(ys$month) || is.null(ys$day)) {

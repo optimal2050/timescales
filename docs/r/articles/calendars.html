@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">timescales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.4.2.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -95,7 +95,7 @@ objects come pre-built in the <code>calendars</code> dataset:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cal</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calendar_build.html">calendar</a></span><span class="op">(</span><span class="st">"m12_h24"</span><span class="op">)</span>     <span class="co"># build on demand</span></span>
 <span><span class="va">cal2</span> <span class="op">&lt;-</span> <span class="va">calendars</span><span class="op">$</span><span class="va">m12_h24</span>      <span class="co"># pre-built package data</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="va">cal</span><span class="op">@</span><span class="va">leaftable</span>, <span class="va">cal2</span><span class="op">@</span><span class="va">leaftable</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="fu"><a href="../reference/calendar_leaftable.html">calendar_leaftable</a></span><span class="op">(</span><span class="va">cal</span><span class="op">)</span>, <span class="fu"><a href="../reference/calendar_leaftable.html">calendar_leaftable</a></span><span class="op">(</span><span class="va">cal2</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
 <p><strong>Coverage</strong> says how the design relates to a real year:
 <code>complete</code> (every instant has a timeslice),
@@ -122,7 +122,7 @@ workhorses (<code>d365_h24</code> is the classic 8,760) and the stylised
 <th align="left">id</th>
 <th align="left">timeframes</th>
 <th align="right">n_timeslices</th>
-<th align="left">coverage</th>
+<th align="left">coverage_class</th>
 <th align="left">regularity</th>
 </tr></thead>
 <tbody>
@@ -201,7 +201,7 @@ representative day of 24 hours.</p>
 <th align="left">id</th>
 <th align="left">timeframes</th>
 <th align="right">n_timeslices</th>
-<th align="left">coverage</th>
+<th align="left">coverage_class</th>
 <th align="left">regularity</th>
 </tr></thead>
 <tbody>
@@ -247,11 +247,18 @@ data keyed by month and day-of-month.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">fam</span><span class="op">(</span><span class="st">"^m12_md"</span><span class="op">)</span></span></code></pre></div>
 <table class="table">
+<colgroup>
+<col width="20%">
+<col width="23%">
+<col width="18%">
+<col width="21%">
+<col width="15%">
+</colgroup>
 <thead><tr class="header">
 <th align="left">id</th>
 <th align="left">timeframes</th>
 <th align="right">n_timeslices</th>
-<th align="left">coverage</th>
+<th align="left">coverage_class</th>
 <th align="left">regularity</th>
 </tr></thead>
 <tbody>
@@ -316,7 +323,7 @@ which is why it is its own axis).</p>
 <th align="left">id</th>
 <th align="left">timeframes</th>
 <th align="right">n_timeslices</th>
-<th align="left">coverage</th>
+<th align="left">coverage_class</th>
 <th align="left">regularity</th>
 </tr></thead>
 <tbody>
@@ -366,7 +373,7 @@ full 168-hour week (<code>_h168</code>).</p>
 <th align="left">id</th>
 <th align="left">timeframes</th>
 <th align="right">n_timeslices</th>
-<th align="left">coverage</th>
+<th align="left">coverage_class</th>
 <th align="left">regularity</th>
 </tr></thead>
 <tbody>
@@ -430,7 +437,7 @@ smallest designs that still resolve a weekly demand cycle.</p>
 <th align="left">id</th>
 <th align="left">timeframes</th>
 <th align="right">n_timeslices</th>
-<th align="left">coverage</th>
+<th align="left">coverage_class</th>
 <th align="left">regularity</th>
 </tr></thead>
 <tbody>
@@ -480,7 +487,7 @@ their own or under a coarser axis — the “typical periods” family.</p>
 <th align="left">id</th>
 <th align="left">timeframes</th>
 <th align="right">n_timeslices</th>
-<th align="left">coverage</th>
+<th align="left">coverage_class</th>
 <th align="left">regularity</th>
 </tr></thead>
 <tbody>
@@ -539,7 +546,7 @@ below).</p>
 <th align="left">id</th>
 <th align="left">timeframes</th>
 <th align="right">n_timeslices</th>
-<th align="left">coverage</th>
+<th align="left">coverage_class</th>
 <th align="left">regularity</th>
 </tr></thead>
 <tbody>
@@ -600,7 +607,7 @@ uniform share — catalog calendars weight timeslices by real
 duration:</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">m12</span> <span class="op">&lt;-</span> <span class="va">calendars</span><span class="op">$</span><span class="va">m12</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>timeslice <span class="op">=</span> <span class="va">m12</span><span class="op">@</span><span class="va">leaftable</span><span class="op">$</span><span class="va">timeslice</span>, share <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">m12</span><span class="op">@</span><span class="va">leaftable</span><span class="op">$</span><span class="va">share</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, <span class="op">]</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>timeslice <span class="op">=</span> <span class="fu"><a href="../reference/calendar_leaftable.html">calendar_leaftable</a></span><span class="op">(</span><span class="va">m12</span><span class="op">)</span><span class="op">$</span><span class="va">timeslice</span>, share <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="../reference/calendar_leaftable.html">calendar_leaftable</a></span><span class="op">(</span><span class="va">m12</span><span class="op">)</span><span class="op">$</span><span class="va">share</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, <span class="op">]</span></span>
 <span><span class="co">#&gt;   timeslice  share</span></span>
 <span><span class="co">#&gt; 1       m01 0.0849</span></span>
 <span><span class="co">#&gt; 2       m02 0.0767</span></span>
@@ -646,13 +653,13 @@ and <code>weighted_mean</code> weight correctly.</p>
 month and day-of-month:</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">md</span> <span class="op">&lt;-</span> <span class="va">calendars</span><span class="op">$</span><span class="va">m12_md365</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">md</span><span class="op">@</span><span class="va">leaftable</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="fu"><a href="../reference/calendar_leaftable.html">calendar_leaftable</a></span><span class="op">(</span><span class="va">md</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 365</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">md</span><span class="op">@</span><span class="va">leaftable</span><span class="op">[</span><span class="va">md</span><span class="op">@</span><span class="va">leaftable</span><span class="op">$</span><span class="va">MONTH</span> <span class="op">==</span> <span class="st">"m02"</span>, <span class="op">]</span>, <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="../reference/calendar_leaftable.html">calendar_leaftable</a></span><span class="op">(</span><span class="va">md</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="../reference/calendar_leaftable.html">calendar_leaftable</a></span><span class="op">(</span><span class="va">md</span><span class="op">)</span><span class="op">$</span><span class="va">MONTH</span> <span class="op">==</span> <span class="st">"m02"</span>, <span class="op">]</span>, <span class="fl">2</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    MONTH MDAY       share timeslice weight</span></span>
 <span><span class="co">#&gt; 32   m02  d01 0.002739726   m02_d01     24</span></span>
 <span><span class="co">#&gt; 33   m02  d02 0.002739726   m02_d02     24</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail</a></span><span class="op">(</span><span class="va">md</span><span class="op">@</span><span class="va">leaftable</span><span class="op">[</span><span class="va">md</span><span class="op">@</span><span class="va">leaftable</span><span class="op">$</span><span class="va">MONTH</span> <span class="op">==</span> <span class="st">"m02"</span>, <span class="op">]</span>, <span class="fl">1</span><span class="op">)</span>   <span class="co"># Feb ends at d28</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">tail</a></span><span class="op">(</span><span class="fu"><a href="../reference/calendar_leaftable.html">calendar_leaftable</a></span><span class="op">(</span><span class="va">md</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="../reference/calendar_leaftable.html">calendar_leaftable</a></span><span class="op">(</span><span class="va">md</span><span class="op">)</span><span class="op">$</span><span class="va">MONTH</span> <span class="op">==</span> <span class="st">"m02"</span>, <span class="op">]</span>, <span class="fl">1</span><span class="op">)</span>   <span class="co"># Feb ends at d28</span></span>
 <span><span class="co">#&gt;    MONTH MDAY       share timeslice weight</span></span>
 <span><span class="co">#&gt; 59   m02  d28 0.002739726   m02_d28     24</span></span>
 <span><span class="fu"><a href="../reference/datetime_to_timeslice.html">datetime_to_timeslice</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"2021-03-15"</span>, <span class="st">"2020-02-29"</span><span class="op">)</span><span class="op">)</span>, <span class="va">md</span><span class="op">)</span>  <span class="co"># Feb 29 -&gt; NA</span></span>
@@ -684,8 +691,9 @@ and unlike in timeslices, they are fully datetime-convertible:</p>
 <span><span class="fu"><a href="../reference/datetime_to_timeslice.html">datetime_to_timeslice</a></span><span class="op">(</span><span class="va">dtm</span>, <span class="va">calendars</span><span class="op">$</span><span class="va">wk2_h24</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "WORKDAY_h03" "WEEKEND_h18" "WORKDAY_h12"</span></span></code></pre></div>
 <p>The mappings are defaults, not dogma — register your own token
-(e.g. a different peak window) with <code><a href="../reference/register_token.html">register_token()</a></code> and
-build a custom calendar from it.</p>
+(e.g. a different peak window) with
+<code><a href="../reference/register_calendar_token.html">register_calendar_token()</a></code> and build a custom calendar from
+it.</p>
 </div>
 <div class="section level2">
 <h2 id="fiscal-years-the-fy04_-family">Fiscal years: the <code>fy04_*</code> family<a class="anchor" aria-label="anchor" href="#fiscal-years-the-fy04_-family"></a>
@@ -786,7 +794,7 @@ a <code>data.frame</code> keyed by timeslice (or nothing, to see the
 share structure). The layout follows the hierarchy — finest timeframe on
 y, next on x, coarser levels as facets:</p>
 <div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>timeslice <span class="op">=</span> <span class="va">calendars</span><span class="op">$</span><span class="va">m12_h24</span><span class="op">@</span><span class="va">leaftable</span><span class="op">$</span><span class="va">timeslice</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>timeslice <span class="op">=</span> <span class="fu"><a href="../reference/calendar_leaftable.html">calendar_leaftable</a></span><span class="op">(</span><span class="va">calendars</span><span class="op">$</span><span class="va">m12_h24</span><span class="op">)</span><span class="op">$</span><span class="va">timeslice</span><span class="op">)</span></span>
 <span><span class="va">x</span><span class="op">$</span><span class="va">load</span> <span class="op">&lt;-</span> <span class="fl">80</span> <span class="op">+</span> <span class="fl">40</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">sin</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">6</span> <span class="op">*</span> <span class="va">pi</span>, length.out <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/calendar_plot.html">calendar_plot</a></span><span class="op">(</span><span class="va">calendars</span><span class="op">$</span><span class="va">m12_h24</span>, <span class="va">x</span>, palette <span class="op">=</span> <span class="st">"C"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="calendars_files/figure-html/unnamed-chunk-25-1.png" class="r-plt" alt="" width="672"></p>
@@ -806,7 +814,7 @@ year-free 7-wide sequence with a message.</p>
 cells, and the fiscal calendars facet April-first out of the box:</p>
 <div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cal</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calendar_build.html">calendar</a></span><span class="op">(</span><span class="st">"fy04_d365"</span><span class="op">)</span></span>
-<span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>timeslice <span class="op">=</span> <span class="va">cal</span><span class="op">@</span><span class="va">leaftable</span><span class="op">$</span><span class="va">timeslice</span>,</span>
+<span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>timeslice <span class="op">=</span> <span class="fu"><a href="../reference/calendar_leaftable.html">calendar_leaftable</a></span><span class="op">(</span><span class="va">cal</span><span class="op">)</span><span class="op">$</span><span class="va">timeslice</span>,</span>
 <span>                v <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/cumsum.html" class="external-link">cumsum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">365</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/calendar_wall_plot.html">calendar_wall_plot</a></span><span class="op">(</span><span class="va">cal</span>, <span class="va">x</span>, z <span class="op">=</span> <span class="st">"v"</span>, year <span class="op">=</span> <span class="fl">2021</span><span class="op">)</span></span></code></pre></div>
 <p><img src="calendars_files/figure-html/unnamed-chunk-27-1.png" class="r-plt" alt="" width="768"></p>
@@ -824,7 +832,7 @@ figure is built from.</p>
 <p>Any two catalog calendars convert into each other; totals are
 conserved under <code>rule = "sum"</code>:</p>
 <div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>timeslice <span class="op">=</span> <span class="va">calendars</span><span class="op">$</span><span class="va">m12</span><span class="op">@</span><span class="va">leaftable</span><span class="op">$</span><span class="va">timeslice</span>,</span>
+<code class="sourceCode R"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>timeslice <span class="op">=</span> <span class="fu"><a href="../reference/calendar_leaftable.html">calendar_leaftable</a></span><span class="op">(</span><span class="va">calendars</span><span class="op">$</span><span class="va">m12</span><span class="op">)</span><span class="op">$</span><span class="va">timeslice</span>,</span>
 <span>                energy <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">310</span>, <span class="fl">280</span>, <span class="fl">300</span>, <span class="fl">250</span>, <span class="fl">220</span>, <span class="fl">230</span>,</span>
 <span>                           <span class="fl">260</span>, <span class="fl">270</span>, <span class="fl">240</span>, <span class="fl">250</span>, <span class="fl">280</span>, <span class="fl">320</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/recast_calendar.html">recast_calendar</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">calendars</span><span class="op">$</span><span class="va">m12</span>, <span class="va">calendars</span><span class="op">$</span><span class="va">s4</span>, year <span class="op">=</span> <span class="fl">2021</span>, rule <span class="op">=</span> <span class="st">"sum"</span>,</span>

@@ -10,7 +10,7 @@ evaluated as one dplyr pipeline against the
 [`calendar_map()`](https://optimal2050.github.io/timescales/r/reference/calendar_map.md)
 crosswalk, so `x` may live in any supported backend (see below). A
 pairwise override registered with
-[`register_conversion()`](https://optimal2050.github.io/timescales/r/reference/register_conversion.md)
+[`register_calendar_conversion()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_conversion.md)
 (or a crosswalk registered with
 [`register_calendar_map()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_map.md))
 short-circuits the grid route.
@@ -73,10 +73,10 @@ recast_calendar(
 - rule:
 
   One of
-  [`RECAST_RULES`](https://optimal2050.github.io/timescales/r/reference/RECAST_RULES.md),
+  [`CALENDAR_RULES`](https://optimal2050.github.io/timescales/r/reference/CALENDAR_RULES.md),
   applied to every value column; or `NULL` (default) to look each column
   up with
-  [`get_rule()`](https://optimal2050.github.io/timescales/r/reference/get_rule.md).
+  [`get_calendar_rule()`](https://optimal2050.github.io/timescales/r/reference/get_calendar_rule.md).
   A column with neither an explicit `rule=` nor a registry entry is an
   ERROR – there is deliberately no fallback (a silently guessed rule is
   a silent unit error).
@@ -108,7 +108,7 @@ recast_calendar(
 The recast table in the input's class, with columns
 `c(key, identifiers, values)`: per identifier combination, one row per
 timeslice in `to` (the full target vocabulary, `NA` where uncovered – a
-deliberate divergence from `geo_recast()`, which emits observed
+deliberate divergence from `recast_geoscale()`, which emits observed
 combinations only), plus an `NA` timeslice row under
 `na_action = "keep"`. Identifier column types are preserved.
 
@@ -118,8 +118,9 @@ Columns of `x` that are neither the key nor a value column are treated
 as identifiers (panel columns – a `city`, a scenario) and preserved as
 grouping columns, so panel data recasts correctly in one call; this is
 what makes mixed pipelines like
-`x |> recast_calendar(...) |> geo_recast(...)` work. Columns named like
-`from`'s timeframes are treated as timeslice attributes and dropped.
+`x |> recast_calendar(...) |> recast_geoscale(...)` work. Columns named
+like `from`'s timeframes are treated as timeslice attributes and
+dropped.
 
 The public halves of the route are
 [`recast_to_timebase()`](https://optimal2050.github.io/timescales/r/reference/recast_to_timebase.md)
@@ -129,7 +130,7 @@ and
 `recast_from_timebase(recast_to_timebase(x, from), to)`.
 
 Rules (see
-[`RECAST_RULES`](https://optimal2050.github.io/timescales/r/reference/RECAST_RULES.md)):
+[`CALENDAR_RULES`](https://optimal2050.github.io/timescales/r/reference/CALENDAR_RULES.md)):
 `"sum"` splits each source value equally across its timeslice's grid
 points before summing up, so totals are conserved. `"weighted_mean"`
 weights by the declared `leaves$share` of each source timeslice;

@@ -11,7 +11,7 @@ with `calendar(id)`, and the same objects come pre-built in the
 
 cal <- calendar("m12_h24")     # build on demand
 cal2 <- calendars$m12_h24      # pre-built package data
-identical(cal@leaftable, cal2@leaftable)
+identical(calendar_leaftable(cal), calendar_leaftable(cal2))
 #> [1] TRUE
 ```
 
@@ -41,16 +41,16 @@ workhorses (`d365_h24` is the classic 8,760) and the stylised
 fam("^d3[0-9]{2}(_h24)?$")
 ```
 
-| id       | timeframes | n_timeslices | coverage  | regularity |
-|:---------|:-----------|-------------:|:----------|:-----------|
-| d360     | YDAY       |          360 | truncated | regular    |
-| d364     | YDAY       |          364 | truncated | regular    |
-| d365     | YDAY       |          365 | truncated | regular    |
-| d366     | YDAY       |          366 | complete  | regular    |
-| d360_h24 | YDAY/HOUR  |         8640 | truncated | regular    |
-| d364_h24 | YDAY/HOUR  |         8736 | truncated | regular    |
-| d365_h24 | YDAY/HOUR  |         8760 | truncated | regular    |
-| d366_h24 | YDAY/HOUR  |         8784 | complete  | regular    |
+| id       | timeframes | n_timeslices | coverage_class | regularity |
+|:---------|:-----------|-------------:|:---------------|:-----------|
+| d360     | YDAY       |          360 | truncated      | regular    |
+| d364     | YDAY       |          364 | truncated      | regular    |
+| d365     | YDAY       |          365 | truncated      | regular    |
+| d366     | YDAY       |          366 | complete       | regular    |
+| d360_h24 | YDAY/HOUR  |         8640 | truncated      | regular    |
+| d364_h24 | YDAY/HOUR  |         8736 | truncated      | regular    |
+| d365_h24 | YDAY/HOUR  |         8760 | truncated      | regular    |
+| d366_h24 | YDAY/HOUR  |         8784 | complete       | regular    |
 
 ``` r
 
@@ -69,12 +69,12 @@ with a representative day of 24 hours.
 fam("^m12(a|_h24|a_h24)?$")
 ```
 
-| id       | timeframes | n_timeslices | coverage | regularity |
-|:---------|:-----------|-------------:|:---------|:-----------|
-| m12      | MONTH      |           12 | complete | regular    |
-| m12a     | MONTH      |           12 | complete | regular    |
-| m12_h24  | MONTH/HOUR |          288 | complete | regular    |
-| m12a_h24 | MONTH/HOUR |          288 | complete | regular    |
+| id       | timeframes | n_timeslices | coverage_class | regularity |
+|:---------|:-----------|-------------:|:---------------|:-----------|
+| m12      | MONTH      |           12 | complete       | regular    |
+| m12a     | MONTH      |           12 | complete       | regular    |
+| m12_h24  | MONTH/HOUR |          288 | complete       | regular    |
+| m12a_h24 | MONTH/HOUR |          288 | complete       | regular    |
 
 ``` r
 
@@ -93,14 +93,14 @@ keyed by month and day-of-month.
 fam("^m12_md")
 ```
 
-| id            | timeframes      | n_timeslices | coverage  | regularity |
-|:--------------|:----------------|-------------:|:----------|:-----------|
-| m12_md360     | MONTH/MDAY      |          360 | truncated | regular    |
-| m12_md360_h24 | MONTH/MDAY/HOUR |         8640 | truncated | regular    |
-| m12_md365     | MONTH/MDAY      |          365 | truncated | irregular  |
-| m12_md365_h24 | MONTH/MDAY/HOUR |         8760 | truncated | irregular  |
-| m12_md366     | MONTH/MDAY      |          366 | complete  | irregular  |
-| m12_md366_h24 | MONTH/MDAY/HOUR |         8784 | complete  | irregular  |
+| id            | timeframes      | n_timeslices | coverage_class | regularity |
+|:--------------|:----------------|-------------:|:---------------|:-----------|
+| m12_md360     | MONTH/MDAY      |          360 | truncated      | regular    |
+| m12_md360_h24 | MONTH/MDAY/HOUR |         8640 | truncated      | regular    |
+| m12_md365     | MONTH/MDAY      |          365 | truncated      | irregular  |
+| m12_md365_h24 | MONTH/MDAY/HOUR |         8760 | truncated      | irregular  |
+| m12_md366     | MONTH/MDAY      |          366 | complete       | irregular  |
+| m12_md366_h24 | MONTH/MDAY/HOUR |         8784 | complete       | irregular  |
 
 ``` r
 
@@ -119,7 +119,7 @@ a season straddles the year boundary, which is why it is its own axis).
 fam("^(q4|s4)(_h24)?$")
 ```
 
-| id     | timeframes   | n_timeslices | coverage       | regularity |
+| id     | timeframes   | n_timeslices | coverage_class | regularity |
 |:-------|:-------------|-------------:|:---------------|:-----------|
 | q4     | QUARTER      |            4 | complete       | regular    |
 | s4     | SEASON       |            4 | complete       | regular    |
@@ -143,7 +143,7 @@ week (`_h168`).
 fam("^w5")
 ```
 
-| id       | timeframes | n_timeslices | coverage       | regularity |
+| id       | timeframes | n_timeslices | coverage_class | regularity |
 |:---------|:-----------|-------------:|:---------------|:-----------|
 | w52      | WEEK       |           52 | truncated      | regular    |
 | w53      | WEEK       |           53 | complete       | regular    |
@@ -169,7 +169,7 @@ designs that still resolve a weekly demand cycle.
 fam("^(wd7|wk2)")
 ```
 
-| id      | timeframes   | n_timeslices | coverage       | regularity |
+| id      | timeframes   | n_timeslices | coverage_class | regularity |
 |:--------|:-------------|-------------:|:---------------|:-----------|
 | wd7     | WDAY         |            7 | representative | regular    |
 | wd7_h24 | WDAY/HOUR    |          168 | representative | regular    |
@@ -193,7 +193,7 @@ the “typical periods” family.
 fam("hp3$")
 ```
 
-| id       | timeframes       | n_timeslices | coverage       | regularity |
+| id       | timeframes       | n_timeslices | coverage_class | regularity |
 |:---------|:-----------------|-------------:|:---------------|:-----------|
 | hp3      | HOURTYPE         |            3 | representative | regular    |
 | d365_hp3 | YDAY/HOURTYPE    |         1095 | representative | regular    |
@@ -219,7 +219,7 @@ years](#fiscal-years-the-fy04_-family) section below).
 fam("^fy04")
 ```
 
-| id            | timeframes   | n_timeslices | coverage       | regularity |
+| id            | timeframes   | n_timeslices | coverage_class | regularity |
 |:--------------|:-------------|-------------:|:---------------|:-----------|
 | fy04_m12      | MONTH        |           12 | complete       | regular    |
 | fy04_m12_h24  | MONTH/HOUR   |          288 | complete       | regular    |
@@ -243,7 +243,7 @@ share — catalog calendars weight timeslices by real duration:
 ``` r
 
 m12 <- calendars$m12
-data.frame(timeslice = m12@leaftable$timeslice, share = round(m12@leaftable$share, 4))[1:3, ]
+data.frame(timeslice = calendar_leaftable(m12)$timeslice, share = round(calendar_leaftable(m12)$share, 4))[1:3, ]
 #>   timeslice  share
 #> 1       m01 0.0849
 #> 2       m02 0.0767
@@ -296,13 +296,13 @@ day-of-month:
 ``` r
 
 md <- calendars$m12_md365
-nrow(md@leaftable)
+nrow(calendar_leaftable(md))
 #> [1] 365
-head(md@leaftable[md@leaftable$MONTH == "m02", ], 2)
+head(calendar_leaftable(md)[calendar_leaftable(md)$MONTH == "m02", ], 2)
 #>    MONTH MDAY       share timeslice weight
 #> 32   m02  d01 0.002739726   m02_d01     24
 #> 33   m02  d02 0.002739726   m02_d02     24
-tail(md@leaftable[md@leaftable$MONTH == "m02", ], 1)   # Feb ends at d28
+tail(calendar_leaftable(md)[calendar_leaftable(md)$MONTH == "m02", ], 1)   # Feb ends at d28
 #>    MONTH MDAY       share timeslice weight
 #> 59   m02  d28 0.002739726   m02_d28     24
 datetime_to_timeslice(as.Date(c("2021-03-15", "2020-02-29")), md)  # Feb 29 -> NA
@@ -330,7 +330,7 @@ datetime_to_timeslice(dtm, calendars$wk2_h24)
 
 The mappings are defaults, not dogma — register your own token (e.g. a
 different peak window) with
-[`register_token()`](https://optimal2050.github.io/timescales/r/reference/register_token.md)
+[`register_calendar_token()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_token.md)
 and build a custom calendar from it.
 
 ## Fiscal years: the `fy04_*` family
@@ -445,7 +445,7 @@ facets:
 
 ``` r
 
-x <- data.frame(timeslice = calendars$m12_h24@leaftable$timeslice)
+x <- data.frame(timeslice = calendar_leaftable(calendars$m12_h24)$timeslice)
 x$load <- 80 + 40 * sin(seq(0, 6 * pi, length.out = nrow(x)))
 calendar_plot(calendars$m12_h24, x, palette = "C")
 ```
@@ -473,7 +473,7 @@ fiscal calendars facet April-first out of the box:
 ``` r
 
 cal <- calendar("fy04_d365")
-x <- data.frame(timeslice = cal@leaftable$timeslice,
+x <- data.frame(timeslice = calendar_leaftable(cal)$timeslice,
                 v = cumsum(rnorm(365)))
 calendar_wall_plot(cal, x, z = "v", year = 2021)
 ```
@@ -495,7 +495,7 @@ under `rule = "sum"`:
 
 ``` r
 
-x <- data.frame(timeslice = calendars$m12@leaftable$timeslice,
+x <- data.frame(timeslice = calendar_leaftable(calendars$m12)$timeslice,
                 energy = c(310, 280, 300, 250, 220, 230,
                            260, 270, 240, 250, 280, 320))
 recast_calendar(x, calendars$m12, calendars$s4, year = 2021, rule = "sum",

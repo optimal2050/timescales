@@ -66,7 +66,7 @@ A `Calendar` has four parts:
 
 cal_my@timeframes               # the timeframe hierarchy, coarsest first
 #> [1] "MONTH" "HOUR"
-head(cal_my@leaftable, 4)          # the leaf table (one row per timeslice)
+head(calendar_leaftable(cal_my), 4)          # the leaf table (one row per timeslice)
 #>   MONTH HOUR       share weight timeslice
 #> 1   m01  h00 0.003538813     31   m01_h00
 #> 2   m02  h00 0.003196347     28   m02_h00
@@ -125,7 +125,7 @@ recast_calendar(monthly, from = cal_m, to = cal_q, year = 2025,
 The result is day-weighted: Q1 = (31·v₁ + 28·v₂ + 31·v₃) / 90. The
 `rule` is deliberately mandatory — pass one, or register it per column
 with
-[`register_rule()`](https://optimal2050.github.io/timescales/r/reference/register_rule.md);
+[`register_calendar_rule()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_rule.md);
 a silently guessed rule would be a silent unit error.
 [`join_calendar()`](https://optimal2050.github.io/timescales/r/reference/join_calendar.md)
 is the lighter companion: it *attaches* a calendar’s labels and
@@ -141,7 +141,7 @@ figures (icicles and stacks take `data =`/`z =`) in
 ``` r
 
 library(ggplot2)
-x <- data.frame(timeslice = cal_my@leaftable$timeslice)
+x <- data.frame(timeslice = calendar_leaftable(cal_my)$timeslice)
 x$load <- 80 + 40 * sin(seq(0, 6 * pi, length.out = nrow(x)))
 ggplot(x) +
   geom_calendar_tile(calendar = cal_my, z = "load") +

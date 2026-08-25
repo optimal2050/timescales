@@ -5,7 +5,7 @@
 \title{Wall-calendar figure}
 \usage{
 calendar_wall_plot(
-  calendar,
+  x,
   data = NULL,
   z = NULL,
   year = NULL,
@@ -18,7 +18,7 @@ calendar_wall_plot(
 )
 }
 \arguments{
-\item{calendar}{A \code{\link{Calendar}} with a day-resolution timeframe
+\item{x}{A \code{\link{Calendar}} with a day-resolution timeframe
 (\code{YDAY} or \code{MDAY}). Sub-daily timeframes are collapsed to the day
 layer via \code{\link[=prune_calendar]{prune_calendar()}}.}
 

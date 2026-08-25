@@ -129,7 +129,7 @@ calendar_map <- function(from, to, year, by = NULL, tz = "UTC") {
 #' A registered map short-circuits the base-grid derivation in
 #' [`calendar_map()`] (and thereby [`recast_calendar()`]) for one calendar
 #' pair -- the table analogue of the functional override in
-#' [`register_conversion()`], for cases where the exact correspondence is
+#' [`register_calendar_conversion()`], for cases where the exact correspondence is
 #' known (provably nested calendars, hand-audited crosswalks).
 #'
 #' @param from,to Calendar names (`meta$name`) the map applies to, or
@@ -187,7 +187,7 @@ register_calendar_map <- function(from, to, map) {
 #'
 #' Returns the map registered with [`register_calendar_map()`] for the
 #' pair, or `NULL` when none is registered (mirrors
-#' `geoscales::get_geo_map()`).
+#' `geoscales::get_geoscale_map()`).
 #'
 #' @inheritParams register_calendar_map
 #' @return The registered `data.frame`, or `NULL`.
@@ -208,7 +208,7 @@ get_calendar_map <- function(from, to) {
 #'
 #' @return A `data.frame` with one row per registered map: `key`
 #'   (`"from->to"`), `from`, `to`. Zero rows when none are registered
-#'   (mirrors `geoscales::list_geo_maps()`).
+#'   (mirrors `geoscales::list_geoscale_maps()`).
 #' @export
 #'
 #' @examples

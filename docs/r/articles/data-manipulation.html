@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">timescales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.4.2.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -139,8 +139,9 @@ column</td>
 </tr>
 <tr class="odd">
 <td>
-<code><a href="../reference/register_rule.html">register_rule()</a></code> / <code><a href="../reference/register_calendar_map.html">register_calendar_map()</a></code>
-/ <code><a href="../reference/register_conversion.html">register_conversion()</a></code>
+<code><a href="../reference/register_calendar_rule.html">register_calendar_rule()</a></code> /
+<code><a href="../reference/register_calendar_map.html">register_calendar_map()</a></code> /
+<code><a href="../reference/register_calendar_conversion.html">register_calendar_conversion()</a></code>
 </td>
 <td>registries</td>
 <td>per-column rules, exact crosswalks, functional overrides</td>
@@ -236,8 +237,8 @@ mandatory.</strong> Pass <code>rule=</code> for all columns, or register
 per-column rules once; a column with neither errors — a silently guessed
 rule is a silent unit error.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/register_rule.html">register_rule</a></span><span class="op">(</span><span class="st">"T10M"</span>,  <span class="st">"weighted_mean"</span><span class="op">)</span>   <span class="co"># intensive: temperature</span></span>
-<span><span class="fu"><a href="../reference/register_rule.html">register_rule</a></span><span class="op">(</span><span class="st">"SWGDN"</span>, <span class="st">"sum"</span><span class="op">)</span>             <span class="co"># extensive proxy: energy</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/register_calendar_rule.html">register_calendar_rule</a></span><span class="op">(</span><span class="st">"T10M"</span>,  <span class="st">"weighted_mean"</span><span class="op">)</span>   <span class="co"># intensive: temperature</span></span>
+<span><span class="fu"><a href="../reference/register_calendar_rule.html">register_calendar_rule</a></span><span class="op">(</span><span class="st">"SWGDN"</span>, <span class="st">"sum"</span><span class="op">)</span>             <span class="co"># extensive proxy: energy</span></span>
 <span></span>
 <span><span class="va">q</span> <span class="op">&lt;-</span> <span class="va">panel</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/recast_calendar.html">recast_calendar</a></span><span class="op">(</span><span class="va">cal</span>, <span class="va">calendars</span><span class="op">$</span><span class="va">q4</span>, year <span class="op">=</span> <span class="fl">2019</span><span class="op">)</span></span>
@@ -373,9 +374,9 @@ overlapping timeslice pair with grid counts and share weights.
 <p>When an exact correspondence is known (hand-audited concordances,
 provably nested designs), <code><a href="../reference/register_calendar_map.html">register_calendar_map()</a></code>
 short-circuits the grid derivation for that pair;
-<code><a href="../reference/register_conversion.html">register_conversion()</a></code> goes one step further and replaces
-the whole conversion with your function. Both are keyed by calendar
-names, like the attach.</p>
+<code><a href="../reference/register_calendar_conversion.html">register_calendar_conversion()</a></code> goes one step further and
+replaces the whole conversion with your function. Both are keyed by
+calendar names, like the attach.</p>
 </div>
 <div class="section level2">
 <h2 id="backends">Backends<a class="anchor" aria-label="anchor" href="#backends"></a>

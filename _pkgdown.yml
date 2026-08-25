@@ -53,10 +53,13 @@ reference:
     desc: "Query the timeframe hierarchy and subset calendars."
     contents:
       - calendar_queries
+      - calendar_leaftable
       - calendar_family
+      - calendar_ancestry
       - calendar_navigate
       - calendar_share
       - filter_calendar
+      - calendar_coverage
   - title: "Catalog and data"
     desc: "The built-in calendar designs and sample data."
     contents:
@@ -66,7 +69,7 @@ reference:
   - title: "Tokens"
     desc: "Reusable label vocabularies for one timeframe."
     contents:
-      - register_token
+      - register_calendar_token
   - title: "Timeframes"
     desc: "The atomic units underneath every calendar."
     contents:
@@ -101,16 +104,13 @@ reference:
   - title: "Rules and registries"
     desc: "Aggregation and alignment semantics, and their registries."
     contents:
-      - RECAST_RULES
+      - CALENDAR_RULES
       - ALIGNMENT_RULES
-      - register_rule
-      - get_rule
-      - list_rules
-      - clear_rules
-      - register_conversion
-  - title: "Deprecated"
-    contents:
-      - timescales-deprecated
+      - register_calendar_rule
+      - get_calendar_rule
+      - list_calendar_rules
+      - clear_calendar_rules
+      - register_calendar_conversion
   - title: "Package"
     contents:
       - timescales-package

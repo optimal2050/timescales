@@ -21,7 +21,8 @@ A named list of 43
 objects. Names are the catalog ids (`d365`, `d365_h24`, `m12`,
 `m12_h24`, `m12_md365`, `q4_h24`, `s4_hp3`, ...); see
 [`calendar_catalog()`](https://optimal2050.github.io/timescales/r/reference/calendar_catalog.md)
-for the full table with timeslice counts, coverage, and regularity.
+for the full table with timeslice counts, coverage class, and
+regularity.
 
 ## Source
 

@@ -7,12 +7,12 @@ consecutive timeframe pair — the time-side mirror of
 ## Usage
 
 ``` r
-calendar_family(calendar, parent = NULL, child = NULL)
+calendar_family(x, parent = NULL, child = NULL)
 ```
 
 ## Arguments
 
-- calendar:
+- x:
 
   A
   [Calendar](https://optimal2050.github.io/timescales/r/reference/Calendar.md).

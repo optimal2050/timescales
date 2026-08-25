@@ -3,25 +3,31 @@
 Read-only queries on the timeframe hierarchy of a
 [Calendar](https://optimal2050.github.io/timescales/r/reference/Calendar.md)
 — the time-side mirror of
-[`geoscales::geoscale_levels()`](https://optimal2050.github.io/geoscales/r/reference/geoscales-deprecated.html)
+[`geoscales::geoscale_geoframes()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_geoframes.html)
 and friends.
 
 ## Usage
 
 ``` r
-calendar_timeframes(calendar)
+calendar_timeframes(x, finest = FALSE)
 
-calendar_rank(calendar, timeframe)
+calendar_rank(x, timeframe)
 
-calendar_timeslices(calendar, timeframe = NULL, qualified = FALSE)
+calendar_timeslices(x, timeframe = NULL, qualified = FALSE)
 ```
 
 ## Arguments
 
-- calendar:
+- x:
 
   A
   [Calendar](https://optimal2050.github.io/timescales/r/reference/Calendar.md).
+
+- finest:
+
+  `calendar_timeframes()` only: return just the finest timeframe (the
+  atom layer) instead of the full ordered vector — the twin of
+  `geoscales::geoscale_geoframes(x, finest = TRUE)`.
 
 - timeframe:
 

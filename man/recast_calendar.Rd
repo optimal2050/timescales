@@ -39,8 +39,8 @@ resolves to \code{"timeslice"}.}
 all numeric columns other than \code{key} and \code{from}'s timeframe columns.
 Numeric identifiers (e.g. \code{year}) must be excluded explicitly.}
 
-\item{rule}{One of \code{\link{RECAST_RULES}}, applied to every value column; or
-\code{NULL} (default) to look each column up with \code{\link[=get_rule]{get_rule()}}. A column
+\item{rule}{One of \code{\link{CALENDAR_RULES}}, applied to every value column; or
+\code{NULL} (default) to look each column up with \code{\link[=get_calendar_rule]{get_calendar_rule()}}. A column
 with neither an explicit \verb{rule=} nor a registry entry is an ERROR --
 there is deliberately no fallback (a silently guessed rule is a
 silent unit error).}
@@ -63,7 +63,7 @@ carry no data and are always dropped.}
 The recast table in the input's class, with columns
 \code{c(key, identifiers, values)}: per identifier combination, one row per
 timeslice in \code{to} (the full target vocabulary, \code{NA} where uncovered --
-a deliberate divergence from \code{geo_recast()}, which emits observed
+a deliberate divergence from \code{recast_geoscale()}, which emits observed
 combinations only), plus an \code{NA} timeslice row under
 \code{na_action = "keep"}. Identifier column types are preserved.
 }
@@ -76,7 +76,7 @@ projected down to grid points, then aggregated up to target timeslices,
 so aggregation and disaggregation are one operation. The route is
 evaluated as one dplyr pipeline against the \code{\link[=calendar_map]{calendar_map()}}
 crosswalk, so \code{x} may live in any supported backend (see below). A
-pairwise override registered with \code{\link[=register_conversion]{register_conversion()}} (or a
+pairwise override registered with \code{\link[=register_calendar_conversion]{register_calendar_conversion()}} (or a
 crosswalk registered with \code{\link[=register_calendar_map]{register_calendar_map()}}) short-circuits
 the grid route.
 }
@@ -85,14 +85,14 @@ Columns of \code{x} that are neither the key nor a value column are treated
 as identifiers (panel columns -- a \code{city}, a scenario) and preserved as
 grouping columns, so panel data recasts correctly in one call; this is
 what makes mixed pipelines like
-\code{x |> recast_calendar(...) |> geo_recast(...)} work. Columns named like
+\code{x |> recast_calendar(...) |> recast_geoscale(...)} work. Columns named like
 \code{from}'s timeframes are treated as timeslice attributes and dropped.
 
 The public halves of the route are \code{\link[=recast_to_timebase]{recast_to_timebase()}} and
 \code{\link[=recast_from_timebase]{recast_from_timebase()}}; \code{recast_calendar(x, from, to)} is equivalent to
 \code{recast_from_timebase(recast_to_timebase(x, from), to)}.
 
-Rules (see \code{\link{RECAST_RULES}}): \code{"sum"} splits each source value equally
+Rules (see \code{\link{CALENDAR_RULES}}): \code{"sum"} splits each source value equally
 across its timeslice's grid points before summing up, so totals are
 conserved. \code{"weighted_mean"} weights by the declared \code{leaves$share} of
 each source timeslice; \code{"mean"} is the plain (time-weighted) mean over

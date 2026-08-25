@@ -21,7 +21,7 @@ Invisibly, the registry key (\code{"from->to"}).
 A registered map short-circuits the base-grid derivation in
 \code{\link[=calendar_map]{calendar_map()}} (and thereby \code{\link[=recast_calendar]{recast_calendar()}}) for one calendar
 pair -- the table analogue of the functional override in
-\code{\link[=register_conversion]{register_conversion()}}, for cases where the exact correspondence is
+\code{\link[=register_calendar_conversion]{register_calendar_conversion()}}, for cases where the exact correspondence is
 known (provably nested calendars, hand-audited crosswalks).
 }
 \examples{

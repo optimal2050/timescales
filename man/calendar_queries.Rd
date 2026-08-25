@@ -7,14 +7,18 @@
 \alias{calendar_timeslices}
 \title{Calendar hierarchy queries}
 \usage{
-calendar_timeframes(calendar)
+calendar_timeframes(x, finest = FALSE)
 
-calendar_rank(calendar, timeframe)
+calendar_rank(x, timeframe)
 
-calendar_timeslices(calendar, timeframe = NULL, qualified = FALSE)
+calendar_timeslices(x, timeframe = NULL, qualified = FALSE)
 }
 \arguments{
-\item{calendar}{A \link{Calendar}.}
+\item{x}{A \link{Calendar}.}
+
+\item{finest}{\code{calendar_timeframes()} only: return just the finest
+timeframe (the atom layer) instead of the full ordered vector — the
+twin of \code{geoscales::geoscale_geoframes(x, finest = TRUE)}.}
 
 \item{timeframe}{A timeframe name (see \code{calendar_timeframes()}).}
 
@@ -29,7 +33,7 @@ character vector; \code{calendar_rank()} an integer.
 }
 \description{
 Read-only queries on the timeframe hierarchy of a \link{Calendar} —
-the time-side mirror of \code{geoscales::geoscale_levels()} and friends.
+the time-side mirror of \code{geoscales::geoscale_geoframes()} and friends.
 }
 \details{
 \itemize{

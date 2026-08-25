@@ -63,7 +63,7 @@ A `Calendar` has four parts:
 
 ```{r}
 cal_my@timeframes               # the timeframe hierarchy, coarsest first
-head(cal_my@leaftable, 4)          # the leaf table (one row per timeslice)
+head(calendar_leaftable(cal_my), 4)          # the leaf table (one row per timeslice)
 cal_my@members$MONTH             # ordered label vocabulary per timeframe
 cal_my@meta[c("name", "year_fraction")]
 ```
@@ -102,7 +102,7 @@ recast_calendar(monthly, from = cal_m, to = cal_q, year = 2025,
 
 The result is day-weighted: Q1 = (31·v₁ + 28·v₂ + 31·v₃) / 90. The
 `rule` is deliberately mandatory — pass one, or register it per column
-with `register_rule()`; a silently guessed rule would be a silent unit
+with `register_calendar_rule()`; a silently guessed rule would be a silent unit
 error. `join_calendar()` is the lighter companion: it *attaches* a
 calendar's labels and timeframe columns to a dataset instead of
 converting it.
@@ -116,7 +116,7 @@ structure figures (icicles and stacks take `data =`/`z =`) in
 
 ```{r, fig.width = 7, fig.height = 3, eval = requireNamespace("ggplot2", quietly = TRUE)}
 library(ggplot2)
-x <- data.frame(timeslice = cal_my@leaftable$timeslice)
+x <- data.frame(timeslice = calendar_leaftable(cal_my)$timeslice)
 x$load <- 80 + 40 * sin(seq(0, 6 * pi, length.out = nrow(x)))
 ggplot(x) +
   geom_calendar_tile(calendar = cal_my, z = "load") +

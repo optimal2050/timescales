@@ -46,7 +46,7 @@ A ggplot object.
 }
 \description{
 The package's single data-on-calendar renderer (the analogue of
-\code{geoscales::geo_plot()}): callers prepare a \code{data.frame} keyed by timeslice
+\code{geoscales::geoscale_plot()}): callers prepare a \code{data.frame} keyed by timeslice
 and hand it over. With no data, the calendar's own \code{share} is drawn — a
 quick structural view. Layout follows the calendar's hierarchy: finest
 timeframe on y, next-finest on x, anything coarser as facets

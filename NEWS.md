@@ -1,4 +1,67 @@
-# timescales (development version)
+# timescales 0.5.0
+
+Hard-break release: the sibling APIs of timescales and geoscales were
+harmonized against each other (the pairing table and naming rules live
+in the stack-wide CONVENTIONS.md, "Sibling API mirror"). NO deprecation
+aliases are kept -- old names are gone, not wrapped.
+
+## Breaking changes
+
+* Registries follow `register_<class>_<thing>` everywhere:
+  `register_rule`/`get_rule`/`list_rules`/`clear_rules` are now
+  `register_calendar_rule`/`get_calendar_rule`/`list_calendar_rules`/
+  `clear_calendar_rules`; the conversion registry is
+  `register_calendar_conversion`/`get_calendar_conversion`/
+  `list_calendar_conversions`/`clear_calendar_conversions`; the token
+  registry is `register_calendar_token`/`get_calendar_token`/
+  `list_calendar_tokens`. `RECAST_RULES` is now `CALENDAR_RULES`.
+  (`ALIGNMENT_RULES` and the `calendar_map` registry family already
+  complied and are unchanged.)
+* The deprecated shim family is REMOVED: `instant_to_slice`,
+  `instant_to_timeslice`, `calendar_at_level`, `calendar_join`,
+  `calendar_recast`, `calendar_from_leaves` (archived under `drafts/`).
+* The structure-object argument is `x` everywhere (was `calendar` or
+  `object`): navigation/queries, `filter_calendar`, `prune_calendar`,
+  `expand_calendar`, the wall family, and `calendar_autoplot`.
+  Data-first verbs (`join_calendar`, `recast_*`,
+  `datetime_to_timeslice`) keep `x` = data and the structure as
+  `calendar`.
+* `recast_to_timebase(weight = )` is now `attach_weight = ` (matching
+  `geoscales::recast_to_geoatoms()`).
+* `calendar_autoplot(rule = )` defaults to `"weighted_mean"` (was
+  `NULL`), matching `geoscale_autoplot()`.
+* The catalog metadata field `coverage` is renamed `coverage_class`
+  (`"complete"`/`"truncated"`/`"representative"`, in `calendar_catalog()`
+  and `meta$coverage_class`) -- `meta$coverage` now belongs to sample
+  bookkeeping (below), mirroring geoscales.
+
+## Sampled calendars are book-kept (the geoscales convention)
+
+`filter_calendar()` now records what a sample IS: the result is renamed
+`"base[timeframe:labels-or-hash]"` -- so two different samples of one
+parent never collide in registries or joins -- with the root parent's
+name and totals in `meta$parent_name`/`meta$parent_totals` and the
+surviving fraction of `share`/`weight` in `meta$coverage` (validated
+against the leaftable at 1e-8; read it with the new
+`calendar_coverage()`). Filter-of-filter composes against the root; a
+filter that keeps everything is now a true no-op. `prune_calendar()`
+records its immediate parent in `meta$parent_name` alongside its
+existing `"base@timeframe"` renaming. `meta$year_fraction` behaves as
+before.
+
+## New
+
+* `calendar_coverage(x, weight = NULL)` -- surviving fraction of the
+  root parent, per built-in weight column.
+* `calendar_leaftable(x)` -- exported accessor for the leaf table
+  (stop reaching for `x@leaftable`).
+* `calendar_ancestry(x)` -- all ancestor-descendant pairs across every
+  ordered timeframe pair (twin of `geoscales::geoscale_ancestry()`;
+  `calendar_family()` remains the adjacent-pairs view).
+* `calendar_timeframes(x, finest = TRUE)` returns just the atom layer
+  (twin of `geoscales::geoscale_geoframes()`).
+
+# timescales 0.4.2
 
 The development line rewrites the 0.1 skeleton around a conserving
 conversion core, a curated calendar catalog, and a ggplot2 viz layer,

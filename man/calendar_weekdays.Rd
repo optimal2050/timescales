@@ -4,10 +4,10 @@
 \alias{calendar_weekdays}
 \title{Weekdays of a calendar's day layer in a given model year}
 \usage{
-calendar_weekdays(calendar, year, week_start = "MON")
+calendar_weekdays(x, year, week_start = "MON")
 }
 \arguments{
-\item{calendar}{A \code{\link{Calendar}} with a day-resolution timeframe
+\item{x}{A \code{\link{Calendar}} with a day-resolution timeframe
 (\code{YDAY} or \code{MDAY}). Sub-daily timeframes are collapsed to the day
 layer via \code{\link[=prune_calendar]{prune_calendar()}}.}
 

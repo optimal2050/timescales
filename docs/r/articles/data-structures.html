@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">timescales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.4.2.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -187,7 +187,7 @@ column per timeframe:</p>
 </tbody>
 </table>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">cal</span><span class="op">@</span><span class="va">leaftable</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="fu"><a href="../reference/calendar_leaftable.html">calendar_leaftable</a></span><span class="op">(</span><span class="va">cal</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; 'data.frame':    96 obs. of  5 variables:</span></span>
 <span><span class="co">#&gt;  $ QUARTER  : chr  "Q1" "Q2" "Q3" "Q4" ...</span></span>
 <span><span class="co">#&gt;  $ HOUR     : chr  "h00" "h00" "h00" "h00" ...</span></span>
@@ -247,7 +247,8 @@ fixes deterministic ordering for downstream sorting and plotting.</p>
 <td>character</td>
 <td><code>""</code></td>
 <td>
-<code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code>, <code><a href="../reference/register_conversion.html">register_conversion()</a></code> lookup</td>
+<code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code>, <code><a href="../reference/register_calendar_conversion.html">register_calendar_conversion()</a></code>
+lookup</td>
 </tr>
 <tr class="even">
 <td><code>desc</code></td>
@@ -305,7 +306,7 @@ untouched.</p>
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">cal</span><span class="op">@</span><span class="va">meta</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "name"               "desc"               "year_start"        </span></span>
 <span><span class="co">#&gt; [4] "utc_offset_minutes" "year_fraction"      "tokens"            </span></span>
-<span><span class="co">#&gt; [7] "coverage"           "regularity"</span></span>
+<span><span class="co">#&gt; [7] "coverage_class"     "regularity"</span></span>
 <span><span class="va">cal</span><span class="op">@</span><span class="va">meta</span><span class="op">$</span><span class="va">year_start</span></span>
 <span><span class="co">#&gt; $month</span></span>
 <span><span class="co">#&gt; [1] 1</span></span>
@@ -319,9 +320,9 @@ untouched.</p>
 </h2>
 <p>Tokens live in an internal environment, populated at load time with
 the built-in set and extensible at run time with
-<code><a href="../reference/register_token.html">register_token()</a></code>.</p>
+<code><a href="../reference/register_calendar_token.html">register_calendar_token()</a></code>.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/register_token.html">list_tokens</a></span><span class="op">(</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/register_calendar_token.html">list_calendar_tokens</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt;  [1] "d360"  "d364"  "d365"  "d366"  "h168"  "h24"   "hp3"   "m12"   "m12a" </span></span>
 <span><span class="co">#&gt; [10] "min60" "q4"    "s4"    "w52"   "w53"   "wd7"   "wk2"</span></span></code></pre></div>
 <p>A token is a list with two required fields and one optional:</p>
@@ -338,7 +339,7 @@ the built-in set and extensible at run time with
 token.</li>
 </ul>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">m12</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/register_token.html">get_token</a></span><span class="op">(</span><span class="st">"m12"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">m12</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/register_calendar_token.html">get_calendar_token</a></span><span class="op">(</span><span class="st">"m12"</span><span class="op">)</span></span>
 <span><span class="va">m12</span><span class="op">$</span><span class="va">timeframe</span></span>
 <span><span class="co">#&gt; [1] "MONTH"</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">m12</span><span class="op">$</span><span class="fu">expand</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
@@ -351,7 +352,7 @@ token.</li>
 <span><span class="co">#&gt; 6   m06 0.08219178</span></span></code></pre></div>
 <p>Custom tokens behave identically to built-ins:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/register_token.html">register_token</a></span><span class="op">(</span><span class="st">"d4q"</span>, <span class="st">"YDAY"</span>, <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/register_calendar_token.html">register_calendar_token</a></span><span class="op">(</span><span class="st">"d4q"</span>, <span class="st">"YDAY"</span>, <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>label <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Q1d"</span>, <span class="st">"Q2d"</span>, <span class="st">"Q3d"</span>, <span class="st">"Q4d"</span><span class="op">)</span>,</span>
 <span>             share <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">90</span>, <span class="fl">91</span>, <span class="fl">92</span>, <span class="fl">92</span><span class="op">)</span> <span class="op">/</span> <span class="fl">365</span><span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span></span>
