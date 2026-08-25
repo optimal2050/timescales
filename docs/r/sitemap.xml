@@ -1,5 +1,6 @@
 <urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
 <url><loc>https://optimal2050.github.io/timescales/r/404.html</loc></url>
+<url><loc>https://optimal2050.github.io/timescales/r/AGENTS.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/articles/calendars.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/articles/concepts.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/articles/data-manipulation.html</loc></url>
@@ -9,6 +10,7 @@
 <url><loc>https://optimal2050.github.io/timescales/r/articles/visualization.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/authors.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/CONTRIBUTING.html</loc></url>
+<url><loc>https://optimal2050.github.io/timescales/r/copilot-instructions.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/index.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/LICENSE-text.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/news/index.html</loc></url>
@@ -39,9 +41,11 @@
 <url><loc>https://optimal2050.github.io/timescales/r/reference/expand_calendar.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/reference/filter_calendar.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/reference/geom_calendar.html</loc></url>
+<url><loc>https://optimal2050.github.io/timescales/r/reference/get_calendar_map.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/reference/get_rule.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/reference/index.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/reference/join_calendar.html</loc></url>
+<url><loc>https://optimal2050.github.io/timescales/r/reference/list_calendar_maps.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/reference/list_rules.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/reference/merra2_cities.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/reference/prune_calendar.html</loc></url>

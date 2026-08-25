@@ -6,6 +6,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Data manipulation with calendars • timescales</title>
+<!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
+<link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="icon" sizes="any" href="../favicon.ico">
+<link rel="manifest" href="../site.webmanifest">
 <script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
@@ -13,6 +18,7 @@
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Data manipulation with calendars">
 <meta name="description" content="The tidy workflow end to end: map datetimes to timeslices, attach calendars to tables, recast between resolutions, inspect the crosswalk, and run the same pipelines over data.table and arrow backends.">
 <meta property="og:description" content="The tidy workflow end to end: map datetimes to timeslices, attach calendars to tables, recast between resolutions, inspect the crosswalk, and run the same pipelines over data.table and arrow backends.">
+<meta property="og:image" content="https://optimal2050.github.io/timescales/r/logo.png">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -22,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">timescales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.4.0.9000</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.4.2.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -70,8 +76,7 @@
 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-
-      <h1>Data manipulation with calendars</h1>
+      <img src="../logo.png" class="logo" alt=""><h1>Data manipulation with calendars</h1>
             
       
       <small class="dont-index">Source: <a href="https://github.com/optimal2050/timescales/blob/HEAD/vignettes/data-manipulation.Rmd" class="external-link"><code>vignettes/data-manipulation.Rmd</code></a></small>
@@ -159,13 +164,13 @@ falls in (instants the calendar does not cover come back
 <code class="sourceCode R"><span><span class="va">cal</span> <span class="op">&lt;-</span> <span class="va">calendars</span><span class="op">$</span><span class="va">m12_h24</span></span>
 <span></span>
 <span><span class="va">merra2_cities</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">mutate</span><span class="op">(</span>timeslice <span class="op">=</span> <span class="fu"><a href="../reference/datetime_to_timeslice.html">datetime_to_timeslice</a></span><span class="op">(</span><span class="va">datetime</span>, <span class="va">cal</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">select</span><span class="op">(</span><span class="va">city</span>, <span class="va">datetime</span>, <span class="va">timeslice</span>, <span class="va">T10M</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>timeslice <span class="op">=</span> <span class="fu"><a href="../reference/datetime_to_timeslice.html">datetime_to_timeslice</a></span><span class="op">(</span><span class="va">datetime</span>, <span class="va">cal</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">city</span>, <span class="va">datetime</span>, <span class="va">timeslice</span>, <span class="va">T10M</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">3</span><span class="op">)</span></span>
-<span><span class="co">#&gt;       city            datetime timeslice T10M</span></span>
-<span><span class="co">#&gt; 1 Helsinki 2019-01-01 00:30:00   m01_h00    1</span></span>
-<span><span class="co">#&gt; 2 Helsinki 2019-01-01 01:30:00   m01_h01    2</span></span>
-<span><span class="co">#&gt; 3 Helsinki 2019-01-01 02:30:00   m01_h02    2</span></span></code></pre></div>
+<span><span class="co">#&gt;      city            datetime timeslice T10M</span></span>
+<span><span class="co">#&gt; 1 Beijing 2019-01-01 00:30:00   m01_h00  -10</span></span>
+<span><span class="co">#&gt; 2 Beijing 2019-01-01 01:30:00   m01_h01   -9</span></span>
+<span><span class="co">#&gt; 3 Beijing 2019-01-01 02:30:00   m01_h02   -6</span></span></code></pre></div>
 <p>The inverse view is <code><a href="../reference/expand_calendar.html">expand_calendar()</a></code>: one row per
 base-grid point of a model year, with the timeslice that point belongs
 to — the year-aware, leap-aware grid every conversion routes
@@ -189,16 +194,16 @@ named like the calendar, else <code>timeslice</code>, else a
 grid):</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">panel</span> <span class="op">&lt;-</span> <span class="va">merra2_cities</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">mutate</span><span class="op">(</span>timeslice <span class="op">=</span> <span class="fu"><a href="../reference/datetime_to_timeslice.html">datetime_to_timeslice</a></span><span class="op">(</span><span class="va">datetime</span>, <span class="va">cal</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">summarise</span><span class="op">(</span><span class="fu">across</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">T10M</span>, <span class="va">SWGDN</span><span class="op">)</span>, <span class="va">mean</span><span class="op">)</span>, .by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">city</span>, <span class="va">timeslice</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>timeslice <span class="op">=</span> <span class="fu"><a href="../reference/datetime_to_timeslice.html">datetime_to_timeslice</a></span><span class="op">(</span><span class="va">datetime</span>, <span class="va">cal</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarise</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/across.html" class="external-link">across</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">T10M</span>, <span class="va">SWGDN</span><span class="op">)</span>, <span class="va">mean</span><span class="op">)</span>, .by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">city</span>, <span class="va">timeslice</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">panel</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/join_calendar.html">join_calendar</a></span><span class="op">(</span><span class="va">cal</span>, timeframes <span class="op">=</span> <span class="cn">TRUE</span>, meta <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">3</span><span class="op">)</span></span>
-<span><span class="co">#&gt;       city timeslice      T10M SWGDN m12_h24 m12_h24.MONTH m12_h24.HOUR</span></span>
-<span><span class="co">#&gt; 1 Helsinki   m01_h00 -3.548387     0 m01_h00           m01          h00</span></span>
-<span><span class="co">#&gt; 2 Helsinki   m01_h01 -3.419355     0 m01_h01           m01          h01</span></span>
-<span><span class="co">#&gt; 3 Helsinki   m01_h02 -3.387097     0 m01_h02           m01          h02</span></span>
+<span><span class="co">#&gt;      city timeslice      T10M    SWGDN m12_h24 m12_h24.MONTH m12_h24.HOUR</span></span>
+<span><span class="co">#&gt; 1 Beijing   m01_h00 -6.064516 115.1290 m01_h00           m01          h00</span></span>
+<span><span class="co">#&gt; 2 Beijing   m01_h01 -4.193548 253.3226 m01_h01           m01          h01</span></span>
+<span><span class="co">#&gt; 3 Beijing   m01_h02 -1.774194 364.8065 m01_h02           m01          h02</span></span>
 <span><span class="co">#&gt;   m12_h24.share m12_h24.weight</span></span>
 <span><span class="co">#&gt; 1   0.003538813             31</span></span>
 <span><span class="co">#&gt; 2   0.003538813             31</span></span>
@@ -208,10 +213,10 @@ coexist on one dataset — and a table carrying two label columns is
 itself an empirical crosswalk between those calendars:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">two</span> <span class="op">&lt;-</span> <span class="va">merra2_cities</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">city</span> <span class="op">==</span> <span class="st">"Helsinki"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">city</span> <span class="op">==</span> <span class="st">"Helsinki"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/join_calendar.html">join_calendar</a></span><span class="op">(</span><span class="va">calendars</span><span class="op">$</span><span class="va">m12_h24</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/join_calendar.html">join_calendar</a></span><span class="op">(</span><span class="va">calendars</span><span class="op">$</span><span class="va">q4_hp3</span><span class="op">)</span></span>
-<span><span class="va">two</span> <span class="op">|&gt;</span> <span class="fu">select</span><span class="op">(</span><span class="va">datetime</span>, <span class="va">m12_h24</span>, <span class="va">q4_hp3</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">3</span><span class="op">)</span></span>
+<span><span class="va">two</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">datetime</span>, <span class="va">m12_h24</span>, <span class="va">q4_hp3</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">3</span><span class="op">)</span></span>
 <span><span class="co">#&gt;              datetime m12_h24 q4_hp3</span></span>
 <span><span class="co">#&gt; 1 2019-01-01 00:30:00    &lt;NA&gt;   &lt;NA&gt;</span></span>
 <span><span class="co">#&gt; 2 2019-01-01 01:30:00    &lt;NA&gt;   &lt;NA&gt;</span></span>
@@ -237,11 +242,11 @@ rule is a silent unit error.</p>
 <span><span class="va">q</span> <span class="op">&lt;-</span> <span class="va">panel</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/recast_calendar.html">recast_calendar</a></span><span class="op">(</span><span class="va">cal</span>, <span class="va">calendars</span><span class="op">$</span><span class="va">q4</span>, year <span class="op">=</span> <span class="fl">2019</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">q</span>, <span class="fl">4</span><span class="op">)</span></span>
-<span><span class="co">#&gt;   timeslice     city      T10M     SWGDN</span></span>
-<span><span class="co">#&gt; 1        Q1 Helsinki -1.387963  3191.963</span></span>
-<span><span class="co">#&gt; 2        Q2 Helsinki 10.229396 16930.799</span></span>
-<span><span class="co">#&gt; 3        Q3 Helsinki 15.808877 14194.829</span></span>
-<span><span class="co">#&gt; 4        Q4 Helsinki  4.458333  1755.423</span></span></code></pre></div>
+<span><span class="co">#&gt;   timeslice    city      T10M     SWGDN</span></span>
+<span><span class="co">#&gt; 1        Q1 Beijing  1.571296 10997.608</span></span>
+<span><span class="co">#&gt; 2        Q2 Beijing 20.296245 19162.382</span></span>
+<span><span class="co">#&gt; 3        Q3 Beijing 25.331975 16604.304</span></span>
+<span><span class="co">#&gt; 4        Q4 Beijing  4.986866  8578.376</span></span></code></pre></div>
 <table class="table">
 <thead><tr class="header">
 <th>rule</th>
@@ -276,20 +281,38 @@ columns, so panel data converts in one call — and totals conserve
 <em>per group</em>:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">annual</span> <span class="op">&lt;-</span> <span class="va">panel</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu">select</span><span class="op">(</span><span class="va">city</span>, <span class="va">timeslice</span>, <span class="va">SWGDN</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">city</span>, <span class="va">timeslice</span>, <span class="va">SWGDN</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/recast_calendar.html">recast_calendar</a></span><span class="op">(</span><span class="va">cal</span>, to <span class="op">=</span> <span class="st">"ANNUAL"</span>, year <span class="op">=</span> <span class="fl">2019</span><span class="op">)</span></span>
 <span><span class="va">annual</span></span>
-<span><span class="co">#&gt;   timeslice     city    SWGDN</span></span>
-<span><span class="co">#&gt; 1    ANNUAL Helsinki 36073.01</span></span>
-<span><span class="co">#&gt; 2    ANNUAL     Lima 77294.96</span></span>
-<span><span class="co">#&gt; 3    ANNUAL   Sydney 63287.80</span></span>
+<span><span class="co">#&gt;    timeslice      city    SWGDN</span></span>
+<span><span class="co">#&gt; 1     ANNUAL   Beijing 55342.67</span></span>
+<span><span class="co">#&gt; 2     ANNUAL Cape Town 64983.83</span></span>
+<span><span class="co">#&gt; 3     ANNUAL     Dakar 74552.53</span></span>
+<span><span class="co">#&gt; 4     ANNUAL     Delhi 64217.18</span></span>
+<span><span class="co">#&gt; 5     ANNUAL  Helsinki 36073.01</span></span>
+<span><span class="co">#&gt; 6     ANNUAL  Honolulu 73953.58</span></span>
+<span><span class="co">#&gt; 7     ANNUAL   Jakarta 64483.46</span></span>
+<span><span class="co">#&gt; 8     ANNUAL      Lima 77294.96</span></span>
+<span><span class="co">#&gt; 9     ANNUAL    Lisbon 60641.57</span></span>
+<span><span class="co">#&gt; 10    ANNUAL Reykjavik 32893.18</span></span>
+<span><span class="co">#&gt; 11    ANNUAL    Sydney 63287.80</span></span>
+<span><span class="co">#&gt; 12    ANNUAL     Tokyo 53330.26</span></span>
 <span></span>
 <span><span class="co"># the same totals, straight from the panel:</span></span>
-<span><span class="va">panel</span> <span class="op">|&gt;</span> <span class="fu">summarise</span><span class="op">(</span>SWGDN <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">SWGDN</span><span class="op">)</span>, .by <span class="op">=</span> <span class="va">city</span><span class="op">)</span></span>
-<span><span class="co">#&gt;       city    SWGDN</span></span>
-<span><span class="co">#&gt; 1 Helsinki 36073.01</span></span>
-<span><span class="co">#&gt; 2     Lima 77294.96</span></span>
-<span><span class="co">#&gt; 3   Sydney 63287.80</span></span></code></pre></div>
+<span><span class="va">panel</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarise</a></span><span class="op">(</span>SWGDN <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">SWGDN</span><span class="op">)</span>, .by <span class="op">=</span> <span class="va">city</span><span class="op">)</span></span>
+<span><span class="co">#&gt;         city    SWGDN</span></span>
+<span><span class="co">#&gt; 1    Beijing 55342.67</span></span>
+<span><span class="co">#&gt; 2  Cape Town 64983.83</span></span>
+<span><span class="co">#&gt; 3      Dakar 74552.53</span></span>
+<span><span class="co">#&gt; 4      Delhi 64217.18</span></span>
+<span><span class="co">#&gt; 5   Helsinki 36073.01</span></span>
+<span><span class="co">#&gt; 6   Honolulu 73953.58</span></span>
+<span><span class="co">#&gt; 7    Jakarta 64483.46</span></span>
+<span><span class="co">#&gt; 8       Lima 77294.96</span></span>
+<span><span class="co">#&gt; 9     Lisbon 60641.57</span></span>
+<span><span class="co">#&gt; 10 Reykjavik 32893.18</span></span>
+<span><span class="co">#&gt; 11    Sydney 63287.80</span></span>
+<span><span class="co">#&gt; 12     Tokyo 53330.26</span></span></code></pre></div>
 <p>(<code>to =</code> also accepts a timeframe name of the source
 calendar — the within-calendar aggregation shortcut,
 <code>"ANNUAL"</code> being the root.)</p>
@@ -375,10 +398,10 @@ inputs come back in their own class; lazy inputs return the
 <span><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">lazy</span><span class="op">)</span>                        <span class="co"># the query, not the result</span></span>
 <span><span class="co">#&gt; [1] "dtplyr_step_call" "dtplyr_step"</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/compute.html" class="external-link">collect</a></span><span class="op">(</span><span class="va">lazy</span><span class="op">)</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span>
-<span><span class="co">#&gt;   timeslice     city       T10M     SWGDN</span></span>
-<span><span class="co">#&gt; 1        Q1 Helsinki  -97.89516  3191.963</span></span>
-<span><span class="co">#&gt; 2        Q2 Helsinki  737.25269 16930.799</span></span>
-<span><span class="co">#&gt; 3        Q3 Helsinki 1136.03656 14194.829</span></span></code></pre></div>
+<span><span class="co">#&gt;   timeslice    city      T10M    SWGDN</span></span>
+<span><span class="co">#&gt; 1        Q1 Beijing  106.4044 10997.61</span></span>
+<span><span class="co">#&gt; 2        Q2 Beijing 1460.2989 19162.38</span></span>
+<span><span class="co">#&gt; 3        Q3 Beijing 1822.0688 16604.30</span></span></code></pre></div>
 <p>Two contract details worth knowing for lazy sources (dtplyr, arrow):
 results carry the <em>observed</em> target timeslices only — the
 full-vocabulary completion happens on materialisation — and the calendar

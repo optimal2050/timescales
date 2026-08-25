@@ -45,7 +45,7 @@ The built-in calendar designs and sample data.
 - [`calendars`](https://optimal2050.github.io/timescales/r/reference/calendars.md)
   : Pre-built calendars from the catalog
 - [`merra2_cities`](https://optimal2050.github.io/timescales/r/reference/merra2_cities.md)
-  : Hourly weather sample: three cities, year 2019
+  : Hourly weather sample: twelve cities, year 2019
 
 ## Tokens
 
@@ -85,6 +85,10 @@ Move data between datetimes and calendars, and between calendars.
   : Crosswalk between two calendars over the base grid
 - [`register_calendar_map()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_map.md)
   : Register / look up a direct calendar crosswalk
+- [`get_calendar_map()`](https://optimal2050.github.io/timescales/r/reference/get_calendar_map.md)
+  : Look up one registered crosswalk
+- [`list_calendar_maps()`](https://optimal2050.github.io/timescales/r/reference/list_calendar_maps.md)
+  : List the registered crosswalks
 - [`clear_calendar_maps()`](https://optimal2050.github.io/timescales/r/reference/clear_calendar_maps.md)
   : Clear the crosswalk cache (and optionally the registered maps)
 - [`join_calendar()`](https://optimal2050.github.io/timescales/r/reference/join_calendar.md)
@@ -99,7 +103,7 @@ Draw calendar structures and data on calendars.
 - [`calendar_layout()`](https://optimal2050.github.io/timescales/r/reference/calendar_layout.md)
   : Icicle layout of a calendar's structure
 - [`calendar_autoplot()`](https://optimal2050.github.io/timescales/r/reference/calendar_autoplot.md)
-  [`autoplot.Calendar()`](https://optimal2050.github.io/timescales/r/reference/calendar_autoplot.md)
+  [`autoplot(`*`<Calendar>`*`)`](https://optimal2050.github.io/timescales/r/reference/calendar_autoplot.md)
   [`plot(`*`<Calendar>`*`)`](https://optimal2050.github.io/timescales/r/reference/calendar_autoplot.md)
   : Plot a calendar's structure as an icicle
 - [`calendar_plot()`](https://optimal2050.github.io/timescales/r/reference/calendar_plot.md)

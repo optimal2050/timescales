@@ -2,7 +2,7 @@
 
 > Stack-wide conventions (naming, style, git policy, API principles) are
 > unified in [optimal2050
-> CONVENTIONS.md](https://github.com/optimal2050/energyRt/blob/main/CONVENTIONS.md);
+> CONVENTIONS.md](https://github.com/optimal2050/.github/blob/main/CONVENTIONS.md);
 > this file covers the workflow of this repo.
 
 Thanks for your interest! `timescales` is part of the optimal2050
@@ -21,6 +21,19 @@ modeling stack and is developed alongside its spatial companion
   scikit-build-core.
 
 A single semantic version (in `VERSION`) drives all language artifacts.
+
+## Repository layout
+
+    timescales/
+    ├── DESCRIPTION, NAMESPACE, R/, man/, tests/, vignettes/   # R package (root)
+    ├── inst/include/timescales/                               # C++ headers (Phase 2)
+    ├── src/                                                   # Rcpp glue (Phase 2)
+    ├── cpp/                                                   # standalone C++ core (Phase 2)
+    ├── python/                                                # Python package (Phase 3)
+    ├── docs/                                                  # unified Quarto site
+    ├── specs/                                                 # cross-language golden tests
+    ├── benchmark/                                             # cross-language benchmarks
+    └── .github/workflows/                                     # CI
 
 ## Development workflow (R)
 

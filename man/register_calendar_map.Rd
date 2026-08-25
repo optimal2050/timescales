@@ -24,3 +24,10 @@ pair -- the table analogue of the functional override in
 \code{\link[=register_conversion]{register_conversion()}}, for cases where the exact correspondence is
 known (provably nested calendars, hand-audited crosswalks).
 }
+\examples{
+m12 <- calendar_map(calendar("m12"), calendar("q4"), year = 2021)
+register_calendar_map("m12", "q4", m12)
+get_calendar_map("m12", "q4")
+list_calendar_maps()
+register_calendar_map("m12", "q4", NULL)   # remove again
+}

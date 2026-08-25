@@ -5,8 +5,8 @@ the *scales siblings, part of the optimal2050 stack. Phase 1 is pure R
 (`cpp/`, `python/` are placeholders for later phases).
 
 Stack-wide rules (naming, style, git policy, API principles) live in the
-unified conventions document: `energyRt/CONVENTIONS.md`
-(https://github.com/optimal2050/energyRt/blob/main/CONVENTIONS.md).
+unified conventions document: `optimal2050/.github/CONVENTIONS.md`
+(https://github.com/optimal2050/.github/blob/main/CONVENTIONS.md).
 Everything below is repo-specific.
 
 ## Layout

@@ -17,3 +17,7 @@ Invisibly \code{NULL}.
 Mainly useful in tests, or after mutating a Calendar object in place
 (maps are memoised by calendar NAME).
 }
+\examples{
+clear_calendar_maps()                 # drop the memo cache only
+clear_calendar_maps(registry = TRUE)  # ... and the registered maps
+}

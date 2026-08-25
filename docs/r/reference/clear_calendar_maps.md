@@ -20,3 +20,10 @@ clear_calendar_maps(registry = FALSE)
 ## Value
 
 Invisibly `NULL`.
+
+## Examples
+
+``` r
+clear_calendar_maps()                 # drop the memo cache only
+clear_calendar_maps(registry = TRUE)  # ... and the registered maps
+```

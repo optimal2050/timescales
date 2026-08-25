@@ -8,6 +8,7 @@
 \usage{
 calendar_autoplot(
   object,
+  type = c("icicle", "stack"),
   fill = c("order", "share", "weight"),
   color_pattern = c("within", "global"),
   labels = c("name", "timeslice", "none"),
@@ -16,15 +17,36 @@ calendar_autoplot(
   border = NA,
   palette = "D",
   annual = TRUE,
+  view = NULL,
+  angle = NULL,
+  ratio = NULL,
+  shear = 0.5,
+  depth = 0.3,
+  gap = NULL,
+  rotate = 0,
+  direction = c("up", "down"),
+  colour = "grey35",
+  linewidth = 0.2,
+  frame = NULL,
+  frame_fill = NA,
+  connectors = FALSE,
+  data = NULL,
+  z = NULL,
+  rule = NULL,
+  year = NULL,
+  by = "hour",
   ...
 )
 
-autoplot.Calendar(object, ...)
+\method{autoplot}{Calendar}(object, ...)
 
 \method{plot}{Calendar}(x, ...)
 }
 \arguments{
 \item{object}{A \code{\link{Calendar}}.}
+
+\item{type}{\code{"icicle"} (default) or \code{"stack"} — the axonometric
+stacked-planes view (see below).}
 
 \item{fill}{What drives the fill gradient: \code{"order"} (chronological
 position, default), \code{"share"}, or \code{"weight"}.}
@@ -33,9 +55,12 @@ position, default), \code{"share"}, or \code{"weight"}.}
 the gradient inside each parent timeslice (hours recycle every day);
 \code{"global"} sweeps once across the whole year.}
 
-\item{labels}{Segment labels: \code{"name"} (level value, e.g. \code{h00};
-default), \code{"timeslice"} (full path, e.g. \code{Q1_h00}), or \code{"none"}.
-\code{TRUE}/\code{FALSE} are accepted as shorthands.}
+\item{labels}{Segment labels. Icicle: \code{"name"} (level value, e.g.
+\code{h00}; default), \code{"timeslice"} (full path, e.g. \code{Q1_h00}), or
+\code{"none"}; \code{TRUE}/\code{FALSE} are accepted as shorthands.
+\code{type = "stack"}: a character vector of timeframes whose member
+names are drawn on their plane's segments (e.g.
+\code{labels = "SEASON"}); unset = none.}
 
 \item{max_labels}{Rows with more segments than this get no labels.
 Default 60.}
@@ -48,9 +73,75 @@ hourly calendars fast. Default 2000.}
 render as smooth gradients.}
 
 \item{palette}{Viridis option letter or name (\code{"D"}/\code{"viridis"},
-\code{"C"}/\code{"plasma"}, \code{"B"}, \code{"A"}, \code{"E"}, \code{"turbo"}...). Default \code{"D"}.}
+\code{"C"}/\code{"plasma"}, \code{"B"}, \code{"A"}, \code{"E"}, \code{"turbo"}...). Default \code{"D"}.
+\code{type = "stack"} also accepts \code{NULL}: no fill scale is added, so
+you can supply your own (e.g. an energypal scale).}
 
 \item{annual}{Include the \code{ANNUAL} root band. Default \code{TRUE}.}
+
+\item{view}{\code{type = "stack"} only: a predefined point of view --
+\code{"oblique"} (the shear/depth default), \code{"top-down"}, \code{"cavalier"},
+\code{"cabinet"}, \code{"military"}, \code{"isometric"}, \code{"dimetric"},
+\code{"trimetric"}, or \code{"perspective"} (receding planes shrink).}
+
+\item{angle, ratio}{\code{type = "stack"} only: oblique view by angle
+(degrees of the receding axis) and foreshortening ratio --
+\verb{e2 = ratio * (cos(angle), sin(angle))}. Overridden by \code{view}.}
+
+\item{shear, depth, gap}{\code{type = "stack"} only: the raw receding-axis
+components (\verb{e2 = (shear, depth)}; used when neither \code{view} nor
+\code{angle}/\code{ratio} is given) and the vertical spacing between planes.
+\code{gap = NULL} (default) spaces planes almost touching, with a slight
+overlap (0.85 x the plane's screen height).}
+
+\item{rotate}{\code{type = "stack"} only: in-plane rotation of each plane
+(degrees, counter-clockwise) before projection.}
+
+\item{direction}{\code{type = "stack"} only: \code{"up"} (default) stacks the
+coarsest timeframe on top; \code{"down"} puts it at the bottom.}
+
+\item{colour, linewidth}{\code{type = "stack"} only: segment border colour
+and width, recycled across the planes (one entry per plane styles
+them individually). Defaults \code{"grey35"} and \code{0.2} -- ggplot2's own
+sf polygon border. (The icicle's rectangle border is the separate
+\code{border} argument.)}
+
+\item{frame}{\code{type = "stack"} only: draw each plane's outline (the
+unit box run through the same projection) as a guide. \code{TRUE} uses
+\code{"grey80"}, a colour string uses that colour, \code{NULL} (default)
+draws no frames.}
+
+\item{frame_fill}{\code{type = "stack"} only: fill for the plane sheets;
+best mostly transparent, e.g.
+\code{frame_fill = ggplot2::alpha("grey60", 0.12)}. Setting a fill
+draws the frames even without \code{frame}; \code{NA} (default) = no fill.}
+
+\item{connectors}{\code{type = "stack"} only: dashed lines joining the
+corresponding frame corners of adjacent planes. \code{TRUE} uses the
+frame colour, a colour string picks its own; default \code{FALSE}.}
+
+\item{data, z}{Colour the figure by a value instead of by structure:
+works for BOTH types -- the icicle fills each band's rectangles,
+the stack fills each plane. \code{data} is a data.frame with a
+\code{timeslice} column at the calendar's resolution (or a
+calendar-named label column) plus the value column named by \code{z};
+every timeframe gets the value recast to its resolution, so the
+whole figure shares one continuous fill scale (legend title via
+\code{labs(fill = )}). On the icicle, \code{data} overrides
+\code{fill}/\code{color_pattern}, and dense bands are binned with
+width-weighted means.}
+
+\item{rule}{With \code{data}: aggregation rule for the per-timeframe
+recasts (\code{"sum"}, \code{"mean"}, \code{"weighted_mean"}, ... -- see
+\code{\link[=recast_calendar]{recast_calendar()}}; explicit or registered, never guessed).}
+
+\item{year}{With \code{data}: the model year the recast routes through
+(required by \code{\link[=recast_calendar]{recast_calendar()}}).}
+
+\item{by}{With \code{data}: base-grid granularity for the per-timeframe
+recasts. Defaults to \code{"hour"} -- always correct (the automatic
+choice can pick a daily grid for sub-daily calendars, which
+silently collapses hour-type slices).}
 
 \item{...}{Passed on to \code{\link[=calendar_autoplot]{calendar_autoplot()}}.}
 
@@ -64,9 +155,19 @@ One horizontal band per timeframe (\code{ANNUAL} root on top, coarsest first),
 rectangle widths proportional to timeslice shares, x spanning the covered
 year on \verb{[0, 1]}. \code{autoplot()} and \code{plot()} on a Calendar dispatch here.
 }
+\section{The stack view}{
+
+\code{type = "stack"} draws the same structure axonometrically — one
+sheared plane per timeframe, \code{ANNUAL} on top, each plane segmented by
+the true duration shares, with segments visibly nesting into the
+plane above. \code{fill}/\code{labels}/\code{max_segments} apply to the icicle only;
+the stack colours each plane by its own segment order.
+}
+
 \examples{
 if (requireNamespace("ggplot2", quietly = TRUE)) {
   calendar_autoplot(calendar("q4_h24"))
   ggplot2::autoplot(calendar("m12"))   # same via the generic
+  calendar_autoplot(calendar("s4_hp3"), type = "stack")
 }
 }

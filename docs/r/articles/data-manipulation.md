@@ -32,10 +32,10 @@ merra2_cities |>
   mutate(timeslice = datetime_to_timeslice(datetime, cal)) |>
   select(city, datetime, timeslice, T10M) |>
   head(3)
-#>       city            datetime timeslice T10M
-#> 1 Helsinki 2019-01-01 00:30:00   m01_h00    1
-#> 2 Helsinki 2019-01-01 01:30:00   m01_h01    2
-#> 3 Helsinki 2019-01-01 02:30:00   m01_h02    2
+#>      city            datetime timeslice T10M
+#> 1 Beijing 2019-01-01 00:30:00   m01_h00  -10
+#> 2 Beijing 2019-01-01 01:30:00   m01_h01   -9
+#> 3 Beijing 2019-01-01 02:30:00   m01_h02   -6
 ```
 
 The inverse view is
@@ -71,10 +71,10 @@ panel <- merra2_cities |>
 panel |>
   join_calendar(cal, timeframes = TRUE, meta = TRUE) |>
   head(3)
-#>       city timeslice      T10M SWGDN m12_h24 m12_h24.MONTH m12_h24.HOUR
-#> 1 Helsinki   m01_h00 -3.548387     0 m01_h00           m01          h00
-#> 2 Helsinki   m01_h01 -3.419355     0 m01_h01           m01          h01
-#> 3 Helsinki   m01_h02 -3.387097     0 m01_h02           m01          h02
+#>      city timeslice      T10M    SWGDN m12_h24 m12_h24.MONTH m12_h24.HOUR
+#> 1 Beijing   m01_h00 -6.064516 115.1290 m01_h00           m01          h00
+#> 2 Beijing   m01_h01 -4.193548 253.3226 m01_h01           m01          h01
+#> 3 Beijing   m01_h02 -1.774194 364.8065 m01_h02           m01          h02
 #>   m12_h24.share m12_h24.weight
 #> 1   0.003538813             31
 #> 2   0.003538813             31
@@ -120,11 +120,11 @@ register_rule("SWGDN", "sum")             # extensive proxy: energy
 q <- panel |>
   recast_calendar(cal, calendars$q4, year = 2019)
 head(q, 4)
-#>   timeslice     city      T10M     SWGDN
-#> 1        Q1 Helsinki -1.387963  3191.963
-#> 2        Q2 Helsinki 10.229396 16930.799
-#> 3        Q3 Helsinki 15.808877 14194.829
-#> 4        Q4 Helsinki  4.458333  1755.423
+#>   timeslice    city      T10M     SWGDN
+#> 1        Q1 Beijing  1.571296 10997.608
+#> 2        Q2 Beijing 20.296245 19162.382
+#> 3        Q3 Beijing 25.331975 16604.304
+#> 4        Q4 Beijing  4.986866  8578.376
 ```
 
 | rule            | meaning                                        |
@@ -145,17 +145,35 @@ annual <- panel |>
   select(city, timeslice, SWGDN) |>
   recast_calendar(cal, to = "ANNUAL", year = 2019)
 annual
-#>   timeslice     city    SWGDN
-#> 1    ANNUAL Helsinki 36073.01
-#> 2    ANNUAL     Lima 77294.96
-#> 3    ANNUAL   Sydney 63287.80
+#>    timeslice      city    SWGDN
+#> 1     ANNUAL   Beijing 55342.67
+#> 2     ANNUAL Cape Town 64983.83
+#> 3     ANNUAL     Dakar 74552.53
+#> 4     ANNUAL     Delhi 64217.18
+#> 5     ANNUAL  Helsinki 36073.01
+#> 6     ANNUAL  Honolulu 73953.58
+#> 7     ANNUAL   Jakarta 64483.46
+#> 8     ANNUAL      Lima 77294.96
+#> 9     ANNUAL    Lisbon 60641.57
+#> 10    ANNUAL Reykjavik 32893.18
+#> 11    ANNUAL    Sydney 63287.80
+#> 12    ANNUAL     Tokyo 53330.26
 
 # the same totals, straight from the panel:
 panel |> summarise(SWGDN = sum(SWGDN), .by = city)
-#>       city    SWGDN
-#> 1 Helsinki 36073.01
-#> 2     Lima 77294.96
-#> 3   Sydney 63287.80
+#>         city    SWGDN
+#> 1    Beijing 55342.67
+#> 2  Cape Town 64983.83
+#> 3      Dakar 74552.53
+#> 4      Delhi 64217.18
+#> 5   Helsinki 36073.01
+#> 6   Honolulu 73953.58
+#> 7    Jakarta 64483.46
+#> 8       Lima 77294.96
+#> 9     Lisbon 60641.57
+#> 10 Reykjavik 32893.18
+#> 11    Sydney 63287.80
+#> 12     Tokyo 53330.26
 ```
 
 (`to =` also accepts a timeframe name of the source calendar — the
@@ -252,10 +270,10 @@ lazy <- dtplyr::lazy_dt(dt) |>
 class(lazy)                        # the query, not the result
 #> [1] "dtplyr_step_call" "dtplyr_step"
 head(as.data.frame(dplyr::collect(lazy)), 3)
-#>   timeslice     city       T10M     SWGDN
-#> 1        Q1 Helsinki  -97.89516  3191.963
-#> 2        Q2 Helsinki  737.25269 16930.799
-#> 3        Q3 Helsinki 1136.03656 14194.829
+#>   timeslice    city      T10M    SWGDN
+#> 1        Q1 Beijing  106.4044 10997.61
+#> 2        Q2 Beijing 1460.2989 19162.38
+#> 3        Q3 Beijing 1822.0688 16604.30
 ```
 
 Two contract details worth knowing for lazy sources (dtplyr, arrow):

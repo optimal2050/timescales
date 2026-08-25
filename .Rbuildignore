@@ -33,3 +33,5 @@
 ^\.positai$
 ^\.claude$
 ^drafts$
+^AGENTS\.md$
+^CLAUDE\.md$

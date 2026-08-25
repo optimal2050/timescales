@@ -13,8 +13,56 @@
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
 <!-- badges: end -->
 
-> Nested timeframes and calendars for optimization and simulation
-> models.
+## Overview
+
+timescales provides **nested timeframes and calendars** for optimization
+and simulation models: organize the time dimension of your model data,
+convert it between resolutions, and see every level at once.
+
+- [`calendar()`](https://optimal2050.github.io/timescales/r/reference/calendar_build.html)
+  builds a `Calendar` — ordered timeframes, their members, and one
+  leaftable row per timeslice with duration-proportional shares; 43
+  curated designs, from `d365_h24` to typical-period compressions and
+  fiscal years, ship pre-built in
+  [`calendars`](https://optimal2050.github.io/timescales/r/reference/calendars.html).
+- [`join_calendar()`](https://optimal2050.github.io/timescales/r/reference/join_calendar.html)
+  decorates a table keyed by timeslices with the calendar’s label and
+  share/weight columns — your tables stay tables (data.frame, tibble,
+  data.table, dtplyr/arrow in; the same class out).
+- [`recast_calendar()`](https://optimal2050.github.io/timescales/r/reference/recast_calendar.html)
+  converts values between any two calendars — one rule per value column,
+  totals conserved, up or down.
+- [`filter_calendar()`](https://optimal2050.github.io/timescales/r/reference/filter_calendar.html)
+  and
+  [`prune_calendar()`](https://optimal2050.github.io/timescales/r/reference/prune_calendar.html)
+  carve partial-year samples and coarser designs for model runs.
+- [`geom_calendar()`](https://optimal2050.github.io/timescales/r/reference/geom_calendar.html),
+  [`calendar_autoplot()`](https://optimal2050.github.io/timescales/r/reference/calendar_autoplot.html)
+  and friends draw any level: heatmaps, wall calendars, icicles, and
+  axonometric stacks.
+
+timescales is the time-domain package of the
+[optimal2050](https://github.com/optimal2050) modeling stack; its
+spatial companion,
+[geoscales](https://github.com/optimal2050/geoscales), shares the same
+design and vocabulary.
+
+If you are new to timescales, the best place to start is the
+[get-started
+vignette](https://optimal2050.github.io/timescales/r/articles/timescales.html)
+(`vignette("timescales")`).
+
+## Installation
+
+timescales is not on CRAN yet; install the development version from
+GitHub:
+
+``` r
+# install.packages("pak")
+pak::pkg_install("optimal2050/timescales")
+```
+
+## Usage
 
 One `Calendar`, three resolutions of the same year: Reykjavik’s hourly
 wind (NASA MERRA-2, 2019) on the `m12_h24` calendar — the annual mean on
@@ -46,96 +94,8 @@ calendar_autoplot(cal, type = "stack",
 
 <img src="man/figures/README-hero-reykjavik-wind-1.png" alt="" width="100%" />
 
-*Weather data: NASA MERRA-2 reanalysis (Global Modeling and Assimilation
-Office) — public domain; extracted with
-[merra2ools](https://github.com/optimal2050/merra2ools).*
-
-## What timescales offers
-
-`timescales` is the **time-domain** package of the optimal2050 modeling
-stack (its spatial companion is
-[`geoscales`](https://github.com/optimal2050/geoscales)):
-
-- **Organize model data in nested time structures** — a `Calendar` is
-  ordered timeframes, their members, and one leaftable row per timeslice
-  with duration-proportional shares.
-- **Reshape between calendars** — recast up or down with explicit rules
-  and conserved totals; joins decorate your tables instead of replacing
-  them.
-- **Your tables stay tables** — data.frame, tibble, or data.table in,
-  the same class out; dtplyr/arrow queries stay lazy. Keep the data in
-  csv, R data files, or arrow/parquet — the package never owns a storage
-  format.
-- **Flexible model design** — pick the timeframes a model run needs;
-  prune and filter partial-year subsets; representative typical-period
-  designs ship in the 43-calendar catalog.
-- **See every level** — calendar heatmaps, wall calendars, icicles, and
-  axonometric stacks, all data-aware and multi-level.
-
-This is a **multi-language** project. The R package is the current focus
-(Phase 1); a C++ core (Phase 2) and a Python port (Phase 3) are planned.
-
-## Quick demo
-
-A **Calendar** is a named slicing of the year — 43 curated designs ship
-pre-built in the `calendars` catalog, from `d365_h24` down to
-typical-period compressions and April-anchored fiscal years
-(`calendar("m12")` builds any of them fresh). Inside: one leaftable row
-per timeslice, with duration-proportional shares:
-
-``` r
-library(timescales)
-
-cal <- calendars$m12
-cal
-#> Calendar: m12 
-#> Timeframes (1):
-#>   - MONTH (12) [token: m12]
-#> Leaf timeslices: 12
-#> year_fraction: 1
-#> year_start: month=1, day=1
-#> utc_offset_minutes: 0
-head(cal@leaftable, 3)
-#>   MONTH      share weight timeslice
-#> 1   m01 0.08493151    744       m01
-#> 2   m02 0.07671233    672       m02
-#> 3   m03 0.08493151    744       m03
-```
-
-Key your data by its timeslices and the calendar decorates the table —
-`join_calendar()` attaches the label and share/weight columns under the
-calendar’s own name:
-
-``` r
-monthly <- data.frame(
-  timeslice = cal@leaftable$timeslice,
-  load = c(120, 118, 105, 92, 85, 88, 95, 100, 98, 90, 105, 122)
-)
-
-monthly |> join_calendar(cal, meta = TRUE) |> head(3)
-#>   timeslice load m12  m12.share m12.weight
-#> 1       m01  120 m01 0.08493151        744
-#> 2       m02  118 m02 0.07671233        672
-#> 3       m03  105 m03 0.08493151        744
-```
-
-Converting between two calendars is one verb, with one rule per value
-column and conserved totals:
-
-``` r
-monthly |>
-  recast_calendar(from = cal, to = calendar("q4"),
-                  year = 2025, rule = "weighted_mean", by = "day")
-#>   timeslice      load
-#> 1        Q1 114.21111
-#> 2        Q2  88.29670
-#> 3        Q3  97.66304
-#> 4        Q4 105.67391
-```
-
-Datetime data lands on a calendar as one ggplot2 layer
-(`geom_calendar()`) — here Reykjavik’s wind year at full hourly
-resolution — and the same weather draws as a wall calendar:
+Datetime data lands on any calendar as one ggplot2 layer — the same wind
+year at its full 365 x 24 resolution:
 
 ``` r
 library(ggplot2)
@@ -154,6 +114,9 @@ ggplot(rey) +
 
 <img src="man/figures/README-demo-heatmap-1.png" alt="" width="100%" />
 
+And a familiar wall calendar is just another calendar design — here the
+same city’s temperature:
+
 ``` r
 calendar_wall_plot(calendar("m12_md365"), rey, z = "T10M", year = 2019) +
   scale_fill_viridis_c(option = "C") +
@@ -162,65 +125,32 @@ calendar_wall_plot(calendar("m12_md365"), rey, z = "T10M", year = 2019) +
 
 <img src="man/figures/README-demo-wall-1.png" alt="" width="100%" />
 
-And the structure figures carry data too: the icicle fills every band
-with the value recast to that band’s resolution — the same recast
-machinery that converts your model tables:
+*Weather data: NASA MERRA-2 reanalysis (Global Modeling and Assimilation
+Office) — public domain; extracted with
+[merra2ools](https://github.com/optimal2050/merra2ools).*
 
-``` r
-wind <- rey |>
-  mutate(timeslice = datetime_to_timeslice(datetime, calendars$m12_h24)) |>
-  summarise(W50M = mean(W50M), .by = timeslice)
+## Learning more
 
-calendar_autoplot(calendars$m12_h24, data = wind, z = "W50M",
-                  rule = "weighted_mean", year = 2019) +
-  labs(fill = "m/s")
-```
+- The [get-started
+  vignette](https://optimal2050.github.io/timescales/r/articles/timescales.html)
+  — build, inspect, convert, visualize, in 5 minutes.
+- [Types of
+  calendars](https://optimal2050.github.io/timescales/r/articles/calendars.html)
+  — the 43-design catalog, from full resolution to typical periods.
+- [Visualization](https://optimal2050.github.io/timescales/r/articles/visualization.html)
+  — heatmaps, wall calendars, profiles, ribbons, and duration curves on
+  real weather data.
+- The [project site](https://optimal2050.github.io/timescales/) — entry
+  point for all language flavours — and the [R
+  reference](https://optimal2050.github.io/timescales/r/reference/).
 
-<img src="man/figures/README-demo-icicle-data-1.png" alt="" width="100%" />
+## Getting help
 
-See `vignette("timescales")` for the 5-minute tour, and the
-[visualization
-article](https://optimal2050.github.io/timescales/r/articles/visualization.html)
-for heatmaps, profiles, ribbons, and duration curves on real weather
-data.
-
-## Documentation
-
-- **[Project site](https://optimal2050.github.io/timescales/)** — entry
-  point for all language flavours
-- **[R reference and
-  articles](https://optimal2050.github.io/timescales/r/)**
-
-## Status
-
-🚧 In development — pre-1.0, APIs may still change between minor
-versions. Feedback and issues are welcome.
-
-## Installation
-
-``` r
-# From GitHub
-remotes::install_github("optimal2050/timescales")
-```
-
-Or via [r-universe](https://optimal2050.r-universe.dev/):
-
-``` r
-install.packages("timescales", repos = "https://optimal2050.r-universe.dev")
-```
-
-## Repository layout
-
-    timescales/
-    ├── DESCRIPTION, NAMESPACE, R/, man/, tests/, vignettes/   # R package (root)
-    ├── inst/include/timescales/                               # C++ headers (Phase 2)
-    ├── src/                                                   # Rcpp glue (Phase 2)
-    ├── cpp/                                                   # standalone C++ core (Phase 2)
-    ├── python/                                                # Python package (Phase 3)
-    ├── docs/                                                  # unified Quarto site
-    ├── specs/                                                 # cross-language golden tests
-    ├── benchmark/                                             # cross-language benchmarks
-    └── .github/workflows/                                     # CI
+timescales is pre-1.0 and APIs may still change between minor versions.
+Questions, feedback, and bug reports are welcome on the [issue
+tracker](https://github.com/optimal2050/timescales/issues); see
+[CONTRIBUTING](CONTRIBUTING.md) for the repository layout and the
+multi-language roadmap.
 
 ## License
 

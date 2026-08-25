@@ -21,12 +21,18 @@ hemisphere) — extracted from NASA’s MERRA-2 reanalysis:
 ``` r
 
 str(merra2_cities)
-#> 'data.frame':    26280 obs. of  5 variables:
-#>  $ city    : chr  "Helsinki" "Helsinki" "Helsinki" "Helsinki" ...
-#>  $ datetime: POSIXct, format: "2019-01-01 00:30:00" "2019-01-01 01:30:00" ...
-#>  $ T10M    : num  1 2 2 3 3 3 3 3 3 3 ...
-#>  $ W50M    : num  14 12.6 11.5 11 10.8 ...
-#>  $ SWGDN   : num  0 0 0 0 0 0 0 0 2 13 ...
+#> 'data.frame':    105120 obs. of  11 variables:
+#>  $ city       : chr  "Beijing" "Beijing" "Beijing" "Beijing" ...
+#>  $ locid      : int  150235 150235 150235 150235 150235 150235 150235 150235 150235 150235 ...
+#>  $ datetime   : POSIXct, format: "2019-01-01 00:30:00" "2019-01-01 01:30:00" ...
+#>  $ T10M       : num  -10 -9 -6 -3 -2 -1 0 0 -2 -3 ...
+#>  $ W10M       : num  4.9 5.9 6.2 5.9 5.7 ...
+#>  $ W50M       : num  6.8 7 7.1 6.9 6.8 ...
+#>  $ WDIR       : num  140 150 160 160 160 160 160 170 160 150 ...
+#>  $ SWGDN      : num  79 211 331 411 444 416 330 191 43 0 ...
+#>  $ ALBEDO     : num  0.18 0.16 0.15 0.14 0.14 ...
+#>  $ PRECTOTCORR: num  0 0 0 0 0 0 0 0 0 0 ...
+#>  $ RHOA       : num  1.34 1.34 1.32 1.31 1.3 ...
 ```
 
 Instants are stamped at 30 minutes past the hour (the MERRA-2
@@ -184,13 +190,13 @@ panel |>
   recast_calendar(cal, calendars$q4_hp3, year = 2019,
                   rule = "weighted_mean") |>
   head(6)
-#>   timeslice     city      T10M     W50M
-#> 1    Q1_DAY Helsinki -1.138889 7.495926
-#> 2    Q2_DAY Helsinki 11.371795 5.333059
-#> 3    Q3_DAY Helsinki 16.717391 5.346830
-#> 4    Q4_DAY Helsinki  4.586051 7.106793
-#> 5  Q1_NIGHT Helsinki -1.723611 7.328056
-#> 6  Q2_NIGHT Helsinki  8.390110 5.440247
+#>   timeslice    city      T10M     W50M
+#> 1    Q1_DAY Beijing  2.541667 5.709537
+#> 2    Q2_DAY Beijing 21.282967 5.738462
+#> 3    Q3_DAY Beijing 25.997283 4.445924
+#> 4    Q4_DAY Beijing  5.854167 4.850725
+#> 5  Q1_NIGHT Beijing  1.844444 5.310000
+#> 6  Q2_NIGHT Beijing 21.416209 4.363736
 
 # ... and to the seasonal view
 panel |>
@@ -216,18 +222,61 @@ irr <- merra2_cities |>
 
 irr |>
   recast_calendar(cal, to = "ANNUAL", year = 2019, rule = "sum")
-#>   timeslice     city   SWGDN
-#> 1    ANNUAL Helsinki 1100819
-#> 2    ANNUAL     Lima 2352652
-#> 3    ANNUAL   Sydney 1921049
+#>    timeslice      city   SWGDN
+#> 1     ANNUAL   Beijing 1685648
+#> 2     ANNUAL Cape Town 1972784
+#> 3     ANNUAL     Dakar 2267102
+#> 4     ANNUAL     Delhi 1954674
+#> 5     ANNUAL  Helsinki 1100819
+#> 6     ANNUAL  Honolulu 2250778
+#> 7     ANNUAL   Jakarta 1961284
+#> 8     ANNUAL      Lima 2352652
+#> 9     ANNUAL    Lisbon 1847102
+#> 10    ANNUAL Reykjavik 1004032
+#> 11    ANNUAL    Sydney 1921049
+#> 12    ANNUAL     Tokyo 1623462
 
 # identical to summing the timeslice panel directly:
 irr |> summarise(SWGDN = sum(SWGDN), .by = city)
-#>       city   SWGDN
-#> 1 Helsinki 1100819
-#> 2     Lima 2352652
-#> 3   Sydney 1921049
+#>         city   SWGDN
+#> 1    Beijing 1685648
+#> 2  Cape Town 1972784
+#> 3      Dakar 2267102
+#> 4      Delhi 1954674
+#> 5   Helsinki 1100819
+#> 6   Honolulu 2250778
+#> 7    Jakarta 1961284
+#> 8       Lima 2352652
+#> 9     Lisbon 1847102
+#> 10 Reykjavik 1004032
+#> 11    Sydney 1921049
+#> 12     Tokyo 1623462
 ```
+
+## One resource, three calendars
+
+Model design is choosing a resolution. The same Reykjavik wind year on
+three calendars of decreasing size — the full month × hour grid, one
+representative day per quarter, and four seasons × three hour-types —
+shows exactly what each compression keeps. (The spatial twin of this
+figure — one wind resource at three map resolutions — lives in the
+[geoscales visualization
+article](https://optimal2050.github.io/geoscales/r/articles/visualization.html).)
+
+``` r
+
+rey <- merra2_cities |> filter(city == "Reykjavik")
+for (id in c("m12_h24", "q4_h24", "s4_hp3")) {
+  cal_i <- calendars[[id]]
+  w <- rey |>
+    mutate(timeslice = datetime_to_timeslice(datetime, cal_i)) |>
+    summarise(W50M = mean(W50M), .by = timeslice)
+  print(calendar_plot(cal_i, w, palette = "G") +
+          labs(title = paste("Reykjavik wind on", id), fill = "m/s"))
+}
+```
+
+![](visualization_files/figure-html/scales-trio-1.png)![](visualization_files/figure-html/scales-trio-2.png)![](visualization_files/figure-html/scales-trio-3.png)
 
 ## Profiles: lines over timeslices
 
@@ -278,7 +327,9 @@ panel |>
 ## Ranges: ribbons
 
 Roll-your-own composition is plain ggplot. Monthly temperature envelopes
-— hourly extremes around the mean — are one grouped `summarise()` and a
+— hourly extremes around the mean — are one grouped
+[`summarise()`](https://dplyr.tidyverse.org/reference/summarise.html)
+and a
 [`geom_ribbon()`](https://ggplot2.tidyverse.org/reference/geom_ribbon.html):
 
 ``` r
@@ -357,6 +408,50 @@ and
 [`calendar_weekdays()`](https://optimal2050.github.io/timescales/r/reference/calendar_weekdays.md)
 — all plain data frames, ready for whatever figure this vignette did not
 anticipate.
+
+## The stack view
+
+`type = "stack"` draws the same structure axonometrically — one plane
+per timeframe, `ANNUAL` on top, each plane segmented at the true
+duration shares. Points of view come as presets (`view =` `"oblique"`,
+`"top-down"`, `"cavalier"`, `"cabinet"`, `"military"`, `"isometric"`,
+`"dimetric"`, `"trimetric"`, `"perspective"`), with `rotate =` and
+`direction =` to turn and flip the stack; `frame =` draws each plane’s
+sheet, `frame_fill =` tints it like glass, and `connectors =` adds the
+corner guides that keep the projection readable:
+
+``` r
+
+calendar_autoplot(calendars$s4_hp3, type = "stack",
+                  frame = TRUE, connectors = TRUE,
+                  frame_fill = alpha("grey60", 0.12))
+```
+
+![](visualization_files/figure-html/stack-structure-1.png)
+
+The stack also takes data. `data`/`z` hand a timeslice-keyed value to
+the plot, and every plane receives it recast to its own timeframe
+(`rule =` and `year =` are the
+[`recast_calendar()`](https://optimal2050.github.io/timescales/r/reference/recast_calendar.md)
+arguments; the base grid is hourly by default), so the whole stack
+shares one continuous scale — the annual mean on top, the finest
+resolution at the bottom. `labels =` names timeframes whose member names
+are written on the plane, and `palette = NULL` lets you attach your own
+fill scale:
+
+``` r
+
+calendar_autoplot(cal, type = "stack",
+                  data = hel_timeslices, z = "T10M",
+                  rule = "weighted_mean", year = 2019,
+                  labels = "MONTH",
+                  colour = c("grey35", "grey35", NA),  # no borders on the
+                  frame = TRUE,                        # dense HOUR plane
+                  frame_fill = alpha("grey60", 0.10)) +
+  labs(fill = "degC")
+```
+
+![](visualization_files/figure-html/stack-data-1.png)
 
 ## Fiscal figures
 

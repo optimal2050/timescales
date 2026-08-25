@@ -3,22 +3,30 @@
 \docType{data}
 \name{merra2_cities}
 \alias{merra2_cities}
-\title{Hourly weather sample: three cities, year 2019}
+\title{Hourly weather sample: twelve cities, year 2019}
 \format{
-A \code{data.frame} with 26,280 rows (3 cities x 8,760 hours) and
-5 columns:
+A \code{data.frame} with 105,120 rows (12 cities x 8,760 hours)
+and 11 columns:
 \describe{
-\item{\code{city}}{\code{"Helsinki"}, \code{"Lima"}, or \code{"Sydney"}.}
+\item{\code{city}}{City name.}
+\item{\code{locid}}{Integer id of the MERRA-2 grid cell the city falls
+in (the join key to the MERRA-2 grid, e.g. via the \code{merra2ools}
+package's \code{locid} table — the bridge to the space dimension).}
 \item{\code{datetime}}{POSIXct, UTC; hourly instants of 2019 stamped at
 30 minutes past the hour (the MERRA-2 hourly-mean convention).}
 \item{\code{T10M}}{Air temperature at 10 m, degrees C.}
-\item{\code{W50M}}{Wind speed at 50 m, m/s.}
+\item{\code{W10M}, \code{W50M}}{Wind speed at 10 m / 50 m, m/s.}
+\item{\code{WDIR}}{Wind direction, degrees.}
 \item{\code{SWGDN}}{Surface incoming shortwave irradiance, W/m2.}
+\item{\code{ALBEDO}}{Surface albedo, fraction.}
+\item{\code{PRECTOTCORR}}{Bias-corrected total precipitation.}
+\item{\code{RHOA}}{Air density, kg/m3.}
 }
 }
 \source{
 NASA MERRA-2 reanalysis, Global Modeling and Assimilation
-Office (GMAO), extracted with the \code{merra2ools} package
+Office (GMAO) — a public-domain dataset; extracted with the
+\code{merra2ools} package
 (\url{https://github.com/optimal2050/merra2ools}); subset built by
 \code{data-raw/merra2_cities.R}.
 }
@@ -26,15 +34,18 @@ Office (GMAO), extracted with the \code{merra2ools} package
 merra2_cities
 }
 \description{
-NASA MERRA-2 reanalysis extracted for Helsinki, Lima, and Sydney — a
-high-latitude / equatorial / southern-hemisphere contrast, used by the
-visualization vignette (\code{vignette("visualization")}) to demonstrate
-mapping datetimes onto calendars, calendar heatmaps and wall
-calendars, profiles/ribbons/duration curves, and recasting across
-resolutions.
+NASA MERRA-2 reanalysis extracted for twelve cities across every
+populated continent and both hemispheres: Beijing, Cape Town, Dakar,
+Delhi, Helsinki, Honolulu, Jakarta, Lima, Lisbon, Reykjavik, Sydney,
+and Tokyo. Used by the README and the visualization vignette
+(\code{vignette("visualization")}) to demonstrate mapping datetimes onto
+calendars, calendar heatmaps and wall calendars,
+profiles/ribbons/duration curves, and recasting across resolutions —
+and, through \code{locid}, shared with the geoscales documentation as the
+time half of "the same data on time and geo scales".
 }
 \examples{
 head(merra2_cities)
-with(subset(merra2_cities, city == "Helsinki"), range(T10M))
+with(subset(merra2_cities, city == "Reykjavik"), range(W50M))
 }
 \keyword{datasets}

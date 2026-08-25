@@ -134,7 +134,8 @@ timeframe columns to a dataset instead of converting it.
 ### 5. Visualize
 
 Every figure tier works through normal ggplot2 — a heatmap layer here;
-wall calendars, profiles, and duration curves in
+wall calendars, profiles, duration curves, and the data-filled structure
+figures (icicles and stacks take `data =`/`z =`) in
 [`vignette("visualization")`](https://optimal2050.github.io/timescales/r/articles/visualization.md):
 
 ``` r

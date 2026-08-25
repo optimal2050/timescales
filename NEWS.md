@@ -102,7 +102,42 @@ sharing one naming convention with the sibling package geoscales.
   underneath.
 * Structure figures: `calendar_autoplot()` (icicle; `autoplot()`/
   `plot()` dispatch here) and `calendar_plot()` (heatmap), over the
-  exported `calendar_layout()` geometry.
+  exported `calendar_layout()` geometry. `calendar_autoplot(type =
+  "stack")` draws the layer-stack view: one plane per timeframe,
+  `ANNUAL` on top, segments at their true duration shares -- with
+  `view` presets (oblique/top-down/cavalier/cabinet/military/isometric/
+  dimetric/trimetric/perspective), `angle`/`ratio` obliques,
+  `rotate=`, `direction=`, and an almost-touching default spacing.
+  `frame=` draws each plane's outline ("sheet"), `frame_fill=` fills
+  the sheets (best mostly transparent), and `connectors=` adds dashed
+  corner guides between planes; `colour=`/`linewidth=` style segment
+  borders per plane (defaults `"grey35"`/`0.2`, ggplot2's own sf
+  polygon border), and the canvas hugs the content (tight limits,
+  label room sized to the timeframe names). The stack also takes data:
+  `data`/`z` colour every plane by a timeslice-keyed value, recast to
+  each plane's timeframe (`rule=`, `year=`; base grid `by = "hour"`)
+  so the whole stack shares one continuous scale; for `type = "stack"`
+  `labels=` names timeframes whose member names are drawn on the
+  plane, and `palette = NULL` adds no fill scale (bring your own).
+  Mirrored in `geoscales::geoscale_autoplot(type = "stack")`
+  (deliberate differences: oblique defaults, palette letter, `annual=`
+  here vs geometry-only `precision=` there).
+* The structure icicle carries data too: `calendar_autoplot(data =,
+  z =, rule =, year =)` fills every band with the value recast to that
+  band's timeframe (dense bands binned with width-weighted means) --
+  the 2D twin of the stack's data fill.
+* `merra2_cities` grew from 3 to all 12 cities of the source extract
+  and from 5 to 11 columns (adds `locid` -- the MERRA-2 grid-cell id
+  bridging to the space dimension -- plus `W10M`, `WDIR`, `ALBEDO`,
+  `PRECTOTCORR`, `RHOA`). ~353 KB compressed.
+* README rewritten around a real-data hero (Reykjavik wind on
+  `m12_h24`, twinned with the geoscales Iceland map hero) and a
+  five-point "What timescales offers" intro; all README demos now run
+  on `merra2_cities`.
+* Crosswalk registry rounded out: `get_calendar_map()` and
+  `list_calendar_maps()` join `register_calendar_map()` /
+  `clear_calendar_maps()` (parity with the geoscales registry), and
+  the register/clear pair gained examples.
 
 ## Deprecations
 
