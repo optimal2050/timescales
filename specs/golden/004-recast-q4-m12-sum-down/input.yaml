@@ -1,0 +1,16 @@
+structure: q4
+op: recast
+params:
+  to: m12
+  year: 2021
+  rule: sum
+  by: day
+input:
+- timeslice: Q1
+  energy: 1.0
+- timeslice: Q2
+  energy: 2.0
+- timeslice: Q3
+  energy: 3.0
+- timeslice: Q4
+  energy: 4.0

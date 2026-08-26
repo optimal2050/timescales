@@ -1,36 +1,5 @@
-# Helpers --------------------------------------------------------------------
-
-.month_cal <- function() {
-  days <- c(31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
-  calendar_from_leaftable(
-    data.frame(MONTH = sprintf("m%02d", 1:12),
-               share = days / 365, weight = days),
-    timeframes = "MONTH", name = "m12"
-  )
-}
-
-.quarter_cal <- function() {
-  q_days <- c(90, 91, 92, 92)  # non-leap
-  calendar_from_leaftable(
-    data.frame(QUARTER = sprintf("Q%d", 1:4),
-               share = q_days / 365, weight = q_days),
-    timeframes = "QUARTER", name = "q4"
-  )
-}
-
-.month_hour_cal <- function() {
-  days <- c(31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
-  names(days) <- sprintf("m%02d", 1:12)
-  df <- expand.grid(
-    MONTH = sprintf("m%02d", 1:12),
-    HOUR  = sprintf("h%02d", 0:23),
-    KEEP.OUT.ATTRS = FALSE,
-    stringsAsFactors = FALSE
-  )
-  df$share  <- days[df$MONTH] / 365 / 24
-  df$weight <- days[df$MONTH] / 24
-  calendar_from_leaftable(df, timeframes = c("MONTH", "HOUR"), name = "m12_h24")
-}
+# Fixtures: .month_cal()/.quarter_cal()/.month_hour_cal() live in
+# helper-fixtures.R (shared across the suite).
 
 # datetime_to_timeslice -----------------------------------------------------------
 

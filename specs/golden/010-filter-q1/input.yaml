@@ -1,0 +1,9 @@
+structure: m12
+op: filter
+params:
+  timeframe: MONTH
+  labels:
+  - m01
+  - m02
+  - m03
+input: []

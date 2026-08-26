@@ -44,8 +44,10 @@ Everything below is repo-specific.
   positional label fallback in `.tf_labels()`.
 - `R CMD check` is clean (0 errors / 0 warnings / 0 notes). Keep it
   that way; lint (80 cols) runs in CI.
-- Deprecated-alias tests deliberately call OLD names — blanket
-  rename sweeps corrupt them; restore by hand after any sweep.
+- 0.5.0 removed every deprecated alias (hard break; archived in
+  drafts/). The testing system lives in tests/README.md +
+  dev/TESTING.md: tiers via SCALES_TEST_TIER, @covers tags, invariant
+  and backend harnesses, coverage matrix, specs/ goldens.
 
 *Last verified 2026-08-21. Drafted with AI assistance; content is the
 maintainer's responsibility.*

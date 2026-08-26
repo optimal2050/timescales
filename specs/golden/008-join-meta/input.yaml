@@ -1,0 +1,29 @@
+structure: m12
+op: join
+params:
+  meta: yes
+input:
+- timeslice: m01
+  energy: 1.0
+- timeslice: m02
+  energy: 2.0
+- timeslice: m03
+  energy: 3.0
+- timeslice: m04
+  energy: 4.0
+- timeslice: m05
+  energy: 5.0
+- timeslice: m06
+  energy: 6.0
+- timeslice: m07
+  energy: 7.0
+- timeslice: m08
+  energy: 8.0
+- timeslice: m09
+  energy: 9.0
+- timeslice: m10
+  energy: 10.0
+- timeslice: m11
+  energy: 11.0
+- timeslice: m12
+  energy: 12.0

@@ -1,0 +1,5 @@
+structure: m12_h24
+op: prune
+params:
+  timeframe: MONTH
+input: []

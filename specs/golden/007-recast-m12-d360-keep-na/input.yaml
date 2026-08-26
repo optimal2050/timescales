@@ -1,0 +1,33 @@
+structure: m12
+op: recast
+params:
+  to: d360
+  year: 2021
+  rule: sum
+  by: day
+  na_action: keep
+input:
+- timeslice: m01
+  energy: 1.0
+- timeslice: m02
+  energy: 1.0
+- timeslice: m03
+  energy: 1.0
+- timeslice: m04
+  energy: 1.0
+- timeslice: m05
+  energy: 1.0
+- timeslice: m06
+  energy: 1.0
+- timeslice: m07
+  energy: 1.0
+- timeslice: m08
+  energy: 1.0
+- timeslice: m09
+  energy: 1.0
+- timeslice: m10
+  energy: 1.0
+- timeslice: m11
+  energy: 1.0
+- timeslice: m12
+  energy: 1.0

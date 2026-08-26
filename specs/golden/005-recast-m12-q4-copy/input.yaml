@@ -1,0 +1,32 @@
+structure: m12
+op: recast
+params:
+  to: q4
+  year: 2021
+  rule: copy
+  by: day
+input:
+- timeslice: m01
+  flag: 7.0
+- timeslice: m02
+  flag: 7.0
+- timeslice: m03
+  flag: 7.0
+- timeslice: m04
+  flag: 7.0
+- timeslice: m05
+  flag: 7.0
+- timeslice: m06
+  flag: 7.0
+- timeslice: m07
+  flag: 7.0
+- timeslice: m08
+  flag: 7.0
+- timeslice: m09
+  flag: 7.0
+- timeslice: m10
+  flag: 7.0
+- timeslice: m11
+  flag: 7.0
+- timeslice: m12
+  flag: 7.0

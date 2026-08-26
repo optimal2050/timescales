@@ -1,102 +1,92 @@
-# Backend contract: identical numbers on every supported input format;
-# eager classes come back, lazy inputs stay lazy -----------------------------
+# =========================================================================== #
+# Backend contract, all entry points x all backends, via
+# expect_backend_contract() (helper-backends.R). The dtplyr/arrow columns of
+# the sweep run at tier `full`; two explicit lazy smoke tests keep one cell
+# of each engine alive at `fast`.
+#
+# arrow cells that would ingest a POSIXct column are skipped: arrow 25.0.0
+# corrupts POSIXct at ingestion (recorded trap; see .claude/CLAUDE.md).
+# =========================================================================== #
 
-.bk_x <- function() {
-  data.frame(timeslice = rep(sprintf("m%02d", 1:12), 2),
-             energy = as.numeric(c(1:12, 2 * (1:12))),
-             city = rep(c("A", "B"), each = 12))
-}
-
-.bk_ref <- function() {
-  recast_calendar(.bk_x(), calendar_build("m12"), calendar_build("q4"),
-                  year = 2021, rule = "sum", by = "day")
-}
-
-test_that("tibble in, tibble out, same numbers", {
-  skip_if_not_installed("tibble")
-  ref <- .bk_ref()
-  out <- recast_calendar(tibble::as_tibble(.bk_x()),
-                         calendar_build("m12"), calendar_build("q4"),
-                         year = 2021, rule = "sum", by = "day")
-  expect_s3_class(out, "tbl_df")
-  expect_equal(as.data.frame(out), ref)
+# @covers recast_calendar depth=B backends=data.frame,tibble,data.table,dtplyr,arrow
+test_that("recast_calendar honours the backend contract", {
+  m12 <- .month_cal(); q4 <- .quarter_cal()
+  x <- fx_tbl(m12, ids = c("A", "B"))
+  expect_backend_contract(
+    x,
+    function(d, collect = NULL) recast_calendar(
+      d, m12, q4, year = 2021, rule = "sum", by = "day", collect = collect),
+    key_cols = c("id", "timeslice"), value_cols = "energy")
+  expect_backend_rejects(function(d, collect = NULL) recast_calendar(
+    d, m12, q4, year = 2021, rule = "sum", by = "day"))
 })
 
-test_that("data.table in, data.table out, same numbers", {
-  skip_if_not_installed("data.table")
-  ref <- .bk_ref()
-  out <- recast_calendar(data.table::as.data.table(.bk_x()),
-                         calendar_build("m12"), calendar_build("q4"),
-                         year = 2021, rule = "sum", by = "day")
-  expect_s3_class(out, "data.table")
-  expect_equal(as.data.frame(out)[order(as.data.frame(out)$city,
-                                        as.data.frame(out)$timeslice), ],
-               ref[order(ref$city, ref$timeslice), ],
-               ignore_attr = TRUE)
+# @covers recast_to_timebase depth=B backends=data.frame,tibble,data.table,dtplyr
+test_that("recast_to_timebase honours the backend contract", {
+  m12 <- .month_cal()
+  x <- fx_tbl(m12)
+  expect_backend_contract(
+    x,
+    function(d, collect = NULL) recast_to_timebase(
+      d, m12, year = 2021, by = "day", rule = "weighted_mean",
+      collect = collect),
+    key_cols = c("datetime", "timeslice"), value_cols = "energy",
+    skip = c(arrow = "arrow 25.0.0 corrupts POSIXct at ingestion"))
+  expect_backend_rejects(function(d, collect = NULL) recast_to_timebase(
+    d, m12, year = 2021, by = "day", rule = "sum"))
 })
 
-test_that("arrow in: lazy query out; collect = TRUE materialises", {
+# @covers recast_from_timebase depth=B backends=data.frame,tibble,data.table,dtplyr
+test_that("recast_from_timebase honours the backend contract", {
+  m12 <- .month_cal(); q4 <- .quarter_cal()
+  base <- recast_to_timebase(fx_tbl(m12), m12, year = 2021, by = "day",
+                             rule = "sum")
+  expect_backend_contract(
+    base,
+    function(d, collect = NULL) recast_from_timebase(
+      d, q4, rule = "sum", by = "day", collect = collect),
+    key_cols = "timeslice", value_cols = "energy",
+    skip = c(arrow = "arrow 25.0.0 corrupts POSIXct at ingestion"))
+  expect_backend_rejects(function(d, collect = NULL) recast_from_timebase(
+    d, q4, rule = "sum", by = "day"))
+})
+
+# @covers join_calendar depth=B backends=data.frame,tibble,data.table,dtplyr,arrow
+test_that("join_calendar honours the backend contract", {
+  m12 <- .month_cal()
+  x <- fx_tbl(m12)                       # timeslice-keyed: no POSIXct
+  expect_backend_contract(
+    x,
+    function(d, collect = NULL) join_calendar(
+      d, m12, timeframes = "MONTH", meta = TRUE, as_factor = FALSE,
+      collect = collect),
+    key_cols = "timeslice")
+  expect_backend_rejects(function(d, collect = NULL) join_calendar(d, m12))
+})
+
+# ---- fast-tier lazy smokes (one live cell per engine below `full`) -------- #
+
+test_that("arrow smoke: recast_calendar stays lazy, collects right", {
   skip_if_not_installed("arrow")
-  ref <- .bk_ref()
-  tab <- arrow::arrow_table(.bk_x())
-  q <- recast_calendar(tab, calendar_build("m12"), calendar_build("q4"),
-                       year = 2021, rule = "sum", by = "day")
-  expect_false(is.data.frame(q))          # uncollected query
-  got <- as.data.frame(dplyr::collect(q))
-  got <- got[order(got$city, got$timeslice), ]
-  ref2 <- ref[!is.na(ref$energy), ]       # lazy result: observed groups
-  ref2 <- ref2[order(ref2$city, ref2$timeslice), ]
-  expect_equal(got[, c("timeslice", "city", "energy")],
-               ref2[, c("timeslice", "city", "energy")],
-               ignore_attr = TRUE)
-  # collect = TRUE returns a materialised, completed frame
-  full <- recast_calendar(tab, calendar_build("m12"), calendar_build("q4"),
-                          year = 2021, rule = "sum", by = "day",
-                          collect = TRUE)
-  expect_true(is.data.frame(full))
-  expect_equal(as.data.frame(full), ref, ignore_attr = TRUE)
+  m12 <- .month_cal(); q4 <- .quarter_cal()
+  x <- fx_tbl(m12, ids = c("A", "B"))
+  expect_backend_contract(
+    x,
+    function(d, collect = NULL) recast_calendar(
+      d, m12, q4, year = 2021, rule = "sum", by = "day", collect = collect),
+    key_cols = c("id", "timeslice"), value_cols = "energy",
+    backends = "arrow")
 })
 
-test_that("dtplyr in: lazy out; same numbers on collect", {
+test_that("dtplyr smoke: join_calendar stays lazy, collects right", {
   skip_if_not_installed("dtplyr")
   skip_if_not_installed("data.table")
-  ref <- .bk_ref()
-  lz <- dtplyr::lazy_dt(data.table::as.data.table(.bk_x()))
-  q <- recast_calendar(lz, calendar_build("m12"), calendar_build("q4"),
-                       year = 2021, rule = "sum", by = "day")
-  got <- as.data.frame(dplyr::collect(q))
-  got <- got[order(got$city, got$timeslice), ]
-  ref2 <- ref[order(ref$city, ref$timeslice), ]
-  expect_equal(got[, c("timeslice", "city", "energy")],
-               ref2[, c("timeslice", "city", "energy")],
-               ignore_attr = TRUE)
-})
-
-test_that("join_calendar works on an arrow table", {
-  skip_if_not_installed("arrow")
-  cal <- calendar("m12_h24")
-  xt <- data.frame(
-    datetime = seq(as.POSIXct("2021-01-01", tz = "UTC"),
-                   by = "hour", length.out = 48),
-    v = 1)
-  # some arrow builds mangle POSIXct at ingestion; the datetime route
-  # cannot work there and the defect is arrow's, not ours
-  rt <- as.data.frame(dplyr::collect(arrow::arrow_table(xt)))$datetime
-  skip_if_not(identical(format(rt[1], "%Y"), "2021"),
-              "arrow timestamp roundtrip is broken on this install")
-  q <- join_calendar(arrow::arrow_table(xt), cal)
-  expect_false(is.data.frame(q))
-  got <- as.data.frame(dplyr::collect(q))
-  expect_identical(sort(unique(got$m12_h24)),
-                   sort(unique(datetime_to_timeslice(xt$datetime, cal))))
-})
-
-test_that("recast_to_timebase keeps the backend contract too", {
-  skip_if_not_installed("tibble")
-  m12 <- calendar_build("m12")
-  x <- tibble::as_tibble(
-    data.frame(timeslice = sprintf("m%02d", 1:12), energy = 1:12))
-  g <- recast_to_timebase(x, m12, year = 2021, rule = "sum", by = "day")
-  expect_s3_class(g, "tbl_df")
-  expect_equal(sum(g$energy), 78, tolerance = 1e-9)
+  m12 <- .month_cal()
+  x <- fx_tbl(m12)
+  expect_backend_contract(
+    x,
+    function(d, collect = NULL) join_calendar(
+      d, m12, meta = TRUE, as_factor = FALSE, collect = collect),
+    key_cols = "timeslice",
+    backends = "dtplyr")
 })

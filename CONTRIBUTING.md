@@ -41,10 +41,16 @@ timescales/
 ```r
 # from the repo root
 devtools::load_all()
-devtools::test()
+devtools::test()                                # fast tier (default)
+Sys.setenv(SCALES_TEST_TIER = "full"); devtools::test()  # backend sweep
 devtools::document()
 devtools::check()
 ```
+
+Testing system: see `tests/README.md` (tiers, `@covers` tags, harnesses)
+and `dev/TESTING.md` (recipes and traps). New behaviour lands with tests;
+coverage gaps show in `tests/coverage/matrix-summary.md`
+(`Rscript tools/coverage/build_matrix.R`).
 
 Style: follow `tidyverse` style; 2-space indent; snake_case function names.
 

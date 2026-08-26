@@ -1,0 +1,19 @@
+name: spec_q4
+timeframes: QUARTER
+leaftable:
+- QUARTER: Q1
+  share: 0.2465753
+  weight: 2160.0
+  timeslice: Q1
+- QUARTER: Q2
+  share: 0.2493151
+  weight: 2184.0
+  timeslice: Q2
+- QUARTER: Q3
+  share: 0.2520548
+  weight: 2208.0
+  timeslice: Q3
+- QUARTER: Q4
+  share: 0.2520548
+  weight: 2208.0
+  timeslice: Q4

@@ -4,7 +4,7 @@ Language-agnostic input/output pairs and named calendars. All three language
 implementations (R, C++, Python) load fixtures from this directory and must
 reproduce identical results.
 
-## Planned layout
+## Layout
 
 ```
 specs/
@@ -16,5 +16,8 @@ specs/
     └── ...
 ```
 
-When you change observable behaviour, update the spec and per-language tests in
-the same PR.
+Generated and re-verified by the R implementation:
+`Rscript tools/specs/make_goldens.R` writes the files (byte-stable), and
+`tests/testthat/test-specs-golden.R` re-runs every case against them.
+When you change observable behaviour, regenerate the goldens in the same
+PR — the diff is the review artifact.
