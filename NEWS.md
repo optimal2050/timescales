@@ -1,5 +1,11 @@
 # timescales 0.5.0.9000
 
+* `summary()` output now prints with its formatted view from user code:
+  the local `print` binding S7 leaves in the namespace had captured the
+  `S3method()` registration of `print.summary_Calendar`, so the method
+  was invisible outside the package. Registered against base's `print`
+  in `.onLoad` (same fix in geoscales).
+
 * `Remotes:` added to DESCRIPTION so CI and `pak` users can resolve
   the GitHub-only energypal Suggests from GitHub (the packages are not on CRAN/r-universe yet).
   Drop the field at CRAN submission time.
