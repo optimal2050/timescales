@@ -9,6 +9,9 @@ and friends.
 ## Usage
 
 ``` r
+# S3 method for class 'Calendar'
+names(x)
+
 calendar_timeframes(x, finest = FALSE)
 
 calendar_rank(x, timeframe)
@@ -54,6 +57,10 @@ vector; `calendar_rank()` an integer.
 
 - `calendar_timeslices()` — with a `timeframe`, the canonical ordered
   labels at that level; without, the leaf `timeslice` ids.
+
+- [`names()`](https://rdrr.io/r/base/names.html) on a Calendar returns
+  the timeframe names (identical to `calendar_timeframes()`), NOT the
+  leaftable column names.
 
 ## Examples
 

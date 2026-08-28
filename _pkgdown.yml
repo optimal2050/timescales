@@ -60,6 +60,7 @@ reference:
       - calendar_share
       - filter_calendar
       - calendar_coverage
+      - summary.Calendar
   - title: "Catalog and data"
     desc: "The built-in calendar designs and sample data."
     contents:

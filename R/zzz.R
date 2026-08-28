@@ -14,6 +14,9 @@
       try(registerS3method("autoplot", cls, autoplot.Calendar,
                            envir = asNamespace("ggplot2")),
           silent = TRUE)
+      try(registerS3method("fortify", cls, fortify.Calendar,
+                           envir = asNamespace("ggplot2")),
+          silent = TRUE)
     }
   }
   invisible()

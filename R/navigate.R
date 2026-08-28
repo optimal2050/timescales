@@ -22,6 +22,8 @@
 #'   `NA` for unknown names.
 #' * `calendar_timeslices()` — with a `timeframe`, the canonical ordered
 #'   labels at that level; without, the leaf `timeslice` ids.
+#' * `names()` on a Calendar returns the timeframe names (identical to
+#'   `calendar_timeframes()`), NOT the leaftable column names.
 #'
 #' @param x A [Calendar].
 #' @param timeframe A timeframe name (see `calendar_timeframes()`).
@@ -83,17 +85,38 @@ calendar_timeslices <- function(x, timeframe = NULL,
 #' The one-row-per-timeslice table the calendar is built on, as a plain
 #' `data.frame` — the exported accessor to prefer over reaching for
 #' `x@leaftable` (the twin of `geoscales::geoscale_leaftable()`).
+#' `as.data.frame()` and `ggplot2::fortify()` on a Calendar are
+#' equivalent, so `ggplot(cal) + geom_*()` pipelines work directly.
 #'
 #' @param x A [Calendar].
+#' @param row.names,optional Ignored (S3 signature compatibility).
+#' @param model A [Calendar] (the `fortify()` generic's argument name).
+#' @param data Ignored (S3 signature compatibility).
+#' @param ... Ignored.
 #' @return A `data.frame`: one row per timeslice, with the timeframe
 #'   columns plus `timeslice`, `share`, `weight`.
 #' @examples
 #' head(calendar_leaftable(calendar("m12")))
+#' head(as.data.frame(calendar("m12")))
 #' @export
 calendar_leaftable <- function(x) {
   .check_calendar(x)
   S7::prop(x, "leaftable")
 }
+
+#' @rdname calendar_leaftable
+#' @export
+#' @method as.data.frame Calendar
+as.data.frame.Calendar <- function(x, row.names = NULL, optional = FALSE,
+                                   ...) {
+  calendar_leaftable(x)
+}
+
+S7::method(as.data.frame, Calendar) <- as.data.frame.Calendar
+
+#' @rdname calendar_leaftable
+#' @export
+`as.data.frame.timescales::Calendar` <- as.data.frame.Calendar
 
 #' All ancestor-descendant pairs of a Calendar hierarchy
 #'

@@ -1,5 +1,5 @@
 ---
-title: "timescales"
+title: "![](logo.png){width=110px style='float: right; margin-left: 1rem;'} timescales"
 subtitle: "Nested timeframes and calendars for optimization and simulation models"
 format:
   html:
@@ -11,60 +11,24 @@ format:
 ---
 
 ::: {.lead}
-`timescales` is the **time-domain** package of the
-[optimal2050](https://github.com/optimal2050) modeling stack, and the temporal
-companion to [`geoscales`](https://optimal2050.github.io/geoscales/). It
-succeeds [`timeslices`](https://optimal2050.github.io/timeslices/).
+`timescales` organizes the time dimension of model data: build nested
+calendars — from annual to hourly, typical periods, and fiscal years —
+keep your tables as tables while they gain calendar structure, convert
+values between any two resolutions with conserved totals, sample partial
+years, and see every level of a design at once. The R implementation is
+active; a C++ core and Python bindings are in development.
 :::
 
-A **Calendar** is a nested time partition of a model year: a flat table of
-weighted leaf slices plus the ordered timeframes that produced them. Anything
-derivable from it — composite ids, parent/child tables, regularity — is
-computed on demand rather than stored.
-
-`recast()` is the central verb: values on slices of one calendar become values
-on slices of another, routed through a shared instant grid, so aggregation and
-disaggregation are a single operation.
-
-## Documentation by language
-
-This is a multi-language project. The R implementation is complete; the C++
-core and Python bindings are planned.
+## Documentation
 
 | Language | Status | Documentation |
 |----------|--------|---------------|
 | **R** | Available | [R reference and articles](r/) |
-| **C++** | Phase 2 — planned | — |
-| **Python** | Phase 3 — planned | — |
+| **C++** | In development | — |
+| **Python** | In development | — |
 
-A single implementation defines the behaviour, and language-agnostic golden
-fixtures under `specs/` will keep the ports honest.
-
-## Getting started
-
-```r
-# install.packages("remotes")
-remotes::install_github("optimal2050/timescales")
-```
-
-```r
-library(timescales)
-
-cal_m <- calendar_build("m12")   # twelve months
-cal_q <- calendar_build("q4")    # four quarters
-
-x <- data.frame(slice = sprintf("m%02d", 1:12), load = seq(100, 210, length.out = 12))
-recast(x, from = cal_m, to = cal_q, year = 2021, rule = "weighted_mean")
-```
-
-See [Getting started](r/articles/getting-started.html) for the tour,
-[Concepts](r/articles/concepts.html) for the vocabulary, and
-[Data structures](r/articles/data-structures.html) for the object layout.
-
-## Project
-
-- [R documentation](r/)
 - [Source on GitHub](https://github.com/optimal2050/timescales)
-- [Companion package: geoscales](https://optimal2050.github.io/geoscales/)
+- Companion package for the spatial dimension:
+  [geoscales](https://optimal2050.github.io/geoscales/)
 
 Released under the Apache License 2.0.

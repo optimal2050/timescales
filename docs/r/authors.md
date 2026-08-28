@@ -11,13 +11,13 @@ Source:
 [`DESCRIPTION`](https://github.com/optimal2050/timescales/blob/HEAD/DESCRIPTION)
 
 Lugovoy O (2026). *timescales: Nested Timeframes and Calendars for
-Optimization and Simulation Models*. R package version 0.5.1,
+Optimization and Simulation Models*. R package version 0.5.3,
 <https://optimal2050.github.io/timescales/r/>.
 
     @Manual{,
       title = {timescales: Nested Timeframes and Calendars for Optimization and Simulation Models},
       author = {Oleg Lugovoy},
       year = {2026},
-      note = {R package version 0.5.1},
+      note = {R package version 0.5.3},
       url = {https://optimal2050.github.io/timescales/r/},
     }

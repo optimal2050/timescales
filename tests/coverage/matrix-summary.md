@@ -1,6 +1,6 @@
 # Coverage matrix summary
 
-Package: timescales 0.5.0
+Package: timescales 0.5.2
 
 ## Rows by kind x depth
 
@@ -12,7 +12,7 @@ Key: <kind>
     constant     3     0     0
  constructor     4     1     1
         plot    10     0     0
-       query    13     2     0
+       query    14     1     0
     registry    15     0     0
         verb     5     0     3
 ```
@@ -34,4 +34,4 @@ Key: <kind>
 Empty data.table (0 rows and 2 cols): name,kind
 ```
 
-Tagged rows: 4 | inferred: 99 | uncovered: 0 of 103
+Tagged rows: 6 | inferred: 97 | uncovered: 0 of 103

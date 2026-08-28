@@ -1,3 +1,19 @@
+# timescales 0.5.0.9000
+
+* `Remotes:` added to DESCRIPTION so CI and `pak` users can resolve
+  the GitHub-only energypal Suggests from GitHub (the packages are not on CRAN/r-universe yet).
+  Drop the field at CRAN submission time.
+
+## Base-generic methods on Calendar
+
+* `summary()` — the quantitative complement of `print()`: member counts,
+  sampled coverage (with the parent's name), catalog classification,
+  share/weight ranges. Returns a `"summary_Calendar"` with its own print.
+* `names()` — the timeframe names (identical to `calendar_timeframes()`).
+* `as.data.frame()` and `ggplot2::fortify()` — the leaftable, so
+  `ggplot(cal) + geom_*()` works directly.
+  All mirrored by the geoscales twins.
+
 # timescales 0.5.0
 
 Hard-break release: the sibling APIs of timescales and geoscales were

@@ -620,6 +620,12 @@ autoplot.Calendar <- function(object, ...) {
   calendar_autoplot(object, ...)
 }
 
+#' @rdname calendar_leaftable
+#' @exportS3Method ggplot2::fortify
+fortify.Calendar <- function(model, data, ...) {
+  calendar_leaftable(model)
+}
+
 # Registered on ggplot2::autoplot in .onLoad (R/zzz.R) under both class
 # strings, the geoscales pattern.
 
@@ -649,8 +655,10 @@ utils::globalVariables(c("xmin", "xmax", "ymin", "ymax",
 #' A view places the two in-plane unit axes on screen: `e1` (the layer's
 #' x axis) and `e2` (its depth axis), plus a per-layer `scale` (< 1 =
 #' receding planes shrink -- the perspective approximation). Precedence:
-#' `view` preset > `angle`/`ratio` (oblique: `e2 = ratio * (cos, sin)`)
-#' > raw `shear`/`depth` (`e2 = (shear, depth)`).
+#' the `view` preset wins, then `angle`/`ratio` (oblique:
+#' `e2 = ratio * (cos, sin)`), then raw `shear`/`depth`
+#' (`e2 = (shear, depth)`). (Worded without ">" chains: a wrapped line
+#' starting with ">" is a markdown blockquote, which roxygen rejects.)
 #' Duplicated verbatim in geoscales/R/plot.R -- keep in sync.
 #' @noRd
 .stack_view <- function(view = NULL, angle = NULL, ratio = NULL,

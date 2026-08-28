@@ -281,3 +281,114 @@ S7::method(print, Calendar) <- print.Calendar
 # base-R `print()` finds it before falling through to `print.S7_object`.
 #' @export
 `print.timescales::Calendar` <- print.Calendar
+
+# Summary ----------------------------------------------------------------------
+
+#' Summarize a Calendar
+#'
+#' Complements [print()] with the quantitative view: coverage of a
+#' sampled calendar, share/weight statistics, and the catalog
+#' classification when present. Returns a `"summary_Calendar"` object
+#' (a list) with its own print method — the mirror of
+#' `summary.Geoscale()` in geoscales.
+#'
+#' @param object A [Calendar].
+#' @param x A `"summary_Calendar"` object (the print method's argument).
+#' @param ... Ignored.
+#' @return `summary()` returns a list of class `"summary_Calendar"`:
+#'   `name`, `desc`, `timeframes` (named member counts),
+#'   `n_timeslices`, `year_fraction`, `coverage` (see
+#'   [calendar_coverage()]), `sampled`, `parent_name`,
+#'   `coverage_class`/`regularity` (catalog designs only),
+#'   `share_range`, `weight_range`, `year_start`, `utc_offset_minutes`.
+#' @examples
+#' summary(calendar("m12_h24"))
+#' summary(filter_calendar(calendar("s4_h24"), "SEASON", "WIN"))
+#' @export
+#' @method summary Calendar
+summary.Calendar <- function(object, ...) {
+  meta <- S7::prop(object, "meta")
+  lv <- S7::prop(object, "members")
+  lf <- S7::prop(object, "leaftable")
+  cov <- calendar_coverage(object)
+  out <- list(
+    name = meta[["name"]] %||% "",
+    desc = meta[["desc"]] %||% "",
+    timeframes = vapply(lv, length, integer(1)),
+    n_timeslices = nrow(lf),
+    year_fraction = meta[["year_fraction"]] %||% 1,
+    coverage = cov,
+    sampled = any(cov < 1),
+    parent_name = meta[["parent_name"]],
+    coverage_class = meta[["coverage_class"]],
+    regularity = meta[["regularity"]],
+    share_range = range(lf$share),
+    weight_range = range(lf$weight),
+    year_start = meta[["year_start"]],
+    utc_offset_minutes = meta[["utc_offset_minutes"]]
+  )
+  class(out) <- "summary_Calendar"
+  out
+}
+
+S7::method(summary, Calendar) <- summary.Calendar
+
+#' @rdname summary.Calendar
+#' @export
+`summary.timescales::Calendar` <- summary.Calendar
+
+#' @rdname summary.Calendar
+#' @export
+#' @method print summary_Calendar
+print.summary_Calendar <- function(x, ...) {
+  cat("<summary of Calendar", if (nzchar(x$name)) paste0("'", x$name, "'"),
+      ">\n")
+  if (nzchar(x$desc)) cat("  desc:          ", x$desc, "\n", sep = "")
+  cat("  timeframes:     ",
+      paste(sprintf("%s (%d)", names(x$timeframes), x$timeframes),
+            collapse = " / "), "\n", sep = "")
+  cat("  timeslices:     ", x$n_timeslices, "\n", sep = "")
+  cat("  year_fraction:  ", format(x$year_fraction, digits = 6), "\n",
+      sep = "")
+  if (isTRUE(x$sampled)) {
+    cat("  SAMPLED:        ",
+        paste(sprintf("%s %.1f%%", names(x$coverage), 100 * x$coverage),
+              collapse = ", "),
+        if (!is.null(x$parent_name) && nzchar(x$parent_name)) {
+          paste0(" of '", x$parent_name, "'")
+        },
+        "\n", sep = "")
+  }
+  if (!is.null(x$coverage_class)) {
+    cat("  catalog:        ", x$coverage_class,
+        if (!is.null(x$regularity)) paste0(", ", x$regularity),
+        "\n", sep = "")
+  }
+  cat("  share range:    ",
+      paste(format(x$share_range, digits = 4), collapse = " .. "),
+      "\n", sep = "")
+  cat("  weight range:   ",
+      paste(format(x$weight_range, digits = 4), collapse = " .. "),
+      "\n", sep = "")
+  if (!is.null(x$year_start)) {
+    cat(sprintf("  year_start:     month=%d, day=%d\n",
+                as.integer(x$year_start$month),
+                as.integer(x$year_start$day)))
+  }
+  if (!is.null(x$utc_offset_minutes)) {
+    cat("  utc offset:     ", x$utc_offset_minutes, " min\n", sep = "")
+  }
+  invisible(x)
+}
+
+# Other base generics ----------------------------------------------------------
+
+#' @rdname calendar_queries
+#' @export
+#' @method names Calendar
+names.Calendar <- function(x) calendar_timeframes(x)
+
+S7::method(names, Calendar) <- names.Calendar
+
+#' @export
+`names.timescales::Calendar` <- names.Calendar

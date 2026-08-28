@@ -15,6 +15,7 @@ Everything below is repo-specific.
 |---|---|
 | `R/` | package source; S7 `Calendar` class |
 | `man/`, `NAMESPACE` | roxygen-generated — never edit by hand |
+| `pkgdown/` | `extra.scss` (dark-mode figure-inversion opt-out, incl. the reference-page wrapper-span + opacity cases) + favicons -- do not delete |
 | `docs/` | pkgdown output — never edit by hand |
 | `drafts/` | archived removed code — do not edit, do not source |
 | `data/calendars.rda` | derived from `.CALENDAR_CATALOG`; regenerate with `Rscript data-raw/calendars.R` after catalog changes (serialized S7 objects carry property names, so class-prop renames REQUIRE regeneration) |

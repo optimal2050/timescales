@@ -18,11 +18,15 @@ Construct and inspect Calendar objects.
 
 Query the timeframe hierarchy and subset calendars.
 
-- [`calendar_timeframes()`](https://optimal2050.github.io/timescales/r/reference/calendar_queries.md)
+- [`names(`*`<Calendar>`*`)`](https://optimal2050.github.io/timescales/r/reference/calendar_queries.md)
+  [`calendar_timeframes()`](https://optimal2050.github.io/timescales/r/reference/calendar_queries.md)
   [`calendar_rank()`](https://optimal2050.github.io/timescales/r/reference/calendar_queries.md)
   [`calendar_timeslices()`](https://optimal2050.github.io/timescales/r/reference/calendar_queries.md)
   : Calendar hierarchy queries
 - [`calendar_leaftable()`](https://optimal2050.github.io/timescales/r/reference/calendar_leaftable.md)
+  [`as.data.frame(`*`<Calendar>`*`)`](https://optimal2050.github.io/timescales/r/reference/calendar_leaftable.md)
+  [`as.data.frame(`*`<timescales::Calendar>`*`)`](https://optimal2050.github.io/timescales/r/reference/calendar_leaftable.md)
+  [`fortify(`*`<Calendar>`*`)`](https://optimal2050.github.io/timescales/r/reference/calendar_leaftable.md)
   : The leaftable of a Calendar
 - [`calendar_family()`](https://optimal2050.github.io/timescales/r/reference/calendar_family.md)
   : Immediate parent-child pairs of a Calendar hierarchy
@@ -41,6 +45,10 @@ Query the timeframe hierarchy and subset calendars.
   : Filter a Calendar to selected labels
 - [`calendar_coverage()`](https://optimal2050.github.io/timescales/r/reference/calendar_coverage.md)
   : Coverage of a sampled Calendar
+- [`summary(`*`<Calendar>`*`)`](https://optimal2050.github.io/timescales/r/reference/summary.Calendar.md)
+  [`summary(`*`<timescales::Calendar>`*`)`](https://optimal2050.github.io/timescales/r/reference/summary.Calendar.md)
+  [`print(`*`<summary_Calendar>`*`)`](https://optimal2050.github.io/timescales/r/reference/summary.Calendar.md)
+  : Summarize a Calendar
 
 ## Catalog and data
 
