@@ -211,6 +211,10 @@ calendar_layout <- function(x, annual = TRUE) {
 #' @param rule With `data`: aggregation rule for the per-timeframe
 #'   recasts (`"sum"`, `"mean"`, `"weighted_mean"`, ... -- see
 #'   [`recast_calendar()`]; explicit or registered, never guessed).
+#'   `"share"` colours every row by each timeslice's share within the
+#'   row above it (the top row by its share of the year) on a fixed
+#'   linear 0..1 scale; `"logshare"` is the same on a fixed log10
+#'   percent scale.
 #' @param year With `data`: the model year the recast routes through
 #'   (required by [`recast_calendar()`]).
 #' @param by With `data`: base-grid granularity for the per-timeframe
@@ -295,7 +299,12 @@ calendar_autoplot <- function(x,
     # `fill`/`color_pattern`. Dense bands are binned below with
     # width-weighted means, which is the right downsample for a value.
     row_tfs <- unique(d$timeframe)
-    vals <- .calendar_frame_values(x, row_tfs, data, z, rule, year, by)
+    is_share <- any(rule %in% c("share", "logshare"))
+    vals <- if (is_share) {
+      .calendar_frame_shares(x, row_tfs, data, z, year, by)
+    } else {
+      .calendar_frame_values(x, row_tfs, data, z, rule, year, by)
+    }
     d$.fill <- NA_real_
     for (tf in row_tfs) {
       i <- d$timeframe == tf
@@ -303,7 +312,11 @@ calendar_autoplot <- function(x,
                                           vals[[tf]]$timeslice)]
     }
     # legend title via labs() below so callers can retitle
-    fill_scale <- ggplot2::scale_fill_viridis_c(option = palette)
+    fill_scale <- if (is_share) {
+      .calendar_share_scale(palette, log = any(rule %in% "logshare"))
+    } else {
+      ggplot2::scale_fill_viridis_c(option = palette)
+    }
   } else if (fill == "order" && color_pattern == "within") {
     # 0-1 gradient recycling inside each parent; scaled by the timeframe's
     # vocabulary size so h00..h23 always spans the full palette
@@ -358,7 +371,10 @@ calendar_autoplot <- function(x,
       title = meta$name,
       subtitle = if (!is.null(meta$desc) && nzchar(meta$desc)) meta$desc)
   }
-  if (!is.null(data)) p <- p + ggplot2::labs(fill = z)
+  if (!is.null(data)) {
+    p <- p + ggplot2::labs(
+      fill = if (any(rule %in% c("share", "logshare"))) "Share" else z)
+  }
 
   # Labels ---------------------------------------------------------------------
   if (labels != "none") {
@@ -404,6 +420,63 @@ calendar_autoplot <- function(x,
     as.data.frame(recast_calendar(data, from = calendar, to = tf,
                                   year = year, values = z, rule = rule,
                                   by = by))
+  })
+  stats::setNames(vals, tfs)
+}
+
+
+#' Fill scale for a share fill, mirroring geoscales' .share_fill_scale():
+#' FIXED limits either way, so any two share figures map colour
+#' identically. "share" is the plain 0..1 scale; "logshare" spreads the
+#' decades (below-limit values squish to the darkest colour; only true
+#' zeros take the na colour).
+#' @noRd
+.calendar_share_scale <- function(palette, log = FALSE) {
+  if (!log) {
+    return(ggplot2::scale_fill_viridis_c(
+      option = palette, limits = c(0, 1),
+      breaks = c(0, 0.25, 0.5, 0.75, 1),
+      na.value = "grey85"))
+  }
+  ggplot2::scale_fill_viridis_c(
+    option = palette, transform = "log10",
+    limits = c(1e-4, 1),
+    oob = scales::oob_squish,
+    breaks = c(1e-4, 1e-3, 1e-2, 1e-1, 1),
+    labels = c("0.01%", "0.1%", "1%", "10%", "100%"),
+    na.value = "grey85")
+}
+
+#' The share fill, mirroring geoscales' .geoscale_frame_shares(): every
+#' row shows each timeslice's share within the row ABOVE it, and the top
+#' row (or ANNUAL) its share of the year. Timeframes of one calendar
+#' always nest, so no cross-cut fallback is needed.
+#' @noRd
+.calendar_frame_shares <- function(calendar, tfs, data, z, year, by) {
+  if (is.null(z) || !z %in% names(data)) {
+    stop("`z` must name a value column of `data`", call. = FALSE)
+  }
+  if (is.null(year)) {
+    stop("`data` needs `year =`: the per-timeframe recasts route ",
+         "through recast_calendar(), which requires it", call. = FALSE)
+  }
+  vals <- lapply(seq_along(tfs), function(i) {
+    tf <- tfs[[i]]
+    if (tf == "ANNUAL") {
+      return(data.frame(timeslice = "ANNUAL", v = 1))
+    }
+    s <- as.data.frame(recast_calendar(data, from = calendar, to = tf,
+                                       year = year, values = z,
+                                       rule = "sum", by = by))
+    parent <- if (i > 1L && tfs[[i - 1L]] != "ANNUAL") tfs[[i - 1L]]
+              else "ANNUAL"
+    as.data.frame(recast_calendar(s, from = prune_calendar(calendar, tf),
+                                  to = parent, year = year, values = z,
+                                  rule = "share", by = by))
+  })
+  vals <- lapply(vals, function(v) {
+    names(v)[names(v) == "v"] <- z
+    v
   })
   stats::setNames(vals, tfs)
 }
@@ -732,7 +805,12 @@ utils::globalVariables(c("xmin", "xmax", "ymin", "ymax",
 
   # value fill: every plane gets the value recast to its timeframe so
   # one continuous scale spans the stack
-  vals <- .calendar_frame_values(calendar, tfs, data, z, rule, year, by)
+  is_share <- any(rule %in% c("share", "logshare"))
+  vals <- if (is_share) {
+    .calendar_frame_shares(calendar, tfs, data, z, year, by)
+  } else {
+    .calendar_frame_values(calendar, tfs, data, z, rule, year, by)
+  }
   if (!is.null(labels)) {
     bad <- setdiff(labels, tfs)
     if (length(bad)) {
@@ -876,10 +954,14 @@ utils::globalVariables(c("xmin", "xmax", "ymin", "ymax",
   }
 
   # legend title via labs() so callers can retitle with `+ labs(fill = )`
-  if (!is.null(vals)) p <- p + ggplot2::labs(fill = z)
+  if (!is.null(vals)) {
+    p <- p + ggplot2::labs(fill = if (is_share) "Share" else z)
+  }
   if (!is.null(palette)) {               # NULL = caller adds a scale
     p <- p + if (is.null(vals)) {
       ggplot2::scale_fill_viridis_c(option = palette, guide = "none")
+    } else if (is_share) {
+      .calendar_share_scale(palette, log = any(rule %in% "logshare"))
     } else {
       ggplot2::scale_fill_viridis_c(option = palette)
     }

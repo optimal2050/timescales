@@ -1,7 +1,9 @@
 # Rule and conversion registries ----------------------------------------------
 
 test_that("CALENDAR_RULES and ALIGNMENT_RULES expose the documented sets", {
-  expect_equal(CALENDAR_RULES, c("weighted_mean", "sum", "mean", "copy", "sd"))
+  expect_equal(CALENDAR_RULES,
+               c("weighted_mean", "sum", "mean", "copy", "sd", "share",
+                 "logshare"))
   expect_equal(ALIGNMENT_RULES,
                c("exact", "drop_last", "drop_feb29", "repeat_last"))
 })

@@ -4,7 +4,7 @@
 \alias{CALENDAR_RULES}
 \title{Supported aggregation rules}
 \format{
-A character vector of length 5.
+A character vector of length 7.
 }
 \usage{
 CALENDAR_RULES
@@ -30,6 +30,20 @@ constant. For timeslice-invariant scalars.}
 fine signal within each target timeslice. Aggregation-only; going finer it
 degenerates to 0/NA.}
 }
+
+\item{\code{share}}{Share within parent: each source timeslice's value
+divided by the total over its parent timeslice. Unlike every other
+rule the result stays keyed by the \strong{source} calendar's timeslices
+-- \code{to} (or \verb{parent=}) names the parent calendar or timeframe -- so
+it cannot be mixed with other rules in one call. For building
+profile shares and distribution keys; requires the source
+timeslices to nest within the parent's. The two share rules mix
+freely with each other, being one computation.}
+\item{\code{logshare}}{The same computation as \code{share} -- the values ARE
+shares -- but figures draw it on a fixed log10 percent scale
+(0.01\%..100\%), where \code{share} gets a fixed linear 0..1 scale. Use
+it when sibling counts differ by orders of magnitude and the
+linear scale flattens the crowded groups.}
 }
 \examples{
 CALENDAR_RULES

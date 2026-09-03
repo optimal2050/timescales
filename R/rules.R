@@ -33,11 +33,26 @@
 #'     degenerates to 0/NA.}
 #' }
 #'
-#' @format A character vector of length 5.
+#'   \item{`share`}{Share within parent: each source timeslice's value
+#'     divided by the total over its parent timeslice. Unlike every other
+#'     rule the result stays keyed by the **source** calendar's timeslices
+#'     -- `to` (or `parent=`) names the parent calendar or timeframe -- so
+#'     it cannot be mixed with other rules in one call. For building
+#'     profile shares and distribution keys; requires the source
+#'     timeslices to nest within the parent's. The two share rules mix
+#'     freely with each other, being one computation.}
+#'   \item{`logshare`}{The same computation as `share` -- the values ARE
+#'     shares -- but figures draw it on a fixed log10 percent scale
+#'     (0.01%..100%), where `share` gets a fixed linear 0..1 scale. Use
+#'     it when sibling counts differ by orders of magnitude and the
+#'     linear scale flattens the crowded groups.}
+#'
+#' @format A character vector of length 7.
 #' @examples
 #' CALENDAR_RULES
 #' @export
-CALENDAR_RULES <- c("weighted_mean", "sum", "mean", "copy", "sd")
+CALENDAR_RULES <- c("weighted_mean", "sum", "mean", "copy", "sd", "share",
+                    "logshare")
 
 #' Supported alignment rules
 #'

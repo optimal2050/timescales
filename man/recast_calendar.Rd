@@ -15,6 +15,7 @@ recast_calendar(
   by = NULL,
   tz = "UTC",
   na_action = c("drop", "error", "keep"),
+  parent = NULL,
   collect = NULL
 )
 }
@@ -55,6 +56,11 @@ finest timeframe of the two calendars.}
 genuinely lost), \code{"error"}, or \code{"keep"} (retain an explicit \code{NA}
 timeslice row so totals conserve). Grid points not covered by \code{from}
 carry no data and are always dropped.}
+
+\item{parent}{\code{rule = "share"} only: the \code{\link{Calendar}} (or timeframe name
+of \code{from}) defining the groups the shares are taken within. \code{NULL}
+(default) uses \code{to} when it differs from \code{from}, else \code{from} pruned
+to its second-finest timeframe.}
 
 \item{collect}{For lazy inputs (arrow, dtplyr): materialise the result
 (\code{TRUE}) or return the uncollected query (default).}
@@ -100,6 +106,16 @@ grid points -- the two differ exactly when declared shares differ from
 real-time coverage. \code{"copy"} requires a constant value per target
 timeslice; \code{"sd"} is aggregation-only. There is no \verb{weight=} argument: a
 calendar has exactly one weighting, its \code{leaves$share}.
+
+\code{"share"} inverts the output contract: the result stays keyed by
+\code{from}'s timeslices, and each value becomes that timeslice's share of
+the total over its parent timeslice (so shares sum to 1 per parent, per
+identifier combination). The parent is \verb{parent=}, defaulting to \code{to} --
+\code{recast_calendar(x, cal_h, to = "YDAY", rule = "share")} reads: each
+hour's share within its day. The source timeslices must nest within the
+parent's (a week-vs-month pair errors). A parent whose total is zero
+yields \code{NA} shares. \code{"share"} cannot be combined with other rules in
+one call.
 }
 \section{Backends}{
 

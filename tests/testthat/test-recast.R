@@ -458,3 +458,123 @@ test_that("validator rejects reserved timeframe names", {
     "reserved"
   )
 })
+
+# --- rule "share": share within parent --------------------------------------
+
+test_that("rule share stays keyed by `from` and sums to 1 per parent", {
+  cal <- calendar_build("q4", "h24")
+  lt <- S7::prop(cal, "leaftable")
+  x <- data.frame(timeslice = lt$timeslice, load = seq_len(nrow(lt)))
+  out <- recast_calendar(x, cal, to = "QUARTER", year = 2021, rule = "share")
+  expect_named(out, c("timeslice", "load"))
+  expect_setequal(out$timeslice, lt$timeslice)
+  sums <- tapply(out$load, substr(out$timeslice, 1, 2), sum)
+  expect_equal(as.vector(sums), rep(1, 4), tolerance = 1e-12)
+})
+
+test_that("rule share: parent=, to= and the ANNUAL root agree", {
+  cal <- calendar_build("q4", "h24")
+  lt <- S7::prop(cal, "leaftable")
+  x <- data.frame(timeslice = lt$timeslice, load = seq_len(nrow(lt)))
+  a <- recast_calendar(x, cal, to = "QUARTER", year = 2021, rule = "share")
+  b <- recast_calendar(x, cal, to = cal, year = 2021, rule = "share",
+                       parent = "QUARTER")
+  expect_equal(a, b)
+  # default parent (to == from) is the second-finest timeframe: QUARTER
+  d <- recast_calendar(x, cal, to = cal, year = 2021, rule = "share")
+  expect_equal(a, d)
+  ann <- recast_calendar(x, cal, to = "ANNUAL", year = 2021, rule = "share")
+  expect_equal(sum(ann$load), 1, tolerance = 1e-12)
+})
+
+test_that("rule share treats identifier columns as independent groups", {
+  cal <- calendar_build("q4", "h24")
+  lt <- S7::prop(cal, "leaftable")
+  x <- data.frame(timeslice = lt$timeslice, load = seq_len(nrow(lt)))
+  xp <- rbind(transform(x, city = "A"),
+              transform(x, city = "B", load = load * 3))
+  out <- recast_calendar(xp, cal, to = "QUARTER", year = 2021,
+                         rule = "share", values = "load")
+  sums <- tapply(out$load, list(out$city, substr(out$timeslice, 1, 2)), sum)
+  expect_equal(unname(as.vector(sums)), rep(1, 8), tolerance = 1e-12)
+})
+
+test_that("rule share: a zero-total parent yields NA shares", {
+  cal <- calendar_build("q4", "h24")
+  lt <- S7::prop(cal, "leaftable")
+  x <- data.frame(timeslice = lt$timeslice, load = seq_len(nrow(lt)))
+  x$load[substr(x$timeslice, 1, 2) == "Q1"] <- 0
+  out <- recast_calendar(x, cal, to = "QUARTER", year = 2021, rule = "share")
+  q1 <- substr(out$timeslice, 1, 2) == "Q1"
+  expect_true(all(is.na(out$load[q1])))
+  expect_equal(sum(out$load[!q1]), 3, tolerance = 1e-12)
+})
+
+test_that("rule share errors are specific", {
+  cal <- calendar_build("q4", "h24")
+  lt <- S7::prop(cal, "leaftable")
+  x <- data.frame(timeslice = lt$timeslice,
+                  load = seq_len(nrow(lt)), other = 1)
+  # per-column rules come from the registry here (`rule=` is one value)
+  register_calendar_rule("load", "share")
+  register_calendar_rule("other", "sum")
+  on.exit(clear_calendar_rules(c("load", "other")))
+  expect_error(
+    recast_calendar(x, cal, to = "QUARTER", year = 2021),
+    "cannot be mixed")
+  expect_error(
+    recast_calendar(x, cal, to = "QUARTER", year = 2021, rule = "sum",
+                    parent = "QUARTER", values = "load"),
+    "applies to rule")
+  expect_error(
+    recast_to_timebase(x, cal, year = 2021, rule = "share",
+                       values = "load"),
+    "not supported")
+})
+
+test_that("rule share errors when the source straddles the parent", {
+  # months straddle weeks: m12 does not nest within w52
+  cal_m <- calendar_build("m12")
+  cal_w <- calendar_build("w52")
+  x <- data.frame(timeslice = sprintf("m%02d", 1:12), load = 1)
+  expect_error(
+    suppressWarnings(
+      recast_calendar(x, cal_m, to = cal_w, year = 2021, rule = "share")),
+    "nest")
+})
+
+test_that("rule share resolves from the registry", {
+  cal <- calendar_build("q4", "h24")
+  lt <- S7::prop(cal, "leaftable")
+  register_calendar_rule("ts_share_test", "share")
+  on.exit(clear_calendar_rules("ts_share_test"))
+  x <- data.frame(timeslice = lt$timeslice,
+                  ts_share_test = seq_len(nrow(lt)))
+  out <- recast_calendar(x, cal, to = "QUARTER", year = 2021)
+  sums <- tapply(out$ts_share_test, substr(out$timeslice, 1, 2), sum)
+  expect_equal(as.vector(sums), rep(1, 4), tolerance = 1e-12)
+})
+
+test_that("rule logshare computes the same shares as share", {
+  cal <- calendar_build("q4", "h24")
+  lt <- S7::prop(cal, "leaftable")
+  x <- data.frame(timeslice = lt$timeslice, load = seq_len(nrow(lt)))
+  a <- recast_calendar(x, cal, to = "QUARTER", year = 2021, rule = "share")
+  b <- recast_calendar(x, cal, to = "QUARTER", year = 2021,
+                       rule = "logshare")
+  expect_equal(a, b)
+})
+
+test_that("the calendar data fill computes shares per row on the fly", {
+  cal <- calendar_build("q4", "h24")
+  lt <- S7::prop(cal, "leaftable")
+  x <- data.frame(timeslice = lt$timeslice, load = seq_len(nrow(lt)))
+  v <- .calendar_frame_shares(cal, c("ANNUAL", "QUARTER", "HOUR"),
+                              x, "load", year = 2021, by = NULL)
+  expect_equal(v$ANNUAL$load, 1)
+  # quarters within the year sum to 1
+  expect_equal(sum(v$QUARTER$load), 1, tolerance = 1e-12)
+  # hours within their quarter sum to 1 per quarter
+  sums <- tapply(v$HOUR$load, substr(v$HOUR$timeslice, 1, 2), sum)
+  expect_equal(as.vector(sums), rep(1, 4), tolerance = 1e-12)
+})

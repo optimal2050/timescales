@@ -1,5 +1,17 @@
 # timescales 0.5.0.9000
 
+* New rule `"share"`: share within parent. Each source timeslice's value
+  over its parent-timeslice total, keyed by the *source* calendar --
+  `recast_calendar(x, cal, to = "YDAY", rule = "share")` gives each hour's
+  share within its day, summing to 1 per parent. The parent is `to` (a
+  calendar or timeframe name, `"ANNUAL"` included), or the new `parent=`
+  argument (default: `from` pruned to its second-finest timeframe); the
+  source timeslices must nest within it. `"logshare"` is the same
+  computation with a log-scale display intent. Mirrored in geoscales.
+* The calendar figures' data fills accept both share rules: every row is
+  coloured by each timeslice's share within the row above it (ANNUAL by
+  its share of the year), legend "Share" -- `"share"` on a fixed
+  linear 0..1 scale, `"logshare"` on a fixed log10 percent scale.
 * `summary()` output now prints with its formatted view from user code:
   the local `print` binding S7 leaves in the namespace had captured the
   `S3method()` registration of `print.summary_Calendar`, so the method

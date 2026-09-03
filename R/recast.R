@@ -31,7 +31,8 @@
                        SEASON = 4L, DAYTYPE = 2L, HOURTYPE = 3L)
 
 # Internal working columns; user columns may not collide with these
-.TS_COLS <- c(".ts_to", ".ts_n_from", ".ts_n_overlap", ".ts_w", ".ts_f")
+.TS_COLS <- c(".ts_parent", ".ts_tot",
+              ".ts_to", ".ts_n_from", ".ts_n_overlap", ".ts_w", ".ts_f")
 
 # -----------------------------------------------------------------------------
 # datetime_to_timeslice()
@@ -525,6 +526,10 @@ expand_calendar <- function(x, year, by = NULL, tz = "UTC",
 #'   genuinely lost), `"error"`, or `"keep"` (retain an explicit `NA`
 #'   timeslice row so totals conserve). Grid points not covered by `from`
 #'   carry no data and are always dropped.
+#' @param parent `rule = "share"` only: the [`Calendar`] (or timeframe name
+#'   of `from`) defining the groups the shares are taken within. `NULL`
+#'   (default) uses `to` when it differs from `from`, else `from` pruned
+#'   to its second-finest timeframe.
 #' @param collect For lazy inputs (arrow, dtplyr): materialise the result
 #'   (`TRUE`) or return the uncollected query (default).
 #'
@@ -544,6 +549,16 @@ expand_calendar <- function(x, year, by = NULL, tz = "UTC",
 #' real-time coverage. `"copy"` requires a constant value per target
 #' timeslice; `"sd"` is aggregation-only. There is no `weight=` argument: a
 #' calendar has exactly one weighting, its `leaves$share`.
+#'
+#' `"share"` inverts the output contract: the result stays keyed by
+#' `from`'s timeslices, and each value becomes that timeslice's share of
+#' the total over its parent timeslice (so shares sum to 1 per parent, per
+#' identifier combination). The parent is `parent=`, defaulting to `to` --
+#' `recast_calendar(x, cal_h, to = "YDAY", rule = "share")` reads: each
+#' hour's share within its day. The source timeslices must nest within the
+#' parent's (a week-vs-month pair errors). A parent whose total is zero
+#' yields `NA` shares. `"share"` cannot be combined with other rules in
+#' one call.
 #'
 #' @examples
 #' cal_m <- calendar_build("m12")
@@ -572,6 +587,7 @@ recast_calendar <- function(x, from, to, year,
                             by = NULL,
                             tz = "UTC",
                             na_action = c("drop", "error", "keep"),
+                            parent = NULL,
                             collect = NULL) {
   na_action <- match.arg(na_action)
 
@@ -596,6 +612,9 @@ recast_calendar <- function(x, from, to, year,
   if (length(year) != 1L || is.na(year)) {
     .stop("`year` must be a single integer")
   }
+  # rule "share" needs the calendars before the working renames below
+  from_orig <- from
+  to_orig <- to
 
   # Pairwise functional override, keyed by calendar names
   from_meta <- S7::prop(from, "meta")
@@ -637,6 +656,22 @@ recast_calendar <- function(x, from, to, year,
   if (length(unknown) > 0L) {
     .warn("%d code(s) in `x$%s` are not timeslices of `from` and were ignored: %s",
           length(unknown), key, .preview(unknown))
+  }
+
+  # -- share within parent: result keyed by `from`'s timeslices -------------
+  is_share <- rules %in% c("share", "logshare")
+  if (any(is_share)) {
+    if (!all(is_share)) {
+      .stop(paste0("rule \"share\" keeps the output keyed by `from` and ",
+                   "cannot be mixed with other rules in one call; recast ",
+                   "the columns separately"))
+    }
+    return(.ts_recast_share(x, backend, from_orig, to_orig, parent, year,
+                            key, values, id_cols, by, tz, na_action,
+                            collect))
+  }
+  if (!is.null(parent)) {
+    .stop("`parent` applies to rule \"share\" only")
   }
 
   # The crosswalk (A -> base -> B collapsed)
@@ -728,6 +763,132 @@ recast_calendar <- function(x, from, to, year,
   out_keys <- c(target_keys, if (keep_na_row) NA_character_)
   out <- .recast_complete(res, idc, out_keys, key, id_cols, values)
   .ts_restore(out, backend, collect = collect)
+}
+
+#' Resolve the parent calendar for rule "share": explicit `parent=` wins
+#' (a timeframe name is pruned from `from`), then `to` when it differs from
+#' `from`, then `from` pruned to its second-finest timeframe.
+#' @noRd
+.ts_share_parent <- function(from, to, parent) {
+  if (!is.null(parent)) {
+    if (is.character(parent)) parent <- prune_calendar(from, parent)
+    .check_calendar(parent, "parent")
+    if (!identical(to, from) && !identical(to, parent)) {
+      .stop(paste0("conflicting parents: `to` and `parent` name ",
+                   "different calendars; for rule \"share\" pass ",
+                   "the parent once"))
+    }
+    return(parent)
+  }
+  if (!identical(to, from)) return(to)
+  tfs <- S7::prop(from, "timeframes")
+  if (length(tfs) < 2L) {
+    .stop(paste0("`from` has a single timeframe and no coarser ",
+                 "parent; pass `parent=`"))
+  }
+  prune_calendar(from, tfs[[length(tfs) - 1L]])
+}
+
+#' rule = "share": each source timeslice's value over its parent-group
+#' total. Output stays keyed by `from`'s timeslices -- the one rule that
+#' does not change the key.
+#' @noRd
+.ts_recast_share <- function(x, backend, from, to, parent, year, key,
+                             values, id_cols, by, tz, na_action, collect) {
+  parent <- .ts_share_parent(from, to, parent)
+
+  from2 <- .named_or_temp(from, ".from")
+  par2  <- .named_or_temp(parent, ".parent")
+  from_nm <- .calendar_name(from2)
+  par_nm  <- .calendar_name(par2)
+  if (identical(from_nm, par_nm)) {
+    pm <- S7::prop(par2, "meta")
+    pm$name <- paste0(par_nm, "..parent")
+    S7::prop(par2, "meta") <- pm
+    par_nm <- pm$name
+  }
+  map <- as.data.frame(calendar_map(from2, par2, year, by = by, tz = tz))
+  mem <- unique(map[, c(from_nm, par_nm)])
+
+  # shares within a parent are only well-defined when `from` nests in it
+  n_par <- table(mem[[from_nm]][!is.na(mem[[par_nm]])])
+  split_codes <- names(n_par)[n_par > 1L]
+  if (length(split_codes) > 0L) {
+    .stop(paste0("rule \"share\": %d timeslice(s) of `from` straddle ",
+                 "more than one parent timeslice (%s); the source must ",
+                 "nest within the parent"),
+          length(split_codes), .preview(split_codes))
+  }
+
+  orphan <- is.na(mem[[par_nm]])
+  if (any(orphan)) {
+    if (na_action == "error") {
+      .stop(paste0("%d timeslice(s) of `from` are not covered by the ",
+                   "parent; use na_action = \"drop\" or \"keep\""),
+            sum(orphan))
+    }
+    if (na_action == "drop") {
+      .warn(paste0("%d timeslice(s) of `from` are not covered by the ",
+                   "parent and get NA shares (%s). Use na_action = ",
+                   "\"keep\" to treat them as one group."),
+            sum(orphan), .preview(mem[[from_nm]][orphan]))
+      mem <- mem[!orphan, , drop = FALSE]
+    }
+    # "keep": the NA parent stays as an explicit group
+  }
+
+  jmem <- mem
+  names(jmem) <- c(key, ".ts_parent")
+
+  xq <- dplyr::select(.ts_lazy(x, backend),
+                      dplyr::all_of(c(id_cols, key, values)))
+  joined <- dplyr::inner_join(xq, jmem, by = key)
+
+  tot_nms <- paste0(".ts_tot_", seq_along(values))
+  tot_exprs <- lapply(values, function(v) rlang::expr(sum(!!rlang::sym(v))))
+  names(tot_exprs) <- tot_nms
+  tot <- joined |>
+    dplyr::group_by(dplyr::across(dplyr::all_of(c(id_cols, ".ts_parent")))) |>
+    dplyr::summarise(!!!tot_exprs, .groups = "drop")
+
+  share_exprs <- lapply(seq_along(values), function(i) {
+    v <- rlang::sym(values[[i]])
+    t <- rlang::sym(tot_nms[[i]])
+    rlang::expr(dplyr::if_else(!!t != 0, !!v / !!t, NA_real_))
+  })
+  names(share_exprs) <- values
+
+  res <- joined |>
+    dplyr::left_join(tot, by = c(id_cols, ".ts_parent"),
+                     na_matches = "na") |>
+    dplyr::mutate(!!!share_exprs) |>
+    dplyr::select(dplyr::all_of(c(key, id_cols, values)))
+
+  if (.ts_is_lazy(backend) && !isTRUE(collect)) {
+    return(res)
+  }
+
+  idc <- if (length(id_cols) > 0L) {
+    .ts_pull(dplyr::distinct(dplyr::select(.ts_lazy(x, backend),
+                                           dplyr::all_of(id_cols))))
+  } else {
+    data.frame()
+  }
+  res <- as.data.frame(dplyr::collect(res))
+  out_keys <- S7::prop(from, "leaftable")$timeslice
+  out <- .recast_complete(res, idc, out_keys, key, id_cols, values)
+  .ts_restore(out, backend, collect = collect)
+}
+
+#' rule "share" is only meaningful in recast_calendar(), whose output key
+#' it keeps at the source; the base-grid halves keep the standard contract
+#' @noRd
+.ts_no_share <- function(rules, where) {
+  if (any(rules %in% c("share", "logshare"))) {
+    .stop(paste0("rule \"share\" is not supported by %s(); use ",
+                 "recast_calendar() with a parent calendar or timeframe"),
+          where)
+  }
 }
 
 # -----------------------------------------------------------------------------
@@ -836,6 +997,7 @@ recast_to_timebase <- function(x, calendar, year = NULL,
   tfs <- S7::prop(calendar, "timeframes")
   values <- .values_for(schema, key, c(tfs, "year"), values)
   rules <- .rules_for(values, rule)
+  .ts_no_share(rules, "recast_to_timebase")
 
   # Unknown-key warning (eager, small)
   leaves <- S7::prop(calendar, "leaftable")
@@ -918,6 +1080,7 @@ recast_from_timebase <- function(x, calendar, year = NULL,
   tfs <- S7::prop(calendar, "timeframes")
   values <- .values_for(schema, key, c(tfs, "year", "weight"), values)
   rules <- .rules_for(values, rule)
+  .ts_no_share(rules, "recast_from_timebase")
   has_weight <- "weight" %in% names(schema)
 
   grid <- expand_calendar(calendar, year, by = by, tz = tz)

@@ -133,7 +133,11 @@ width-weighted means.}
 
 \item{rule}{With \code{data}: aggregation rule for the per-timeframe
 recasts (\code{"sum"}, \code{"mean"}, \code{"weighted_mean"}, ... -- see
-\code{\link[=recast_calendar]{recast_calendar()}}; explicit or registered, never guessed).}
+\code{\link[=recast_calendar]{recast_calendar()}}; explicit or registered, never guessed).
+\code{"share"} colours every row by each timeslice's share within the
+row above it (the top row by its share of the year) on a fixed
+linear 0..1 scale; \code{"logshare"} is the same on a fixed log10
+percent scale.}
 
 \item{year}{With \code{data}: the model year the recast routes through
 (required by \code{\link[=recast_calendar]{recast_calendar()}}).}
