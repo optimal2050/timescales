@@ -1,5 +1,45 @@
 # timescales 0.5.0.9000
 
+## Timeslice conversions
+
+* `tsl2hour()`, `tsl2yday()`, `tsl2month()`, `hour2HOUR()`, `yday2YDAY()`,
+  `tsl2dtm()` and `dtm2tsl()` read a timeframe off a timeslice, and convert
+  between timeslices and datetimes. They move here from energyRt, where they
+  parsed the label text with regular expressions.
+* Each takes the calendar the timeslices belong to -- as an object or by name,
+  `tsl2hour(tsl, "d365_h24")`. The calendar is what replaces the guessing: the
+  answer is a join against `calendar_leaftable()` when the calendar holds the
+  timeframe, `calendar_map()` when it does not, and the timeslice's instant
+  when no token claims it.
+* A timeframe is available when it is a function of the calendar's timeslices.
+  `tsl2hour(tsl, "m12")` is an error naming the reason -- a month spans 24
+  hours, so there is no single one to return -- rather than a `NULL`.
+* This reads vocabularies the regular expressions could not: `m12a`
+  (`"JAN"`..`"DEC"`), `wd7` (`"MON"`..`"SUN"`), `q4`, `s4`, `hp3`, and any
+  token added with `register_calendar_token()`. It also fixes a wrong answer:
+  `h168` labels hours of the *week* as `"h000"`..`"h167"`, which a pattern for
+  `h` plus digits read as hours of the day.
+* `as_timeframe()` is the verb underneath, and now accepts timeslice labels
+  and integers as well as datetimes -- so `as_timeframe(0:23, "HOUR",
+  format = "token")` gives `"h00"`..`"h23"`, and a `calendar` argument selects
+  that calendar's own spelling over the canonical one.
+* `year` is required for the weekday-derived timeframes (`WDAY`, `MWEEK`,
+  `DAYTYPE`, `WHOUR`, and `YEAR`), whose value depends on which year the
+  timeslices fall in. `MONTH`, `YDAY`, `QUARTER`, `SEASON`, `WEEK` and `MDAY`
+  are the same in every year and need no year.
+* Sampled calendars are handled throughout. A calendar filtered to a few
+  representative days holds a SUBSET of its parent's timeslices, and its labels
+  keep the meaning they had in the parent: `tsl2yday("d015_h00")` is day 15,
+  not the first day the calendar happens to hold. The number is read from the
+  timeframe's full vocabulary (`meta$tokens`, or inferred from the labels for a
+  hand-built calendar) rather than from the calendar's own member list.
+* `tsl2dtm()` dates a sampled calendar's timeslices against its parent, because
+  `expand_calendar()` leaves a filtered calendar's grid unlabelled. A timeframe
+  that no crosswalk can reach falls back to the timeslice's instant, so a
+  sampled calendar still resolves `MONTH`.
+
+## Calendars and rules
+
 * New rule `"share"`: share within parent. Each source timeslice's value
   over its parent-timeslice total, keyed by the *source* calendar --
   `recast_calendar(x, cal, to = "YDAY", rule = "share")` gives each hour's

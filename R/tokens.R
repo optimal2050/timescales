@@ -201,3 +201,77 @@ get_calendar_token <- function(name) {
 list_calendar_tokens <- function() {
   sort(ls(envir = .TOKEN_REGISTRY))
 }
+
+# Valuation vocabularies -------------------------------------------------------
+# A label's NUMBER is its position in the timeframe's FULL vocabulary, not in
+# whatever subset a calendar happens to hold. A sampled calendar whose YDAY
+# members are d015, d105, d196, d288 must still read d015 as day 15, so the
+# position is taken in the token's vocabulary (d365) rather than the calendar's.
+
+.VOCAB_CACHE <- new.env(parent = emptyenv())
+
+#' The full label vocabulary a calendar's timeframe labels are drawn from
+#'
+#' Finds the registered token for `timeframe` whose vocabulary CONTAINS the
+#' calendar's labels -- preferring an exact match, then the smallest superset.
+#' Falls back to the calendar's own labels when no token covers them, which is
+#' the complete-vocabulary case.
+#' @noRd
+.valuation_vocab <- function(calendar, timeframe, labels) {
+  labels <- unique(labels[!is.na(labels)])
+  if (length(labels) == 0L) return(labels)
+  # A calendar built by calendar()/calendar_build() records which token each
+  # timeframe came from, which is exact. Filtering preserves it.
+  tok <- S7::prop(calendar, "meta")$tokens[[timeframe]]
+  if (is.null(tok) || !tok %in% list_calendar_tokens()) {
+    tok <- .infer_token(labels, timeframe)
+  }
+  if (is.na(tok)) return(labels)
+  get_calendar_token(tok)$expand()$label
+}
+
+#' The registered token whose vocabulary these labels are drawn from
+#'
+#' Prefers an exact match, then the smallest superset. `NA` when no token
+#' covers them, which is a hand-built vocabulary of its own.
+#' @noRd
+.infer_token <- function(labels, timeframe) {
+  labels <- unique(labels[!is.na(labels)])
+  if (length(labels) == 0L) return(NA_character_)
+  key <- paste(c(timeframe, length(labels), labels[1L],
+                 labels[length(labels)]), collapse = intToUtf8(13L))
+  if (exists(key, envir = .VOCAB_CACHE, inherits = FALSE)) {
+    return(get(key, envir = .VOCAB_CACHE, inherits = FALSE))
+  }
+  best <- NA_character_
+  best_n <- Inf
+  for (nm in list_calendar_tokens()) {
+    entry <- get_calendar_token(nm)
+    if (!identical(entry$timeframe, timeframe)) next
+    vocab <- entry$expand()$label
+    if (!all(labels %in% vocab)) next
+    if (setequal(vocab, labels)) { best <- nm; break }
+    if (length(vocab) < best_n) { best <- nm; best_n <- length(vocab) }
+  }
+  assign(key, best, envir = .VOCAB_CACHE)
+  best
+}
+
+#' The complete calendar a subset calendar's labels are drawn from
+#'
+#' A calendar holding only some of its timeslices cannot place them on a
+#' timeline -- its own expansion carries no labels. Rebuilding the complete
+#' calendar from each timeframe's inferred token gives something that can.
+#' Returns `NULL` when any timeframe's vocabulary is not a registered token.
+#' @noRd
+.complete_calendar <- function(cal) {
+  tfs <- calendar_timeframes(cal)
+  toks <- vapply(tfs, function(tf)
+    .infer_token(calendar_timeslices(cal, tf), tf), character(1))
+  if (anyNA(toks)) return(NULL)
+  out <- tryCatch(calendar(paste(toks, collapse = "_")), error = function(e) NULL)
+  if (is.null(out)) return(NULL)
+  if (identical(.calendar_name(out, require = FALSE),
+                .calendar_name(cal, require = FALSE))) return(NULL)
+  out
+}

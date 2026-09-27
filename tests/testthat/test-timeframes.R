@@ -48,8 +48,18 @@ test_that("as_timeframe rejects unknown timeframes", {
 })
 
 test_that("as_timeframe rejects unsupported classes", {
-  expect_error(as_timeframe("not a date", "YEAR"),
+  expect_error(as_timeframe(list(1), "YEAR"),
                "not implemented for class")
+  expect_error(as_timeframe(TRUE, "YEAR"),
+               "not implemented for class")
+})
+
+test_that("character input is a timeslice, and needs its calendar", {
+  # Character is no longer an unsupported class: it is a timeslice label,
+  # resolved against a calendar rather than parsed.
+  expect_error(as_timeframe("not a timeslice", "YEAR"), "required")
+  expect_true(is.na(as_timeframe("not a timeslice", "HOUR",
+                                 calendar = "d365_h24")))
 })
 
 test_that("as_timeframe preserves NA positions", {

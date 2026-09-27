@@ -101,6 +101,32 @@ CORE_TIMEFRAMES <- c(
   WEEK    = function(x) sprintf("w%02d", x)
 )
 
+# Internal: first integer of each timeframe's vocabulary ----------------------
+# A calendar stores each timeframe's labels in vocabulary order (`members`), so
+# a label's ordinal position plus this origin is its numeric value. `NA` marks
+# a timeframe whose values are absolute, not ordinal: there is no such mapping.
+#
+# WDAY's vocabulary is ISO (Monday first) -- `week_start = 1` on the datetime
+# path, NOT lubridate's Sunday-first default that .TIMEFRAME_FORMATTERS
+# follows. The two conventions differ by one.
+.TIMEFRAME_ORIGIN <- c(
+  YEAR     = NA_integer_,
+  QUARTER  = 1L,
+  MONTH    = 1L,
+  MDAY     = 1L,
+  YDAY     = 1L,
+  HOUR     = 0L,
+  MINUTE   = 0L,
+  SECOND   = 0L,
+  WDAY     = 1L,
+  WHOUR    = 0L,
+  MWEEK    = 1L,
+  WEEK     = 1L,
+  SEASON   = 1L,
+  DAYTYPE  = 1L,
+  HOURTYPE = 1L
+)
+
 #' Extract timeframe values from datetime vectors
 #'
 #' Extracts a single timeframe component (`YEAR`, `MONTH`, `HOUR`, ...) from a
@@ -113,7 +139,9 @@ CORE_TIMEFRAMES <- c(
 #' @param format `"numeric"` (default) for raw integer values, or `"token"`
 #'   for formatted strings (`"m01"`, `"h00"`, `"d365"`, `"MON"`, ...).
 #' @param ... Currently `week_start` is forwarded to `lubridate::wday()` for
-#'   `WDAY` and `MWEEK`.
+#'   `WDAY` and `MWEEK`. Token vocabularies such as `wd7` are ISO (Monday
+#'   first), so pair them with `week_start = 1`; the default is lubridate's
+#'   (Sunday first) and differs from those vocabularies by one.
 #'
 #' @return Integer/numeric vector for `format = "numeric"`, character vector
 #'   for `format = "token"`. Preserves `NA` positions.
@@ -194,6 +222,26 @@ as_timeframe.Date <- function(x, timeframe,
 
 #' @rdname as_timeframe
 #' @export
+as_timeframe.numeric <- function(x, timeframe,
+                                 format = c("numeric", "token"),
+                                 calendar = NULL, ...) {
+  format <- match.arg(format)
+  timeframe <- .match_timeframe(timeframe)
+  if (format == "numeric") return(x)
+  na_mask <- is.na(x)
+  # A calendar's own vocabulary wins over the canonical formatter: `m12a`
+  # spells March "MAR", `wd7` is Monday-first, and the formatters are not.
+  tok <- if (!is.null(calendar)) {
+    .value_vocab(x, .timeframe_vocab(calendar, timeframe), timeframe)
+  } else {
+    .TIMEFRAME_FORMATTERS[[timeframe]](x)
+  }
+  if (any(na_mask)) tok[na_mask] <- NA_character_
+  tok
+}
+
+#' @rdname as_timeframe
+#' @export
 as_timeframe.default <- function(x, timeframe,
                                  format = c("numeric", "token"), ...) {
   stop("as_timeframe() is not implemented for class '",
@@ -208,4 +256,62 @@ as_timeframe.default <- function(x, timeframe,
 #' @noRd
 .is_valid_timeframe <- function(timeframe) {
   toupper(timeframe) %in% CORE_TIMEFRAMES
+}
+
+#' Normalise and validate a timeframe name
+#' @noRd
+.match_timeframe <- function(timeframe, arg = "timeframe") {
+  if (!is.character(timeframe) || length(timeframe) != 1L) {
+    .stop("`%s` must be a single character string", arg)
+  }
+  tf <- toupper(timeframe)
+  if (!tf %in% CORE_TIMEFRAMES) {
+    .stop("unsupported %s: \"%s\". Must be one of: %s",
+          arg, timeframe, paste(CORE_TIMEFRAMES, collapse = ", "))
+  }
+  tf
+}
+
+#' Ordinal position of labels within a vocabulary, as timeframe values
+#'
+#' `vocab` is the timeframe's labels in order, as a calendar's `members` holds
+#' them. Unmatched labels give `NA`. Errors for a timeframe whose values are
+#' absolute rather than ordinal (see `.TIMEFRAME_ORIGIN`).
+#' @noRd
+.vocab_value <- function(labels, vocab, timeframe) {
+  origin <- .TIMEFRAME_ORIGIN[[timeframe]]
+  if (is.na(origin)) {
+    .stop(paste0("%s values are absolute rather than ordinal, so a label ",
+                 "carries no position in a vocabulary"), timeframe)
+  }
+  match(labels, vocab) - 1L + origin
+}
+
+#' A timeframe's label vocabulary, in order, from a calendar
+#'
+#' `members` holds the labels in vocabulary order, which is what makes an
+#' ordinal position meaningful. Errors when the calendar has no such timeframe.
+#' @noRd
+.timeframe_vocab <- function(calendar, timeframe) {
+  .check_calendar(calendar, "calendar")
+  members <- S7::prop(calendar, "members")
+  if (!timeframe %in% names(members)) {
+    .stop(paste0("calendar \"%s\" has no %s timeframe; it holds: %s"),
+          .calendar_name(calendar, require = FALSE), timeframe,
+          paste(names(members), collapse = ", "))
+  }
+  members[[timeframe]]
+}
+
+#' Labels for timeframe values, the inverse of `.vocab_value()`
+#' @noRd
+.value_vocab <- function(values, vocab, timeframe) {
+  origin <- .TIMEFRAME_ORIGIN[[timeframe]]
+  if (is.na(origin)) {
+    .stop(paste0("%s values are absolute rather than ordinal, so they carry ",
+                 "no position in a vocabulary"), timeframe)
+  }
+  idx <- as.integer(values) - origin + 1L
+  idx[idx < 1L | idx > length(vocab)] <- NA_integer_
+  vocab[idx]
 }
