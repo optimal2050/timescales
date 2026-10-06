@@ -17,14 +17,16 @@ properties:
 cal <- calendar("q4_h24", desc = "Quarter × hour-of-day")
 S7::S7_class(cal)
 #> <timescales::Calendar> class
-#> @ parent     : <S7_object>
+#> @ parent     : <multiscales::Scale>
 #> @ constructor: function(leaftable, timeframes, members, meta) {...}
 #> @ validator  : function(self) {...}
 #> @ properties :
 #>  $ leaftable : S3<data.frame>
-#>  $ timeframes: <character>   
+#>  $ frames    : <character>   
 #>  $ members   : <list>        
-#>  $ meta      : <list>
+#>  $ key       : <character>   
+#>  $ meta      : <list>        
+#>  $ timeframes: <ANY>
 ```
 
 ### `@leaftable`
@@ -100,9 +102,10 @@ Anything else you put in `@meta` is preserved untouched.
 ``` r
 
 names(cal@meta)
-#> [1] "name"               "desc"               "year_start"        
-#> [4] "utc_offset_minutes" "year_fraction"      "tokens"            
-#> [7] "coverage_class"     "regularity"
+#>  [1] "name"               "desc"               "year_start"        
+#>  [4] "utc_offset_minutes" "year_fraction"      "tokens"            
+#>  [7] "weights"            "default_weight"     "coverage_class"    
+#> [10] "regularity"
 cal@meta$year_start
 #> $month
 #> [1] 1

@@ -67,10 +67,10 @@
 <url><loc>https://optimal2050.github.io/timescales/r/reference/list_tokens.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/reference/merra2_cities.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/reference/prune_calendar.html</loc></url>
-<url><loc>https://optimal2050.github.io/timescales/r/reference/recast.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/reference/recast_calendar.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/reference/RECAST_RULES.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/reference/recast_to_timebase.html</loc></url>
+<url><loc>https://optimal2050.github.io/timescales/r/reference/reexports.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/reference/register_calendar_conversion.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/reference/register_calendar_map.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/reference/register_calendar_rule.html</loc></url>
@@ -81,5 +81,7 @@
 <url><loc>https://optimal2050.github.io/timescales/r/reference/summary.Calendar.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/reference/timescales-deprecated.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/reference/timescales-package.html</loc></url>
+<url><loc>https://optimal2050.github.io/timescales/r/reference/timeslice_conversions.html</loc></url>
+<url><loc>https://optimal2050.github.io/timescales/r/reference/timeslice_datetime.html</loc></url>
 </urlset>
 

@@ -11,7 +11,7 @@ year on [0, 1]. autoplot() and plot() on a Calendar dispatch here."><meta proper
 
     <a class="navbar-brand me-2" href="../index.html">timescales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.5.3</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.5.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -233,7 +233,11 @@ width-weighted means.</p></dd>
 <dt id="arg-rule">rule<a class="anchor" aria-label="anchor" href="#arg-rule"></a></dt>
 <dd><p>With <code>data</code>: aggregation rule for the per-timeframe
 recasts (<code>"sum"</code>, <code>"mean"</code>, <code>"weighted_mean"</code>, ... – see
-<code><a href="recast_calendar.html">recast_calendar()</a></code>; explicit or registered, never guessed).</p></dd>
+<code><a href="recast_calendar.html">recast_calendar()</a></code>; explicit or registered, never guessed).
+<code>"share"</code> colours every row by each timeslice's share within the
+row above it (the top row by its share of the year) on a fixed
+linear 0..1 scale; <code>"logshare"</code> is the same on a fixed log10
+percent scale.</p></dd>
 
 
 <dt id="arg-year">year<a class="anchor" aria-label="anchor" href="#arg-year"></a></dt>

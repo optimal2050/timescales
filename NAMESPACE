@@ -86,5 +86,7 @@ export(tsl2yday)
 export(yday2YDAY)
 importFrom(dplyr,"%>%")
 importFrom(multiscales,recast)
-importFrom(rlang,":=")
-importFrom(rlang,.data)
+importFrom(rlang,
+  ":=",
+  .data
+)

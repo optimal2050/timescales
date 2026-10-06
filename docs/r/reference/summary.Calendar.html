@@ -15,7 +15,7 @@ summary.Geoscale() in geoscales.'><meta property="og:image" content="https://opt
 
     <a class="navbar-brand me-2" href="../index.html">timescales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.5.3</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.5.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -104,109 +104,26 @@ classification when present. Returns a <code>"summary_Calendar"</code> object
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="fu"><a href="calendar_build.html">calendar</a></span><span class="op">(</span><span class="st">"m12_h24"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $name</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "m12_h24"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $desc</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] ""</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $timeframes</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> MONTH  HOUR </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    12    24 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $n_timeslices</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 288</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $year_fraction</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $coverage</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  share weight </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      1      1 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $sampled</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $parent_name</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> NULL</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $coverage_class</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "complete"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $regularity</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "regular"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $share_range</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.003196347 0.003538813</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $weight_range</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 28 31</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $year_start</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $year_start$month</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $year_start$day</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $utc_offset_minutes</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"class")</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "summary_Calendar"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;summary of Calendar 'm12_h24' &gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   timeframes:     MONTH (12) / HOUR (24)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   timeslices:     288</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   year_fraction:  1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   catalog:        complete, regular</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   share range:    0.003196 .. 0.003539</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   weight range:   28 .. 31</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   year_start:     month=1, day=1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   utc offset:     0 min</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="fu"><a href="filter_calendar.html">filter_calendar</a></span><span class="op">(</span><span class="fu"><a href="calendar_build.html">calendar</a></span><span class="op">(</span><span class="st">"s4_h24"</span><span class="op">)</span>, <span class="st">"SEASON"</span>, <span class="st">"WIN"</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $name</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "s4_h24[SEASON:WIN]"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $desc</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] ""</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $timeframes</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> SEASON   HOUR </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      1     24 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $n_timeslices</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 24</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $year_fraction</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.2465753</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $coverage</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     share    weight </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 0.2465753 0.2465753 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $sampled</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $parent_name</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "s4_h24"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $coverage_class</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "representative"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $regularity</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "regular"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $share_range</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.01027397 0.01027397</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $weight_range</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 90 90</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $year_start</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $year_start$month</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $year_start$day</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $utc_offset_minutes</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"class")</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "summary_Calendar"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;summary of Calendar 's4_h24[SEASON:WIN]' &gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   timeframes:     SEASON (1) / HOUR (24)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   timeslices:     24</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   year_fraction:  0.246575</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   SAMPLED:        share 24.7%, weight 24.7% of 's4_h24'</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   catalog:        representative, regular</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   share range:    0.01027 .. 0.01027</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   weight range:   90 .. 90</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   year_start:     month=1, day=1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   utc offset:     0 min</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

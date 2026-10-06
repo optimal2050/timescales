@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">timescales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.5.3</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.5.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -48,9 +48,44 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.5.0.9000" id="timescales-0509000">timescales 0.5.0.9000<a class="anchor" aria-label="anchor" href="#timescales-0509000"></a></h2>
+<div class="section level3">
+<h3 id="the-shared-core-0-5-0-9000">The shared core<a class="anchor" aria-label="anchor" href="#the-shared-core-0-5-0-9000"></a></h3>
+<ul><li>The <code><a href="https://rdrr.io/pkg/multiscales/man/recast.html" class="external-link">recast()</a></code> generic is now owned by <code>multiscales</code>, the dimension-agnostic core, and re-exported here. <code><a href="https://rdrr.io/pkg/multiscales/man/recast.html" class="external-link">timescales::recast</a></code> resolves exactly as before and dispatches on <code>Calendar</code> exactly as before – the object behind the name is simply shared with <code>geoscales</code> rather than owned by this package. Nothing changes for callers.</li>
+<li>
+<code><a href="../reference/calendar_ancestry.html">calendar_ancestry()</a></code>, <code><a href="../reference/calendar_share.html">calendar_share()</a></code>, <code><a href="../reference/calendar_coverage.html">calendar_coverage()</a></code> and the navigation verbs (<code><a href="../reference/calendar_navigate.html">calendar_children()</a></code>, <code><a href="../reference/calendar_navigate.html">calendar_parents()</a></code>, <code><a href="../reference/calendar_navigate.html">calendar_descendants()</a></code>, <code><a href="../reference/calendar_navigate.html">calendar_ancestors()</a></code>) now compute through <code>multiscales</code>. Their output is unchanged.</li>
+<li>Rules registered with <code><a href="../reference/register_calendar_rule.html">register_calendar_rule()</a></code> are kept in the <code>multiscales</code> registry under the scope <code>"calendar"</code>, so <code><a href="https://rdrr.io/pkg/multiscales/man/recast_scale.html" class="external-link">multiscales::recast_scale()</a></code> on a Calendar finds them too. A rule registered there without a scope now also applies to calendars.</li>
+<li>
+<code><a href="../reference/recast_calendar.html">recast_calendar()</a></code> aggregates through <code><a href="https://rdrr.io/pkg/multiscales/man/recast_crosswalk.html" class="external-link">multiscales::recast_crosswalk()</a></code>. Results are unchanged. Panel data no longer builds an in-memory grid of every identifier combination times the crosswalk before joining.</li>
+<li>
+<code><a href="../reference/expand_calendar.html">expand_calendar()</a></code> and <code><a href="../reference/datetime_to_timeslice.html">datetime_to_timeslice()</a></code> label a sampled calendar correctly when it carries no recorded tokens (one rebuilt from a leaftable, as energyRt’s sampled calendars are). Before, every grid point came back <code>NA</code>: day numbers were measured against the sampled days rather than the whole year.</li>
+<li>
+<code><a href="../reference/calendar_family.html">calendar_family()</a></code> returns an empty table, not a 1 x 1 logical matrix, when <code>parent=</code>/<code>child=</code> select no timeframe pair.</li>
+<li>
+<code>multiscales</code> is added to <code>Imports</code>. It brings no new external dependency: its own imports (<code>dplyr</code>, <code>rlang</code>, <code>S7</code>, <code>stats</code>, <code>utils</code>) were already ours.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="timeslice-conversions-0-5-0-9000">Timeslice conversions<a class="anchor" aria-label="anchor" href="#timeslice-conversions-0-5-0-9000"></a></h3>
 <ul><li>
-<code>Remotes:</code> added to DESCRIPTION so CI and <code>pak</code> users can resolve the GitHub-only energypal Suggests from GitHub (the packages are not on CRAN/r-universe yet). Drop the field at CRAN submission time.</li>
-</ul><div class="section level3">
+<code><a href="../reference/timeslice_conversions.html">tsl2hour()</a></code>, <code><a href="../reference/timeslice_conversions.html">tsl2yday()</a></code>, <code><a href="../reference/timeslice_conversions.html">tsl2month()</a></code>, <code><a href="../reference/timeslice_conversions.html">hour2HOUR()</a></code>, <code><a href="../reference/timeslice_conversions.html">yday2YDAY()</a></code>, <code><a href="../reference/timeslice_datetime.html">tsl2dtm()</a></code> and <code><a href="../reference/timeslice_datetime.html">dtm2tsl()</a></code> read a timeframe off a timeslice, and convert between timeslices and datetimes. They move here from energyRt, where they parsed the label text with regular expressions.</li>
+<li>Each takes the calendar the timeslices belong to – as an object or by name, <code>tsl2hour(tsl, "d365_h24")</code>. The calendar is what replaces the guessing: the answer is a join against <code><a href="../reference/calendar_leaftable.html">calendar_leaftable()</a></code> when the calendar holds the timeframe, <code><a href="../reference/calendar_map.html">calendar_map()</a></code> when it does not, and the timeslice’s instant when no token claims it.</li>
+<li>A timeframe is available when it is a function of the calendar’s timeslices. <code>tsl2hour(tsl, "m12")</code> is an error naming the reason – a month spans 24 hours, so there is no single one to return – rather than a <code>NULL</code>.</li>
+<li>This reads vocabularies the regular expressions could not: <code>m12a</code> (<code>"JAN"</code>..<code>"DEC"</code>), <code>wd7</code> (<code>"MON"</code>..<code>"SUN"</code>), <code>q4</code>, <code>s4</code>, <code>hp3</code>, and any token added with <code><a href="../reference/register_calendar_token.html">register_calendar_token()</a></code>. It also fixes a wrong answer: <code>h168</code> labels hours of the <em>week</em> as <code>"h000"</code>..<code>"h167"</code>, which a pattern for <code>h</code> plus digits read as hours of the day.</li>
+<li>
+<code><a href="../reference/as_timeframe.html">as_timeframe()</a></code> is the verb underneath, and now accepts timeslice labels and integers as well as datetimes – so <code>as_timeframe(0:23, "HOUR", format = "token")</code> gives <code>"h00"</code>..<code>"h23"</code>, and a <code>calendar</code> argument selects that calendar’s own spelling over the canonical one.</li>
+<li>
+<code>year</code> is required for the weekday-derived timeframes (<code>WDAY</code>, <code>MWEEK</code>, <code>DAYTYPE</code>, <code>WHOUR</code>, and <code>YEAR</code>), whose value depends on which year the timeslices fall in. <code>MONTH</code>, <code>YDAY</code>, <code>QUARTER</code>, <code>SEASON</code>, <code>WEEK</code> and <code>MDAY</code> are the same in every year and need no year.</li>
+<li>Sampled calendars are handled throughout. A calendar filtered to a few representative days holds a SUBSET of its parent’s timeslices, and its labels keep the meaning they had in the parent: <code>tsl2yday("d015_h00")</code> is day 15, not the first day the calendar happens to hold. The number is read from the timeframe’s full vocabulary (<code>meta$tokens</code>, or inferred from the labels for a hand-built calendar) rather than from the calendar’s own member list.</li>
+<li>
+<code><a href="../reference/timeslice_datetime.html">tsl2dtm()</a></code> dates a sampled calendar’s timeslices against its parent, because <code><a href="../reference/expand_calendar.html">expand_calendar()</a></code> leaves a filtered calendar’s grid unlabelled. A timeframe that no crosswalk can reach falls back to the timeslice’s instant, so a sampled calendar still resolves <code>MONTH</code>.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="calendars-and-rules-0-5-0-9000">Calendars and rules<a class="anchor" aria-label="anchor" href="#calendars-and-rules-0-5-0-9000"></a></h3>
+<ul><li><p>New rule <code>"share"</code>: share within parent. Each source timeslice’s value over its parent-timeslice total, keyed by the <em>source</em> calendar – <code>recast_calendar(x, cal, to = "YDAY", rule = "share")</code> gives each hour’s share within its day, summing to 1 per parent. The parent is <code>to</code> (a calendar or timeframe name, <code>"ANNUAL"</code> included), or the new <code>parent=</code> argument (default: <code>from</code> pruned to its second-finest timeframe); the source timeslices must nest within it. <code>"logshare"</code> is the same computation with a log-scale display intent. Mirrored in geoscales.</p></li>
+<li><p>The calendar figures’ data fills accept both share rules: every row is coloured by each timeslice’s share within the row above it (ANNUAL by its share of the year), legend “Share” – <code>"share"</code> on a fixed linear 0..1 scale, <code>"logshare"</code> on a fixed log10 percent scale.</p></li>
+<li><p><code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> output now prints with its formatted view from user code: the local <code>print</code> binding S7 leaves in the namespace had captured the <code>S3method()</code> registration of <code>print.summary_Calendar</code>, so the method was invisible outside the package. Registered against base’s <code>print</code> in <code>.onLoad</code> (same fix in geoscales).</p></li>
+<li><p><code>Remotes:</code> added to DESCRIPTION so CI and <code>pak</code> users can resolve the GitHub-only energypal Suggests from GitHub (the packages are not on CRAN/r-universe yet). Drop the field at CRAN submission time.</p></li>
+</ul></div>
+<div class="section level3">
 <h3 id="base-generic-methods-on-calendar-0-5-0-9000">Base-generic methods on Calendar<a class="anchor" aria-label="anchor" href="#base-generic-methods-on-calendar-0-5-0-9000"></a></h3>
 <ul><li>
 <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> — the quantitative complement of <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code>: member counts, sampled coverage (with the parent’s name), catalog classification, share/weight ranges. Returns a <code>"summary_Calendar"</code> with its own print.</li>
@@ -115,7 +150,7 @@
 <ul><li>
 <code>recast_calendar(x, from, to, year, rule)</code> converts values between any two calendars via the base datetime grid; identifier (panel) columns are preserved as groups, and <code>to =</code> accepts a timeframe name (<code>"ANNUAL"</code> = the root) for within-calendar aggregation.</li>
 <li>
-<code><a href="../reference/recast.html">recast()</a></code> is an S7 generic dispatching on the scale object, so pipelines chain across packages: <code>x |&gt; recast(cal_a, cal_b) |&gt; recast(gs, to = "country")</code>.</li>
+<code><a href="https://rdrr.io/pkg/multiscales/man/recast.html" class="external-link">recast()</a></code> is an S7 generic dispatching on the scale object, so pipelines chain across packages: <code>x |&gt; recast(cal_a, cal_b) |&gt; recast(gs, to = "country")</code>.</li>
 <li>
 <code><a href="../reference/recast_to_timebase.html">recast_to_timebase()</a></code> / <code><a href="../reference/recast_to_timebase.html">recast_from_timebase()</a></code> expose the route halves; their composition equals <code><a href="../reference/recast_calendar.html">recast_calendar()</a></code>.</li>
 <li>
@@ -177,7 +212,7 @@
 </div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.1.0.9000" id="timescales-0109000">timescales 0.1.0.9000<a class="anchor" aria-label="anchor" href="#timescales-0109000"></a></h2>
-<ul><li>Phase 1 skeleton: <code>Calendar</code> S7 class with validator, token registry (<code>register_token()</code>, <code>get_token()</code>, <code>list_tokens()</code>), three-layer constructors (<code><a href="../reference/calendar_build.html">calendar()</a></code>, <code><a href="../reference/calendar_build.html">calendar_build()</a></code>, <code>calendar_from_leaves()</code>), <code><a href="../reference/as_timeframe.html">as_timeframe()</a></code>, first-generation <code>instant_to_timeslice()</code> / <code><a href="../reference/expand_calendar.html">expand_calendar()</a></code> / <code><a href="../reference/recast.html">recast()</a></code>, three vignettes, pkgdown site, CI.</li>
+<ul><li>Phase 1 skeleton: <code>Calendar</code> S7 class with validator, token registry (<code>register_token()</code>, <code>get_token()</code>, <code>list_tokens()</code>), three-layer constructors (<code><a href="../reference/calendar_build.html">calendar()</a></code>, <code><a href="../reference/calendar_build.html">calendar_build()</a></code>, <code>calendar_from_leaves()</code>), <code><a href="../reference/as_timeframe.html">as_timeframe()</a></code>, first-generation <code>instant_to_timeslice()</code> / <code><a href="../reference/expand_calendar.html">expand_calendar()</a></code> / <code><a href="https://rdrr.io/pkg/multiscales/man/recast.html" class="external-link">recast()</a></code>, three vignettes, pkgdown site, CI.</li>
 </ul></div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.0.0.9000" id="timescales-0009000">timescales 0.0.0.9000<a class="anchor" aria-label="anchor" href="#timescales-0009000"></a></h2>

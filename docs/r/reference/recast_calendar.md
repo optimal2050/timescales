@@ -29,6 +29,7 @@ recast_calendar(
   by = NULL,
   tz = "UTC",
   na_action = c("drop", "error", "keep"),
+  parent = NULL,
   collect = NULL
 )
 ```
@@ -98,6 +99,14 @@ recast_calendar(
   totals conserve). Grid points not covered by `from` carry no data and
   are always dropped.
 
+- parent:
+
+  `rule = "share"` only: the
+  [`Calendar`](https://optimal2050.github.io/timescales/r/reference/Calendar.md)
+  (or timeframe name of `from`) defining the groups the shares are taken
+  within. `NULL` (default) uses `to` when it differs from `from`, else
+  `from` pruned to its second-finest timeframe.
+
 - collect:
 
   For lazy inputs (arrow, dtplyr): materialise the result (`TRUE`) or
@@ -139,6 +148,16 @@ differ exactly when declared shares differ from real-time coverage.
 `"copy"` requires a constant value per target timeslice; `"sd"` is
 aggregation-only. There is no `weight=` argument: a calendar has exactly
 one weighting, its `leaves$share`.
+
+`"share"` inverts the output contract: the result stays keyed by
+`from`'s timeslices, and each value becomes that timeslice's share of
+the total over its parent timeslice (so shares sum to 1 per parent, per
+identifier combination). The parent is `parent=`, defaulting to `to` –
+`recast_calendar(x, cal_h, to = "YDAY", rule = "share")` reads: each
+hour's share within its day. The source timeslices must nest within the
+parent's (a week-vs-month pair errors). A parent whose total is zero
+yields `NA` shares. `"share"` cannot be combined with other rules in one
+call.
 
 ## Backends
 

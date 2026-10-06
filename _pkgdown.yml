@@ -80,6 +80,8 @@ reference:
     desc: "Move data between datetimes and calendars, and between calendars."
     contents:
       - datetime_to_timeslice
+      - timeslice_datetime
+      - timeslice_conversions
       - expand_calendar
       - recast_calendar
       - recast

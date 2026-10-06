@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">timescales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.5.3</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.5.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -130,14 +130,16 @@ properties:</p>
 <code class="sourceCode R"><span><span class="va">cal</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calendar_build.html">calendar</a></span><span class="op">(</span><span class="st">"q4_h24"</span>, desc <span class="op">=</span> <span class="st">"Quarter × hour-of-day"</span><span class="op">)</span></span>
 <span><span class="fu">S7</span><span class="fu">::</span><span class="fu"><a href="https://rconsortium.github.io/S7/reference/S7_class.html" class="external-link">S7_class</a></span><span class="op">(</span><span class="va">cal</span><span class="op">)</span></span>
 <span><span class="co">#&gt; &lt;timescales::Calendar&gt; class</span></span>
-<span><span class="co">#&gt; @ parent     : &lt;S7_object&gt;</span></span>
+<span><span class="co">#&gt; @ parent     : &lt;multiscales::Scale&gt;</span></span>
 <span><span class="co">#&gt; @ constructor: function(leaftable, timeframes, members, meta) {...}</span></span>
 <span><span class="co">#&gt; @ validator  : function(self) {...}</span></span>
 <span><span class="co">#&gt; @ properties :</span></span>
 <span><span class="co">#&gt;  $ leaftable : S3&lt;data.frame&gt;</span></span>
-<span><span class="co">#&gt;  $ timeframes: &lt;character&gt;   </span></span>
+<span><span class="co">#&gt;  $ frames    : &lt;character&gt;   </span></span>
 <span><span class="co">#&gt;  $ members   : &lt;list&gt;        </span></span>
-<span><span class="co">#&gt;  $ meta      : &lt;list&gt;</span></span></code></pre></div>
+<span><span class="co">#&gt;  $ key       : &lt;character&gt;   </span></span>
+<span><span class="co">#&gt;  $ meta      : &lt;list&gt;        </span></span>
+<span><span class="co">#&gt;  $ timeframes: &lt;ANY&gt;</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="leaftable">
 <code>@leaftable</code><a class="anchor" aria-label="anchor" href="#leaftable"></a>
@@ -304,9 +306,10 @@ lookup</td>
 untouched.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">cal</span><span class="op">@</span><span class="va">meta</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "name"               "desc"               "year_start"        </span></span>
-<span><span class="co">#&gt; [4] "utc_offset_minutes" "year_fraction"      "tokens"            </span></span>
-<span><span class="co">#&gt; [7] "coverage_class"     "regularity"</span></span>
+<span><span class="co">#&gt;  [1] "name"               "desc"               "year_start"        </span></span>
+<span><span class="co">#&gt;  [4] "utc_offset_minutes" "year_fraction"      "tokens"            </span></span>
+<span><span class="co">#&gt;  [7] "weights"            "default_weight"     "coverage_class"    </span></span>
+<span><span class="co">#&gt; [10] "regularity"</span></span>
 <span><span class="va">cal</span><span class="op">@</span><span class="va">meta</span><span class="op">$</span><span class="va">year_start</span></span>
 <span><span class="co">#&gt; $month</span></span>
 <span><span class="co">#&gt; [1] 1</span></span>

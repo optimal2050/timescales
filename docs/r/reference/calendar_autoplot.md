@@ -181,7 +181,10 @@ plot(x, ...)
   With `data`: aggregation rule for the per-timeframe recasts (`"sum"`,
   `"mean"`, `"weighted_mean"`, ... – see
   [`recast_calendar()`](https://optimal2050.github.io/timescales/r/reference/recast_calendar.md);
-  explicit or registered, never guessed).
+  explicit or registered, never guessed). `"share"` colours every row by
+  each timeslice's share within the row above it (the top row by its
+  share of the year) on a fixed linear 0..1 scale; `"logshare"` is the
+  same on a fixed log10 percent scale.
 
 - year:
 

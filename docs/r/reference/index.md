@@ -85,13 +85,23 @@ Move data between datetimes and calendars, and between calendars.
 
 - [`datetime_to_timeslice()`](https://optimal2050.github.io/timescales/r/reference/datetime_to_timeslice.md)
   : Map datetimes to calendar timeslice IDs
+- [`tsl2dtm()`](https://optimal2050.github.io/timescales/r/reference/timeslice_datetime.md)
+  [`dtm2tsl()`](https://optimal2050.github.io/timescales/r/reference/timeslice_datetime.md)
+  : Convert between timeslices and datetimes
+- [`tsl2hour()`](https://optimal2050.github.io/timescales/r/reference/timeslice_conversions.md)
+  [`tsl2yday()`](https://optimal2050.github.io/timescales/r/reference/timeslice_conversions.md)
+  [`tsl2month()`](https://optimal2050.github.io/timescales/r/reference/timeslice_conversions.md)
+  [`hour2HOUR()`](https://optimal2050.github.io/timescales/r/reference/timeslice_conversions.md)
+  [`yday2YDAY()`](https://optimal2050.github.io/timescales/r/reference/timeslice_conversions.md)
+  : Read a timeframe off timeslices
 - [`expand_calendar()`](https://optimal2050.github.io/timescales/r/reference/expand_calendar.md)
   : Enumerate the base grid of one or more model years mapped to
   timeslices
 - [`recast_calendar()`](https://optimal2050.github.io/timescales/r/reference/recast_calendar.md)
   : Recast values from one calendar to another
-- [`recast()`](https://optimal2050.github.io/timescales/r/reference/recast.md)
-  : Recast data between scales
+- [`reexports`](https://optimal2050.github.io/timescales/r/reference/reexports.md)
+  [`recast`](https://optimal2050.github.io/timescales/r/reference/reexports.md)
+  : Objects exported from other packages
 - [`recast_to_timebase()`](https://optimal2050.github.io/timescales/r/reference/recast_to_timebase.md)
   [`recast_from_timebase()`](https://optimal2050.github.io/timescales/r/reference/recast_to_timebase.md)
   : Recast timeslice data down to the base grid, and back

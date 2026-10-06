@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">timescales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.5.3</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.5.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -394,7 +394,7 @@ inputs come back in their own class; lazy inputs return the
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="op">)</span>                          <span class="co"># data.table in, data.table out</span></span>
 <span><span class="co">#&gt; [1] "data.table" "data.frame"</span></span>
 <span></span>
-<span><span class="va">lazy</span> <span class="op">&lt;-</span> <span class="fu">dtplyr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/dtplyr/man/lazy_dt.html" class="external-link">lazy_dt</a></span><span class="op">(</span><span class="va">dt</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span><span class="va">lazy</span> <span class="op">&lt;-</span> <span class="fu">dtplyr</span><span class="fu">::</span><span class="fu"><a href="https://dtplyr.tidyverse.org/reference/lazy_dt.html" class="external-link">lazy_dt</a></span><span class="op">(</span><span class="va">dt</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/recast_calendar.html">recast_calendar</a></span><span class="op">(</span><span class="va">cal</span>, <span class="va">calendars</span><span class="op">$</span><span class="va">q4</span>, year <span class="op">=</span> <span class="fl">2019</span>, rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">class</a></span><span class="op">(</span><span class="va">lazy</span><span class="op">)</span>                        <span class="co"># the query, not the result</span></span>
 <span><span class="co">#&gt; [1] "dtplyr_step_call" "dtplyr_step"</span></span>
@@ -412,13 +412,13 @@ dataset is never pulled into memory for the calendar arithmetic.</p>
 <div class="section level2">
 <h2 id="across-dimensions">Across dimensions<a class="anchor" aria-label="anchor" href="#across-dimensions"></a>
 </h2>
-<p>The bare <code><a href="../reference/recast.html">recast()</a></code> generic dispatches on the scale
+<p>The bare <code><a href="https://rdrr.io/pkg/multiscales/man/recast.html" class="external-link">recast()</a></code> generic dispatches on the scale
 object, so one verb chains time and space when the sibling package
 geoscales is loaded:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">x</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/recast.html">recast</a></span><span class="op">(</span><span class="va">cal_hourly</span>, <span class="va">cal_monthly</span>, year <span class="op">=</span> <span class="fl">2021</span>, rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/recast.html">recast</a></span><span class="op">(</span><span class="va">gs</span>, to <span class="op">=</span> <span class="st">"r32o11"</span>, rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span>     <span class="co"># a geoscales Geoscale</span></span></code></pre></div>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/multiscales/man/recast.html" class="external-link">recast</a></span><span class="op">(</span><span class="va">cal_hourly</span>, <span class="va">cal_monthly</span>, year <span class="op">=</span> <span class="fl">2021</span>, rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/multiscales/man/recast.html" class="external-link">recast</a></span><span class="op">(</span><span class="va">gs</span>, to <span class="op">=</span> <span class="st">"r32o11"</span>, rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span>     <span class="co"># a geoscales Geoscale</span></span></code></pre></div>
 <p>Same contract on both sides: explicit rules (never a silent
 fallback), identifier columns preserved, backends welcome.</p>
 </div>

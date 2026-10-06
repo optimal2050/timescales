@@ -15,8 +15,27 @@ as_timeframe(x, timeframe, format = c("numeric", "token"), ...)
 # S3 method for class 'Date'
 as_timeframe(x, timeframe, format = c("numeric", "token"), ...)
 
+# S3 method for class 'numeric'
+as_timeframe(
+  x,
+  timeframe,
+  format = c("numeric", "token"),
+  calendar = NULL,
+  ...
+)
+
 # Default S3 method
 as_timeframe(x, timeframe, format = c("numeric", "token"), ...)
+
+# S3 method for class 'character'
+as_timeframe(
+  x,
+  timeframe,
+  format = c("numeric", "token"),
+  calendar = NULL,
+  year = NULL,
+  ...
+)
 ```
 
 ## Arguments
@@ -39,7 +58,25 @@ as_timeframe(x, timeframe, format = c("numeric", "token"), ...)
 
   Currently `week_start` is forwarded to
   [`lubridate::wday()`](https://lubridate.tidyverse.org/reference/day.html)
-  for `WDAY` and `MWEEK`.
+  for `WDAY` and `MWEEK`. Token vocabularies such as `wd7` are ISO
+  (Monday first), so pair them with `week_start = 1`; the default is
+  lubridate's (Sunday first) and differs from those vocabularies by one.
+
+- calendar:
+
+  A
+  [`Calendar`](https://optimal2050.github.io/timescales/r/reference/Calendar.md),
+  or the name of one (`"d365_h24"`). Required for character input: the
+  timeframe is read from the calendar rather than parsed out of the
+  label. For numeric input it is optional, and selects the calendar's
+  own label vocabulary over the canonical one.
+
+- year:
+
+  The year the timeslices fall in. Needed only when `timeframe` is
+  weekday-derived (`WDAY`, `MWEEK`, `DAYTYPE`, `WHOUR`); `MONTH`,
+  `YDAY`, `QUARTER`, `SEASON`, `WEEK` and `MDAY` are the same in every
+  year.
 
 ## Value
 

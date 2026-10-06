@@ -284,8 +284,7 @@ dataset is never pulled into memory for the calendar arithmetic.
 
 ## Across dimensions
 
-The bare
-[`recast()`](https://optimal2050.github.io/timescales/r/reference/recast.md)
+The bare [`recast()`](https://rdrr.io/pkg/multiscales/man/recast.html)
 generic dispatches on the scale object, so one verb chains time and
 space when the sibling package geoscales is loaded:
 

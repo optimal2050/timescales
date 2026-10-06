@@ -48,107 +48,24 @@ only), `share_range`, `weight_range`, `year_start`,
 
 ``` r
 summary(calendar("m12_h24"))
-#> $name
-#> [1] "m12_h24"
-#> 
-#> $desc
-#> [1] ""
-#> 
-#> $timeframes
-#> MONTH  HOUR 
-#>    12    24 
-#> 
-#> $n_timeslices
-#> [1] 288
-#> 
-#> $year_fraction
-#> [1] 1
-#> 
-#> $coverage
-#>  share weight 
-#>      1      1 
-#> 
-#> $sampled
-#> [1] FALSE
-#> 
-#> $parent_name
-#> NULL
-#> 
-#> $coverage_class
-#> [1] "complete"
-#> 
-#> $regularity
-#> [1] "regular"
-#> 
-#> $share_range
-#> [1] 0.003196347 0.003538813
-#> 
-#> $weight_range
-#> [1] 28 31
-#> 
-#> $year_start
-#> $year_start$month
-#> [1] 1
-#> 
-#> $year_start$day
-#> [1] 1
-#> 
-#> 
-#> $utc_offset_minutes
-#> [1] 0
-#> 
-#> attr(,"class")
-#> [1] "summary_Calendar"
+#> <summary of Calendar 'm12_h24' >
+#>   timeframes:     MONTH (12) / HOUR (24)
+#>   timeslices:     288
+#>   year_fraction:  1
+#>   catalog:        complete, regular
+#>   share range:    0.003196 .. 0.003539
+#>   weight range:   28 .. 31
+#>   year_start:     month=1, day=1
+#>   utc offset:     0 min
 summary(filter_calendar(calendar("s4_h24"), "SEASON", "WIN"))
-#> $name
-#> [1] "s4_h24[SEASON:WIN]"
-#> 
-#> $desc
-#> [1] ""
-#> 
-#> $timeframes
-#> SEASON   HOUR 
-#>      1     24 
-#> 
-#> $n_timeslices
-#> [1] 24
-#> 
-#> $year_fraction
-#> [1] 0.2465753
-#> 
-#> $coverage
-#>     share    weight 
-#> 0.2465753 0.2465753 
-#> 
-#> $sampled
-#> [1] TRUE
-#> 
-#> $parent_name
-#> [1] "s4_h24"
-#> 
-#> $coverage_class
-#> [1] "representative"
-#> 
-#> $regularity
-#> [1] "regular"
-#> 
-#> $share_range
-#> [1] 0.01027397 0.01027397
-#> 
-#> $weight_range
-#> [1] 90 90
-#> 
-#> $year_start
-#> $year_start$month
-#> [1] 1
-#> 
-#> $year_start$day
-#> [1] 1
-#> 
-#> 
-#> $utc_offset_minutes
-#> [1] 0
-#> 
-#> attr(,"class")
-#> [1] "summary_Calendar"
+#> <summary of Calendar 's4_h24[SEASON:WIN]' >
+#>   timeframes:     SEASON (1) / HOUR (24)
+#>   timeslices:     24
+#>   year_fraction:  0.246575
+#>   SAMPLED:        share 24.7%, weight 24.7% of 's4_h24'
+#>   catalog:        representative, regular
+#>   share range:    0.01027 .. 0.01027
+#>   weight range:   90 .. 90
+#>   year_start:     month=1, day=1
+#>   utc offset:     0 min
 ```

@@ -2,6 +2,129 @@
 
 ## timescales 0.5.0.9000
 
+### The shared core
+
+- The [`recast()`](https://rdrr.io/pkg/multiscales/man/recast.html)
+  generic is now owned by `multiscales`, the dimension-agnostic core,
+  and re-exported here.
+  [`timescales::recast`](https://rdrr.io/pkg/multiscales/man/recast.html)
+  resolves exactly as before and dispatches on `Calendar` exactly as
+  before – the object behind the name is simply shared with `geoscales`
+  rather than owned by this package. Nothing changes for callers.
+- [`calendar_ancestry()`](https://optimal2050.github.io/timescales/r/reference/calendar_ancestry.md),
+  [`calendar_share()`](https://optimal2050.github.io/timescales/r/reference/calendar_share.md),
+  [`calendar_coverage()`](https://optimal2050.github.io/timescales/r/reference/calendar_coverage.md)
+  and the navigation verbs
+  ([`calendar_children()`](https://optimal2050.github.io/timescales/r/reference/calendar_navigate.md),
+  [`calendar_parents()`](https://optimal2050.github.io/timescales/r/reference/calendar_navigate.md),
+  [`calendar_descendants()`](https://optimal2050.github.io/timescales/r/reference/calendar_navigate.md),
+  [`calendar_ancestors()`](https://optimal2050.github.io/timescales/r/reference/calendar_navigate.md))
+  now compute through `multiscales`. Their output is unchanged.
+- Rules registered with
+  [`register_calendar_rule()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_rule.md)
+  are kept in the `multiscales` registry under the scope `"calendar"`,
+  so
+  [`multiscales::recast_scale()`](https://rdrr.io/pkg/multiscales/man/recast_scale.html)
+  on a Calendar finds them too. A rule registered there without a scope
+  now also applies to calendars.
+- [`recast_calendar()`](https://optimal2050.github.io/timescales/r/reference/recast_calendar.md)
+  aggregates through
+  [`multiscales::recast_crosswalk()`](https://rdrr.io/pkg/multiscales/man/recast_crosswalk.html).
+  Results are unchanged. Panel data no longer builds an in-memory grid
+  of every identifier combination times the crosswalk before joining.
+- [`expand_calendar()`](https://optimal2050.github.io/timescales/r/reference/expand_calendar.md)
+  and
+  [`datetime_to_timeslice()`](https://optimal2050.github.io/timescales/r/reference/datetime_to_timeslice.md)
+  label a sampled calendar correctly when it carries no recorded tokens
+  (one rebuilt from a leaftable, as energyRt’s sampled calendars are).
+  Before, every grid point came back `NA`: day numbers were measured
+  against the sampled days rather than the whole year.
+- [`calendar_family()`](https://optimal2050.github.io/timescales/r/reference/calendar_family.md)
+  returns an empty table, not a 1 x 1 logical matrix, when
+  `parent=`/`child=` select no timeframe pair.
+- `multiscales` is added to `Imports`. It brings no new external
+  dependency: its own imports (`dplyr`, `rlang`, `S7`, `stats`, `utils`)
+  were already ours.
+
+### Timeslice conversions
+
+- [`tsl2hour()`](https://optimal2050.github.io/timescales/r/reference/timeslice_conversions.md),
+  [`tsl2yday()`](https://optimal2050.github.io/timescales/r/reference/timeslice_conversions.md),
+  [`tsl2month()`](https://optimal2050.github.io/timescales/r/reference/timeslice_conversions.md),
+  [`hour2HOUR()`](https://optimal2050.github.io/timescales/r/reference/timeslice_conversions.md),
+  [`yday2YDAY()`](https://optimal2050.github.io/timescales/r/reference/timeslice_conversions.md),
+  [`tsl2dtm()`](https://optimal2050.github.io/timescales/r/reference/timeslice_datetime.md)
+  and
+  [`dtm2tsl()`](https://optimal2050.github.io/timescales/r/reference/timeslice_datetime.md)
+  read a timeframe off a timeslice, and convert between timeslices and
+  datetimes. They move here from energyRt, where they parsed the label
+  text with regular expressions.
+- Each takes the calendar the timeslices belong to – as an object or by
+  name, `tsl2hour(tsl, "d365_h24")`. The calendar is what replaces the
+  guessing: the answer is a join against
+  [`calendar_leaftable()`](https://optimal2050.github.io/timescales/r/reference/calendar_leaftable.md)
+  when the calendar holds the timeframe,
+  [`calendar_map()`](https://optimal2050.github.io/timescales/r/reference/calendar_map.md)
+  when it does not, and the timeslice’s instant when no token claims it.
+- A timeframe is available when it is a function of the calendar’s
+  timeslices. `tsl2hour(tsl, "m12")` is an error naming the reason – a
+  month spans 24 hours, so there is no single one to return – rather
+  than a `NULL`.
+- This reads vocabularies the regular expressions could not: `m12a`
+  (`"JAN"`..`"DEC"`), `wd7` (`"MON"`..`"SUN"`), `q4`, `s4`, `hp3`, and
+  any token added with
+  [`register_calendar_token()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_token.md).
+  It also fixes a wrong answer: `h168` labels hours of the *week* as
+  `"h000"`..`"h167"`, which a pattern for `h` plus digits read as hours
+  of the day.
+- [`as_timeframe()`](https://optimal2050.github.io/timescales/r/reference/as_timeframe.md)
+  is the verb underneath, and now accepts timeslice labels and integers
+  as well as datetimes – so
+  `as_timeframe(0:23, "HOUR", format = "token")` gives `"h00"`..`"h23"`,
+  and a `calendar` argument selects that calendar’s own spelling over
+  the canonical one.
+- `year` is required for the weekday-derived timeframes (`WDAY`,
+  `MWEEK`, `DAYTYPE`, `WHOUR`, and `YEAR`), whose value depends on which
+  year the timeslices fall in. `MONTH`, `YDAY`, `QUARTER`, `SEASON`,
+  `WEEK` and `MDAY` are the same in every year and need no year.
+- Sampled calendars are handled throughout. A calendar filtered to a few
+  representative days holds a SUBSET of its parent’s timeslices, and its
+  labels keep the meaning they had in the parent: `tsl2yday("d015_h00")`
+  is day 15, not the first day the calendar happens to hold. The number
+  is read from the timeframe’s full vocabulary (`meta$tokens`, or
+  inferred from the labels for a hand-built calendar) rather than from
+  the calendar’s own member list.
+- [`tsl2dtm()`](https://optimal2050.github.io/timescales/r/reference/timeslice_datetime.md)
+  dates a sampled calendar’s timeslices against its parent, because
+  [`expand_calendar()`](https://optimal2050.github.io/timescales/r/reference/expand_calendar.md)
+  leaves a filtered calendar’s grid unlabelled. A timeframe that no
+  crosswalk can reach falls back to the timeslice’s instant, so a
+  sampled calendar still resolves `MONTH`.
+
+### Calendars and rules
+
+- New rule `"share"`: share within parent. Each source timeslice’s value
+  over its parent-timeslice total, keyed by the *source* calendar –
+  `recast_calendar(x, cal, to = "YDAY", rule = "share")` gives each
+  hour’s share within its day, summing to 1 per parent. The parent is
+  `to` (a calendar or timeframe name, `"ANNUAL"` included), or the new
+  `parent=` argument (default: `from` pruned to its second-finest
+  timeframe); the source timeslices must nest within it. `"logshare"` is
+  the same computation with a log-scale display intent. Mirrored in
+  geoscales.
+
+- The calendar figures’ data fills accept both share rules: every row is
+  coloured by each timeslice’s share within the row above it (ANNUAL by
+  its share of the year), legend “Share” – `"share"` on a fixed linear
+  0..1 scale, `"logshare"` on a fixed log10 percent scale.
+
+- [`summary()`](https://rdrr.io/r/base/summary.html) output now prints
+  with its formatted view from user code: the local `print` binding S7
+  leaves in the namespace had captured the `S3method()` registration of
+  `print.summary_Calendar`, so the method was invisible outside the
+  package. Registered against base’s `print` in `.onLoad` (same fix in
+  geoscales).
+
 - `Remotes:` added to DESCRIPTION so CI and `pak` users can resolve the
   GitHub-only energypal Suggests from GitHub (the packages are not on
   CRAN/r-universe yet). Drop the field at CRAN submission time.
@@ -133,10 +256,9 @@ sharing one naming convention with the sibling package geoscales.
   two calendars via the base datetime grid; identifier (panel) columns
   are preserved as groups, and `to =` accepts a timeframe name
   (`"ANNUAL"` = the root) for within-calendar aggregation.
-- [`recast()`](https://optimal2050.github.io/timescales/r/reference/recast.md)
-  is an S7 generic dispatching on the scale object, so pipelines chain
-  across packages:
-  `x |> recast(cal_a, cal_b) |> recast(gs, to = "country")`.
+- [`recast()`](https://rdrr.io/pkg/multiscales/man/recast.html) is an S7
+  generic dispatching on the scale object, so pipelines chain across
+  packages: `x |> recast(cal_a, cal_b) |> recast(gs, to = "country")`.
 - [`recast_to_timebase()`](https://optimal2050.github.io/timescales/r/reference/recast_to_timebase.md)
   /
   [`recast_from_timebase()`](https://optimal2050.github.io/timescales/r/reference/recast_to_timebase.md)
@@ -326,9 +448,8 @@ Old names warn and forward; removal before 1.0: `calendar_recast()` -\>
   [`as_timeframe()`](https://optimal2050.github.io/timescales/r/reference/as_timeframe.md),
   first-generation `instant_to_timeslice()` /
   [`expand_calendar()`](https://optimal2050.github.io/timescales/r/reference/expand_calendar.md)
-  /
-  [`recast()`](https://optimal2050.github.io/timescales/r/reference/recast.md),
-  three vignettes, pkgdown site, CI.
+  / [`recast()`](https://rdrr.io/pkg/multiscales/man/recast.html), three
+  vignettes, pkgdown site, CI.
 
 ## timescales 0.0.0.9000
 

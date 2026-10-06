@@ -11,7 +11,7 @@ string."><meta property="og:image" content="https://optimal2050.github.io/timesc
 
     <a class="navbar-brand me-2" href="../index.html">timescales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.5.3</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.5.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -47,7 +47,7 @@ string."><meta property="og:image" content="https://optimal2050.github.io/timesc
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.png" class="logo" alt=""><h1>Extract timeframe values from datetime vectors</h1>
-      <small class="dont-index">Source: <a href="https://github.com/optimal2050/timescales/blob/HEAD/R/timeframes.R" class="external-link"><code>R/timeframes.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/optimal2050/timescales/blob/HEAD/R/timeframes.R" class="external-link"><code>R/timeframes.R</code></a>, <a href="https://github.com/optimal2050/timescales/blob/HEAD/R/timeslices.R" class="external-link"><code>R/timeslices.R</code></a></small>
       <div class="d-none name"><code>as_timeframe.Rd</code></div>
     </div>
 
@@ -67,8 +67,27 @@ string.</p>
 <span><span class="co"># S3 method for class 'Date'</span></span>
 <span><span class="fu">as_timeframe</span><span class="op">(</span><span class="va">x</span>, <span class="va">timeframe</span>, format <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"numeric"</span>, <span class="st">"token"</span><span class="op">)</span>, <span class="va">...</span><span class="op">)</span></span>
 <span></span>
+<span><span class="co"># S3 method for class 'numeric'</span></span>
+<span><span class="fu">as_timeframe</span><span class="op">(</span></span>
+<span>  <span class="va">x</span>,</span>
+<span>  <span class="va">timeframe</span>,</span>
+<span>  format <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"numeric"</span>, <span class="st">"token"</span><span class="op">)</span>,</span>
+<span>  calendar <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span>
+<span></span>
 <span><span class="co"># Default S3 method</span></span>
-<span><span class="fu">as_timeframe</span><span class="op">(</span><span class="va">x</span>, <span class="va">timeframe</span>, format <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"numeric"</span>, <span class="st">"token"</span><span class="op">)</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu">as_timeframe</span><span class="op">(</span><span class="va">x</span>, <span class="va">timeframe</span>, format <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"numeric"</span>, <span class="st">"token"</span><span class="op">)</span>, <span class="va">...</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># S3 method for class 'character'</span></span>
+<span><span class="fu">as_timeframe</span><span class="op">(</span></span>
+<span>  <span class="va">x</span>,</span>
+<span>  <span class="va">timeframe</span>,</span>
+<span>  format <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"numeric"</span>, <span class="st">"token"</span><span class="op">)</span>,</span>
+<span>  calendar <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  year <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  <span class="va">...</span></span>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -91,7 +110,22 @@ for formatted strings (<code>"m01"</code>, <code>"h00"</code>, <code>"d365"</cod
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
 <dd><p>Currently <code>week_start</code> is forwarded to <code><a href="https://lubridate.tidyverse.org/reference/day.html" class="external-link">lubridate::wday()</a></code> for
-<code>WDAY</code> and <code>MWEEK</code>.</p></dd>
+<code>WDAY</code> and <code>MWEEK</code>. Token vocabularies such as <code>wd7</code> are ISO (Monday
+first), so pair them with <code>week_start = 1</code>; the default is lubridate's
+(Sunday first) and differs from those vocabularies by one.</p></dd>
+
+
+<dt id="arg-calendar">calendar<a class="anchor" aria-label="anchor" href="#arg-calendar"></a></dt>
+<dd><p>A <code><a href="Calendar.html">Calendar</a></code>, or the name of one (<code>"d365_h24"</code>). Required
+for character input: the timeframe is read from the calendar rather than
+parsed out of the label. For numeric input it is optional, and selects the
+calendar's own label vocabulary over the canonical one.</p></dd>
+
+
+<dt id="arg-year">year<a class="anchor" aria-label="anchor" href="#arg-year"></a></dt>
+<dd><p>The year the timeslices fall in. Needed only when <code>timeframe</code>
+is weekday-derived (<code>WDAY</code>, <code>MWEEK</code>, <code>DAYTYPE</code>, <code>WHOUR</code>); <code>MONTH</code>, <code>YDAY</code>,
+<code>QUARTER</code>, <code>SEASON</code>, <code>WEEK</code> and <code>MDAY</code> are the same in every year.</p></dd>
 
 </dl></div>
     <div class="section level2">

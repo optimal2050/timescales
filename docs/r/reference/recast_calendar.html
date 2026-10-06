@@ -27,7 +27,7 @@ the grid route."><meta property="og:image" content="https://optimal2050.github.i
 
     <a class="navbar-brand me-2" href="../index.html">timescales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.5.3</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.5.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -94,6 +94,7 @@ the grid route.</p>
 <span>  by <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  tz <span class="op">=</span> <span class="st">"UTC"</span>,</span>
 <span>  na_action <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"drop"</span>, <span class="st">"error"</span>, <span class="st">"keep"</span><span class="op">)</span>,</span>
+<span>  parent <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  collect <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -159,6 +160,13 @@ timeslice row so totals conserve). Grid points not covered by <code>from</code>
 carry no data and are always dropped.</p></dd>
 
 
+<dt id="arg-parent">parent<a class="anchor" aria-label="anchor" href="#arg-parent"></a></dt>
+<dd><p><code>rule = "share"</code> only: the <code><a href="Calendar.html">Calendar</a></code> (or timeframe name
+of <code>from</code>) defining the groups the shares are taken within. <code>NULL</code>
+(default) uses <code>to</code> when it differs from <code>from</code>, else <code>from</code> pruned
+to its second-finest timeframe.</p></dd>
+
+
 <dt id="arg-collect">collect<a class="anchor" aria-label="anchor" href="#arg-collect"></a></dt>
 <dd><p>For lazy inputs (arrow, dtplyr): materialise the result
 (<code>TRUE</code>) or return the uncollected query (default).</p></dd>
@@ -192,6 +200,15 @@ grid points – the two differ exactly when declared shares differ from
 real-time coverage. <code>"copy"</code> requires a constant value per target
 timeslice; <code>"sd"</code> is aggregation-only. There is no <code>weight=</code> argument: a
 calendar has exactly one weighting, its <code>leaves$share</code>.</p>
+<p><code>"share"</code> inverts the output contract: the result stays keyed by
+<code>from</code>'s timeslices, and each value becomes that timeslice's share of
+the total over its parent timeslice (so shares sum to 1 per parent, per
+identifier combination). The parent is <code>parent=</code>, defaulting to <code>to</code> –
+<code>recast_calendar(x, cal_h, to = "YDAY", rule = "share")</code> reads: each
+hour's share within its day. The source timeslices must nest within the
+parent's (a week-vs-month pair errors). A parent whose total is zero
+yields <code>NA</code> shares. <code>"share"</code> cannot be combined with other rules in
+one call.</p>
     </div>
     <div class="section level2">
     <h2 id="backends">Backends<a class="anchor" aria-label="anchor" href="#backends"></a></h2>
