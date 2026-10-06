@@ -1,12 +1,11 @@
 # =============================================================================
 # Recast rule + pairwise conversion registries
 # =============================================================================
-# Mirrors `geoscales/R/rules.R` (which itself mirrors the token registry in
-# `R/tokens.R`): package-level environments consulted by `recast_calendar()` when the
-# caller does not pass `rule=`. An explicit argument always wins.
+# Registries consulted by `recast_calendar()` when the caller does not pass
+# `rule=`. An explicit argument always wins.
 #
-# Two registries live here:
-#   * .RULE_REGISTRY       — value-column name -> aggregation rule
+#   * aggregation rules    — value-column name -> rule, kept in multiscales'
+#                            registry under the scope "calendar"
 #   * .CONVERSION_REGISTRY — "fromName->toName" -> custom conversion function,
 #                            the pairwise override for the A -> base -> B route
 # =============================================================================
@@ -31,8 +30,6 @@
 #'   \item{`sd`}{Up: standard deviation over instants — the spread of the
 #'     fine signal within each target timeslice. Aggregation-only; going finer it
 #'     degenerates to 0/NA.}
-#' }
-#'
 #'   \item{`share`}{Share within parent: each source timeslice's value
 #'     divided by the total over its parent timeslice. Unlike every other
 #'     rule the result stays keyed by the **source** calendar's timeslices
@@ -46,6 +43,7 @@
 #'     (0.01%..100%), where `share` gets a fixed linear 0..1 scale. Use
 #'     it when sibling counts differ by orders of magnitude and the
 #'     linear scale flattens the crowded groups.}
+#' }
 #'
 #' @format A character vector of length 7.
 #' @examples
@@ -83,8 +81,6 @@ CALENDAR_RULES <- c("weighted_mean", "sum", "mean", "copy", "sd", "share",
 ALIGNMENT_RULES <- c("exact", "drop_last", "drop_feb29", "repeat_last")
 
 #' @noRd
-.RULE_REGISTRY <- new.env(parent = emptyenv())
-
 #' @noRd
 .CONVERSION_REGISTRY <- new.env(parent = emptyenv())
 
@@ -114,9 +110,10 @@ register_calendar_rule <- function(param, rule) {
     stop("`param` must be a single non-empty string", call. = FALSE)
   }
   rule <- match.arg(rule, CALENDAR_RULES)
-  entry <- list(rule = rule)
-  assign(param, entry, envir = .RULE_REGISTRY)
-  invisible(entry)
+  # Stored in multiscales' registry under this dimension's scope, which is
+  # where recast_scale() looks for a Calendar's rules.
+  multiscales::register_scale_rule(param, rule, scope = "calendar")
+  invisible(list(rule = rule))
 }
 
 #' Look up a registered rule
@@ -132,9 +129,8 @@ register_calendar_rule <- function(param, rule) {
 #' get_calendar_rule("not_registered")
 #' @export
 get_calendar_rule <- function(param) {
-  if (!is.character(param) || length(param) != 1L) return(NULL)
-  if (!exists(param, envir = .RULE_REGISTRY, inherits = FALSE)) return(NULL)
-  get(param, envir = .RULE_REGISTRY, inherits = FALSE)
+  e <- multiscales::get_scale_rule(param, scope = "calendar")
+  if (is.null(e)) NULL else list(rule = e$rule)
 }
 
 #' List registered rules
@@ -146,13 +142,8 @@ get_calendar_rule <- function(param) {
 #' list_calendar_rules()
 #' @export
 list_calendar_rules <- function() {
-  nms <- sort(ls(envir = .RULE_REGISTRY, all.names = FALSE))
-  data.frame(
-    param = nms,
-    rule  = vapply(nms, function(p) get_calendar_rule(p)$rule, character(1),
-                   USE.NAMES = FALSE),
-    stringsAsFactors = FALSE
-  )
+  d <- multiscales::list_scale_rules(scope = "calendar")
+  data.frame(param = d$param, rule = d$rule, stringsAsFactors = FALSE)
 }
 
 #' Clear the rule registry
@@ -169,14 +160,7 @@ list_calendar_rules <- function() {
 #' clear_calendar_rules("tmp_param")
 #' @export
 clear_calendar_rules <- function(param = NULL) {
-  if (is.null(param)) {
-    rm(list = ls(envir = .RULE_REGISTRY, all.names = TRUE),
-       envir = .RULE_REGISTRY)
-  } else {
-    present <- intersect(param, ls(envir = .RULE_REGISTRY, all.names = TRUE))
-    if (length(present) > 0L) rm(list = present, envir = .RULE_REGISTRY)
-  }
-  invisible(NULL)
+  multiscales::clear_scale_rules(param, scope = "calendar")
 }
 
 # Pairwise conversion overrides ------------------------------------------------

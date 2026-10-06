@@ -89,10 +89,14 @@ datetime_to_timeslice <- function(dtm, calendar, alignment = NULL) {
   offset <- meta$utc_offset_minutes %||% 0L
   local  <- if (offset != 0) dtm + as.numeric(offset) * 60 else dtm
 
-  # One label vector per timeframe
+  # One label vector per timeframe. Labels are computed against the
+  # timeframe's FULL vocabulary: a sampled calendar's members are a subset
+  # (d015 d105 ...), and ordinals measured against the subset would push most
+  # days "beyond the vocabulary". The match against the leaftable below keeps
+  # only the timeslices the calendar actually has.
   labs <- lapply(tfs, function(tf) {
     .tf_labels(local, tf,
-               vocab = levels[[tf]],
+               vocab = .valuation_vocab(calendar, tf, levels[[tf]]),
                align = .resolve_alignment(alignment, meta$alignment, tf),
                ys    = meta$year_start)
   })
@@ -379,62 +383,6 @@ expand_calendar <- function(x, year, by = NULL, tz = "UTC",
   }
 }
 
-#' Build the per-value-column summarise expressions for one rule set.
-#' Bare symbols (never `.data[[...]]`) so the expressions translate on
-#' every backend -- dtplyr and arrow both mistranslate pronoun subsetting
-#' in places where plain symbols work.
-#' @noRd
-.rule_exprs <- function(values, rules) {
-  out <- list()
-  f  <- rlang::sym(".ts_f")
-  nn <- rlang::sym(".ts_n_overlap")
-  ww <- rlang::sym(".ts_w")
-  for (v in values) {
-    sym <- rlang::sym(v)
-    out[[v]] <- switch(
-      rules[[v]],
-      sum = rlang::expr(sum(!!sym * !!f)),
-      mean = rlang::expr(sum(!!sym * !!nn) / sum(!!nn)),
-      weighted_mean = rlang::expr(
-        dplyr::if_else(sum(!!ww) > 0,
-                       sum(!!sym * !!ww) / sum(!!ww),
-                       sum(!!sym * !!nn) / sum(!!nn))),
-      copy = rlang::expr(mean(!!sym)),   # constancy pre-checked eagerly
-      sd = rlang::expr(
-        dplyr::if_else(
-          sum(!!nn) > 1,
-          sqrt((sum(!!nn * (!!sym)^2) -
-                  (sum(!!nn * (!!sym)))^2 / sum(!!nn)) /
-                 (sum(!!nn) - 1)),
-          NA_real_)),
-      .stop("Unknown rule: %s", rules[[v]])
-    )
-  }
-  out
-}
-
-#' Eager constancy guard for `copy`-rule columns
-#' @noRd
-.check_copy_rule <- function(joined, grp_cols, copy_cols) {
-  if (length(copy_cols) == 0L) return(invisible(NULL))
-  chk <- joined |>
-    dplyr::group_by(dplyr::across(dplyr::all_of(grp_cols))) |>
-    dplyr::summarise(
-      dplyr::across(dplyr::all_of(copy_cols),
-                    list(mx = ~ max(.x), mn = ~ min(.x))),
-      .groups = "drop")
-  chk <- .ts_pull(chk)
-  for (v in copy_cols) {
-    rng <- chk[[paste0(v, "_mx")]] - chk[[paste0(v, "_mn")]]
-    if (any(!is.na(rng) & rng > 1e-9)) {
-      stop(sprintf(
-        paste0("rule \"copy\" for `%s`: values are not constant within ",
-               "a target timeslice"), v), call. = FALSE)
-    }
-  }
-  invisible(NULL)
-}
-
 #' Complete a materialised result to the full target vocabulary, in the
 #' contract order: identifier groups in first-appearance order, target
 #' keys in vocabulary order, the NA row (if any) last.
@@ -700,11 +648,6 @@ recast_calendar <- function(x, from, to, year,
   }
 
   # Missing-source warning: grid timeslices absent from an identifier group
-  idc <- if (length(id_cols) > 0L) {
-    .ts_pull(dplyr::distinct(dplyr::select(x, dplyr::all_of(id_cols))))
-  } else {
-    data.frame()
-  }
   grid_from <- unique(map[[from_nm]])
   if (length(id_cols) > 0L) {
     keysets <- .ts_pull(dplyr::distinct(
@@ -721,48 +664,19 @@ recast_calendar <- function(x, from, to, year,
           length(all_missing), .preview(all_missing))
   }
 
-  # One pipeline: cross the crosswalk into each identifier group, attach the
-  # data, aggregate per rule
-  jmap <- map
-  names(jmap)[names(jmap) == from_nm] <- key
-  names(jmap)[names(jmap) == to_nm]   <- ".ts_to"
-  names(jmap)[names(jmap) == "n_from"]    <- ".ts_n_from"
-  names(jmap)[names(jmap) == "n_overlap"] <- ".ts_n_overlap"
-  names(jmap)[names(jmap) == "w"]         <- ".ts_w"
-  jmap$year <- NULL
-  jmap$.ts_f <- jmap$.ts_n_overlap / jmap$.ts_n_from
-
-  base_grid <- if (length(id_cols) > 0L && nrow(idc) > 0L) {
-    dplyr::cross_join(idc, jmap)
-  } else {
-    jmap
-  }
-
-  xq <- .ts_lazy(x, backend)
-  joined <- dplyr::right_join(xq, base_grid,
-                              by = c(id_cols, key), na_matches = "na")
-
-  grp_cols <- c(id_cols, ".ts_to")
-  .check_copy_rule(joined, grp_cols, values[rules == "copy"])
-
-  res <- joined |>
-    dplyr::group_by(dplyr::across(dplyr::all_of(grp_cols))) |>
-    dplyr::summarise(!!!.rule_exprs(values, rules), .groups = "drop") |>
-    dplyr::rename(!!rlang::sym(key) := !!rlang::sym(".ts_to"))
-
-  # Lazy return: observed groups, uncollected
-  if (.ts_is_lazy(backend) && !isTRUE(collect)) {
-    return(dplyr::select(res, dplyr::all_of(c(key, id_cols, values))))
-  }
-
-  # Materialised return: complete to the full target vocabulary, in the
-  # contract order
-  res <- as.data.frame(dplyr::collect(res))
-  target_keys <- S7::prop(to, "leaftable")$timeslice
+  # The shared engine aggregates through the crosswalk. The map carries no
+  # `w_from`, so `sum` splits each source equally over its grid points.
+  # Lazy results hold the observed groups only; materialised ones are
+  # completed to the full target vocabulary, the NA row last.
+  map$year <- NULL
   keep_na_row <- na_action == "keep" && any(uncovered)
-  out_keys <- c(target_keys, if (keep_na_row) NA_character_)
-  out <- .recast_complete(res, idc, out_keys, key, id_cols, values)
-  .ts_restore(out, backend, collect = collect)
+  res <- multiscales::recast_crosswalk(
+    x, map, from = from_nm, to = to_nm, key = key, values = values,
+    rule = rules, ids = id_cols,
+    targets = c(S7::prop(to, "leaftable")$timeslice,
+                if (keep_na_row) NA_character_),
+    unit = "timeslice", collect = collect)
+  dplyr::rename(res, !!rlang::sym(key) := !!rlang::sym(to_nm))
 }
 
 #' Resolve the parent calendar for rule "share": explicit `parent=` wins
@@ -1181,33 +1095,15 @@ recast_from_timebase <- function(x, calendar, year = NULL,
 # recast() generic
 # -----------------------------------------------------------------------------
 
-#' Recast data between scales
-#'
-#' The pipeline verb of the *scales family: convert `x` between two
-#' resolutions of one dimension, dispatching on the scale object given
-#' as `from` -- a [Calendar] here; a `Geoscale` when the geoscales
-#' package is loaded (which registers its own method). This lets one
-#' verb chain across dimensions:
-#'
-#' ```r
-#' x |>
-#'   recast(cal_hourly, cal_monthly, year = 2021) |>
-#'   recast(gs, to = "country")
-#' ```
-#'
-#' The explicit per-package workers remain available:
-#' [`recast_calendar()`] and `geoscales::recast_geoscale()`.
-#'
-#' @param x The data to convert, in any supported backend.
-#' @param from The source scale object (here: the source [Calendar]).
-#' @param ... Passed to the dispatched worker; for the Calendar method
-#'   the arguments of [`recast_calendar()`] (`to`, `year`, `key`,
-#'   `values`, `rule`, `by`, `tz`, `na_action`, `collect`).
-#' @return The converted data (see the worker's documentation).
-#' @export
-recast <- S7::new_generic("recast", dispatch_args = c("x", "from"))
+# The generic is owned by `multiscales`, the dimension-agnostic core; this
+# package and `geoscales` both register methods on that one object, which is
+# what lets a single verb chain across dimensions. Registered against the
+# external generic (S7's cross-package mechanism; activated by
+# S7::methods_register() in .onLoad).
+.recast_generic <- S7::new_external_generic("multiscales", "recast",
+                                            c("x", "from"))
 
-S7::method(recast, list(S7::class_any, Calendar)) <-
+S7::method(.recast_generic, list(S7::class_any, Calendar)) <-
   function(x, from, to, year,
            key = NULL, values = NULL, rule = NULL, by = NULL,
            tz = "UTC", na_action = c("drop", "error", "keep"),
@@ -1216,3 +1112,9 @@ S7::method(recast, list(S7::class_any, Calendar)) <-
                     values = values, rule = rule, by = by, tz = tz,
                     na_action = na_action, collect = collect)
   }
+
+# Re-export the generic: `library(timescales)` alone provides the verb, and
+# `timescales::recast` keeps resolving for anything already built against it.
+#' @importFrom multiscales recast
+#' @export
+multiscales::recast

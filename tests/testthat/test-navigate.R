@@ -81,3 +81,12 @@ test_that("filter_calendar keeps raw shares and sets year_fraction", {
   expect_identical(S7::prop(win2, "leaftable"), lv)
   expect_error(filter_calendar(cal, "SEASON", "nope"), "unknown label")
 })
+
+test_that("calendar_family() returns an empty table when the filter leaves no pair", {
+  cal <- calendar("q4_h24")
+  # QUARTER is the coarsest timeframe, so nothing has it as a child
+  out <- calendar_family(cal, child = "QUARTER")
+  expect_s3_class(out, "data.frame")
+  expect_identical(nrow(out), 0L)
+  expect_named(out, c("parent_timeframe", "parent", "child_timeframe", "child"))
+})

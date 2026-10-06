@@ -29,8 +29,6 @@ constant. For timeslice-invariant scalars.}
 \item{\code{sd}}{Up: standard deviation over instants — the spread of the
 fine signal within each target timeslice. Aggregation-only; going finer it
 degenerates to 0/NA.}
-}
-
 \item{\code{share}}{Share within parent: each source timeslice's value
 divided by the total over its parent timeslice. Unlike every other
 rule the result stays keyed by the \strong{source} calendar's timeslices
@@ -44,6 +42,7 @@ shares -- but figures draw it on a fixed log10 percent scale
 (0.01\%..100\%), where \code{share} gets a fixed linear 0..1 scale. Use
 it when sibling counts differ by orders of magnitude and the
 linear scale flattens the crowded groups.}
+}
 }
 \examples{
 CALENDAR_RULES

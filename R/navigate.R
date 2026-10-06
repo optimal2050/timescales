@@ -48,15 +48,14 @@ NULL
 #' @export
 calendar_timeframes <- function(x, finest = FALSE) {
   .check_calendar(x)
-  tf <- S7::prop(x, "timeframes")
-  if (isTRUE(finest)) tf[length(tf)] else tf
+  multiscales::scale_frames(x, finest = finest)
 }
 
 #' @rdname calendar_queries
 #' @export
 calendar_rank <- function(x, timeframe) {
   .check_calendar(x)
-  match(timeframe, S7::prop(x, "timeframes"))
+  multiscales::scale_rank(x, timeframe)
 }
 
 #' @rdname calendar_queries
@@ -101,7 +100,7 @@ calendar_timeslices <- function(x, timeframe = NULL,
 #' @export
 calendar_leaftable <- function(x) {
   .check_calendar(x)
-  S7::prop(x, "leaftable")
+  multiscales::scale_leaftable(x)
 }
 
 #' @rdname calendar_leaftable
@@ -132,28 +131,18 @@ S7::method(as.data.frame, Calendar) <- as.data.frame.Calendar
 #' @export
 calendar_ancestry <- function(x) {
   .check_calendar(x)
-  tfs <- S7::prop(x, "timeframes")
-  if (length(tfs) < 2L) {
-    return(data.frame(parent_timeframe = character(), parent = character(),
-                      child_timeframe = character(), child = character(),
-                      stringsAsFactors = FALSE))
-  }
-  leaves <- S7::prop(x, "leaftable")
-  parts <- list()
-  for (i in seq_len(length(tfs) - 1L)) {
-    for (j in seq(i + 1L, length(tfs))) {
-      u <- unique(leaves[, c(tfs[i], tfs[j]), drop = FALSE])
-      parts[[length(parts) + 1L]] <- data.frame(
-        parent_timeframe = tfs[i], parent = as.character(u[[1]]),
-        child_timeframe = tfs[j], child = as.character(u[[2]]),
-        stringsAsFactors = FALSE)
-    }
-  }
-  out <- do.call(rbind, parts)
+  out <- .timeframe_cols(multiscales::scale_ancestry(x))
   out <- out[order(out$parent_timeframe, out$parent,
                    out$child_timeframe, out$child), , drop = FALSE]
   rownames(out) <- NULL
   out
+}
+
+# multiscales names the frame columns `parent_frame`/`child_frame`.
+#' @noRd
+.timeframe_cols <- function(d) {
+  names(d) <- sub("_frame$", "_timeframe", names(d))
+  d
 }
 
 #' Immediate parent-child pairs of a Calendar hierarchy
@@ -172,7 +161,6 @@ calendar_ancestry <- function(x) {
 calendar_family <- function(x, parent = NULL, child = NULL) {
   .check_calendar(x)
   tfs <- S7::prop(x, "timeframes")
-  leaves <- S7::prop(x, "leaftable")
   if (length(tfs) < 2L) {
     return(data.frame(parent_timeframe = character(), parent = character(),
                       child_timeframe = character(), child = character(),
@@ -187,19 +175,21 @@ calendar_family <- function(x, parent = NULL, child = NULL) {
     .check_leaf_timeframe(x, child, arg = "child")
     pairs <- Filter(function(p) p[2] == child, pairs)
   }
+  if (length(pairs) == 0L) {
+    return(data.frame(parent_timeframe = character(), parent = character(),
+                      child_timeframe = character(), child = character(),
+                      stringsAsFactors = FALSE))
+  }
+  # Kept local rather than delegated: pairs come out in leaftable order,
+  # which multiscales::scale_family() (sorted by code) does not reproduce.
+  leaves <- S7::prop(x, "leaftable")
   out <- lapply(pairs, function(p) {
     u <- unique(leaves[, p, drop = FALSE])
     data.frame(parent_timeframe = p[1], parent = as.character(u[[1]]),
                child_timeframe = p[2], child = as.character(u[[2]]),
                stringsAsFactors = FALSE)
   })
-  out <- do.call(rbind, c(out, list(make.row.names = FALSE)))
-  if (is.null(out)) {
-    out <- data.frame(parent_timeframe = character(), parent = character(),
-                      child_timeframe = character(), child = character(),
-                      stringsAsFactors = FALSE)
-  }
-  out
+  do.call(rbind, c(out, list(make.row.names = FALSE)))
 }
 
 # A timeframe that exists as a leaves column ("ANNUAL" passes
@@ -227,10 +217,9 @@ calendar_family <- function(x, parent = NULL, child = NULL) {
     .stop("unknown label(s) at timeframe '%s': %s", timeframe,
           .preview(unknown))
   }
-  leaves <- S7::prop(calendar, "leaftable")
-  hits <- unique(as.character(
-    leaves[[to]][leaves[[timeframe]] %in% label]))
-  hits[order(match(hits, levels[[to]]))]
+  # With an explicit `to`, scale_children() is the plain related-labels query
+  # and works in either direction.
+  multiscales::scale_children(calendar, timeframe, label, to = to)
 }
 
 #' Navigate a Calendar hierarchy
@@ -343,20 +332,8 @@ calendar_ancestors <- function(x, timeframe, label, to = NULL) {
 calendar_share <- function(x, timeframe, within = NULL) {
   .check_calendar(x)
   .check_leaf_timeframe(x, timeframe)
-  leaves <- S7::prop(x, "leaftable")
-  levels <- S7::prop(x, "members")
   if (is.null(within)) {
-    agg <- stats::aggregate(leaves$share,
-                            by = stats::setNames(
-                              list(as.character(leaves[[timeframe]])),
-                              timeframe),
-                            FUN = sum)
-    names(agg)[2L] <- "share"
-    agg$share <- agg$share / sum(agg$share)
-    agg <- agg[order(match(agg[[timeframe]], levels[[timeframe]])), ,
-               drop = FALSE]
-    rownames(agg) <- NULL
-    return(agg)
+    return(multiscales::scale_share(x, timeframe, weight = "share"))
   }
   .check_leaf_timeframe(x, within, arg = "within")
   tfs <- S7::prop(x, "timeframes")
@@ -364,21 +341,14 @@ calendar_share <- function(x, timeframe, within = NULL) {
     .stop("`within` ('%s') must be coarser than `timeframe` ('%s')",
           within, timeframe)
   }
-  agg <- stats::aggregate(
-    leaves$share,
-    by = stats::setNames(
-      list(as.character(leaves[[within]]),
-           as.character(leaves[[timeframe]])),
-      c(within, timeframe)),
-    FUN = sum)
-  names(agg)[3L] <- "share"
-  tot <- stats::ave(agg$share, agg[[within]], FUN = sum)
-  agg$share <- agg$share / tot
-  agg <- agg[order(match(agg[[within]], levels[[within]]),
-                   match(agg[[timeframe]], levels[[timeframe]])), ,
-             drop = FALSE]
-  rownames(agg) <- NULL
-  agg
+  out <- multiscales::scale_share(x, timeframe, weight = "share",
+                                  within = within)
+  levels <- S7::prop(x, "members")
+  out <- out[order(match(out[[within]], levels[[within]]),
+                   match(out[[timeframe]], levels[[timeframe]])),
+             c(within, timeframe, "share"), drop = FALSE]
+  rownames(out) <- NULL
+  out
 }
 
 #' Filter a Calendar to selected labels
@@ -494,15 +464,10 @@ filter_calendar <- function(x, timeframe, labels) {
 #' @export
 calendar_coverage <- function(x, weight = NULL) {
   .check_calendar(x)
-  wts <- c("share", "weight")
-  full <- stats::setNames(rep(1, length(wts)), wts)
-  cov <- S7::prop(x, "meta")[["coverage"]]   # exact: never coverage_class
-  if (!is.null(cov)) full[names(cov)] <- unname(cov)
-  if (is.null(weight)) return(full)
-  if (!weight %in% wts) {
+  if (!is.null(weight) && !weight %in% c("share", "weight")) {
     .stop("unknown weight `%s`; use \"share\" or \"weight\"", weight)
   }
-  unname(full[[weight]])
+  multiscales::scale_coverage(x, weight)
 }
 
 #' @rdname filter_calendar

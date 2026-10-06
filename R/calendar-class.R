@@ -42,19 +42,36 @@
 #' @export
 Calendar <- S7::new_class(
   "Calendar",
+  parent = multiscales::scale_class(),
   properties = list(
-    leaftable  = S7::new_property(S7::class_data.frame),
-    timeframes = S7::new_property(S7::class_character),
-    members    = S7::new_property(S7::class_list),
-    meta       = S7::new_property(S7::class_list, default = list())
+    # `timeframes` is this dimension's name for the inherited `frames`, so
+    # every existing `@timeframes` access keeps working. The alias setter
+    # no-ops on NULL: S7 writes each dynamic property once at construction.
+    timeframes = multiscales::scale_alias_property("frames")
   ),
   constructor = function(leaftable, timeframes, members, meta = list()) {
+    # `share` and `weight` are the calendar's weight columns. Declaring them
+    # is what lets the shared engine find them, with `share` the default.
+    # Only declare what is actually there and numeric: a leaftable with a
+    # TIMEFRAME called `weight` is rejected by this package's own validator,
+    # and declaring it would make the inherited one complain first about the
+    # wrong thing.
+    if (is.data.frame(leaftable)) {
+      have <- intersect(c("share", "weight"), names(leaftable))
+      have <- have[vapply(leaftable[have], is.numeric, logical(1))]
+      if (is.null(meta$weights) && length(have) > 0L) meta$weights <- have
+      if (is.null(meta$default_weight) && "share" %in% have) {
+        meta$default_weight <- "share"
+      }
+    }
     S7::new_object(
-      S7::S7_object(),
-      leaftable  = leaftable,
-      timeframes = timeframes,
-      members    = members,
-      meta       = meta
+      multiscales::scale_class()(
+        leaftable = leaftable,
+        frames    = timeframes,
+        members   = members,
+        key       = "timeslice",
+        meta      = meta
+      )
     )
   },
   validator = function(self) {
@@ -227,6 +244,18 @@ Calendar <- S7::new_class(
     if (length(errs) == 0L) NULL else errs
   }
 )
+
+# The words this dimension uses, interpolated into the shared engine's error
+# messages so a Calendar flowing through multiscales still says "timeframe"
+# and "timeslice" rather than "frame" and "unit". Registered against the
+# external generic (activated by S7::methods_register() in .onLoad).
+.scale_vocab_generic <- S7::new_external_generic("multiscales",
+                                                 "scale_vocab", "x")
+S7::method(.scale_vocab_generic, Calendar) <- function(x, ...) {
+  list(object = "Calendar", frame = "timeframe", frames = "timeframes",
+       unit = "timeslice", units = "timeslices", atoms = "timebase",
+       register_rule = "register_calendar_rule()")
+}
 
 # Format / print ---------------------------------------------------------------
 

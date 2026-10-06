@@ -1,5 +1,33 @@
 # timescales 0.5.0.9000
 
+## The shared core
+
+* The `recast()` generic is now owned by `multiscales`, the dimension-agnostic
+  core, and re-exported here. `timescales::recast` resolves exactly as before
+  and dispatches on `Calendar` exactly as before -- the object behind the name
+  is simply shared with `geoscales` rather than owned by this package. Nothing
+  changes for callers.
+* `calendar_ancestry()`, `calendar_share()`, `calendar_coverage()` and the
+  navigation verbs (`calendar_children()`, `calendar_parents()`,
+  `calendar_descendants()`, `calendar_ancestors()`) now compute through
+  `multiscales`. Their output is unchanged.
+* Rules registered with `register_calendar_rule()` are kept in the
+  `multiscales` registry under the scope `"calendar"`, so
+  `multiscales::recast_scale()` on a Calendar finds them too. A rule
+  registered there without a scope now also applies to calendars.
+* `recast_calendar()` aggregates through `multiscales::recast_crosswalk()`.
+  Results are unchanged. Panel data no longer builds an in-memory grid of
+  every identifier combination times the crosswalk before joining.
+* `expand_calendar()` and `datetime_to_timeslice()` label a sampled calendar
+  correctly when it carries no recorded tokens (one rebuilt from a leaftable,
+  as energyRt's sampled calendars are). Before, every grid point came back
+  `NA`: day numbers were measured against the sampled days rather than the
+  whole year.
+* `calendar_family()` returns an empty table, not a 1 x 1 logical matrix,
+  when `parent=`/`child=` select no timeframe pair.
+* `multiscales` is added to `Imports`. It brings no new external dependency:
+  its own imports (`dplyr`, `rlang`, `S7`, `stats`, `utils`) were already ours.
+
 ## Timeslice conversions
 
 * `tsl2hour()`, `tsl2yday()`, `tsl2month()`, `hour2HOUR()`, `yday2YDAY()`,

@@ -77,3 +77,21 @@ test_that("from_base na_action handles uncovered datetimes", {
   expect_equal(sum(res2$v, na.rm = TRUE), 365)
   expect_true(anyNA(res2$timeslice))
 })
+
+test_that("a sampled calendar without recorded tokens labels its grid", {
+  # Four sample days of d365_h24, rebuilt from the leaftable alone so no
+  # tokens are recorded -- the shape energyRt's sampled calendars arrive in.
+  days <- c("d015", "d105", "d196", "d288")
+  full <- calendar_leaftable(calendar("d365_h24"))
+  lf <- full[full$YDAY %in% days, , drop = FALSE]
+  cal <- calendar_from_leaftable(lf, timeframes = c("YDAY", "HOUR"),
+                                 year_fraction = sum(lf$share))
+  expect_null(S7::prop(cal, "meta")$tokens)
+  g <- expand_calendar(cal, 2021)
+  expect_identical(sum(!is.na(g$timeslice)), 96L)
+  expect_setequal(stats::na.omit(g$timeslice), lf$timeslice)
+  # 15 January 05:00 is day 15, hour 5
+  expect_identical(
+    datetime_to_timeslice(as.POSIXct("2021-01-15 05:00", tz = "UTC"), cal),
+    "d015_h05")
+})
