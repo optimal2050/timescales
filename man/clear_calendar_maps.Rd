@@ -7,15 +7,16 @@
 clear_calendar_maps(registry = FALSE)
 }
 \arguments{
-\item{registry}{Also clear maps registered with
-\code{\link[=register_calendar_map]{register_calendar_map()}}. Default \code{FALSE}.}
+\item{registry}{Also clear the maps registered with
+\code{\link[=register_calendar_map]{register_calendar_map()}} and \code{\link[=register_calendar_map_between]{register_calendar_map_between()}}.
+Default \code{FALSE}.}
 }
 \value{
 Invisibly \code{NULL}.
 }
 \description{
 Mainly useful in tests, or after mutating a Calendar object in place
-(maps are memoised by calendar NAME).
+(between-maps are memoised by calendar NAME).
 }
 \examples{
 clear_calendar_maps()                 # drop the memo cache only

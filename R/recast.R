@@ -15,7 +15,7 @@
 # then aggregated UP to target timeslices -- recast_calendar() is the fused
 # one-call route, recast_to_timebase()/recast_from_timebase() are its two public
 # halves. The route itself is collapsed into a small crosswalk table by
-# calendar_map() (R/map.R), so the converters are single dplyr pipelines
+# calendar_map_between() (R/map.R), so the converters are single dplyr pipelines
 # that run unchanged over data.frame / tibble / data.table / arrow inputs
 # (see R/backend.R for the format contract).
 #
@@ -422,10 +422,10 @@ expand_calendar <- function(x, year, by = NULL, tz = "UTC",
 #' `A -> base -> B` through the shared datetime grid: source values are
 #' projected down to grid points, then aggregated up to target timeslices,
 #' so aggregation and disaggregation are one operation. The route is
-#' evaluated as one dplyr pipeline against the [`calendar_map()`]
+#' evaluated as one dplyr pipeline against the [`calendar_map_between()`]
 #' crosswalk, so `x` may live in any supported backend (see below). A
 #' pairwise override registered with [`register_calendar_conversion()`] (or a
-#' crosswalk registered with [`register_calendar_map()`]) short-circuits
+#' crosswalk registered with [`register_calendar_map_between()`]) short-circuits
 #' the grid route.
 #'
 #' Columns of `x` that are neither the key nor a value column are treated
@@ -623,7 +623,7 @@ recast_calendar <- function(x, from, to, year,
   }
 
   # The crosswalk (A -> base -> B collapsed)
-  map <- calendar_map(from, to, year, by = by, tz = tz)
+  map <- calendar_map_between(from, to, year, by = by, tz = tz)
 
   if (na_action == "error") {
     n_bad <- (attr(map, "n_from_na") %||% 0L) +
@@ -670,7 +670,7 @@ recast_calendar <- function(x, from, to, year,
   # completed to the full target vocabulary, the NA row last.
   map$year <- NULL
   keep_na_row <- na_action == "keep" && any(uncovered)
-  res <- multiscales::recast_crosswalk(
+  res <- discretescales::recast_crosswalk(
     x, map, from = from_nm, to = to_nm, key = key, values = values,
     rule = rules, ids = id_cols,
     targets = c(S7::prop(to, "leaftable")$timeslice,
@@ -721,7 +721,7 @@ recast_calendar <- function(x, from, to, year,
     S7::prop(par2, "meta") <- pm
     par_nm <- pm$name
   }
-  map <- as.data.frame(calendar_map(from2, par2, year, by = by, tz = tz))
+  map <- as.data.frame(calendar_map_between(from2, par2, year, by = by, tz = tz))
   mem <- unique(map[, c(from_nm, par_nm)])
 
   # shares within a parent are only well-defined when `from` nests in it
@@ -1095,12 +1095,12 @@ recast_from_timebase <- function(x, calendar, year = NULL,
 # recast() generic
 # -----------------------------------------------------------------------------
 
-# The generic is owned by `multiscales`, the dimension-agnostic core; this
+# The generic is owned by `discretescales`, the dimension-agnostic core; this
 # package and `geoscales` both register methods on that one object, which is
 # what lets a single verb chain across dimensions. Registered against the
 # external generic (S7's cross-package mechanism; activated by
 # S7::methods_register() in .onLoad).
-.recast_generic <- S7::new_external_generic("multiscales", "recast",
+.recast_generic <- S7::new_external_generic("discretescales", "recast",
                                             c("x", "from"))
 
 S7::method(.recast_generic, list(S7::class_any, Calendar)) <-
@@ -1115,6 +1115,6 @@ S7::method(.recast_generic, list(S7::class_any, Calendar)) <-
 
 # Re-export the generic: `library(timescales)` alone provides the verb, and
 # `timescales::recast` keeps resolving for anything already built against it.
-#' @importFrom multiscales recast
+#' @importFrom discretescales recast
 #' @export
-multiscales::recast
+discretescales::recast

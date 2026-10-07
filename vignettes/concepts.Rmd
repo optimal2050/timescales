@@ -145,7 +145,7 @@ the 1:1 datetime grid built by `base_calendar()` (one row per hour, day,
 Source values are projected *down* to the grid, then aggregated *up* to
 target timeslices, so aggregation and disaggregation are one operation.
 The route is collapsed once into a small crosswalk table —
-`calendar_map(from, to, year)` — and every conversion is then a single
+`calendar_map_between(from, to, year)` — and every conversion is then a single
 join-and-aggregate pipeline over it, which is what lets the converters
 run unchanged on a `data.frame`, tibble, `data.table`, or an arrow
 dataset (lazy inputs return uncollected queries).
@@ -161,7 +161,7 @@ recast_calendar(x, from, to, year) ==
 
 Direct routes between two named calendars can bypass the grid: register
 a function with `register_calendar_conversion()` or an exact crosswalk table with
-`register_calendar_map()`.
+`register_calendar_map_between()`.
 
 ### Aggregation rules
 

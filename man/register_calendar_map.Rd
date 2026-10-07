@@ -2,32 +2,60 @@
 % Please edit documentation in R/map.R
 \name{register_calendar_map}
 \alias{register_calendar_map}
+\alias{register_calendar_map_between}
+\alias{get_calendar_map}
+\alias{get_calendar_map_between}
 \title{Register / look up a direct calendar crosswalk}
 \usage{
-register_calendar_map(from, to, map)
+register_calendar_map(x, from, to, map)
+
+register_calendar_map_between(from, to, map)
+
+get_calendar_map(x, from, to)
+
+get_calendar_map_between(from, to)
 }
 \arguments{
-\item{from, to}{Calendar names (\code{meta$name}) the map applies to, or
-\code{\link{Calendar}} objects (their names are used).}
+\item{x}{The \code{\link{Calendar}} the timeframes belong to, or its name.}
 
-\item{map}{A \code{data.frame} shaped like a \code{\link[=calendar_map]{calendar_map()}} result: the
-two label columns named after \code{from} and \code{to}, plus \code{year}, \code{n_from},
-\code{n_overlap} and \code{w}. \code{NULL} removes a previously registered map.}
+\item{from, to}{For the within-calendar functions, timeframe names of \code{x}.
+For the \verb{_between} functions, two \code{\link{Calendar}} objects or their names
+(\code{meta$name}).}
+
+\item{map}{A \code{data.frame} shaped like the corresponding map result: the
+two label columns named after the timeframes (plus \code{n_from},
+\code{n_overlap}, \code{w}, \code{w_from}) or after the calendars (plus \code{year},
+\code{n_from}, \code{n_overlap}, \code{w}). \code{NULL} removes a previously registered map.}
 }
 \value{
-Invisibly, the registry key (\code{"from->to"}).
+Invisibly, the registry key. The \code{get_} functions return the
+registered map (or \code{NULL}).
 }
 \description{
-A registered map short-circuits the base-grid derivation in
-\code{\link[=calendar_map]{calendar_map()}} (and thereby \code{\link[=recast_calendar]{recast_calendar()}}) for one calendar
-pair -- the table analogue of the functional override in
-\code{\link[=register_calendar_conversion]{register_calendar_conversion()}}, for cases where the exact correspondence is
-known (provably nested calendars, hand-audited crosswalks).
+A registered map short-circuits the derivation in \code{\link[=calendar_map]{calendar_map()}} or
+\code{\link[=calendar_map_between]{calendar_map_between()}} (and thereby \code{\link[=recast_calendar]{recast_calendar()}}) for one
+pair of resolutions -- the table analogue of the functional override in
+\code{\link[=register_calendar_conversion]{register_calendar_conversion()}}, for cases where the exact
+correspondence is known (provably nested calendars, hand-audited
+crosswalks).
+}
+\details{
+\code{register_calendar_map()} and \code{get_calendar_map()} handle a pair of
+timeframes of one calendar; the map is scoped to that calendar, so the
+same timeframe pair in two calendars does not collide.
+\code{register_calendar_map_between()} and \code{get_calendar_map_between()} handle
+a pair of calendars.
 }
 \examples{
-m12 <- calendar_map(calendar("m12"), calendar("q4"), year = 2021)
-register_calendar_map("m12", "q4", m12)
-get_calendar_map("m12", "q4")
+between <- calendar_map_between(calendar("m12"), calendar("q4"), year = 2021)
+register_calendar_map_between("m12", "q4", between)
+get_calendar_map_between("m12", "q4")
 list_calendar_maps()
-register_calendar_map("m12", "q4", NULL)   # remove again
+register_calendar_map_between("m12", "q4", NULL)   # remove again
+
+cal <- calendar("m12_h24")
+within <- calendar_map(cal, "MONTH", "HOUR")
+register_calendar_map(cal, "MONTH", "HOUR", within)
+identical(get_calendar_map(cal, "MONTH", "HOUR"), within)
+clear_calendar_maps(registry = TRUE)
 }

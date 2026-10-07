@@ -25,8 +25,8 @@ has_dt <- requireNamespace("data.table", quietly = TRUE) &&
 | `join_calendar()` | calendar → columns | *attach* labels, timeframe columns, share/weight to a table (no aggregation) |
 | `recast_calendar()` | calendar A → calendar B | *convert* values between two resolutions, one rule per column |
 | `recast_to_timebase()` / `recast_from_timebase()` | the route halves | project down to the base grid / aggregate up from it |
-| `calendar_map()` | A → B crosswalk | the conversion, materialised as a small table |
-| `register_calendar_rule()` / `register_calendar_map()` / `register_calendar_conversion()` | registries | per-column rules, exact crosswalks, functional overrides |
+| `calendar_map_between()` | A → B crosswalk | the conversion, materialised as a small table |
+| `register_calendar_rule()` / `register_calendar_map_between()` / `register_calendar_conversion()` | registries | per-column rules, exact crosswalks, functional overrides |
 
 Everything below runs on the shipped `merra2_cities` sample (three
 cities × 8,760 hours of 2019) in tidyverse style — data flows through
@@ -173,14 +173,14 @@ resample — with conservation guarantees intact.
 
 Every recast is a join against a small crosswalk table — one row per
 overlapping timeslice pair with grid counts and share weights.
-`calendar_map()` exposes it:
+`calendar_map_between()` exposes it:
 
 ```{r}
-calendar_map(calendars$m12, calendars$q4, year = 2019) |> head(4)
+calendar_map_between(calendars$m12, calendars$q4, year = 2019) |> head(4)
 ```
 
 When an exact correspondence is known (hand-audited concordances,
-provably nested designs), `register_calendar_map()` short-circuits the
+provably nested designs), `register_calendar_map_between()` short-circuits the
 grid derivation for that pair; `register_calendar_conversion()` goes one step
 further and replaces the whole conversion with your function. Both are
 keyed by calendar names, like the attach.

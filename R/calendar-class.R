@@ -42,12 +42,12 @@
 #' @export
 Calendar <- S7::new_class(
   "Calendar",
-  parent = multiscales::scale_class(),
+  parent = discretescales::scale_class(),
   properties = list(
     # `timeframes` is this dimension's name for the inherited `frames`, so
     # every existing `@timeframes` access keeps working. The alias setter
     # no-ops on NULL: S7 writes each dynamic property once at construction.
-    timeframes = multiscales::scale_alias_property("frames")
+    timeframes = discretescales::scale_alias_property("frames")
   ),
   constructor = function(leaftable, timeframes, members, meta = list()) {
     # `share` and `weight` are the calendar's weight columns. Declaring them
@@ -65,7 +65,7 @@ Calendar <- S7::new_class(
       }
     }
     S7::new_object(
-      multiscales::scale_class()(
+      discretescales::scale_class()(
         leaftable = leaftable,
         frames    = timeframes,
         members   = members,
@@ -246,15 +246,16 @@ Calendar <- S7::new_class(
 )
 
 # The words this dimension uses, interpolated into the shared engine's error
-# messages so a Calendar flowing through multiscales still says "timeframe"
+# messages so a Calendar flowing through discretescales still says "timeframe"
 # and "timeslice" rather than "frame" and "unit". Registered against the
 # external generic (activated by S7::methods_register() in .onLoad).
-.scale_vocab_generic <- S7::new_external_generic("multiscales",
+.scale_vocab_generic <- S7::new_external_generic("discretescales",
                                                  "scale_vocab", "x")
 S7::method(.scale_vocab_generic, Calendar) <- function(x, ...) {
   list(object = "Calendar", frame = "timeframe", frames = "timeframes",
        unit = "timeslice", units = "timeslices", atoms = "timebase",
-       register_rule = "register_calendar_rule()")
+       register_rule = "register_calendar_rule()",
+       register_map = "register_calendar_map_between()")
 }
 
 # Format / print ---------------------------------------------------------------

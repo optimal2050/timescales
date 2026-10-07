@@ -80,10 +80,10 @@ same table keyed by timeslice in calendar \code{to}. Every conversion routes
 \code{A -> base -> B} through the shared datetime grid: source values are
 projected down to grid points, then aggregated up to target timeslices,
 so aggregation and disaggregation are one operation. The route is
-evaluated as one dplyr pipeline against the \code{\link[=calendar_map]{calendar_map()}}
+evaluated as one dplyr pipeline against the \code{\link[=calendar_map_between]{calendar_map_between()}}
 crosswalk, so \code{x} may live in any supported backend (see below). A
 pairwise override registered with \code{\link[=register_calendar_conversion]{register_calendar_conversion()}} (or a
-crosswalk registered with \code{\link[=register_calendar_map]{register_calendar_map()}}) short-circuits
+crosswalk registered with \code{\link[=register_calendar_map_between]{register_calendar_map_between()}}) short-circuits
 the grid route.
 }
 \details{

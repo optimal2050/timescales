@@ -11,6 +11,6 @@ These objects are imported from other packages. Follow the links
 below to see their documentation.
 
 \describe{
-  \item{multiscales}{\code{\link[multiscales:recast]{recast()}}}
+  \item{discretescales}{\code{\link[discretescales:recast]{recast()}}}
 }}
 

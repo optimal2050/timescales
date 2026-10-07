@@ -3,7 +3,7 @@
 test_that("m12 -> q4 crosswalk has the hand-computed overlaps", {
   m12 <- calendar_build("m12")
   q4  <- calendar_build("q4")
-  mp <- calendar_map(m12, q4, year = 2021)
+  mp <- calendar_map_between(m12, q4, year = 2021)
   expect_named(mp, c("year", "m12", "q4", "n_from", "n_overlap", "w"))
   # months nest in quarters: one row per month, all overlap
   expect_equal(nrow(mp), 12L)
@@ -19,7 +19,7 @@ test_that("m12 -> q4 crosswalk has the hand-computed overlaps", {
 test_that("a multi-year map carries the year column per year", {
   m12 <- calendar_build("m12")
   q4  <- calendar_build("q4")
-  mp <- calendar_map(m12, q4, year = 2020:2021)
+  mp <- calendar_map_between(m12, q4, year = 2020:2021)
   expect_setequal(unique(mp$year), 2020:2021)
   # leap February differs between the years
   expect_equal(mp$n_from[mp$year == 2020 & mp$m12 == "m02"], 29L)
@@ -30,8 +30,8 @@ test_that("maps are cached by (names, years, by, tz)", {
   clear_calendar_maps()
   m12 <- calendar_build("m12")
   q4  <- calendar_build("q4")
-  a <- calendar_map(m12, q4, year = 2021)
-  b <- calendar_map(m12, q4, year = 2021)
+  a <- calendar_map_between(m12, q4, year = 2021)
+  b <- calendar_map_between(m12, q4, year = 2021)
   expect_identical(a, b)   # cache hit returns the same object
 })
 
@@ -39,49 +39,72 @@ test_that("unnamed calendars are refused with a clear message", {
   m12 <- calendar_build("m12")
   anon <- calendar_from_leaftable(
     S7::prop(m12, "leaftable"), timeframes = S7::prop(m12, "timeframes"))
-  expect_error(calendar_map(anon, calendar_build("q4"), year = 2021),
+  expect_error(calendar_map_between(anon, calendar_build("q4"), year = 2021),
                "no name")
-  expect_error(calendar_map(m12, m12, year = 2021), "same name")
+  expect_error(calendar_map_between(m12, m12, year = 2021), "same name")
 })
 
 test_that("a registered direct map short-circuits the grid", {
   clear_calendar_maps(registry = TRUE)
   m12 <- calendar_build("m12")
   q4  <- calendar_build("q4")
-  fake <- calendar_map(m12, q4, year = 2021)
+  fake <- calendar_map_between(m12, q4, year = 2021)
   fake$w <- fake$w * 2          # recognisably not the derived map
-  register_calendar_map(m12, q4, fake)
-  got <- calendar_map(m12, q4, year = 1999)   # any year: registry wins
+  register_calendar_map_between(m12, q4, fake)
+  got <- calendar_map_between(m12, q4, year = 1999)   # any year: registry wins
   expect_identical(got, fake)
-  register_calendar_map(m12, q4, NULL)        # removal restores the grid
-  got2 <- calendar_map(m12, q4, year = 2021)
+  register_calendar_map_between(m12, q4, NULL)        # removal restores the grid
+  got2 <- calendar_map_between(m12, q4, year = 2021)
   expect_false(isTRUE(all.equal(got2$w, fake$w)))
   clear_calendar_maps(registry = TRUE)
 })
 
 test_that("register_calendar_map validates the shape", {
-  expect_error(register_calendar_map("a", "b", data.frame(x = 1)),
+  expect_error(register_calendar_map_between("a", "b", data.frame(x = 1)),
                "missing column")
 })
 
 test_that("get_calendar_map and list_calendar_maps mirror the geo registry", {
   clear_calendar_maps(registry = TRUE)
-  expect_null(get_calendar_map("m12", "q4"))
+  expect_null(get_calendar_map_between("m12", "q4"))
   expect_equal(nrow(list_calendar_maps()), 0L)
 
-  m <- calendar_map(calendar("m12"), calendar("q4"), year = 2021)
-  register_calendar_map("m12", "q4", m)
-  got <- get_calendar_map("m12", "q4")
+  m <- calendar_map_between(calendar("m12"), calendar("q4"), year = 2021)
+  register_calendar_map_between("m12", "q4", m)
+  got <- get_calendar_map_between("m12", "q4")
   expect_equal(got, as.data.frame(m))
   # calendar objects are accepted like names
-  expect_equal(get_calendar_map(calendar("m12"), calendar("q4")), got)
+  expect_equal(get_calendar_map_between(calendar("m12"), calendar("q4")), got)
 
   reg <- list_calendar_maps()
   expect_equal(reg$key, "m12->q4")
   expect_equal(reg$from, "m12")
   expect_equal(reg$to, "q4")
 
-  register_calendar_map("m12", "q4", NULL)
-  expect_null(get_calendar_map("m12", "q4"))
+  register_calendar_map_between("m12", "q4", NULL)
+  expect_null(get_calendar_map_between("m12", "q4"))
   clear_calendar_maps(registry = TRUE)
+})
+
+# calendar_map(): the within-calendar crosswalk through the shared core ------
+
+test_that("calendar_map() maps two timeframes of one calendar", {
+  cal <- calendar("m12_h24")
+  m <- calendar_map(cal, "MONTH", "HOUR")
+  expect_named(m, c("MONTH", "HOUR", "n_from", "n_overlap", "w", "w_from"))
+  expect_equal(nrow(m), 12L * 24L)
+  expect_true(all(m$n_overlap == 1L))
+  expect_error(calendar_map(cal, cal, "HOUR"), "calendar_map_between")
+  expect_error(calendar_map(cal, "MONTH", "MONTH"), "same timeframe")
+})
+
+test_that("within-calendar maps register and clear alongside between-maps", {
+  on.exit(clear_calendar_maps(registry = TRUE), add = TRUE)
+  cal <- calendar("m12_h24")
+  m <- calendar_map(cal, "MONTH", "HOUR")
+  register_calendar_map(cal, "MONTH", "HOUR", m)
+  expect_identical(get_calendar_map(cal, "MONTH", "HOUR"), m)
+  expect_true(any(grepl("MONTH->HOUR", list_calendar_maps()$key)))
+  register_calendar_map(cal, "MONTH", "HOUR", NULL)
+  expect_null(get_calendar_map(cal, "MONTH", "HOUR"))
 })

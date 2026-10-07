@@ -1,8 +1,24 @@
+# timescales 0.6.0
+
+## Breaking: crosswalk functions split by task
+
+* `calendar_map(x, from, to)` now maps between two timeframes of one
+  calendar (through the shared core); the map between two calendars on the
+  base grid, formerly `calendar_map(from, to, year)`, is
+  `calendar_map_between(from, to, year)`. The registry follows the same
+  split: `register_calendar_map(x, from, to, map)` / `get_calendar_map(x,
+  from, to)` for timeframes of one calendar, `register_calendar_map_between()`
+  / `get_calendar_map_between()` for two calendars. `list_calendar_maps()`
+  reports both; `clear_calendar_maps(registry = TRUE)` clears both. No
+  deprecation aliases.
+* The shared core package is now called discretescales (formerly multiscales);
+  `data/calendars.rda` was rebuilt against it.
+
 # timescales 0.5.0.9000
 
 ## The shared core
 
-* The `recast()` generic is now owned by `multiscales`, the dimension-agnostic
+* The `recast()` generic is now owned by `discretescales`, the dimension-agnostic
   core, and re-exported here. `timescales::recast` resolves exactly as before
   and dispatches on `Calendar` exactly as before -- the object behind the name
   is simply shared with `geoscales` rather than owned by this package. Nothing
@@ -10,12 +26,12 @@
 * `calendar_ancestry()`, `calendar_share()`, `calendar_coverage()` and the
   navigation verbs (`calendar_children()`, `calendar_parents()`,
   `calendar_descendants()`, `calendar_ancestors()`) now compute through
-  `multiscales`. Their output is unchanged.
+  `discretescales`. Their output is unchanged.
 * Rules registered with `register_calendar_rule()` are kept in the
-  `multiscales` registry under the scope `"calendar"`, so
-  `multiscales::recast_scale()` on a Calendar finds them too. A rule
+  `discretescales` registry under the scope `"calendar"`, so
+  `discretescales::recast_scale()` on a Calendar finds them too. A rule
   registered there without a scope now also applies to calendars.
-* `recast_calendar()` aggregates through `multiscales::recast_crosswalk()`.
+* `recast_calendar()` aggregates through `discretescales::recast_crosswalk()`.
   Results are unchanged. Panel data no longer builds an in-memory grid of
   every identifier combination times the crosswalk before joining.
 * `expand_calendar()` and `datetime_to_timeslice()` label a sampled calendar
@@ -25,7 +41,7 @@
   whole year.
 * `calendar_family()` returns an empty table, not a 1 x 1 logical matrix,
   when `parent=`/`child=` select no timeframe pair.
-* `multiscales` is added to `Imports`. It brings no new external dependency:
+* `discretescales` is added to `Imports`. It brings no new external dependency:
   its own imports (`dplyr`, `rlang`, `S7`, `stats`, `utils`) were already ours.
 
 ## Timeslice conversions

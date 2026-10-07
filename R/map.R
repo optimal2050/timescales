@@ -1,17 +1,22 @@
 # =============================================================================
-# calendar_map() -- the crosswalk between two calendars on the base grid
+# calendar_map() / calendar_map_between() -- the crosswalk tables
 # =============================================================================
-# The A -> base -> B route, collapsed once into a small in-memory table: one
-# row per (year, from-timeslice, to-timeslice) overlap, carrying the grid
-# counts and share weights every recast rule needs. `recast_calendar()` is a
-# join against this table plus one grouped summarise, which is what lets the
-# converters run unchanged over data.frame / data.table / arrow backends --
-# the data never has to be exploded to grid resolution.
+# Two functions, one per shape:
+#   * calendar_map(x, from, to) -- between two timeframes of ONE calendar,
+#     derived by the shared core from the calendar's own atom layer;
+#   * calendar_map_between(from, to, year) -- between TWO calendars, the
+#     A -> base grid -> B route collapsed once into a small in-memory table:
+#     one row per (year, from-timeslice, to-timeslice) overlap, carrying the
+#     grid counts and share weights every recast rule needs.
+# `recast_calendar()` is a join against the between-table plus one grouped
+# summarise, which is what lets the converters run unchanged over
+# data.frame / data.table / arrow backends -- the data never has to be
+# exploded to grid resolution.
 #
-# Maps are memoised by (from-name, to-name, years, by, tz). Calendars are
-# treated as immutable values: mutating or renaming a Calendar after mapping
-# leaves stale cache entries behind, exactly as with the pairwise conversion
-# registry.
+# Between-maps are memoised by (from-name, to-name, years, by, tz). Calendars
+# are treated as immutable values: mutating or renaming a Calendar after
+# mapping leaves stale cache entries behind, exactly as with the pairwise
+# conversion registry.
 # =============================================================================
 
 #' @noRd
@@ -19,6 +24,42 @@
 
 #' @noRd
 .MAP_REGISTRY <- new.env(parent = emptyenv())
+
+#' Crosswalk between two timeframes of a calendar
+#'
+#' Materialises the `from -> timeslices -> to` route within one calendar as
+#' a table: one row per pair of overlapping units with `n_from` (timeslices
+#' in the `from` unit), `n_overlap` (timeslices the pair shares), `w` (the
+#' weight of the overlap) and `w_from` (the full weight of the `from` unit).
+#' The two label columns are named by the timeframes. A crosswalk registered
+#' with [`register_calendar_map()`] is returned as-is instead of being
+#' derived.
+#'
+#' @param x The [`Calendar`] the timeframes belong to.
+#' @param from,to Timeframe names of `x`.
+#' @param weight Weight column for `w`. `NULL` uses the calendar's default
+#'   weight; when it declares none, every timeslice gets weight 1.
+#' @param ... Passed to the shared core, e.g. `by =` for extra identifier
+#'   columns.
+#'
+#' @return A `data.frame` with columns `<from>`, `<to>` (`NA` = uncovered by
+#'   `to`), `n_from`, `n_overlap`, `w`, `w_from`.
+#'
+#' @seealso [`calendar_map_between()`] for the map between two calendars.
+#' @examples
+#' cal <- calendar("m12_h24")
+#' head(calendar_map(cal, "MONTH", "HOUR"))
+#' @export
+calendar_map <- function(x, from, to, weight = NULL, ...) {
+  if (S7::S7_inherits(from, Calendar) || S7::S7_inherits(to, Calendar)) {
+    .stop(paste0("`from` and `to` are timeframe names of `x`; for the map ",
+                 "between two calendars use `calendar_map_between()`"))
+  }
+  .check_calendar(x, "x")
+  .check_timeframe(x, from, "from")
+  .check_timeframe(x, to, "to")
+  discretescales::scale_map(x, from, to, weight = weight, ...)
+}
 
 #' Crosswalk between two calendars over the base grid
 #'
@@ -35,8 +76,8 @@
 #' The two label columns are named by the calendars' names (so the map
 #' joins directly onto datasets labelled by [`join_calendar()`]); rows with
 #' an `NA` target label are grid points `to` does not cover. A crosswalk
-#' registered with [`register_calendar_map()`] is returned as-is instead of
-#' being derived from the grid.
+#' registered with [`register_calendar_map_between()`] is returned as-is
+#' instead of being derived from the grid.
 #'
 #' @param from,to [`Calendar`] objects (both must be named).
 #' @param year Integer vector of model year(s); multi-year maps carry all
@@ -48,12 +89,14 @@
 #' @return A `data.frame` with columns `year`, `<from name>`, `<to name>`
 #'   (`NA` = uncovered by `to`), `n_from`, `n_overlap`, `w`.
 #'
+#' @seealso [`calendar_map()`] for the map between two timeframes of one
+#'   calendar.
 #' @examples
 #' m12 <- calendar_build("m12")
 #' q4  <- calendar_build("q4")
-#' calendar_map(m12, q4, year = 2021)
+#' calendar_map_between(m12, q4, year = 2021)
 #' @export
-calendar_map <- function(from, to, year, by = NULL, tz = "UTC") {
+calendar_map_between <- function(from, to, year, by = NULL, tz = "UTC") {
   .check_calendar(from, "from")
   .check_calendar(to, "to")
   from_nm <- .calendar_name(from, arg = "from")
@@ -124,37 +167,58 @@ calendar_map <- function(from, to, year, by = NULL, tz = "UTC") {
   map
 }
 
+# Registry ---------------------------------------------------------------------
+
 #' Register / look up a direct calendar crosswalk
 #'
-#' A registered map short-circuits the base-grid derivation in
-#' [`calendar_map()`] (and thereby [`recast_calendar()`]) for one calendar
-#' pair -- the table analogue of the functional override in
-#' [`register_calendar_conversion()`], for cases where the exact correspondence is
-#' known (provably nested calendars, hand-audited crosswalks).
+#' A registered map short-circuits the derivation in [`calendar_map()`] or
+#' [`calendar_map_between()`] (and thereby [`recast_calendar()`]) for one
+#' pair of resolutions -- the table analogue of the functional override in
+#' [`register_calendar_conversion()`], for cases where the exact
+#' correspondence is known (provably nested calendars, hand-audited
+#' crosswalks).
 #'
-#' @param from,to Calendar names (`meta$name`) the map applies to, or
-#'   [`Calendar`] objects (their names are used).
-#' @param map A `data.frame` shaped like a [`calendar_map()`] result: the
-#'   two label columns named after `from` and `to`, plus `year`, `n_from`,
-#'   `n_overlap` and `w`. `NULL` removes a previously registered map.
+#' `register_calendar_map()` and `get_calendar_map()` handle a pair of
+#' timeframes of one calendar; the map is scoped to that calendar, so the
+#' same timeframe pair in two calendars does not collide.
+#' `register_calendar_map_between()` and `get_calendar_map_between()` handle
+#' a pair of calendars.
 #'
-#' @return Invisibly, the registry key (`"from->to"`).
+#' @param x The [`Calendar`] the timeframes belong to, or its name.
+#' @param from,to For the within-calendar functions, timeframe names of `x`.
+#'   For the `_between` functions, two [`Calendar`] objects or their names
+#'   (`meta$name`).
+#' @param map A `data.frame` shaped like the corresponding map result: the
+#'   two label columns named after the timeframes (plus `n_from`,
+#'   `n_overlap`, `w`, `w_from`) or after the calendars (plus `year`,
+#'   `n_from`, `n_overlap`, `w`). `NULL` removes a previously registered map.
+#'
+#' @return Invisibly, the registry key. The `get_` functions return the
+#'   registered map (or `NULL`).
 #'
 #' @examples
-#' m12 <- calendar_map(calendar("m12"), calendar("q4"), year = 2021)
-#' register_calendar_map("m12", "q4", m12)
-#' get_calendar_map("m12", "q4")
+#' between <- calendar_map_between(calendar("m12"), calendar("q4"), year = 2021)
+#' register_calendar_map_between("m12", "q4", between)
+#' get_calendar_map_between("m12", "q4")
 #' list_calendar_maps()
-#' register_calendar_map("m12", "q4", NULL)   # remove again
+#' register_calendar_map_between("m12", "q4", NULL)   # remove again
+#'
+#' cal <- calendar("m12_h24")
+#' within <- calendar_map(cal, "MONTH", "HOUR")
+#' register_calendar_map(cal, "MONTH", "HOUR", within)
+#' identical(get_calendar_map(cal, "MONTH", "HOUR"), within)
+#' clear_calendar_maps(registry = TRUE)
 #' @export
-register_calendar_map <- function(from, to, map) {
-  nm_of <- function(z, arg) {
-    if (is.character(z) && length(z) == 1L && nzchar(z)) return(z)
-    .check_calendar(z, arg)
-    .calendar_name(z, arg = arg)
-  }
-  from_nm <- nm_of(from, "from")
-  to_nm   <- nm_of(to, "to")
+register_calendar_map <- function(x, from, to, map) {
+  if (!is.character(x)) .check_calendar(x, "x")
+  discretescales::register_scale_map(x, from, to, map)
+}
+
+#' @rdname register_calendar_map
+#' @export
+register_calendar_map_between <- function(from, to, map) {
+  from_nm <- .map_name_of(from, "from")
+  to_nm   <- .map_name_of(to, "to")
   key <- paste0(from_nm, "->", to_nm)
   if (is.null(map)) {
     if (exists(key, envir = .MAP_REGISTRY, inherits = FALSE)) {
@@ -163,7 +227,7 @@ register_calendar_map <- function(from, to, map) {
     return(invisible(key))
   }
   if (!is.data.frame(map)) {
-    .stop("`map` must be a data.frame (see `calendar_map()`) or NULL")
+    .stop("`map` must be a data.frame (see `calendar_map_between()`) or NULL")
   }
   need <- c("year", from_nm, to_nm, "n_from", "n_overlap", "w")
   miss <- setdiff(need, names(map))
@@ -172,6 +236,14 @@ register_calendar_map <- function(from, to, map) {
   }
   assign(key, as.data.frame(map), envir = .MAP_REGISTRY)
   invisible(key)
+}
+
+#' A Calendar's name, or a name given directly
+#' @noRd
+.map_name_of <- function(z, arg) {
+  if (is.character(z) && length(z) == 1L && nzchar(z)) return(z)
+  .check_calendar(z, arg)
+  .calendar_name(z, arg = arg)
 }
 
 #' @noRd
@@ -183,39 +255,33 @@ register_calendar_map <- function(from, to, map) {
   get(key, envir = .MAP_REGISTRY, inherits = FALSE)
 }
 
-#' Look up one registered crosswalk
-#'
-#' Returns the map registered with [`register_calendar_map()`] for the
-#' pair, or `NULL` when none is registered (mirrors
-#' `geoscales::get_geoscale_map()`).
-#'
-#' @inheritParams register_calendar_map
-#' @return The registered `data.frame`, or `NULL`.
+#' @rdname register_calendar_map
 #' @export
-#'
-#' @examples
-#' get_calendar_map("m12", "q4")   # NULL unless registered
-get_calendar_map <- function(from, to) {
-  nm_of <- function(z, arg) {
-    if (is.character(z) && length(z) == 1L && nzchar(z)) return(z)
-    .check_calendar(z, arg)
-    .calendar_name(z, arg = arg)
-  }
-  .get_calendar_map(nm_of(from, "from"), nm_of(to, "to"))
+get_calendar_map <- function(x, from, to) {
+  if (!is.character(x)) .check_calendar(x, "x")
+  discretescales::get_scale_map(x, from, to)
+}
+
+#' @rdname register_calendar_map
+#' @export
+get_calendar_map_between <- function(from, to) {
+  .get_calendar_map(.map_name_of(from, "from"), .map_name_of(to, "to"))
 }
 
 #' List the registered crosswalks
 #'
-#' @return A `data.frame` with one row per registered map: `key`
-#'   (`"from->to"`), `from`, `to`. Zero rows when none are registered
-#'   (mirrors `geoscales::list_geoscale_maps()`).
+#' @return A `data.frame` with one row per registered map, between calendars
+#'   (`"from->to"`) and within one (`"calendar:from->to"`): `key`, `from`,
+#'   `to`. Zero rows when none are registered (mirrors
+#'   `geoscales::list_geoscale_maps()`).
 #' @export
 #'
 #' @examples
 #' list_calendar_maps()
 list_calendar_maps <- function() {
-  keys <- sort(ls(envir = .MAP_REGISTRY, all.names = TRUE))
-  parts <- strsplit(keys, "->", fixed = TRUE)
+  keys <- c(sort(ls(envir = .MAP_REGISTRY, all.names = TRUE)),
+            discretescales::list_scale_maps()$key)
+  parts <- strsplit(sub("^[^:]*:", "", keys), "->", fixed = TRUE)
   data.frame(
     key  = keys,
     from = vapply(parts, `[`, "", 1),
@@ -227,10 +293,11 @@ list_calendar_maps <- function() {
 #' Clear the crosswalk cache (and optionally the registered maps)
 #'
 #' Mainly useful in tests, or after mutating a Calendar object in place
-#' (maps are memoised by calendar NAME).
+#' (between-maps are memoised by calendar NAME).
 #'
-#' @param registry Also clear maps registered with
-#'   [`register_calendar_map()`]. Default `FALSE`.
+#' @param registry Also clear the maps registered with
+#'   [`register_calendar_map()`] and [`register_calendar_map_between()`].
+#'   Default `FALSE`.
 #' @return Invisibly `NULL`.
 #' @export
 #'
@@ -242,6 +309,7 @@ clear_calendar_maps <- function(registry = FALSE) {
   if (isTRUE(registry)) {
     rm(list = ls(envir = .MAP_REGISTRY, all.names = TRUE),
        envir = .MAP_REGISTRY)
+    discretescales::clear_scale_maps()
   }
   invisible(NULL)
 }

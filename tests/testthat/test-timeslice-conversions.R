@@ -39,7 +39,7 @@ test_that("an unknown label gives NA, not an error or a guess", {
 # -- the crosswalk tier -------------------------------------------------------
 
 test_that("a timeframe the calendar lacks resolves through the crosswalk", {
-  # MONTH is not a timeframe of d365_h24; calendar_map() supplies it.
+  # MONTH is not a timeframe of d365_h24; calendar_map_between() supplies it.
   expect_false("MONTH" %in% calendar_timeframes(calendar("d365_h24")))
   expect_equal(tsl2month(c("d001_h00", "d100_h20", "d365_h23"), "d365_h24"),
                c(1L, 4L, 12L))

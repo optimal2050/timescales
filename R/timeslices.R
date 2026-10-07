@@ -5,7 +5,7 @@
 #
 # Every conversion here is a JOIN against a table the package already builds --
 # `calendar_leaftable()` when the calendar holds the timeframe,
-# `calendar_map()` when it does not -- never a parse of the label text. Labels
+# `calendar_map_between()` when it does not -- never a parse of the label text. Labels
 # are an output format, not a data structure: `h168` labels hours of the WEEK
 # as "h000".."h167", so reading "h" + digits as an hour of the day is wrong.
 # =============================================================================
@@ -73,7 +73,7 @@
 #' vocabulary those labels come from (needed to turn them into numbers).
 #' Two routes, both joins:
 #' * the calendar holds the timeframe -- its leaftable already has the column;
-#' * it does not -- `calendar_map()` builds the crosswalk to the timeframe's
+#' * it does not -- `calendar_map_between()` builds the crosswalk to the timeframe's
 #'   own calendar, which must be a FUNCTION of the source timeslices. A month
 #'   does not determine an hour, and that is an error rather than a guess.
 #' @noRd
@@ -113,7 +113,7 @@
   from_nm <- .calendar_name(cal, arg = "calendar")
   to_nm   <- .calendar_name(target)
   yr <- .resolve_map_year(year, timeframe)
-  m <- tryCatch(calendar_map(cal, target, year = yr),
+  m <- tryCatch(calendar_map_between(cal, target, year = yr),
                 error = function(e) NULL)
   if (is.null(m)) return(.derive_via_instant(x, cal, timeframe, yr))
   if (anyDuplicated(m[[from_nm]])) {

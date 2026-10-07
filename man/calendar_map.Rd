@@ -2,47 +2,38 @@
 % Please edit documentation in R/map.R
 \name{calendar_map}
 \alias{calendar_map}
-\title{Crosswalk between two calendars over the base grid}
+\title{Crosswalk between two timeframes of a calendar}
 \usage{
-calendar_map(from, to, year, by = NULL, tz = "UTC")
+calendar_map(x, from, to, weight = NULL, ...)
 }
 \arguments{
-\item{from, to}{\code{\link{Calendar}} objects (both must be named).}
+\item{x}{The \code{\link{Calendar}} the timeframes belong to.}
 
-\item{year}{Integer vector of model year(s); multi-year maps carry all
-years in the \code{year} column.}
+\item{from, to}{Timeframe names of \code{x}.}
 
-\item{by}{Grid resolution (\code{seq.POSIXt} step). Default: the finest
-timeframe of the two calendars.}
+\item{weight}{Weight column for \code{w}. \code{NULL} uses the calendar's default
+weight; when it declares none, every timeslice gets weight 1.}
 
-\item{tz}{Time zone of the grid. Default \code{"UTC"}.}
+\item{...}{Passed to the shared core, e.g. \verb{by =} for extra identifier
+columns.}
 }
 \value{
-A \code{data.frame} with columns \code{year}, \verb{<from name>}, \verb{<to name>}
-(\code{NA} = uncovered by \code{to}), \code{n_from}, \code{n_overlap}, \code{w}.
+A \code{data.frame} with columns \verb{<from>}, \verb{<to>} (\code{NA} = uncovered by
+\code{to}), \code{n_from}, \code{n_overlap}, \code{w}, \code{w_from}.
 }
 \description{
-Materialises the \code{A -> base -> B} route as a table: for the requested
-model year(s), one row per pair of overlapping timeslices with
-}
-\details{
-\itemize{
-\item \code{n_from} -- grid points in the \code{from} timeslice (its full set, before
-any target coverage is considered),
-\item \code{n_overlap} -- grid points the pair shares,
-\item \code{w} -- the share weight of the overlap
-(\code{leaves$share[from] * n_overlap / n_from}), the quantity
-\code{"weighted_mean"} aggregation uses.
-}
-
-The two label columns are named by the calendars' names (so the map
-joins directly onto datasets labelled by \code{\link[=join_calendar]{join_calendar()}}); rows with
-an \code{NA} target label are grid points \code{to} does not cover. A crosswalk
-registered with \code{\link[=register_calendar_map]{register_calendar_map()}} is returned as-is instead of
-being derived from the grid.
+Materialises the \code{from -> timeslices -> to} route within one calendar as
+a table: one row per pair of overlapping units with \code{n_from} (timeslices
+in the \code{from} unit), \code{n_overlap} (timeslices the pair shares), \code{w} (the
+weight of the overlap) and \code{w_from} (the full weight of the \code{from} unit).
+The two label columns are named by the timeframes. A crosswalk registered
+with \code{\link[=register_calendar_map]{register_calendar_map()}} is returned as-is instead of being
+derived.
 }
 \examples{
-m12 <- calendar_build("m12")
-q4  <- calendar_build("q4")
-calendar_map(m12, q4, year = 2021)
+cal <- calendar("m12_h24")
+head(calendar_map(cal, "MONTH", "HOUR"))
+}
+\seealso{
+\code{\link[=calendar_map_between]{calendar_map_between()}} for the map between two calendars.
 }
