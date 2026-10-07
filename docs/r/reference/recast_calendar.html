@@ -5,20 +5,20 @@ same table keyed by timeslice in calendar to. Every conversion routes
 A -&amp;gt; base -&amp;gt; B through the shared datetime grid: source values are
 projected down to grid points, then aggregated up to target timeslices,
 so aggregation and disaggregation are one operation. The route is
-evaluated as one dplyr pipeline against the calendar_map()
+evaluated as one dplyr pipeline against the calendar_map_between()
 crosswalk, so x may live in any supported backend (see below). A
 pairwise override registered with register_calendar_conversion() (or a
-crosswalk registered with register_calendar_map()) short-circuits
+crosswalk registered with register_calendar_map_between()) short-circuits
 the grid route."><meta property="og:description" content="The central conversion verb. Takes a table keyed by timeslice in
 calendar from with one or more numeric value columns, and returns the
 same table keyed by timeslice in calendar to. Every conversion routes
 A -&amp;gt; base -&amp;gt; B through the shared datetime grid: source values are
 projected down to grid points, then aggregated up to target timeslices,
 so aggregation and disaggregation are one operation. The route is
-evaluated as one dplyr pipeline against the calendar_map()
+evaluated as one dplyr pipeline against the calendar_map_between()
 crosswalk, so x may live in any supported backend (see below). A
 pairwise override registered with register_calendar_conversion() (or a
-crosswalk registered with register_calendar_map()) short-circuits
+crosswalk registered with register_calendar_map_between()) short-circuits
 the grid route."><meta property="og:image" content="https://optimal2050.github.io/timescales/r/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
@@ -27,7 +27,7 @@ the grid route."><meta property="og:image" content="https://optimal2050.github.i
 
     <a class="navbar-brand me-2" href="../index.html">timescales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.5.5</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -74,10 +74,10 @@ same table keyed by timeslice in calendar <code>to</code>. Every conversion rout
 <code>A -&gt; base -&gt; B</code> through the shared datetime grid: source values are
 projected down to grid points, then aggregated up to target timeslices,
 so aggregation and disaggregation are one operation. The route is
-evaluated as one dplyr pipeline against the <code><a href="calendar_map.html">calendar_map()</a></code>
+evaluated as one dplyr pipeline against the <code><a href="calendar_map_between.html">calendar_map_between()</a></code>
 crosswalk, so <code>x</code> may live in any supported backend (see below). A
 pairwise override registered with <code><a href="register_calendar_conversion.html">register_calendar_conversion()</a></code> (or a
-crosswalk registered with <code><a href="register_calendar_map.html">register_calendar_map()</a></code>) short-circuits
+crosswalk registered with <code><a href="register_calendar_map.html">register_calendar_map_between()</a></code>) short-circuits
 the grid route.</p>
     </div>
 

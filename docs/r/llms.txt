@@ -257,11 +257,14 @@ Move data between datetimes and calendars, and between calendars.
   [`recast_from_timebase()`](https://optimal2050.github.io/timescales/r/reference/recast_to_timebase.md)
   : Recast timeslice data down to the base grid, and back
 - [`calendar_map()`](https://optimal2050.github.io/timescales/r/reference/calendar_map.md)
+  : Crosswalk between two timeframes of a calendar
+- [`calendar_map_between()`](https://optimal2050.github.io/timescales/r/reference/calendar_map_between.md)
   : Crosswalk between two calendars over the base grid
 - [`register_calendar_map()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_map.md)
+  [`register_calendar_map_between()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_map.md)
+  [`get_calendar_map()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_map.md)
+  [`get_calendar_map_between()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_map.md)
   : Register / look up a direct calendar crosswalk
-- [`get_calendar_map()`](https://optimal2050.github.io/timescales/r/reference/get_calendar_map.md)
-  : Look up one registered crosswalk
 - [`list_calendar_maps()`](https://optimal2050.github.io/timescales/r/reference/list_calendar_maps.md)
   : List the registered crosswalks
 - [`clear_calendar_maps()`](https://optimal2050.github.io/timescales/r/reference/clear_calendar_maps.md)

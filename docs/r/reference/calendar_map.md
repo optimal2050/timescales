@@ -1,76 +1,61 @@
-# Crosswalk between two calendars over the base grid
+# Crosswalk between two timeframes of a calendar
 
-Materialises the `A -> base -> B` route as a table: for the requested
-model year(s), one row per pair of overlapping timeslices with
+Materialises the `from -> timeslices -> to` route within one calendar as
+a table: one row per pair of overlapping units with `n_from` (timeslices
+in the `from` unit), `n_overlap` (timeslices the pair shares), `w` (the
+weight of the overlap) and `w_from` (the full weight of the `from`
+unit). The two label columns are named by the timeframes. A crosswalk
+registered with
+[`register_calendar_map()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_map.md)
+is returned as-is instead of being derived.
 
 ## Usage
 
 ``` r
-calendar_map(from, to, year, by = NULL, tz = "UTC")
+calendar_map(x, from, to, weight = NULL, ...)
 ```
 
 ## Arguments
 
+- x:
+
+  The
+  [`Calendar`](https://optimal2050.github.io/timescales/r/reference/Calendar.md)
+  the timeframes belong to.
+
 - from, to:
 
-  [`Calendar`](https://optimal2050.github.io/timescales/r/reference/Calendar.md)
-  objects (both must be named).
+  Timeframe names of `x`.
 
-- year:
+- weight:
 
-  Integer vector of model year(s); multi-year maps carry all years in
-  the `year` column.
+  Weight column for `w`. `NULL` uses the calendar's default weight; when
+  it declares none, every timeslice gets weight 1.
 
-- by:
+- ...:
 
-  Grid resolution (`seq.POSIXt` step). Default: the finest timeframe of
-  the two calendars.
-
-- tz:
-
-  Time zone of the grid. Default `"UTC"`.
+  Passed to the shared core, e.g. `by =` for extra identifier columns.
 
 ## Value
 
-A `data.frame` with columns `year`, `<from name>`, `<to name>` (`NA` =
-uncovered by `to`), `n_from`, `n_overlap`, `w`.
+A `data.frame` with columns `<from>`, `<to>` (`NA` = uncovered by `to`),
+`n_from`, `n_overlap`, `w`, `w_from`.
 
-## Details
+## See also
 
-- `n_from` – grid points in the `from` timeslice (its full set, before
-  any target coverage is considered),
-
-- `n_overlap` – grid points the pair shares,
-
-- `w` – the share weight of the overlap
-  (`leaves$share[from] * n_overlap / n_from`), the quantity
-  `"weighted_mean"` aggregation uses.
-
-The two label columns are named by the calendars' names (so the map
-joins directly onto datasets labelled by
-[`join_calendar()`](https://optimal2050.github.io/timescales/r/reference/join_calendar.md));
-rows with an `NA` target label are grid points `to` does not cover. A
-crosswalk registered with
-[`register_calendar_map()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_map.md)
-is returned as-is instead of being derived from the grid.
+[`calendar_map_between()`](https://optimal2050.github.io/timescales/r/reference/calendar_map_between.md)
+for the map between two calendars.
 
 ## Examples
 
 ``` r
-m12 <- calendar_build("m12")
-q4  <- calendar_build("q4")
-calendar_map(m12, q4, year = 2021)
-#>    year m12 q4 n_from n_overlap          w
-#> 1  2021 m01 Q1     31        31 0.08493151
-#> 2  2021 m02 Q1     28        28 0.07671233
-#> 3  2021 m03 Q1     31        31 0.08493151
-#> 4  2021 m04 Q2     30        30 0.08219178
-#> 5  2021 m05 Q2     31        31 0.08493151
-#> 6  2021 m06 Q2     30        30 0.08219178
-#> 7  2021 m07 Q3     31        31 0.08493151
-#> 8  2021 m08 Q3     31        31 0.08493151
-#> 9  2021 m09 Q3     30        30 0.08219178
-#> 10 2021 m10 Q4     31        31 0.08493151
-#> 11 2021 m11 Q4     30        30 0.08219178
-#> 12 2021 m12 Q4     31        31 0.08493151
+cal <- calendar("m12_h24")
+head(calendar_map(cal, "MONTH", "HOUR"))
+#>   MONTH HOUR n_from n_overlap           w     w_from
+#> 1   m01  h00     24         1 0.003538813 0.08493151
+#> 2   m01  h01     24         1 0.003538813 0.08493151
+#> 3   m01  h02     24         1 0.003538813 0.08493151
+#> 4   m01  h03     24         1 0.003538813 0.08493151
+#> 5   m01  h04     24         1 0.003538813 0.08493151
+#> 6   m01  h05     24         1 0.003538813 0.08493151
 ```

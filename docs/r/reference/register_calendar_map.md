@@ -1,10 +1,13 @@
 # Register / look up a direct calendar crosswalk
 
-A registered map short-circuits the base-grid derivation in
+A registered map short-circuits the derivation in
 [`calendar_map()`](https://optimal2050.github.io/timescales/r/reference/calendar_map.md)
+or
+[`calendar_map_between()`](https://optimal2050.github.io/timescales/r/reference/calendar_map_between.md)
 (and thereby
 [`recast_calendar()`](https://optimal2050.github.io/timescales/r/reference/recast_calendar.md))
-for one calendar pair – the table analogue of the functional override in
+for one pair of resolutions – the table analogue of the functional
+override in
 [`register_calendar_conversion()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_conversion.md),
 for cases where the exact correspondence is known (provably nested
 calendars, hand-audited crosswalks).
@@ -12,35 +15,56 @@ calendars, hand-audited crosswalks).
 ## Usage
 
 ``` r
-register_calendar_map(from, to, map)
+register_calendar_map(x, from, to, map)
+
+register_calendar_map_between(from, to, map)
+
+get_calendar_map(x, from, to)
+
+get_calendar_map_between(from, to)
 ```
 
 ## Arguments
 
+- x:
+
+  The
+  [`Calendar`](https://optimal2050.github.io/timescales/r/reference/Calendar.md)
+  the timeframes belong to, or its name.
+
 - from, to:
 
-  Calendar names (`meta$name`) the map applies to, or
+  For the within-calendar functions, timeframe names of `x`. For the
+  `_between` functions, two
   [`Calendar`](https://optimal2050.github.io/timescales/r/reference/Calendar.md)
-  objects (their names are used).
+  objects or their names (`meta$name`).
 
 - map:
 
-  A `data.frame` shaped like a
-  [`calendar_map()`](https://optimal2050.github.io/timescales/r/reference/calendar_map.md)
-  result: the two label columns named after `from` and `to`, plus
-  `year`, `n_from`, `n_overlap` and `w`. `NULL` removes a previously
-  registered map.
+  A `data.frame` shaped like the corresponding map result: the two label
+  columns named after the timeframes (plus `n_from`, `n_overlap`, `w`,
+  `w_from`) or after the calendars (plus `year`, `n_from`, `n_overlap`,
+  `w`). `NULL` removes a previously registered map.
 
 ## Value
 
-Invisibly, the registry key (`"from->to"`).
+Invisibly, the registry key. The `get_` functions return the registered
+map (or `NULL`).
+
+## Details
+
+`register_calendar_map()` and `get_calendar_map()` handle a pair of
+timeframes of one calendar; the map is scoped to that calendar, so the
+same timeframe pair in two calendars does not collide.
+`register_calendar_map_between()` and `get_calendar_map_between()`
+handle a pair of calendars.
 
 ## Examples
 
 ``` r
-m12 <- calendar_map(calendar("m12"), calendar("q4"), year = 2021)
-register_calendar_map("m12", "q4", m12)
-get_calendar_map("m12", "q4")
+between <- calendar_map_between(calendar("m12"), calendar("q4"), year = 2021)
+register_calendar_map_between("m12", "q4", between)
+get_calendar_map_between("m12", "q4")
 #>    year m12 q4 n_from n_overlap          w
 #> 1  2021 m01 Q1     31        31 0.08493151
 #> 2  2021 m02 Q1     28        28 0.07671233
@@ -57,5 +81,12 @@ get_calendar_map("m12", "q4")
 list_calendar_maps()
 #>       key from to
 #> 1 m12->q4  m12 q4
-register_calendar_map("m12", "q4", NULL)   # remove again
+register_calendar_map_between("m12", "q4", NULL)   # remove again
+
+cal <- calendar("m12_h24")
+within <- calendar_map(cal, "MONTH", "HOUR")
+register_calendar_map(cal, "MONTH", "HOUR", within)
+identical(get_calendar_map(cal, "MONTH", "HOUR"), within)
+#> [1] TRUE
+clear_calendar_maps(registry = TRUE)
 ```

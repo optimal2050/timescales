@@ -9,8 +9,8 @@
 | [`join_calendar()`](https://optimal2050.github.io/timescales/r/reference/join_calendar.md) | calendar → columns | *attach* labels, timeframe columns, share/weight to a table (no aggregation) |
 | [`recast_calendar()`](https://optimal2050.github.io/timescales/r/reference/recast_calendar.md) | calendar A → calendar B | *convert* values between two resolutions, one rule per column |
 | [`recast_to_timebase()`](https://optimal2050.github.io/timescales/r/reference/recast_to_timebase.md) / [`recast_from_timebase()`](https://optimal2050.github.io/timescales/r/reference/recast_to_timebase.md) | the route halves | project down to the base grid / aggregate up from it |
-| [`calendar_map()`](https://optimal2050.github.io/timescales/r/reference/calendar_map.md) | A → B crosswalk | the conversion, materialised as a small table |
-| [`register_calendar_rule()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_rule.md) / [`register_calendar_map()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_map.md) / [`register_calendar_conversion()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_conversion.md) | registries | per-column rules, exact crosswalks, functional overrides |
+| [`calendar_map_between()`](https://optimal2050.github.io/timescales/r/reference/calendar_map_between.md) | A → B crosswalk | the conversion, materialised as a small table |
+| [`register_calendar_rule()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_rule.md) / [`register_calendar_map_between()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_map.md) / [`register_calendar_conversion()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_conversion.md) | registries | per-column rules, exact crosswalks, functional overrides |
 
 Everything below runs on the shipped `merra2_cities` sample (three
 cities × 8,760 hours of 2019) in tidyverse style — data flows through
@@ -228,12 +228,12 @@ resample — with conservation guarantees intact.
 
 Every recast is a join against a small crosswalk table — one row per
 overlapping timeslice pair with grid counts and share weights.
-[`calendar_map()`](https://optimal2050.github.io/timescales/r/reference/calendar_map.md)
+[`calendar_map_between()`](https://optimal2050.github.io/timescales/r/reference/calendar_map_between.md)
 exposes it:
 
 ``` r
 
-calendar_map(calendars$m12, calendars$q4, year = 2019) |> head(4)
+calendar_map_between(calendars$m12, calendars$q4, year = 2019) |> head(4)
 #>   year m12 q4 n_from n_overlap          w
 #> 1 2019 m01 Q1     31        31 0.08493151
 #> 2 2019 m02 Q1     28        28 0.07671233
@@ -243,7 +243,7 @@ calendar_map(calendars$m12, calendars$q4, year = 2019) |> head(4)
 
 When an exact correspondence is known (hand-audited concordances,
 provably nested designs),
-[`register_calendar_map()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_map.md)
+[`register_calendar_map_between()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_map.md)
 short-circuits the grid derivation for that pair;
 [`register_calendar_conversion()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_conversion.md)
 goes one step further and replaces the whole conversion with your
@@ -284,9 +284,10 @@ dataset is never pulled into memory for the calendar arithmetic.
 
 ## Across dimensions
 
-The bare [`recast()`](https://rdrr.io/pkg/multiscales/man/recast.html)
-generic dispatches on the scale object, so one verb chains time and
-space when the sibling package geoscales is loaded:
+The bare
+[`recast()`](https://rdrr.io/pkg/discretescales/man/recast.html) generic
+dispatches on the scale object, so one verb chains time and space when
+the sibling package geoscales is loaded:
 
 ``` r
 

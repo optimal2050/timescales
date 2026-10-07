@@ -33,6 +33,7 @@
 <url><loc>https://optimal2050.github.io/timescales/r/reference/calendar_layout.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/reference/calendar_leaftable.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/reference/calendar_map.html</loc></url>
+<url><loc>https://optimal2050.github.io/timescales/r/reference/calendar_map_between.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/reference/calendar_navigate.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/reference/calendar_plot.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/reference/calendar_queries.html</loc></url>
@@ -51,7 +52,6 @@
 <url><loc>https://optimal2050.github.io/timescales/r/reference/expand_calendar.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/reference/filter_calendar.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/reference/geom_calendar.html</loc></url>
-<url><loc>https://optimal2050.github.io/timescales/r/reference/get_calendar_map.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/reference/get_calendar_rule.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/reference/get_conversion.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/reference/get_rule.html</loc></url>

@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">timescales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.5.5</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -300,10 +300,10 @@ real time; the data column is always <code>datetime</code>). Source
 values are projected <em>down</em> to the grid, then aggregated
 <em>up</em> to target timeslices, so aggregation and disaggregation are
 one operation. The route is collapsed once into a small crosswalk table
-— <code>calendar_map(from, to, year)</code> — and every conversion is
-then a single join-and-aggregate pipeline over it, which is what lets
-the converters run unchanged on a <code>data.frame</code>, tibble,
-<code>data.table</code>, or an arrow dataset (lazy inputs return
+— <code>calendar_map_between(from, to, year)</code> — and every
+conversion is then a single join-and-aggregate pipeline over it, which
+is what lets the converters run unchanged on a <code>data.frame</code>,
+tibble, <code>data.table</code>, or an arrow dataset (lazy inputs return
 uncollected queries).</p>
 <p>The two halves of the route are public:
 <code>recast_to_timebase(x, cal)</code> takes timeslice-keyed data down
@@ -314,7 +314,8 @@ datetime rows up into any calendar, and</p>
 <span>  <span class="fu"><a href="../reference/recast_to_timebase.html">recast_from_timebase</a></span><span class="op">(</span><span class="fu"><a href="../reference/recast_to_timebase.html">recast_to_timebase</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">from</span>, <span class="va">year</span><span class="op">)</span>, <span class="va">to</span><span class="op">)</span></span></code></pre></div>
 <p>Direct routes between two named calendars can bypass the grid:
 register a function with <code><a href="../reference/register_calendar_conversion.html">register_calendar_conversion()</a></code> or
-an exact crosswalk table with <code><a href="../reference/register_calendar_map.html">register_calendar_map()</a></code>.</p>
+an exact crosswalk table with
+<code><a href="../reference/register_calendar_map.html">register_calendar_map_between()</a></code>.</p>
 </div>
 <div class="section level3">
 <h3 id="aggregation-rules">Aggregation rules<a class="anchor" aria-label="anchor" href="#aggregation-rules"></a>

@@ -10,8 +10,9 @@ list_calendar_maps()
 
 ## Value
 
-A `data.frame` with one row per registered map: `key` (`"from->to"`),
-`from`, `to`. Zero rows when none are registered (mirrors
+A `data.frame` with one row per registered map, between calendars
+(`"from->to"`) and within one (`"calendar:from->to"`): `key`, `from`,
+`to`. Zero rows when none are registered (mirrors
 [`geoscales::list_geoscale_maps()`](https://optimal2050.github.io/geoscales/r/reference/register_geoscale_map.html)).
 
 ## Examples

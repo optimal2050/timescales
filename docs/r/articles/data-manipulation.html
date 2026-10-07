@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">timescales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.5.5</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -133,14 +133,14 @@ column</td>
 <td>project down to the base grid / aggregate up from it</td>
 </tr>
 <tr class="even">
-<td><code><a href="../reference/calendar_map.html">calendar_map()</a></code></td>
+<td><code><a href="../reference/calendar_map_between.html">calendar_map_between()</a></code></td>
 <td>A → B crosswalk</td>
 <td>the conversion, materialised as a small table</td>
 </tr>
 <tr class="odd">
 <td>
 <code><a href="../reference/register_calendar_rule.html">register_calendar_rule()</a></code> /
-<code><a href="../reference/register_calendar_map.html">register_calendar_map()</a></code> /
+<code><a href="../reference/register_calendar_map.html">register_calendar_map_between()</a></code> /
 <code><a href="../reference/register_calendar_conversion.html">register_calendar_conversion()</a></code>
 </td>
 <td>registries</td>
@@ -363,16 +363,16 @@ season out, resample — with conservation guarantees intact.</p>
 </h2>
 <p>Every recast is a join against a small crosswalk table — one row per
 overlapping timeslice pair with grid counts and share weights.
-<code><a href="../reference/calendar_map.html">calendar_map()</a></code> exposes it:</p>
+<code><a href="../reference/calendar_map_between.html">calendar_map_between()</a></code> exposes it:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/calendar_map.html">calendar_map</a></span><span class="op">(</span><span class="va">calendars</span><span class="op">$</span><span class="va">m12</span>, <span class="va">calendars</span><span class="op">$</span><span class="va">q4</span>, year <span class="op">=</span> <span class="fl">2019</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">4</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/calendar_map_between.html">calendar_map_between</a></span><span class="op">(</span><span class="va">calendars</span><span class="op">$</span><span class="va">m12</span>, <span class="va">calendars</span><span class="op">$</span><span class="va">q4</span>, year <span class="op">=</span> <span class="fl">2019</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">4</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   year m12 q4 n_from n_overlap          w</span></span>
 <span><span class="co">#&gt; 1 2019 m01 Q1     31        31 0.08493151</span></span>
 <span><span class="co">#&gt; 2 2019 m02 Q1     28        28 0.07671233</span></span>
 <span><span class="co">#&gt; 3 2019 m03 Q1     31        31 0.08493151</span></span>
 <span><span class="co">#&gt; 4 2019 m04 Q2     30        30 0.08219178</span></span></code></pre></div>
 <p>When an exact correspondence is known (hand-audited concordances,
-provably nested designs), <code><a href="../reference/register_calendar_map.html">register_calendar_map()</a></code>
+provably nested designs), <code><a href="../reference/register_calendar_map.html">register_calendar_map_between()</a></code>
 short-circuits the grid derivation for that pair;
 <code><a href="../reference/register_calendar_conversion.html">register_calendar_conversion()</a></code> goes one step further and
 replaces the whole conversion with your function. Both are keyed by
@@ -412,13 +412,13 @@ dataset is never pulled into memory for the calendar arithmetic.</p>
 <div class="section level2">
 <h2 id="across-dimensions">Across dimensions<a class="anchor" aria-label="anchor" href="#across-dimensions"></a>
 </h2>
-<p>The bare <code><a href="https://rdrr.io/pkg/multiscales/man/recast.html" class="external-link">recast()</a></code> generic dispatches on the scale
+<p>The bare <code><a href="https://rdrr.io/pkg/discretescales/man/recast.html" class="external-link">recast()</a></code> generic dispatches on the scale
 object, so one verb chains time and space when the sibling package
 geoscales is loaded:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">x</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/pkg/multiscales/man/recast.html" class="external-link">recast</a></span><span class="op">(</span><span class="va">cal_hourly</span>, <span class="va">cal_monthly</span>, year <span class="op">=</span> <span class="fl">2021</span>, rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/pkg/multiscales/man/recast.html" class="external-link">recast</a></span><span class="op">(</span><span class="va">gs</span>, to <span class="op">=</span> <span class="st">"r32o11"</span>, rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span>     <span class="co"># a geoscales Geoscale</span></span></code></pre></div>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/discretescales/man/recast.html" class="external-link">recast</a></span><span class="op">(</span><span class="va">cal_hourly</span>, <span class="va">cal_monthly</span>, year <span class="op">=</span> <span class="fl">2021</span>, rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/discretescales/man/recast.html" class="external-link">recast</a></span><span class="op">(</span><span class="va">gs</span>, to <span class="op">=</span> <span class="st">"r32o11"</span>, rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span>     <span class="co"># a geoscales Geoscale</span></span></code></pre></div>
 <p>Same contract on both sides: explicit rules (never a silent
 fallback), identifier columns preserved, backends welcome.</p>
 </div>

@@ -1,13 +1,33 @@
 # Changelog
 
+## timescales 0.6.0
+
+### Breaking: crosswalk functions split by task
+
+- `calendar_map(x, from, to)` now maps between two timeframes of one
+  calendar (through the shared core); the map between two calendars on
+  the base grid, formerly `calendar_map(from, to, year)`, is
+  `calendar_map_between(from, to, year)`. The registry follows the same
+  split: `register_calendar_map(x, from, to, map)` /
+  `get_calendar_map(x, from, to)` for timeframes of one calendar,
+  [`register_calendar_map_between()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_map.md)
+  /
+  [`get_calendar_map_between()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_map.md)
+  for two calendars.
+  [`list_calendar_maps()`](https://optimal2050.github.io/timescales/r/reference/list_calendar_maps.md)
+  reports both; `clear_calendar_maps(registry = TRUE)` clears both. No
+  deprecation aliases.
+- The shared core package is now called discretescales (formerly
+  multiscales); `data/calendars.rda` was rebuilt against it.
+
 ## timescales 0.5.0.9000
 
 ### The shared core
 
-- The [`recast()`](https://rdrr.io/pkg/multiscales/man/recast.html)
-  generic is now owned by `multiscales`, the dimension-agnostic core,
+- The [`recast()`](https://rdrr.io/pkg/discretescales/man/recast.html)
+  generic is now owned by `discretescales`, the dimension-agnostic core,
   and re-exported here.
-  [`timescales::recast`](https://rdrr.io/pkg/multiscales/man/recast.html)
+  [`timescales::recast`](https://rdrr.io/pkg/discretescales/man/recast.html)
   resolves exactly as before and dispatches on `Calendar` exactly as
   before – the object behind the name is simply shared with `geoscales`
   rather than owned by this package. Nothing changes for callers.
@@ -19,17 +39,17 @@
   [`calendar_parents()`](https://optimal2050.github.io/timescales/r/reference/calendar_navigate.md),
   [`calendar_descendants()`](https://optimal2050.github.io/timescales/r/reference/calendar_navigate.md),
   [`calendar_ancestors()`](https://optimal2050.github.io/timescales/r/reference/calendar_navigate.md))
-  now compute through `multiscales`. Their output is unchanged.
+  now compute through `discretescales`. Their output is unchanged.
 - Rules registered with
   [`register_calendar_rule()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_rule.md)
-  are kept in the `multiscales` registry under the scope `"calendar"`,
-  so
-  [`multiscales::recast_scale()`](https://rdrr.io/pkg/multiscales/man/recast_scale.html)
+  are kept in the `discretescales` registry under the scope
+  `"calendar"`, so
+  [`discretescales::recast_scale()`](https://rdrr.io/pkg/discretescales/man/recast_scale.html)
   on a Calendar finds them too. A rule registered there without a scope
   now also applies to calendars.
 - [`recast_calendar()`](https://optimal2050.github.io/timescales/r/reference/recast_calendar.md)
   aggregates through
-  [`multiscales::recast_crosswalk()`](https://rdrr.io/pkg/multiscales/man/recast_crosswalk.html).
+  [`discretescales::recast_crosswalk()`](https://rdrr.io/pkg/discretescales/man/recast_crosswalk.html).
   Results are unchanged. Panel data no longer builds an in-memory grid
   of every identifier combination times the crosswalk before joining.
 - [`expand_calendar()`](https://optimal2050.github.io/timescales/r/reference/expand_calendar.md)
@@ -42,7 +62,7 @@
 - [`calendar_family()`](https://optimal2050.github.io/timescales/r/reference/calendar_family.md)
   returns an empty table, not a 1 x 1 logical matrix, when
   `parent=`/`child=` select no timeframe pair.
-- `multiscales` is added to `Imports`. It brings no new external
+- `discretescales` is added to `Imports`. It brings no new external
   dependency: its own imports (`dplyr`, `rlang`, `S7`, `stats`, `utils`)
   were already ours.
 
@@ -256,8 +276,8 @@ sharing one naming convention with the sibling package geoscales.
   two calendars via the base datetime grid; identifier (panel) columns
   are preserved as groups, and `to =` accepts a timeframe name
   (`"ANNUAL"` = the root) for within-calendar aggregation.
-- [`recast()`](https://rdrr.io/pkg/multiscales/man/recast.html) is an S7
-  generic dispatching on the scale object, so pipelines chain across
+- [`recast()`](https://rdrr.io/pkg/discretescales/man/recast.html) is an
+  S7 generic dispatching on the scale object, so pipelines chain across
   packages: `x |> recast(cal_a, cal_b) |> recast(gs, to = "country")`.
 - [`recast_to_timebase()`](https://optimal2050.github.io/timescales/r/reference/recast_to_timebase.md)
   /
@@ -384,7 +404,7 @@ sharing one naming convention with the sibling package geoscales.
   twinned with the geoscales Iceland map hero) and a five-point “What
   timescales offers” intro; all README demos now run on `merra2_cities`.
 - Crosswalk registry rounded out:
-  [`get_calendar_map()`](https://optimal2050.github.io/timescales/r/reference/get_calendar_map.md)
+  [`get_calendar_map()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_map.md)
   and
   [`list_calendar_maps()`](https://optimal2050.github.io/timescales/r/reference/list_calendar_maps.md)
   join
@@ -448,8 +468,8 @@ Old names warn and forward; removal before 1.0: `calendar_recast()` -\>
   [`as_timeframe()`](https://optimal2050.github.io/timescales/r/reference/as_timeframe.md),
   first-generation `instant_to_timeslice()` /
   [`expand_calendar()`](https://optimal2050.github.io/timescales/r/reference/expand_calendar.md)
-  / [`recast()`](https://rdrr.io/pkg/multiscales/man/recast.html), three
-  vignettes, pkgdown site, CI.
+  / [`recast()`](https://rdrr.io/pkg/discretescales/man/recast.html),
+  three vignettes, pkgdown site, CI.
 
 ## timescales 0.0.0.9000
 

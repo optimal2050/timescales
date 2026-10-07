@@ -7,12 +7,12 @@ same table keyed by timeslice in calendar `to`. Every conversion routes
 projected down to grid points, then aggregated up to target timeslices,
 so aggregation and disaggregation are one operation. The route is
 evaluated as one dplyr pipeline against the
-[`calendar_map()`](https://optimal2050.github.io/timescales/r/reference/calendar_map.md)
+[`calendar_map_between()`](https://optimal2050.github.io/timescales/r/reference/calendar_map_between.md)
 crosswalk, so `x` may live in any supported backend (see below). A
 pairwise override registered with
 [`register_calendar_conversion()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_conversion.md)
 (or a crosswalk registered with
-[`register_calendar_map()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_map.md))
+[`register_calendar_map_between()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_map.md))
 short-circuits the grid route.
 
 ## Usage

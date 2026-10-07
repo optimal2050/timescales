@@ -174,10 +174,10 @@ the 1:1 datetime grid built by
 always `datetime`). Source values are projected *down* to the grid, then
 aggregated *up* to target timeslices, so aggregation and disaggregation
 are one operation. The route is collapsed once into a small crosswalk
-table — `calendar_map(from, to, year)` — and every conversion is then a
-single join-and-aggregate pipeline over it, which is what lets the
-converters run unchanged on a `data.frame`, tibble, `data.table`, or an
-arrow dataset (lazy inputs return uncollected queries).
+table — `calendar_map_between(from, to, year)` — and every conversion is
+then a single join-and-aggregate pipeline over it, which is what lets
+the converters run unchanged on a `data.frame`, tibble, `data.table`, or
+an arrow dataset (lazy inputs return uncollected queries).
 
 The two halves of the route are public: `recast_to_timebase(x, cal)`
 takes timeslice-keyed data down to datetime rows,
@@ -194,7 +194,7 @@ Direct routes between two named calendars can bypass the grid: register
 a function with
 [`register_calendar_conversion()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_conversion.md)
 or an exact crosswalk table with
-[`register_calendar_map()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_map.md).
+[`register_calendar_map_between()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_map.md).
 
 ### Aggregation rules
 
