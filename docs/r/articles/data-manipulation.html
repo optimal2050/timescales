@@ -412,13 +412,13 @@ dataset is never pulled into memory for the calendar arithmetic.</p>
 <div class="section level2">
 <h2 id="across-dimensions">Across dimensions<a class="anchor" aria-label="anchor" href="#across-dimensions"></a>
 </h2>
-<p>The bare <code><a href="https://rdrr.io/pkg/discretescales/man/recast.html" class="external-link">recast()</a></code> generic dispatches on the scale
+<p>The bare <code><a href="https://rdrr.io/pkg/nestedscales/man/recast.html" class="external-link">recast()</a></code> generic dispatches on the scale
 object, so one verb chains time and space when the sibling package
 geoscales is loaded:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">x</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/pkg/discretescales/man/recast.html" class="external-link">recast</a></span><span class="op">(</span><span class="va">cal_hourly</span>, <span class="va">cal_monthly</span>, year <span class="op">=</span> <span class="fl">2021</span>, rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/pkg/discretescales/man/recast.html" class="external-link">recast</a></span><span class="op">(</span><span class="va">gs</span>, to <span class="op">=</span> <span class="st">"r32o11"</span>, rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span>     <span class="co"># a geoscales Geoscale</span></span></code></pre></div>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/nestedscales/man/recast.html" class="external-link">recast</a></span><span class="op">(</span><span class="va">cal_hourly</span>, <span class="va">cal_monthly</span>, year <span class="op">=</span> <span class="fl">2021</span>, rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/nestedscales/man/recast.html" class="external-link">recast</a></span><span class="op">(</span><span class="va">gs</span>, to <span class="op">=</span> <span class="st">"r32o11"</span>, rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span>     <span class="co"># a geoscales Geoscale</span></span></code></pre></div>
 <p>Same contract on both sides: explicit rules (never a silent
 fallback), identifier columns preserved, backends welcome.</p>
 </div>

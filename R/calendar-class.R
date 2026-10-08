@@ -42,12 +42,12 @@
 #' @export
 Calendar <- S7::new_class(
   "Calendar",
-  parent = discretescales::scale_class(),
+  parent = nestedscales::scale_class(),
   properties = list(
     # `timeframes` is this dimension's name for the inherited `frames`, so
     # every existing `@timeframes` access keeps working. The alias setter
     # no-ops on NULL: S7 writes each dynamic property once at construction.
-    timeframes = discretescales::scale_alias_property("frames")
+    timeframes = nestedscales::scale_alias_property("frames")
   ),
   constructor = function(leaftable, timeframes, members, meta = list()) {
     # `share` and `weight` are the calendar's weight columns. Declaring them
@@ -65,7 +65,7 @@ Calendar <- S7::new_class(
       }
     }
     S7::new_object(
-      discretescales::scale_class()(
+      nestedscales::scale_class()(
         leaftable = leaftable,
         frames    = timeframes,
         members   = members,
@@ -246,10 +246,10 @@ Calendar <- S7::new_class(
 )
 
 # The words this dimension uses, interpolated into the shared engine's error
-# messages so a Calendar flowing through discretescales still says "timeframe"
+# messages so a Calendar flowing through nestedscales still says "timeframe"
 # and "timeslice" rather than "frame" and "unit". Registered against the
 # external generic (activated by S7::methods_register() in .onLoad).
-.scale_vocab_generic <- S7::new_external_generic("discretescales",
+.scale_vocab_generic <- S7::new_external_generic("nestedscales",
                                                  "scale_vocab", "x")
 S7::method(.scale_vocab_generic, Calendar) <- function(x, ...) {
   list(object = "Calendar", frame = "timeframe", frames = "timeframes",

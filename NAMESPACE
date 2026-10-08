@@ -87,8 +87,8 @@ export(tsl2hour)
 export(tsl2month)
 export(tsl2yday)
 export(yday2YDAY)
-importFrom(discretescales,recast)
 importFrom(dplyr,"%>%")
+importFrom(nestedscales,recast)
 importFrom(rlang,
   ":=",
   .data

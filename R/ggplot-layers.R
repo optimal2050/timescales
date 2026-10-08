@@ -16,7 +16,7 @@
 # we deliberately do not port. Instead each geom_calendar*() returns ONE
 # standard ggplot2::layer() whose `data` is a function of the plot data
 # (ggplot2 applies it lazily), with a plain aes(x, y, fill) mapping — so
-# discrete scales, facets, and themes all work through the normal path.
+# nested scales, facets, and themes all work through the normal path.
 # The calendar-specific inputs are therefore column-NAME arguments
 # (`datetime=`, `timeslice=`, `z=`), not aes() mappings, and columns needed for
 # faceting must be listed in `by=` so aggregation preserves them.
@@ -108,7 +108,7 @@
 #' trains positional scales before statistics run, so a ggproto Stat cannot
 #' emit the discrete axes a calendar heatmap needs. Each function instead
 #' returns one standard tile layer whose data is derived from the plot (or
-#' layer) data — discrete scales, facets, and themes then work through the
+#' layer) data — nested scales, facets, and themes then work through the
 #' normal ggplot2 path. The tile fill is the aggregated `value`; axes are
 #' vocabulary-ordered factors, so `scale_x_discrete()` etc. apply as usual.
 #'

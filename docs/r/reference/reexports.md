@@ -3,6 +3,6 @@
 These objects are imported from other packages. Follow the links below
 to see their documentation.
 
-- discretescales:
+- nestedscales:
 
-  [`recast()`](https://rdrr.io/pkg/discretescales/man/recast.html)
+  [`recast()`](https://rdrr.io/pkg/nestedscales/man/recast.html)

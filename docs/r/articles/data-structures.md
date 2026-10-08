@@ -17,7 +17,7 @@ properties:
 cal <- calendar("q4_h24", desc = "Quarter × hour-of-day")
 S7::S7_class(cal)
 #> <timescales::Calendar> class
-#> @ parent     : <discretescales::DiscreteScale>
+#> @ parent     : <nestedscales::NestedScale>
 #> @ constructor: function(leaftable, timeframes, members, meta) {...}
 #> @ validator  : function(self) {...}
 #> @ properties :

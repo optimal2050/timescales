@@ -80,7 +80,7 @@ The calendar inputs are column \strong{names}, not \code{aes()} mappings: ggplot
 trains positional scales before statistics run, so a ggproto Stat cannot
 emit the discrete axes a calendar heatmap needs. Each function instead
 returns one standard tile layer whose data is derived from the plot (or
-layer) data — discrete scales, facets, and themes then work through the
+layer) data — nested scales, facets, and themes then work through the
 normal ggplot2 path. The tile fill is the aggregated \code{value}; axes are
 vocabulary-ordered factors, so \code{scale_x_discrete()} etc. apply as usual.
 

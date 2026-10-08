@@ -14,7 +14,7 @@ Authors@R:
 Description: Discrete time representations for optimization and simulation
     models, including calendar-based nested sets of timeframes, conversion
     between alternative temporal resolutions, and mapping of data onto
-    calendar grids for modeling and visualization. Built on 'discretescales';
+    calendar grids for modeling and visualization. Built on 'nestedscales';
     successor to the 'timeslices' package and the time-domain companion to
     'geoscales'.
 License: Apache License (>= 2)
@@ -26,7 +26,7 @@ Depends:
 Imports:
     dplyr,
     lubridate,
-    discretescales,
+    nestedscales,
     rlang,
     S7,
     stats,
@@ -45,7 +45,7 @@ Suggests:
     rmarkdown,
     testthat (>= 3.0.0),
     tibble
-Remotes: optimal2050/discretescales, optimal2050/energypal
+Remotes: optimal2050/nestedscales, optimal2050/energypal
 Config/testthat/edition: 3
 Config/Needs/website: pkgdown, rmarkdown, energypal
 VignetteBuilder: knitr

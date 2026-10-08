@@ -670,7 +670,7 @@ recast_calendar <- function(x, from, to, year,
   # completed to the full target vocabulary, the NA row last.
   map$year <- NULL
   keep_na_row <- na_action == "keep" && any(uncovered)
-  res <- discretescales::recast_crosswalk(
+  res <- nestedscales::recast_crosswalk(
     x, map, from = from_nm, to = to_nm, key = key, values = values,
     rule = rules, ids = id_cols,
     targets = c(S7::prop(to, "leaftable")$timeslice,
@@ -1095,12 +1095,12 @@ recast_from_timebase <- function(x, calendar, year = NULL,
 # recast() generic
 # -----------------------------------------------------------------------------
 
-# The generic is owned by `discretescales`, the dimension-agnostic core; this
+# The generic is owned by `nestedscales`, the dimension-agnostic core; this
 # package and `geoscales` both register methods on that one object, which is
 # what lets a single verb chain across dimensions. Registered against the
 # external generic (S7's cross-package mechanism; activated by
 # S7::methods_register() in .onLoad).
-.recast_generic <- S7::new_external_generic("discretescales", "recast",
+.recast_generic <- S7::new_external_generic("nestedscales", "recast",
                                             c("x", "from"))
 
 S7::method(.recast_generic, list(S7::class_any, Calendar)) <-
@@ -1115,6 +1115,6 @@ S7::method(.recast_generic, list(S7::class_any, Calendar)) <-
 
 # Re-export the generic: `library(timescales)` alone provides the verb, and
 # `timescales::recast` keeps resolving for anything already built against it.
-#' @importFrom discretescales recast
+#' @importFrom nestedscales recast
 #' @export
-discretescales::recast
+nestedscales::recast

@@ -150,7 +150,7 @@ use.</p></li>
 trains positional scales before statistics run, so a ggproto Stat cannot
 emit the discrete axes a calendar heatmap needs. Each function instead
 returns one standard tile layer whose data is derived from the plot (or
-layer) data — discrete scales, facets, and themes then work through the
+layer) data — nested scales, facets, and themes then work through the
 normal ggplot2 path. The tile fill is the aggregated <code>value</code>; axes are
 vocabulary-ordered factors, so <code><a href="https://ggplot2.tidyverse.org/reference/scale_discrete.html" class="external-link">scale_x_discrete()</a></code> etc. apply as usual.</p>
 <p><strong>Faceting</strong>: list the columns your facets need in <code>by=</code> — aggregation

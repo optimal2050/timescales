@@ -4,7 +4,7 @@
 # Registries consulted by `recast_calendar()` when the caller does not pass
 # `rule=`. An explicit argument always wins.
 #
-#   * aggregation rules    — value-column name -> rule, kept in discretescales'
+#   * aggregation rules    — value-column name -> rule, kept in nestedscales'
 #                            registry under the scope "calendar"
 #   * .CONVERSION_REGISTRY — "fromName->toName" -> custom conversion function,
 #                            the pairwise override for the A -> base -> B route
@@ -110,9 +110,9 @@ register_calendar_rule <- function(param, rule) {
     stop("`param` must be a single non-empty string", call. = FALSE)
   }
   rule <- match.arg(rule, CALENDAR_RULES)
-  # Stored in discretescales' registry under this dimension's scope, which is
+  # Stored in nestedscales' registry under this dimension's scope, which is
   # where recast_scale() looks for a Calendar's rules.
-  discretescales::register_scale_rule(param, rule, scope = "calendar")
+  nestedscales::register_scale_rule(param, rule, scope = "calendar")
   invisible(list(rule = rule))
 }
 
@@ -129,7 +129,7 @@ register_calendar_rule <- function(param, rule) {
 #' get_calendar_rule("not_registered")
 #' @export
 get_calendar_rule <- function(param) {
-  e <- discretescales::get_scale_rule(param, scope = "calendar")
+  e <- nestedscales::get_scale_rule(param, scope = "calendar")
   if (is.null(e)) NULL else list(rule = e$rule)
 }
 
@@ -142,7 +142,7 @@ get_calendar_rule <- function(param) {
 #' list_calendar_rules()
 #' @export
 list_calendar_rules <- function() {
-  d <- discretescales::list_scale_rules(scope = "calendar")
+  d <- nestedscales::list_scale_rules(scope = "calendar")
   data.frame(param = d$param, rule = d$rule, stringsAsFactors = FALSE)
 }
 
@@ -160,7 +160,7 @@ list_calendar_rules <- function() {
 #' clear_calendar_rules("tmp_param")
 #' @export
 clear_calendar_rules <- function(param = NULL) {
-  discretescales::clear_scale_rules(param, scope = "calendar")
+  nestedscales::clear_scale_rules(param, scope = "calendar")
 }
 
 # Pairwise conversion overrides ------------------------------------------------

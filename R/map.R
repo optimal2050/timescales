@@ -58,7 +58,7 @@ calendar_map <- function(x, from, to, weight = NULL, ...) {
   .check_calendar(x, "x")
   .check_timeframe(x, from, "from")
   .check_timeframe(x, to, "to")
-  discretescales::scale_map(x, from, to, weight = weight, ...)
+  nestedscales::scale_map(x, from, to, weight = weight, ...)
 }
 
 #' Crosswalk between two calendars over the base grid
@@ -211,7 +211,7 @@ calendar_map_between <- function(from, to, year, by = NULL, tz = "UTC") {
 #' @export
 register_calendar_map <- function(x, from, to, map) {
   if (!is.character(x)) .check_calendar(x, "x")
-  discretescales::register_scale_map(x, from, to, map)
+  nestedscales::register_scale_map(x, from, to, map)
 }
 
 #' @rdname register_calendar_map
@@ -259,7 +259,7 @@ register_calendar_map_between <- function(from, to, map) {
 #' @export
 get_calendar_map <- function(x, from, to) {
   if (!is.character(x)) .check_calendar(x, "x")
-  discretescales::get_scale_map(x, from, to)
+  nestedscales::get_scale_map(x, from, to)
 }
 
 #' @rdname register_calendar_map
@@ -280,7 +280,7 @@ get_calendar_map_between <- function(from, to) {
 #' list_calendar_maps()
 list_calendar_maps <- function() {
   keys <- c(sort(ls(envir = .MAP_REGISTRY, all.names = TRUE)),
-            discretescales::list_scale_maps()$key)
+            nestedscales::list_scale_maps()$key)
   parts <- strsplit(sub("^[^:]*:", "", keys), "->", fixed = TRUE)
   data.frame(
     key  = keys,
@@ -309,7 +309,7 @@ clear_calendar_maps <- function(registry = FALSE) {
   if (isTRUE(registry)) {
     rm(list = ls(envir = .MAP_REGISTRY, all.names = TRUE),
        envir = .MAP_REGISTRY)
-    discretescales::clear_scale_maps()
+    nestedscales::clear_scale_maps()
   }
   invisible(NULL)
 }

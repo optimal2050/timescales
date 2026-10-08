@@ -284,10 +284,9 @@ dataset is never pulled into memory for the calendar arithmetic.
 
 ## Across dimensions
 
-The bare
-[`recast()`](https://rdrr.io/pkg/discretescales/man/recast.html) generic
-dispatches on the scale object, so one verb chains time and space when
-the sibling package geoscales is loaded:
+The bare [`recast()`](https://rdrr.io/pkg/nestedscales/man/recast.html)
+generic dispatches on the scale object, so one verb chains time and
+space when the sibling package geoscales is loaded:
 
 ``` r
 

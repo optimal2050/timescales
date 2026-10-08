@@ -48,14 +48,14 @@ NULL
 #' @export
 calendar_timeframes <- function(x, finest = FALSE) {
   .check_calendar(x)
-  discretescales::scale_frames(x, finest = finest)
+  nestedscales::scale_frames(x, finest = finest)
 }
 
 #' @rdname calendar_queries
 #' @export
 calendar_rank <- function(x, timeframe) {
   .check_calendar(x)
-  discretescales::scale_rank(x, timeframe)
+  nestedscales::scale_rank(x, timeframe)
 }
 
 #' @rdname calendar_queries
@@ -100,7 +100,7 @@ calendar_timeslices <- function(x, timeframe = NULL,
 #' @export
 calendar_leaftable <- function(x) {
   .check_calendar(x)
-  discretescales::scale_leaftable(x)
+  nestedscales::scale_leaftable(x)
 }
 
 #' @rdname calendar_leaftable
@@ -131,14 +131,14 @@ S7::method(as.data.frame, Calendar) <- as.data.frame.Calendar
 #' @export
 calendar_ancestry <- function(x) {
   .check_calendar(x)
-  out <- .timeframe_cols(discretescales::scale_ancestry(x))
+  out <- .timeframe_cols(nestedscales::scale_ancestry(x))
   out <- out[order(out$parent_timeframe, out$parent,
                    out$child_timeframe, out$child), , drop = FALSE]
   rownames(out) <- NULL
   out
 }
 
-# discretescales names the frame columns `parent_frame`/`child_frame`.
+# nestedscales names the frame columns `parent_frame`/`child_frame`.
 #' @noRd
 .timeframe_cols <- function(d) {
   names(d) <- sub("_frame$", "_timeframe", names(d))
@@ -181,7 +181,7 @@ calendar_family <- function(x, parent = NULL, child = NULL) {
                       stringsAsFactors = FALSE))
   }
   # Kept local rather than delegated: pairs come out in leaftable order,
-  # which discretescales::scale_family() (sorted by code) does not reproduce.
+  # which nestedscales::scale_family() (sorted by code) does not reproduce.
   leaves <- S7::prop(x, "leaftable")
   out <- lapply(pairs, function(p) {
     u <- unique(leaves[, p, drop = FALSE])
@@ -219,7 +219,7 @@ calendar_family <- function(x, parent = NULL, child = NULL) {
   }
   # With an explicit `to`, scale_children() is the plain related-labels query
   # and works in either direction.
-  discretescales::scale_children(calendar, timeframe, label, to = to)
+  nestedscales::scale_children(calendar, timeframe, label, to = to)
 }
 
 #' Navigate a Calendar hierarchy
@@ -333,7 +333,7 @@ calendar_share <- function(x, timeframe, within = NULL) {
   .check_calendar(x)
   .check_leaf_timeframe(x, timeframe)
   if (is.null(within)) {
-    return(discretescales::scale_share(x, timeframe, weight = "share"))
+    return(nestedscales::scale_share(x, timeframe, weight = "share"))
   }
   .check_leaf_timeframe(x, within, arg = "within")
   tfs <- S7::prop(x, "timeframes")
@@ -341,7 +341,7 @@ calendar_share <- function(x, timeframe, within = NULL) {
     .stop("`within` ('%s') must be coarser than `timeframe` ('%s')",
           within, timeframe)
   }
-  out <- discretescales::scale_share(x, timeframe, weight = "share",
+  out <- nestedscales::scale_share(x, timeframe, weight = "share",
                                   within = within)
   levels <- S7::prop(x, "members")
   out <- out[order(match(out[[within]], levels[[within]]),
@@ -467,7 +467,7 @@ calendar_coverage <- function(x, weight = NULL) {
   if (!is.null(weight) && !weight %in% c("share", "weight")) {
     .stop("unknown weight `%s`; use \"share\" or \"weight\"", weight)
   }
-  discretescales::scale_coverage(x, weight)
+  nestedscales::scale_coverage(x, weight)
 }
 
 #' @rdname filter_calendar

@@ -1,9 +1,9 @@
 # =============================================================================
-# Backend dispatch -- delegated to discretescales
+# Backend dispatch -- delegated to nestedscales
 # =============================================================================
 # data.frame / tibble / data.table / dtplyr / arrow in, the same class out,
 # lazy inputs staying lazy unless collected. The implementation lives in
-# `discretescales`, which exports the quintet for exactly this. These are direct
+# `nestedscales`, which exports the quintet for exactly this. These are direct
 # bindings rather than wrapper calls: they sit in the per-row path of every
 # conversion, so an extra frame is not free.
 #
@@ -22,12 +22,12 @@ utils::globalVariables(c(".ts_to", ".ts_y", ".ts_f", ".ts_n_from",
                          ".ts_n_overlap", ".ts_w", ".ts_label",
                          ".ts_year"))
 
-.ts_backend <- discretescales::.ms_backend
-.ts_is_lazy <- discretescales::.ms_is_lazy
-.ts_lazy    <- discretescales::.ms_lazy
-.ts_schema  <- discretescales::.ms_schema
-.ts_pull    <- discretescales::.ms_pull
-.ts_restore <- discretescales::.ms_restore
+.ts_backend <- nestedscales::.ms_backend
+.ts_is_lazy <- nestedscales::.ms_is_lazy
+.ts_lazy    <- nestedscales::.ms_lazy
+.ts_schema  <- nestedscales::.ms_schema
+.ts_pull    <- nestedscales::.ms_pull
+.ts_restore <- nestedscales::.ms_restore
 
 # No `.ms_` counterpart: trivial over the schema.
 #' @noRd
