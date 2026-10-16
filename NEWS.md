@@ -14,6 +14,11 @@
 * The shared core package is now called nestedscales (formerly multiscales);
   `data/calendars.rda` was rebuilt against it.
 
+## Bug fixes
+
+* `datetime_to_timeslice()` on a `drop_feb29` calendar (`d365`, `d365_h24`,
+  `fy04_d365*`) returns `NA` for a missing datetime instead of erroring.
+
 # timescales 0.5.0.9000
 
 ## The shared core

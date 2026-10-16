@@ -228,7 +228,10 @@ datetime_to_timeslice <- function(dtm, calendar, alignment = NULL) {
   cnt <- integer(length(anchor))
   for (off in 0:1) {
     yy <- ya + off
-    isleap <- (yy %% 4L == 0L & yy %% 100L != 0L) | yy %% 400L == 0L
+    # an NA datetime has an NA year: it is no leap year, and an NA index
+    # would make the assignment below fail
+    isleap <- !is.na(yy) &
+      ((yy %% 4L == 0L & yy %% 100L != 0L) | yy %% 400L == 0L)
     cand <- rep(as.Date(NA), length(anchor))
     if (any(isleap)) {
       cand[isleap] <- as.Date(sprintf("%04d-02-29", yy[isleap]))
