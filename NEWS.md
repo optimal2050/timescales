@@ -1,6 +1,6 @@
 # timescales 0.6.0
 
-## Breaking: crosswalk functions split by task
+## Breaking changes
 
 * `calendar_map(x, from, to)` now maps between two timeframes of one
   calendar (through the shared core); the map between two calendars on the
@@ -16,6 +16,8 @@
 
 ## Bug fixes
 
+* Panel-data expansion to the datetime base now declares its expected
+  many-to-many join and no longer emits a dplyr relationship warning.
 * `datetime_to_timeslice()` on a `drop_feb29` calendar (`d365`, `d365_h24`,
   `fy04_d365*`) returns `NA` for a missing datetime instead of erroring.
 

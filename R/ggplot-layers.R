@@ -262,7 +262,7 @@ theme_calendar <- function(...) {
 #' ```
 #'
 #' @param n Approximate number of labels (>= 2; default 6).
-#' @return A function of the level vector, for `breaks =`.
+#' @return A function of the discrete value vector, for `breaks =`.
 #' @export
 calendar_breaks <- function(n = 6) {
   n <- max(2L, as.integer(n))

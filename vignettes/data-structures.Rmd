@@ -1,6 +1,6 @@
 ---
 title: "Data structures"
-description: "Anatomy of the Calendar S7 class, the leaves table, the levels list, and meta."
+description: "Anatomy of the Calendar S7 class, the leaftable, members, and metadata."
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Data structures}
@@ -132,7 +132,7 @@ The validator on `Calendar` enforces:
 - `weight >= 0`,
 - `year_start` carries valid `month` (`1..12`) and `day` (`1..31`),
 - `utc_offset_minutes` is an integer scalar,
-- each `levels[[tf]]` is set-equal to `unique(leaves[[tf]])`.
+- each `members[[tf]]` is set-equal to `unique(leaftable[[tf]])`.
 
 Any violation throws at construction time, so a `Calendar` you hold
 is always internally consistent.

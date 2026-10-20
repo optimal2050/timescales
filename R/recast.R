@@ -943,7 +943,12 @@ recast_to_timebase <- function(x, calendar, year = NULL,
   join_by <- c(key, if (has_year) "year")   # grid supplies `year` otherwise
 
   xq <- .ts_lazy(x, backend)
-  out <- dplyr::inner_join(xq, grid, by = join_by, na_matches = "na")
+  out <- dplyr::inner_join(
+    xq, grid,
+    by = join_by,
+    na_matches = "na",
+    relationship = "many-to-many"
+  )
 
   # Extensive columns split across the timeslice's grid points
   sum_cols <- values[rules == "sum"]

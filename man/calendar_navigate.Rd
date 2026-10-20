@@ -34,7 +34,7 @@ character vector; \code{calendar_descendants()} /
 }
 \description{
 Labels related to \code{label} across timeframes — the time-side mirror of
-\code{geoscales::geoscale_children()} and friends. Time levels nest
+\code{geoscales::geoscale_children()} and friends. Timeframes nest
 strictly, so these are exact partitions:
 }
 \details{

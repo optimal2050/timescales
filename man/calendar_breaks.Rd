@@ -10,7 +10,7 @@ calendar_breaks(n = 6)
 \item{n}{Approximate number of labels (>= 2; default 6).}
 }
 \value{
-A function of the level vector, for \verb{breaks =}.
+A function of the discrete value vector, for \verb{breaks =}.
 }
 \description{
 A breaks \emph{function} for discrete timeslice axes: picks about \code{n}

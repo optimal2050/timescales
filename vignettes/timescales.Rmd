@@ -54,7 +54,7 @@ cal_my2 <- calendar_build("m12", "h24")
 identical(cal_my@timeframes, cal_my2@timeframes)
 ```
 
-For full control there is the lowest-level constructor
+For full control there is the most flexible constructor
 `calendar_from_leaftable()`, where you supply the leaves table directly.
 
 ### 2. Inspect the structure
@@ -74,7 +74,7 @@ columns:
 - `timeslice` — the unique timeslice ID,
 - `share` — fraction of a year,
 - `weight` — timeslice weight in hours (default `share * 8760`),
-- one column per timeframe — the member label at that level.
+- one column per timeframe — the corresponding member label.
 
 ### 3. Map real datetimes onto the calendar
 

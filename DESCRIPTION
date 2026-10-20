@@ -11,12 +11,15 @@ Authors@R:
            role = c("aut", "cre"),
            email = "olugovoy@optimalsolution.dev",
            comment = c(ORCID = "0000-0001-5546-9875"))
-Description: Discrete time representations for optimization and simulation
-    models, including calendar-based nested sets of timeframes, conversion
-    between alternative temporal resolutions, and mapping of data onto
-    calendar grids for modeling and visualization. Built on 'nestedscales';
-    successor to the 'timeslices' package and the time-domain companion to
-    'geoscales'.
+Description: Provides discrete temporal representations for optimization and
+    simulation models. A calendar records ordered timeframes, their members
+    and duration-weighted timeslices, including full-resolution,
+    representative-period and fiscal-year designs. Maps timestamps to
+    timeslices, joins calendar labels to tabular data, and recasts values
+    between temporal resolutions using explicit aggregation and
+    disaggregation rules. Includes a catalog of predefined calendars and
+    visualization helpers for calendar structures and time-series data.
+    Extends 'nestedscales' with temporal semantics.
 License: Apache License (>= 2)
 Encoding: UTF-8
 LazyData: true
@@ -24,9 +27,9 @@ Roxygen: list(markdown = TRUE)
 Depends:
     R (>= 4.2)
 Imports:
-    dplyr,
+    dplyr (>= 1.1.1),
     lubridate,
-    nestedscales,
+    nestedscales (>= 0.1.0),
     rlang,
     S7,
     stats,
@@ -45,7 +48,7 @@ Suggests:
     rmarkdown,
     testthat (>= 3.0.0),
     tibble
-Remotes: optimal2050/nestedscales, optimal2050/energypal
+Additional_repositories: https://optimal2050.r-universe.dev
 Config/testthat/edition: 3
 Config/Needs/website: pkgdown, rmarkdown, energypal
 VignetteBuilder: knitr

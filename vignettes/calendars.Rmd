@@ -33,7 +33,7 @@ identical(calendar_leaftable(cal), calendar_leaftable(cal2))
 instants — `d365` has no Feb 29), or `representative` (timeslices stand for
 recurring types rather than a partition of the timeline — `q4_h24` is a
 representative day per quarter). **Regularity** flags designs whose
-timeslices differ in length within a level (`m12_md365`: February is short).
+timeslices differ in length within a timeframe (`m12_md365`: February is short).
 
 The full table is one `calendar_catalog()` call; below it comes in
 families, each with one member drawn as an icicle (`autoplot()`; widths
@@ -287,7 +287,7 @@ head(calendar_layout(calendars$q4_h24), 7)
 
 `calendar_plot()` is the data-on-calendar heatmap: hand it a `data.frame`
 keyed by timeslice (or nothing, to see the share structure). The layout
-follows the hierarchy — finest timeframe on y, next on x, coarser levels
+follows the hierarchy — finest timeframe on y, next on x, coarser timeframes
 as facets:
 
 ```{r, fig.width = 7, fig.height = 4, eval = requireNamespace("ggplot2", quietly = TRUE)}

@@ -16,7 +16,7 @@ whole-year root.}
 A \code{\link{Calendar}} whose hierarchy stops at \code{timeframe}.
 }
 \description{
-Aggregates a calendar to one of its own timeframe levels: leaves are
+Aggregates a calendar to one of its own timeframes: leaves are
 grouped by the timeframes down to (and including) \code{timeframe}, and their
 \code{share}/\code{weight} are summed. \code{timeframe = "ANNUAL"} returns the implicit
 whole-year root — a one-timeslice calendar (the root is named \code{ANNUAL}, never

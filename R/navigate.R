@@ -3,7 +3,7 @@
 # =============================================================================
 # The mirror of geoscales' navigation family (geoscale_children(),
 # geoscale_family(), filter_geoscale(), ...) on the time hierarchy.
-# Time levels nest strictly — every finer timeframe partitions the
+# Timeframes nest strictly — every finer timeframe partitions the
 # coarser one — so everything here is a closure over `@leaftable`:
 # label relationships are read off the leaf table, canonical order comes
 # from `@members`.
@@ -21,7 +21,7 @@
 #' * `calendar_rank()` — position of a timeframe (1 = coarsest);
 #'   `NA` for unknown names.
 #' * `calendar_timeslices()` — with a `timeframe`, the canonical ordered
-#'   labels at that level; without, the leaf `timeslice` ids.
+#'   labels in that timeframe; without, the leaf `timeslice` ids.
 #' * `names()` on a Calendar returns the timeframe names (identical to
 #'   `calendar_timeframes()`), NOT the leaftable column names.
 #'
@@ -225,7 +225,7 @@ calendar_family <- function(x, parent = NULL, child = NULL) {
 #' Navigate a Calendar hierarchy
 #'
 #' Labels related to `label` across timeframes — the time-side mirror of
-#' `geoscales::geoscale_children()` and friends. Time levels nest
+#' `geoscales::geoscale_children()` and friends. Timeframes nest
 #' strictly, so these are exact partitions:
 #'
 #' * `calendar_children()` — one step finer (or at `to`).
@@ -357,7 +357,7 @@ calendar_share <- function(x, timeframe, within = NULL) {
 #' — the time-side mirror of `geoscales::filter_geoscale()`. Shares are
 #' NOT renormalized: the result is a partial-year calendar whose
 #' `meta$year_fraction` is set to the surviving `sum(share)` (use
-#' [calendar_share()] when normalized shares are needed). Level
+#' [calendar_share()] when normalized shares are needed). Timeframe
 #' vocabularies are subset to the surviving labels.
 #'
 #' A real sample (fewer leaves than the parent) is book-kept exactly like

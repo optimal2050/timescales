@@ -17,7 +17,7 @@ experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](h
 
 timescales provides **nested timeframes and calendars** for optimization
 and simulation models: organize the time dimension of your model data,
-convert it between resolutions, and see every level at once.
+convert it between resolutions, and see every timeframe at once.
 
 - [`calendar()`](https://optimal2050.github.io/timescales/r/reference/calendar_build.html)
   builds a `Calendar` — ordered timeframes, their members, and one
@@ -38,7 +38,7 @@ convert it between resolutions, and see every level at once.
   carve partial-year samples and coarser designs for model runs.
 - [`geom_calendar()`](https://optimal2050.github.io/timescales/r/reference/geom_calendar.html),
   [`calendar_autoplot()`](https://optimal2050.github.io/timescales/r/reference/calendar_autoplot.html)
-  and friends draw any level: heatmaps, wall calendars, icicles, and
+  and friends draw any timeframe: heatmaps, wall calendars, icicles, and
   axonometric stacks.
 
 timescales is the time-domain package of the

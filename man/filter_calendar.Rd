@@ -31,7 +31,7 @@ Keep only the leaf timeslices whose \code{timeframe} label is in \code{labels}
 — the time-side mirror of \code{geoscales::filter_geoscale()}. Shares are
 NOT renormalized: the result is a partial-year calendar whose
 \code{meta$year_fraction} is set to the surviving \code{sum(share)} (use
-\code{\link[=calendar_share]{calendar_share()}} when normalized shares are needed). Level
+\code{\link[=calendar_share]{calendar_share()}} when normalized shares are needed). Timeframe
 vocabularies are subset to the surviving labels.
 }
 \details{

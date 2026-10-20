@@ -21,6 +21,7 @@
 ^CITATION\.cff$
 ^VERSION$
 ^README\.Rmd$
+^README\.html$
 ^_pkgdown\.yml$
 ^pkgdown$
 ^doc$
@@ -36,3 +37,5 @@
 ^AGENTS\.md$
 ^CLAUDE\.md$
 ^tools$
+^cran-comments\.md$
+^CRAN-SUBMISSION$

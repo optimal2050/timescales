@@ -38,7 +38,7 @@
 #' @param x A [`Calendar`].
 #' @param annual Include the `ANNUAL` root band on top? Default `TRUE`.
 #'
-#' @return A `data.frame` with columns `timeframe`, `label` (the level value
+#' @return A `data.frame` with columns `timeframe`, `label` (the member value
 #'   of the segment), `timeslice` (the full prefix path id), `rank` (0 for
 #'   `ANNUAL`, then 1 = coarsest), `xmin`/`xmax` (in `[0, 1]`),
 #'   `ymin`/`ymax` (bands, top row highest), `share` (segment share of the
@@ -151,7 +151,7 @@ calendar_layout <- function(x, annual = TRUE) {
 #' @param color_pattern For `fill = "order"`: `"within"` (default) restarts
 #'   the gradient inside each parent timeslice (hours recycle every day);
 #'   `"global"` sweeps once across the whole year.
-#' @param labels Segment labels. Icicle: `"name"` (level value, e.g.
+#' @param labels Segment labels. Icicle: `"name"` (member value, e.g.
 #'   `h00`; default), `"timeslice"` (full path, e.g. `Q1_h00`), or
 #'   `"none"`; `TRUE`/`FALSE` are accepted as shorthands.
 #'   `type = "stack"`: a character vector of timeframes whose member

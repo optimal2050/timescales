@@ -44,7 +44,7 @@ the time-side mirror of \code{geoscales::geoscale_geoframes()} and friends.
 \item \code{calendar_rank()} — position of a timeframe (1 = coarsest);
 \code{NA} for unknown names.
 \item \code{calendar_timeslices()} — with a \code{timeframe}, the canonical ordered
-labels at that level; without, the leaf \code{timeslice} ids.
+labels in that timeframe; without, the leaf \code{timeslice} ids.
 \item \code{names()} on a Calendar returns the timeframe names (identical to
 \code{calendar_timeframes()}), NOT the leaftable column names.
 }

@@ -12,7 +12,7 @@ calendar_layout(x, annual = TRUE)
 \item{annual}{Include the \code{ANNUAL} root band on top? Default \code{TRUE}.}
 }
 \value{
-A \code{data.frame} with columns \code{timeframe}, \code{label} (the level value
+A \code{data.frame} with columns \code{timeframe}, \code{label} (the member value
 of the segment), \code{timeslice} (the full prefix path id), \code{rank} (0 for
 \code{ANNUAL}, then 1 = coarsest), \code{xmin}/\code{xmax} (in \verb{[0, 1]}),
 \code{ymin}/\code{ymax} (bands, top row highest), \code{share} (segment share of the

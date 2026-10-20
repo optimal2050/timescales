@@ -62,7 +62,7 @@ base_calendar <- function(years, by = "hour", tz = "UTC") {
 
 #' Derive a coarser calendar by truncating the hierarchy at a timeframe
 #'
-#' Aggregates a calendar to one of its own timeframe levels: leaves are
+#' Aggregates a calendar to one of its own timeframes: leaves are
 #' grouped by the timeframes down to (and including) `timeframe`, and their
 #' `share`/`weight` are summed. `timeframe = "ANNUAL"` returns the implicit
 #' whole-year root — a one-timeslice calendar (the root is named `ANNUAL`, never

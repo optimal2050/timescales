@@ -55,7 +55,7 @@ position, default), \code{"share"}, or \code{"weight"}.}
 the gradient inside each parent timeslice (hours recycle every day);
 \code{"global"} sweeps once across the whole year.}
 
-\item{labels}{Segment labels. Icicle: \code{"name"} (level value, e.g.
+\item{labels}{Segment labels. Icicle: \code{"name"} (member value, e.g.
 \code{h00}; default), \code{"timeslice"} (full path, e.g. \code{Q1_h00}), or
 \code{"none"}; \code{TRUE}/\code{FALSE} are accepted as shorthands.
 \code{type = "stack"}: a character vector of timeframes whose member
