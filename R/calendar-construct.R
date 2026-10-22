@@ -30,6 +30,9 @@
 #' @param utc_offset_minutes Integer minutes; model-local time = UTC + offset.
 #' @param year_fraction Fraction of a year covered by `sum(leaftable$share)`.
 #'   Defaults to `1`.
+#' @param row_order `"nested"` (default) sorts the rows by timeframe, coarsest
+#'   first, each in its member order (for a calendar, chronological order); `"given"` keeps the rows
+#'   as supplied.
 #' @param ... Additional named entries appended to `meta` (free-form).
 #'
 #' @return A [`Calendar`] object.
@@ -52,7 +55,9 @@ calendar_from_leaftable <- function(leaftable,
                                  year_start = list(month = 1L, day = 1L),
                                  utc_offset_minutes = 0L,
                                  year_fraction = 1,
+                                 row_order = c("nested", "given"),
                                  ...) {
+  row_order <- match.arg(row_order)
   if (!is.data.frame(leaftable)) {
     stop("`leaftable` must be a data.frame", call. = FALSE)
   }
@@ -99,6 +104,12 @@ calendar_from_leaftable <- function(leaftable,
     }
   }
 
+  if (row_order == "nested") {
+    leaftable <- leaftable[.nested_row_order(leaftable, timeframes, members), ,
+                           drop = FALSE]
+    rownames(leaftable) <- NULL
+  }
+
   extra_names <- names(list(...))
   if (any(c("leaves", "levels") %in% extra_names)) {
     stop("arguments `leaves`/`levels` were renamed `leaftable`/`members` ",
@@ -120,6 +131,17 @@ calendar_from_leaftable <- function(leaftable,
     members     = members,
     meta       = meta
   )
+}
+
+#' Row order of a leaftable: by each frame, coarsest first, in member order
+#'
+#' Unassigned (`NA`) codes sort last; ties keep their given order.
+#' @noRd
+.nested_row_order <- function(leaftable, frames, members) {
+  keys <- lapply(frames, function(f) {
+    match(as.character(leaftable[[f]]), as.character(members[[f]]))
+  })
+  do.call(order, c(keys, list(na.last = TRUE, method = "radix")))
 }
 
 # Internal: build composite timeslice IDs from a row's timeframe columns -----------

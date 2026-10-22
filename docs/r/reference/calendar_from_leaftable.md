@@ -18,6 +18,7 @@ calendar_from_leaftable(
   year_start = list(month = 1L, day = 1L),
   utc_offset_minutes = 0L,
   year_fraction = 1,
+  row_order = c("nested", "given"),
   ...
 )
 ```
@@ -63,6 +64,12 @@ calendar_from_leaftable(
 - year_fraction:
 
   Fraction of a year covered by `sum(leaftable$share)`. Defaults to `1`.
+
+- row_order:
+
+  `"nested"` (default) sorts the rows by timeframe, coarsest first, each
+  in its member order (for a calendar, chronological order); `"given"`
+  keeps the rows as supplied.
 
 - ...:
 

@@ -4,10 +4,18 @@
 \alias{calendar_map_between}
 \title{Crosswalk between two calendars over the base grid}
 \usage{
-calendar_map_between(from, to, year, by = NULL, tz = "UTC")
+calendar_map_between(
+  source,
+  target,
+  year,
+  by = NULL,
+  tz = "UTC",
+  from = lifecycle::deprecated(),
+  to = lifecycle::deprecated()
+)
 }
 \arguments{
-\item{from, to}{\code{\link{Calendar}} objects (both must be named).}
+\item{source, target}{\code{\link{Calendar}} objects (both must be named).}
 
 \item{year}{Integer vector of model year(s); multi-year maps carry all
 years in the \code{year} column.}
@@ -16,10 +24,12 @@ years in the \code{year} column.}
 timeframe of the two calendars.}
 
 \item{tz}{Time zone of the grid. Default \code{"UTC"}.}
+
+\item{from, to}{Deprecated names of \code{source} and \code{target}.}
 }
 \value{
-A \code{data.frame} with columns \code{year}, \verb{<from name>}, \verb{<to name>}
-(\code{NA} = uncovered by \code{to}), \code{n_from}, \code{n_overlap}, \code{w}.
+A \code{data.frame} with columns \code{year}, \verb{<source name>}, \verb{<target name>}
+(\code{NA} = uncovered by \code{target}), \code{n_from}, \code{n_overlap}, \code{w}.
 }
 \description{
 Materialises the \code{A -> base -> B} route as a table: for the requested
@@ -27,7 +37,7 @@ model year(s), one row per pair of overlapping timeslices with
 }
 \details{
 \itemize{
-\item \code{n_from} -- grid points in the \code{from} timeslice (its full set, before
+\item \code{n_from} -- grid points in the \code{source} timeslice (its full set, before
 any target coverage is considered),
 \item \code{n_overlap} -- grid points the pair shares,
 \item \code{w} -- the share weight of the overlap
@@ -37,7 +47,7 @@ any target coverage is considered),
 
 The two label columns are named by the calendars' names (so the map
 joins directly onto datasets labelled by \code{\link[=join_calendar]{join_calendar()}}); rows with
-an \code{NA} target label are grid points \code{to} does not cover. A crosswalk
+an \code{NA} target label are grid points \code{target} does not cover. A crosswalk
 registered with \code{\link[=register_calendar_map_between]{register_calendar_map_between()}} is returned as-is
 instead of being derived from the grid.
 }

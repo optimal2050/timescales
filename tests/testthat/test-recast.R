@@ -147,7 +147,7 @@ test_that("recast aggregates monthly -> quarterly with day-weighted mean", {
   cal_q <- .quarter_cal()
   x <- data.frame(timeslice = sprintf("m%02d", 1:12),
                   load  = seq(100, 210, length.out = 12))
-  out <- recast_calendar(x, from = cal_m, to = cal_q, year = 2021,
+  out <- recast_calendar(x, source = cal_m, target = cal_q, year = 2021,
                 rule = "weighted_mean", by = "day")
   expect_named(out, c("timeslice", "load"))
   expect_equal(out$timeslice, sprintf("Q%d", 1:4))
@@ -163,7 +163,7 @@ test_that("recast 'sum' conserves totals (the 0.1.0 defect)", {
   cal_q <- .quarter_cal()
   # one unit per month -> each quarter gets 3, total stays 12
   x <- data.frame(timeslice = sprintf("m%02d", 1:12), v = rep(1, 12))
-  out <- recast_calendar(x, from = cal_m, to = cal_q, year = 2021,
+  out <- recast_calendar(x, source = cal_m, target = cal_q, year = 2021,
                 rule = "sum", by = "day")
   expect_equal(out$v, rep(3, 4))
   expect_equal(sum(out$v), sum(x$v))
@@ -172,7 +172,7 @@ test_that("recast 'sum' conserves totals (the 0.1.0 defect)", {
 test_that("recast 'sum' conserves through a two-level hierarchy", {
   cal  <- calendar_build("q4", "h24")
   x <- data.frame(timeslice = S7::prop(cal, "leaftable")$timeslice, v = 1)
-  out <- recast_calendar(x, from = cal, to = calendar_build("q4"), year = 2021,
+  out <- recast_calendar(x, source = cal, target = calendar_build("q4"), year = 2021,
                 rule = "sum")
   expect_equal(sum(out$v), 96)  # was 8760 before the fix
   expect_equal(out$v, rep(24, 4))
@@ -244,7 +244,7 @@ test_that("recast roundtrips identity on the same calendar", {
   cal <- .month_cal()
   x <- data.frame(timeslice = sprintf("m%02d", 1:12),
                   v = seq_len(12) * 1.5)
-  out <- recast_calendar(x, from = cal, to = cal, year = 2021, by = "day",
+  out <- recast_calendar(x, source = cal, target = cal, year = 2021, by = "day",
                          rule = "mean")
   expect_equal(out$v, x$v, tolerance = 1e-10)
 })
@@ -254,7 +254,7 @@ test_that("recast roundtrips identity on the same calendar", {
 test_that("recast accepts a timeframe name for `to`", {
   cal <- calendar_build("q4", "h24")
   x <- data.frame(timeslice = S7::prop(cal, "leaftable")$timeslice, v = 1)
-  out <- recast_calendar(x, cal, to = "QUARTER", year = 2021, rule = "sum")
+  out <- recast_calendar(x, cal, target = "QUARTER", year = 2021, rule = "sum")
   expect_equal(out$timeslice, sprintf("Q%d", 1:4))
   expect_equal(sum(out$v), 96)
 })
@@ -262,7 +262,7 @@ test_that("recast accepts a timeframe name for `to`", {
 test_that("recast to = 'ANNUAL' aggregates to the root", {
   cal <- calendar_build("q4", "h24")
   x <- data.frame(timeslice = S7::prop(cal, "leaftable")$timeslice, v = 1)
-  out <- recast_calendar(x, cal, to = "ANNUAL", year = 2021, rule = "sum")
+  out <- recast_calendar(x, cal, target = "ANNUAL", year = 2021, rule = "sum")
   expect_equal(out$timeslice, "ANNUAL")
   expect_equal(out$v, 96)
 })
@@ -275,7 +275,7 @@ test_that("na_action = 'drop' warns and loses uncovered share", {
   x <- data.frame(timeslice = sprintf("m%02d", 1:12), v = rep(1, 12))
   expect_warning(
     out <- recast_calendar(x, cal_m, cal_d360, year = 2021, rule = "sum", by = "day"),
-    "not covered by `to`"
+    "not covered by `target`"
   )
   expect_lt(sum(out$v, na.rm = TRUE), 12)
 })
@@ -344,7 +344,7 @@ test_that("recast warns when source timeslices are missing from x", {
   x <- data.frame(timeslice = sprintf("m%02d", 1:6),  # only first half-year
                   load  = 1:6 * 1.0)
   expect_warning(
-    recast_calendar(x, from = cal_m, to = cal_q, year = 2021, by = "day",
+    recast_calendar(x, source = cal_m, target = cal_q, year = 2021, by = "day",
            rule = "weighted_mean"),
     "missing from `x`"
   )
@@ -355,7 +355,7 @@ test_that("recast errors when key column missing", {
   cal_q <- .quarter_cal()
   x <- data.frame(month = sprintf("m%02d", 1:12), v = 1:12)
   expect_error(
-    recast_calendar(x, from = cal_m, to = cal_q, year = 2021),
+    recast_calendar(x, source = cal_m, target = cal_q, year = 2021),
     "no column named"
   )
 })
@@ -366,7 +366,7 @@ test_that("recast handles multiple value columns", {
   x <- data.frame(timeslice = sprintf("m%02d", 1:12),
                   a = 1:12 * 1.0,
                   b = 12:1 * 1.0)
-  out <- recast_calendar(x, from = cal_m, to = cal_q, year = 2021, by = "day",
+  out <- recast_calendar(x, source = cal_m, target = cal_q, year = 2021, by = "day",
                          rule = "weighted_mean")
   expect_named(out, c("timeslice", "a", "b"))
   expect_equal(nrow(out), 4)
@@ -422,7 +422,7 @@ test_that("unknown source keys warn and are ignored", {
   expect_warning(
     out <- recast_calendar(x, cal_m, cal_q, year = 2021, rule = "sum",
                            by = "day"),
-    "not timeslices of `from`"
+    "not timeslices of `source`"
   )
   expect_equal(sum(out$v), 12)
 })
@@ -448,7 +448,7 @@ test_that("recast() generic dispatches the Calendar method", {
   expect_identical(x |> recast(cal_m, cal_q, year = 2021, rule = "sum",
                                by = "day"), wrk)
   # no method for a non-scale `from`
-  expect_error(recast(x, 42, to = "x"), "recast")
+  expect_error(recast(x, 42, target = "x"), "recast")
 })
 
 test_that("validator rejects reserved timeframe names", {
@@ -465,7 +465,7 @@ test_that("rule share stays keyed by `from` and sums to 1 per parent", {
   cal <- calendar_build("q4", "h24")
   lt <- S7::prop(cal, "leaftable")
   x <- data.frame(timeslice = lt$timeslice, load = seq_len(nrow(lt)))
-  out <- recast_calendar(x, cal, to = "QUARTER", year = 2021, rule = "share")
+  out <- recast_calendar(x, cal, target = "QUARTER", year = 2021, rule = "share")
   expect_named(out, c("timeslice", "load"))
   expect_setequal(out$timeslice, lt$timeslice)
   sums <- tapply(out$load, substr(out$timeslice, 1, 2), sum)
@@ -476,14 +476,14 @@ test_that("rule share: parent=, to= and the ANNUAL root agree", {
   cal <- calendar_build("q4", "h24")
   lt <- S7::prop(cal, "leaftable")
   x <- data.frame(timeslice = lt$timeslice, load = seq_len(nrow(lt)))
-  a <- recast_calendar(x, cal, to = "QUARTER", year = 2021, rule = "share")
-  b <- recast_calendar(x, cal, to = cal, year = 2021, rule = "share",
+  a <- recast_calendar(x, cal, target = "QUARTER", year = 2021, rule = "share")
+  b <- recast_calendar(x, cal, target = cal, year = 2021, rule = "share",
                        parent = "QUARTER")
   expect_equal(a, b)
   # default parent (to == from) is the second-finest timeframe: QUARTER
-  d <- recast_calendar(x, cal, to = cal, year = 2021, rule = "share")
+  d <- recast_calendar(x, cal, target = cal, year = 2021, rule = "share")
   expect_equal(a, d)
-  ann <- recast_calendar(x, cal, to = "ANNUAL", year = 2021, rule = "share")
+  ann <- recast_calendar(x, cal, target = "ANNUAL", year = 2021, rule = "share")
   expect_equal(sum(ann$load), 1, tolerance = 1e-12)
 })
 
@@ -493,7 +493,7 @@ test_that("rule share treats identifier columns as independent groups", {
   x <- data.frame(timeslice = lt$timeslice, load = seq_len(nrow(lt)))
   xp <- rbind(transform(x, city = "A"),
               transform(x, city = "B", load = load * 3))
-  out <- recast_calendar(xp, cal, to = "QUARTER", year = 2021,
+  out <- recast_calendar(xp, cal, target = "QUARTER", year = 2021,
                          rule = "share", values = "load")
   sums <- tapply(out$load, list(out$city, substr(out$timeslice, 1, 2)), sum)
   expect_equal(unname(as.vector(sums)), rep(1, 8), tolerance = 1e-12)
@@ -504,7 +504,7 @@ test_that("rule share: a zero-total parent yields NA shares", {
   lt <- S7::prop(cal, "leaftable")
   x <- data.frame(timeslice = lt$timeslice, load = seq_len(nrow(lt)))
   x$load[substr(x$timeslice, 1, 2) == "Q1"] <- 0
-  out <- recast_calendar(x, cal, to = "QUARTER", year = 2021, rule = "share")
+  out <- recast_calendar(x, cal, target = "QUARTER", year = 2021, rule = "share")
   q1 <- substr(out$timeslice, 1, 2) == "Q1"
   expect_true(all(is.na(out$load[q1])))
   expect_equal(sum(out$load[!q1]), 3, tolerance = 1e-12)
@@ -520,10 +520,10 @@ test_that("rule share errors are specific", {
   register_calendar_rule("other", "sum")
   on.exit(clear_calendar_rules(c("load", "other")))
   expect_error(
-    recast_calendar(x, cal, to = "QUARTER", year = 2021),
+    recast_calendar(x, cal, target = "QUARTER", year = 2021),
     "cannot be mixed")
   expect_error(
-    recast_calendar(x, cal, to = "QUARTER", year = 2021, rule = "sum",
+    recast_calendar(x, cal, target = "QUARTER", year = 2021, rule = "sum",
                     parent = "QUARTER", values = "load"),
     "applies to rule")
   expect_error(
@@ -539,7 +539,7 @@ test_that("rule share errors when the source straddles the parent", {
   x <- data.frame(timeslice = sprintf("m%02d", 1:12), load = 1)
   expect_error(
     suppressWarnings(
-      recast_calendar(x, cal_m, to = cal_w, year = 2021, rule = "share")),
+      recast_calendar(x, cal_m, target = cal_w, year = 2021, rule = "share")),
     "nest")
 })
 
@@ -550,7 +550,7 @@ test_that("rule share resolves from the registry", {
   on.exit(clear_calendar_rules("ts_share_test"))
   x <- data.frame(timeslice = lt$timeslice,
                   ts_share_test = seq_len(nrow(lt)))
-  out <- recast_calendar(x, cal, to = "QUARTER", year = 2021)
+  out <- recast_calendar(x, cal, target = "QUARTER", year = 2021)
   sums <- tapply(out$ts_share_test, substr(out$timeslice, 1, 2), sum)
   expect_equal(as.vector(sums), rep(1, 4), tolerance = 1e-12)
 })
@@ -559,8 +559,8 @@ test_that("rule logshare computes the same shares as share", {
   cal <- calendar_build("q4", "h24")
   lt <- S7::prop(cal, "leaftable")
   x <- data.frame(timeslice = lt$timeslice, load = seq_len(nrow(lt)))
-  a <- recast_calendar(x, cal, to = "QUARTER", year = 2021, rule = "share")
-  b <- recast_calendar(x, cal, to = "QUARTER", year = 2021,
+  a <- recast_calendar(x, cal, target = "QUARTER", year = 2021, rule = "share")
+  b <- recast_calendar(x, cal, target = "QUARTER", year = 2021,
                        rule = "logshare")
   expect_equal(a, b)
 })

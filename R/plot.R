@@ -417,7 +417,7 @@ calendar_autoplot <- function(x,
          "through recast_calendar(), which requires it", call. = FALSE)
   }
   vals <- lapply(tfs, function(tf) {
-    as.data.frame(recast_calendar(data, from = calendar, to = tf,
+    as.data.frame(recast_calendar(data, source = calendar, target = tf,
                                   year = year, values = z, rule = rule,
                                   by = by))
   })
@@ -465,13 +465,13 @@ calendar_autoplot <- function(x,
     if (tf == "ANNUAL") {
       return(data.frame(timeslice = "ANNUAL", v = 1))
     }
-    s <- as.data.frame(recast_calendar(data, from = calendar, to = tf,
+    s <- as.data.frame(recast_calendar(data, source = calendar, target = tf,
                                        year = year, values = z,
                                        rule = "sum", by = by))
     parent <- if (i > 1L && tfs[[i - 1L]] != "ANNUAL") tfs[[i - 1L]]
               else "ANNUAL"
-    as.data.frame(recast_calendar(s, from = prune_calendar(calendar, tf),
-                                  to = parent, year = year, values = z,
+    as.data.frame(recast_calendar(s, source = prune_calendar(calendar, tf),
+                                  target = parent, year = year, values = z,
                                   rule = "share", by = by))
   })
   vals <- lapply(vals, function(v) {

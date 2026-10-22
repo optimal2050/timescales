@@ -1,8 +1,23 @@
 # Changelog
 
+## timescales 0.7.0
+
+- Requires nestedscales 0.2.0.
+- Leaftable rows are in nested, chronological order by default: sorted
+  by timeframe, coarsest first, each in its member order.
+  `row_order = "given"` keeps the rows as supplied.
+- `from` and `to` are now `source` and `target` in the navigation, map,
+  conversion-registry and
+  [`recast_calendar()`](https://optimal2050.github.io/timescales/r/reference/recast_calendar.md)
+  functions, matching nestedscales. The old names still work, with a
+  deprecation warning, and will be removed in a later release.
+- The [`recast()`](https://rdrr.io/pkg/nestedscales/man/recast.html)
+  method follows the generic’s new arguments:
+  `recast(x, scale, target, source = NULL, ...)`.
+
 ## timescales 0.6.0
 
-### Breaking: crosswalk functions split by task
+### Breaking changes
 
 - `calendar_map(x, from, to)` now maps between two timeframes of one
   calendar (through the shared core); the map between two calendars on
@@ -19,6 +34,14 @@
   deprecation aliases.
 - The shared core package is now called nestedscales (formerly
   multiscales); `data/calendars.rda` was rebuilt against it.
+
+### Bug fixes
+
+- Panel-data expansion to the datetime base now declares its expected
+  many-to-many join and no longer emits a dplyr relationship warning.
+- [`datetime_to_timeslice()`](https://optimal2050.github.io/timescales/r/reference/datetime_to_timeslice.md)
+  on a `drop_feb29` calendar (`d365`, `d365_h24`, `fy04_d365*`) returns
+  `NA` for a missing datetime instead of erroring.
 
 ## timescales 0.5.0.9000
 

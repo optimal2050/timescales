@@ -22,13 +22,16 @@ utils::globalVariables(c(".ts_to", ".ts_y", ".ts_f", ".ts_n_from",
                          ".ts_n_overlap", ".ts_w", ".ts_label",
                          ".ts_year"))
 
-.ts_backend <- nestedscales::.ms_backend
-.ts_is_lazy <- nestedscales::.ms_is_lazy
-.ts_lazy    <- nestedscales::.ms_lazy
-.ts_schema  <- nestedscales::.ms_schema
-.ts_pull    <- nestedscales::.ms_pull
-.ts_restore <- nestedscales::.ms_restore
+# NA for an unsupported input; callers raise their own error.
+.ts_backend <- function(x) {
+  tryCatch(nestedscales::backend_of(x), error = function(e) NA_character_)
+}
+.ts_is_lazy <- nestedscales::backend_is_lazy
+.ts_lazy    <- nestedscales::backend_lazy
+.ts_schema  <- nestedscales::backend_schema
+.ts_pull    <- nestedscales::backend_pull
+.ts_restore <- nestedscales::backend_restore
 
-# No `.ms_` counterpart: trivial over the schema.
+# No nestedscales counterpart: trivial over the schema.
 #' @noRd
 .ts_names <- function(x) names(.ts_schema(x))

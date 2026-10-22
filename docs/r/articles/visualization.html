@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">timescales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.6.0</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -55,6 +55,7 @@
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
 </form></li>
+<li class="nav-item"><a class="nav-link" href="../../python/">Python</a></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/optimal2050/timescales/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-lightswitch" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true" aria-label="Light switch"><span class="fa fa-sun"></span></button>
@@ -293,11 +294,11 @@ panel across resolutions:</p>
 <span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">6</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   timeslice    city      T10M     W50M</span></span>
 <span><span class="co">#&gt; 1    Q1_DAY Beijing  2.541667 5.709537</span></span>
-<span><span class="co">#&gt; 2    Q2_DAY Beijing 21.282967 5.738462</span></span>
-<span><span class="co">#&gt; 3    Q3_DAY Beijing 25.997283 4.445924</span></span>
-<span><span class="co">#&gt; 4    Q4_DAY Beijing  5.854167 4.850725</span></span>
-<span><span class="co">#&gt; 5  Q1_NIGHT Beijing  1.844444 5.310000</span></span>
-<span><span class="co">#&gt; 6  Q2_NIGHT Beijing 21.416209 4.363736</span></span>
+<span><span class="co">#&gt; 2  Q1_NIGHT Beijing  1.844444 5.310000</span></span>
+<span><span class="co">#&gt; 3   Q1_PEAK Beijing -1.886111 5.897778</span></span>
+<span><span class="co">#&gt; 4    Q2_DAY Beijing 21.282967 5.738462</span></span>
+<span><span class="co">#&gt; 5  Q2_NIGHT Beijing 21.416209 4.363736</span></span>
+<span><span class="co">#&gt; 6   Q2_PEAK Beijing 15.096154 4.604945</span></span>
 <span></span>
 <span><span class="co"># ... and to the seasonal view</span></span>
 <span><span class="va">panel</span> <span class="op">|&gt;</span></span>
@@ -319,7 +320,7 @@ timeslice), each city’s annual total survives the trip to
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarise</a></span><span class="op">(</span>SWGDN <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">SWGDN</span><span class="op">)</span>, .by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">city</span>, <span class="va">timeslice</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">irr</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/recast_calendar.html">recast_calendar</a></span><span class="op">(</span><span class="va">cal</span>, to <span class="op">=</span> <span class="st">"ANNUAL"</span>, year <span class="op">=</span> <span class="fl">2019</span>, rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="../reference/recast_calendar.html">recast_calendar</a></span><span class="op">(</span><span class="va">cal</span>, target <span class="op">=</span> <span class="st">"ANNUAL"</span>, year <span class="op">=</span> <span class="fl">2019</span>, rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    timeslice      city   SWGDN</span></span>
 <span><span class="co">#&gt; 1     ANNUAL   Beijing 1685648</span></span>
 <span><span class="co">#&gt; 2     ANNUAL Cape Town 1972784</span></span>
@@ -380,7 +381,7 @@ for all three cities:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">panel</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">city</span>, <span class="va">timeslice</span>, <span class="va">T10M</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/recast_calendar.html">recast_calendar</a></span><span class="op">(</span><span class="va">cal</span>, to <span class="op">=</span> <span class="st">"MONTH"</span>, year <span class="op">=</span> <span class="fl">2019</span>,</span>
+<span>  <span class="fu"><a href="../reference/recast_calendar.html">recast_calendar</a></span><span class="op">(</span><span class="va">cal</span>, target <span class="op">=</span> <span class="st">"MONTH"</span>, year <span class="op">=</span> <span class="fl">2019</span>,</span>
 <span>                  rule <span class="op">=</span> <span class="st">"weighted_mean"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="va">timeslice</span>, <span class="va">T10M</span>, color <span class="op">=</span> <span class="va">city</span>, group <span class="op">=</span> <span class="va">city</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>linewidth <span class="op">=</span> <span class="fl">1</span><span class="op">)</span> <span class="op">+</span></span>

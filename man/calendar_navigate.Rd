@@ -8,13 +8,37 @@
 \alias{calendar_ancestors}
 \title{Navigate a Calendar hierarchy}
 \usage{
-calendar_children(x, timeframe, label, to = NULL)
+calendar_children(
+  x,
+  timeframe,
+  label,
+  target = NULL,
+  to = lifecycle::deprecated()
+)
 
-calendar_parents(x, timeframe, label, to = NULL)
+calendar_parents(
+  x,
+  timeframe,
+  label,
+  target = NULL,
+  to = lifecycle::deprecated()
+)
 
-calendar_descendants(x, timeframe, label, to = NULL)
+calendar_descendants(
+  x,
+  timeframe,
+  label,
+  target = NULL,
+  to = lifecycle::deprecated()
+)
 
-calendar_ancestors(x, timeframe, label, to = NULL)
+calendar_ancestors(
+  x,
+  timeframe,
+  label,
+  target = NULL,
+  to = lifecycle::deprecated()
+)
 }
 \arguments{
 \item{x}{A \link{Calendar}.}
@@ -23,9 +47,11 @@ calendar_ancestors(x, timeframe, label, to = NULL)
 
 \item{label}{One or more labels at \code{timeframe}.}
 
-\item{to}{Optional target timeframe; defaults to the adjacent one
+\item{target}{Optional target timeframe; defaults to the adjacent one
 (children/parents) or the full transitive range
 (descendants/ancestors).}
+
+\item{to}{Deprecated name of \code{target}.}
 }
 \value{
 \code{calendar_children()} / \code{calendar_parents()} return a
@@ -39,10 +65,10 @@ strictly, so these are exact partitions:
 }
 \details{
 \itemize{
-\item \code{calendar_children()} — one step finer (or at \code{to}).
-\item \code{calendar_parents()} — one step coarser (or at \code{to}).
-\item \code{calendar_descendants()} — all finer timeframes (down to \code{to}).
-\item \code{calendar_ancestors()} — all coarser timeframes (up to \code{to}).
+\item \code{calendar_children()} — one step finer (or at \code{target}).
+\item \code{calendar_parents()} — one step coarser (or at \code{target}).
+\item \code{calendar_descendants()} — all finer timeframes (down to \code{target}).
+\item \code{calendar_ancestors()} — all coarser timeframes (up to \code{target}).
 }
 }
 \examples{

@@ -6,8 +6,8 @@
 \usage{
 recast_calendar(
   x,
-  from,
-  to,
+  source,
+  target,
   year,
   key = NULL,
   values = NULL,
@@ -16,7 +16,9 @@ recast_calendar(
   tz = "UTC",
   na_action = c("drop", "error", "keep"),
   parent = NULL,
-  collect = NULL
+  collect = NULL,
+  from = lifecycle::deprecated(),
+  to = lifecycle::deprecated()
 )
 }
 \arguments{
@@ -24,9 +26,9 @@ recast_calendar(
 named by \code{key} plus one or more numeric value columns; other columns
 are preserved as identifiers.}
 
-\item{from}{Source \code{\link{Calendar}}.}
+\item{source}{Source \code{\link{Calendar}}.}
 
-\item{to}{Destination \code{\link{Calendar}}, or a timeframe name of \code{from}
+\item{target}{Destination \code{\link{Calendar}}, or a timeframe name of \code{source}
 (including \code{"ANNUAL"}) for within-calendar aggregation via
 \code{\link[=prune_calendar]{prune_calendar()}}.}
 
@@ -37,7 +39,7 @@ on the shared grid.}
 resolves to \code{"timeslice"}.}
 
 \item{values}{Character vector of value columns to transform. Default:
-all numeric columns other than \code{key} and \code{from}'s timeframe columns.
+all numeric columns other than \code{key} and \code{source}'s timeframe columns.
 Numeric identifiers (e.g. \code{year}) must be excluded explicitly.}
 
 \item{rule}{One of \code{\link{CALENDAR_RULES}}, applied to every value column; or
@@ -51,32 +53,34 @@ finest timeframe of the two calendars.}
 
 \item{tz}{Time zone for the shared grid. Default \code{"UTC"}.}
 
-\item{na_action}{What to do with grid points not covered by \code{to}:
+\item{na_action}{What to do with grid points not covered by \code{target}:
 \code{"drop"} (default, with a warning -- the affected source share is
 genuinely lost), \code{"error"}, or \code{"keep"} (retain an explicit \code{NA}
-timeslice row so totals conserve). Grid points not covered by \code{from}
+timeslice row so totals conserve). Grid points not covered by \code{source}
 carry no data and are always dropped.}
 
 \item{parent}{\code{rule = "share"} only: the \code{\link{Calendar}} (or timeframe name
-of \code{from}) defining the groups the shares are taken within. \code{NULL}
-(default) uses \code{to} when it differs from \code{from}, else \code{from} pruned
+of \code{source}) defining the groups the shares are taken within. \code{NULL}
+(default) uses \code{target} when it differs from \code{source}, else \code{source} pruned
 to its second-finest timeframe.}
 
 \item{collect}{For lazy inputs (arrow, dtplyr): materialise the result
 (\code{TRUE}) or return the uncollected query (default).}
+
+\item{from, to}{Deprecated names of \code{source} and \code{target}.}
 }
 \value{
 The recast table in the input's class, with columns
 \code{c(key, identifiers, values)}: per identifier combination, one row per
-timeslice in \code{to} (the full target vocabulary, \code{NA} where uncovered --
+timeslice in \code{target} (the full target vocabulary, \code{NA} where uncovered --
 a deliberate divergence from \code{recast_geoscale()}, which emits observed
 combinations only), plus an \code{NA} timeslice row under
 \code{na_action = "keep"}. Identifier column types are preserved.
 }
 \description{
 The central conversion verb. Takes a table keyed by timeslice in
-calendar \code{from} with one or more numeric value columns, and returns the
-same table keyed by timeslice in calendar \code{to}. Every conversion routes
+calendar \code{source} with one or more numeric value columns, and returns the
+same table keyed by timeslice in calendar \code{target}. Every conversion routes
 \code{A -> base -> B} through the shared datetime grid: source values are
 projected down to grid points, then aggregated up to target timeslices,
 so aggregation and disaggregation are one operation. The route is
@@ -92,7 +96,7 @@ as identifiers (panel columns -- a \code{city}, a scenario) and preserved as
 grouping columns, so panel data recasts correctly in one call; this is
 what makes mixed pipelines like
 \code{x |> recast_calendar(...) |> recast_geoscale(...)} work. Columns named like
-\code{from}'s timeframes are treated as timeslice attributes and dropped.
+\code{source}'s timeframes are treated as timeslice attributes and dropped.
 
 The public halves of the route are \code{\link[=recast_to_timebase]{recast_to_timebase()}} and
 \code{\link[=recast_from_timebase]{recast_from_timebase()}}; \code{recast_calendar(x, from, to)} is equivalent to
@@ -108,10 +112,10 @@ timeslice; \code{"sd"} is aggregation-only. There is no \verb{weight=} argument:
 calendar has exactly one weighting, its \code{leaves$share}.
 
 \code{"share"} inverts the output contract: the result stays keyed by
-\code{from}'s timeslices, and each value becomes that timeslice's share of
+\code{source}'s timeslices, and each value becomes that timeslice's share of
 the total over its parent timeslice (so shares sum to 1 per parent, per
-identifier combination). The parent is \verb{parent=}, defaulting to \code{to} --
-\code{recast_calendar(x, cal_h, to = "YDAY", rule = "share")} reads: each
+identifier combination). The parent is \verb{parent=}, defaulting to \code{target} --
+\code{recast_calendar(x, cal_h, target = "YDAY", rule = "share")} reads: each
 hour's share within its day. The source timeslices must nest within the
 parent's (a week-vs-month pair errors). A parent whose total is zero
 yields \code{NA} shares. \code{"share"} cannot be combined with other rules in
@@ -135,7 +139,7 @@ x <- data.frame(
   timeslice = sprintf("m\%02d", 1:12),
   load  = seq(100, 210, length.out = 12)
 )
-recast_calendar(x, from = cal_m, to = cal_q, year = 2021,
+recast_calendar(x, source = cal_m, target = cal_q, year = 2021,
                 rule = "weighted_mean")
 
 # Panel data: the city column is carried through
@@ -145,5 +149,5 @@ recast_calendar(xp, cal_m, cal_q, year = 2021, rule = "sum")
 # Within-calendar aggregation, and the ANNUAL root
 cal <- calendar_build("q4", "h24")
 xh <- data.frame(timeslice = S7::prop(cal, "leaftable")$timeslice, energy = 1)
-recast_calendar(xh, cal, to = "ANNUAL", year = 2021, rule = "sum")  # 96
+recast_calendar(xh, cal, target = "ANNUAL", year = 2021, rule = "sum")  # 96
 }

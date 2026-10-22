@@ -1,12 +1,12 @@
 # Recast values from one calendar to another
 
 The central conversion verb. Takes a table keyed by timeslice in
-calendar `from` with one or more numeric value columns, and returns the
-same table keyed by timeslice in calendar `to`. Every conversion routes
-`A -> base -> B` through the shared datetime grid: source values are
-projected down to grid points, then aggregated up to target timeslices,
-so aggregation and disaggregation are one operation. The route is
-evaluated as one dplyr pipeline against the
+calendar `source` with one or more numeric value columns, and returns
+the same table keyed by timeslice in calendar `target`. Every conversion
+routes `A -> base -> B` through the shared datetime grid: source values
+are projected down to grid points, then aggregated up to target
+timeslices, so aggregation and disaggregation are one operation. The
+route is evaluated as one dplyr pipeline against the
 [`calendar_map_between()`](https://optimal2050.github.io/timescales/r/reference/calendar_map_between.md)
 crosswalk, so `x` may live in any supported backend (see below). A
 pairwise override registered with
@@ -20,8 +20,8 @@ short-circuits the grid route.
 ``` r
 recast_calendar(
   x,
-  from,
-  to,
+  source,
+  target,
   year,
   key = NULL,
   values = NULL,
@@ -30,7 +30,9 @@ recast_calendar(
   tz = "UTC",
   na_action = c("drop", "error", "keep"),
   parent = NULL,
-  collect = NULL
+  collect = NULL,
+  from = lifecycle::deprecated(),
+  to = lifecycle::deprecated()
 )
 ```
 
@@ -42,16 +44,16 @@ recast_calendar(
   `key` plus one or more numeric value columns; other columns are
   preserved as identifiers.
 
-- from:
+- source:
 
   Source
   [`Calendar`](https://optimal2050.github.io/timescales/r/reference/Calendar.md).
 
-- to:
+- target:
 
   Destination
   [`Calendar`](https://optimal2050.github.io/timescales/r/reference/Calendar.md),
-  or a timeframe name of `from` (including `"ANNUAL"`) for
+  or a timeframe name of `source` (including `"ANNUAL"`) for
   within-calendar aggregation via
   [`prune_calendar()`](https://optimal2050.github.io/timescales/r/reference/prune_calendar.md).
 
@@ -68,7 +70,7 @@ recast_calendar(
 - values:
 
   Character vector of value columns to transform. Default: all numeric
-  columns other than `key` and `from`'s timeframe columns. Numeric
+  columns other than `key` and `source`'s timeframe columns. Numeric
   identifiers (e.g. `year`) must be excluded explicitly.
 
 - rule:
@@ -93,31 +95,35 @@ recast_calendar(
 
 - na_action:
 
-  What to do with grid points not covered by `to`: `"drop"` (default,
-  with a warning – the affected source share is genuinely lost),
-  `"error"`, or `"keep"` (retain an explicit `NA` timeslice row so
-  totals conserve). Grid points not covered by `from` carry no data and
-  are always dropped.
+  What to do with grid points not covered by `target`: `"drop"`
+  (default, with a warning – the affected source share is genuinely
+  lost), `"error"`, or `"keep"` (retain an explicit `NA` timeslice row
+  so totals conserve). Grid points not covered by `source` carry no data
+  and are always dropped.
 
 - parent:
 
   `rule = "share"` only: the
   [`Calendar`](https://optimal2050.github.io/timescales/r/reference/Calendar.md)
-  (or timeframe name of `from`) defining the groups the shares are taken
-  within. `NULL` (default) uses `to` when it differs from `from`, else
-  `from` pruned to its second-finest timeframe.
+  (or timeframe name of `source`) defining the groups the shares are
+  taken within. `NULL` (default) uses `target` when it differs from
+  `source`, else `source` pruned to its second-finest timeframe.
 
 - collect:
 
   For lazy inputs (arrow, dtplyr): materialise the result (`TRUE`) or
   return the uncollected query (default).
 
+- from, to:
+
+  Deprecated names of `source` and `target`.
+
 ## Value
 
 The recast table in the input's class, with columns
 `c(key, identifiers, values)`: per identifier combination, one row per
-timeslice in `to` (the full target vocabulary, `NA` where uncovered – a
-deliberate divergence from `recast_geoscale()`, which emits observed
+timeslice in `target` (the full target vocabulary, `NA` where uncovered
+– a deliberate divergence from `recast_geoscale()`, which emits observed
 combinations only), plus an `NA` timeslice row under
 `na_action = "keep"`. Identifier column types are preserved.
 
@@ -128,7 +134,7 @@ as identifiers (panel columns – a `city`, a scenario) and preserved as
 grouping columns, so panel data recasts correctly in one call; this is
 what makes mixed pipelines like
 `x |> recast_calendar(...) |> recast_geoscale(...)` work. Columns named
-like `from`'s timeframes are treated as timeslice attributes and
+like `source`'s timeframes are treated as timeslice attributes and
 dropped.
 
 The public halves of the route are
@@ -150,12 +156,12 @@ aggregation-only. There is no `weight=` argument: a calendar has exactly
 one weighting, its `leaves$share`.
 
 `"share"` inverts the output contract: the result stays keyed by
-`from`'s timeslices, and each value becomes that timeslice's share of
+`source`'s timeslices, and each value becomes that timeslice's share of
 the total over its parent timeslice (so shares sum to 1 per parent, per
-identifier combination). The parent is `parent=`, defaulting to `to` –
-`recast_calendar(x, cal_h, to = "YDAY", rule = "share")` reads: each
-hour's share within its day. The source timeslices must nest within the
-parent's (a week-vs-month pair errors). A parent whose total is zero
+identifier combination). The parent is `parent=`, defaulting to `target`
+– `recast_calendar(x, cal_h, target = "YDAY", rule = "share")` reads:
+each hour's share within its day. The source timeslices must nest within
+the parent's (a week-vs-month pair errors). A parent whose total is zero
 yields `NA` shares. `"share"` cannot be combined with other rules in one
 call.
 
@@ -178,7 +184,7 @@ x <- data.frame(
   timeslice = sprintf("m%02d", 1:12),
   load  = seq(100, 210, length.out = 12)
 )
-recast_calendar(x, from = cal_m, to = cal_q, year = 2021,
+recast_calendar(x, source = cal_m, target = cal_q, year = 2021,
                 rule = "weighted_mean")
 #>   timeslice     load
 #> 1        Q1 110.0000
@@ -202,7 +208,7 @@ recast_calendar(xp, cal_m, cal_q, year = 2021, rule = "sum")
 # Within-calendar aggregation, and the ANNUAL root
 cal <- calendar_build("q4", "h24")
 xh <- data.frame(timeslice = S7::prop(cal, "leaftable")$timeslice, energy = 1)
-recast_calendar(xh, cal, to = "ANNUAL", year = 2021, rule = "sum")  # 96
+recast_calendar(xh, cal, target = "ANNUAL", year = 2021, rule = "sum")  # 96
 #>   timeslice energy
 #> 1    ANNUAL     96
 ```

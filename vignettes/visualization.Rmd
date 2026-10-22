@@ -185,7 +185,7 @@ irr <- merra2_cities |>
   summarise(SWGDN = sum(SWGDN), .by = c(city, timeslice))
 
 irr |>
-  recast_calendar(cal, to = "ANNUAL", year = 2019, rule = "sum")
+  recast_calendar(cal, target = "ANNUAL", year = 2019, rule = "sum")
 
 # identical to summing the timeslice panel directly:
 irr |> summarise(SWGDN = sum(SWGDN), .by = city)
@@ -222,7 +222,7 @@ three cities:
 ```{r resolutions, fig.width = 7, fig.height = 3.4, eval = viz}
 panel |>
   select(city, timeslice, T10M) |>
-  recast_calendar(cal, to = "MONTH", year = 2019,
+  recast_calendar(cal, target = "MONTH", year = 2019,
                   rule = "weighted_mean") |>
   ggplot(aes(timeslice, T10M, color = city, group = city)) +
   geom_line(linewidth = 1) +

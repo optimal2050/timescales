@@ -15,13 +15,37 @@ calendars, hand-audited crosswalks).
 ## Usage
 
 ``` r
-register_calendar_map(x, from, to, map)
+register_calendar_map(
+  x,
+  source,
+  target,
+  map,
+  from = lifecycle::deprecated(),
+  to = lifecycle::deprecated()
+)
 
-register_calendar_map_between(from, to, map)
+register_calendar_map_between(
+  source,
+  target,
+  map,
+  from = lifecycle::deprecated(),
+  to = lifecycle::deprecated()
+)
 
-get_calendar_map(x, from, to)
+get_calendar_map(
+  x,
+  source,
+  target,
+  from = lifecycle::deprecated(),
+  to = lifecycle::deprecated()
+)
 
-get_calendar_map_between(from, to)
+get_calendar_map_between(
+  source,
+  target,
+  from = lifecycle::deprecated(),
+  to = lifecycle::deprecated()
+)
 ```
 
 ## Arguments
@@ -32,12 +56,9 @@ get_calendar_map_between(from, to)
   [`Calendar`](https://optimal2050.github.io/timescales/r/reference/Calendar.md)
   the timeframes belong to, or its name.
 
-- from, to:
+- source, target:
 
-  For the within-calendar functions, timeframe names of `x`. For the
-  `_between` functions, two
-  [`Calendar`](https://optimal2050.github.io/timescales/r/reference/Calendar.md)
-  objects or their names (`meta$name`).
+  For the within-calendar functions, timeframe names of `x`.
 
 - map:
 
@@ -45,6 +66,13 @@ get_calendar_map_between(from, to)
   columns named after the timeframes (plus `n_from`, `n_overlap`, `w`,
   `w_from`) or after the calendars (plus `year`, `n_from`, `n_overlap`,
   `w`). `NULL` removes a previously registered map.
+
+- from, to:
+
+  Deprecated names of `source` and `target`. For the `_between`
+  functions, two
+  [`Calendar`](https://optimal2050.github.io/timescales/r/reference/Calendar.md)
+  objects or their names (`meta$name`).
 
 ## Value
 

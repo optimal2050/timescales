@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">timescales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.6.0</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -55,6 +55,7 @@
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
 </form></li>
+<li class="nav-item"><a class="nav-link" href="../../python/">Python</a></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/optimal2050/timescales/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-lightswitch" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true" aria-label="Light switch"><span class="fa fa-sun"></span></button>
@@ -104,7 +105,8 @@ objects come pre-built in the <code>calendars</code> dataset:</p>
 (timeslices stand for recurring types rather than a partition of the
 timeline — <code>q4_h24</code> is a representative day per quarter).
 <strong>Regularity</strong> flags designs whose timeslices differ in
-length within a level (<code>m12_md365</code>: February is short).</p>
+length within a timeframe (<code>m12_md365</code>: February is
+short).</p>
 <p>The full table is one <code><a href="../reference/calendar_catalog.html">calendar_catalog()</a></code> call; below it
 comes in families, each with one member drawn as an icicle
 (<code><a href="https://ggplot2.tidyverse.org/reference/autoplot.html" class="external-link">autoplot()</a></code>; widths are the timeslice shares, the
@@ -792,7 +794,7 @@ rectangles, usable from any plotting system:</p>
 <p><code><a href="../reference/calendar_plot.html">calendar_plot()</a></code> is the data-on-calendar heatmap: hand it
 a <code>data.frame</code> keyed by timeslice (or nothing, to see the
 share structure). The layout follows the hierarchy — finest timeframe on
-y, next on x, coarser levels as facets:</p>
+y, next on x, coarser timeframes as facets:</p>
 <div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>timeslice <span class="op">=</span> <span class="fu"><a href="../reference/calendar_leaftable.html">calendar_leaftable</a></span><span class="op">(</span><span class="va">calendars</span><span class="op">$</span><span class="va">m12_h24</span><span class="op">)</span><span class="op">$</span><span class="va">timeslice</span><span class="op">)</span></span>
 <span><span class="va">x</span><span class="op">$</span><span class="va">load</span> <span class="op">&lt;-</span> <span class="fl">80</span> <span class="op">+</span> <span class="fl">40</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">sin</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">6</span> <span class="op">*</span> <span class="va">pi</span>, length.out <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
@@ -847,7 +849,7 @@ conserved under <code>rule = "sum"</code>:</p>
 <p>Or aggregate within one calendar via the <code>ANNUAL</code>
 root:</p>
 <div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/recast_calendar.html">recast_calendar</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">calendars</span><span class="op">$</span><span class="va">m12</span>, to <span class="op">=</span> <span class="st">"ANNUAL"</span>, year <span class="op">=</span> <span class="fl">2021</span>, rule <span class="op">=</span> <span class="st">"sum"</span>,</span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/recast_calendar.html">recast_calendar</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">calendars</span><span class="op">$</span><span class="va">m12</span>, target <span class="op">=</span> <span class="st">"ANNUAL"</span>, year <span class="op">=</span> <span class="fl">2021</span>, rule <span class="op">=</span> <span class="st">"sum"</span>,</span>
 <span>       by <span class="op">=</span> <span class="st">"day"</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   timeslice energy</span></span>
 <span><span class="co">#&gt; 1    ANNUAL   3210</span></span></code></pre></div>

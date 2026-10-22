@@ -1,4 +1,4 @@
-pandoc: '3.10'
+pandoc: 3.8.3
 pkgdown: 2.2.1
 pkgdown_sha: ~
 articles:
@@ -8,7 +8,7 @@ articles:
   data-structures: data-structures.html
   timescales: timescales.html
   visualization: visualization.html
-last_built: 2026-10-08T00:55Z
+last_built: 2026-10-21T19:09Z
 urls:
   reference: https://optimal2050.github.io/timescales/r/reference
   article: https://optimal2050.github.io/timescales/r/articles

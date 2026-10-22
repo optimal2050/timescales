@@ -96,7 +96,7 @@ monthly <- data.frame(
   load  = c(120, 118, 105,  92,  85,  88,  95, 100,  98,  90, 105, 122)
 )
 
-recast_calendar(monthly, from = cal_m, to = cal_q, year = 2025,
+recast_calendar(monthly, source = cal_m, target = cal_q, year = 2025,
        rule = "weighted_mean", by = "day")
 ```
 

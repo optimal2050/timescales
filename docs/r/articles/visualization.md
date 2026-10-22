@@ -192,11 +192,11 @@ panel |>
   head(6)
 #>   timeslice    city      T10M     W50M
 #> 1    Q1_DAY Beijing  2.541667 5.709537
-#> 2    Q2_DAY Beijing 21.282967 5.738462
-#> 3    Q3_DAY Beijing 25.997283 4.445924
-#> 4    Q4_DAY Beijing  5.854167 4.850725
-#> 5  Q1_NIGHT Beijing  1.844444 5.310000
-#> 6  Q2_NIGHT Beijing 21.416209 4.363736
+#> 2  Q1_NIGHT Beijing  1.844444 5.310000
+#> 3   Q1_PEAK Beijing -1.886111 5.897778
+#> 4    Q2_DAY Beijing 21.282967 5.738462
+#> 5  Q2_NIGHT Beijing 21.416209 4.363736
+#> 6   Q2_PEAK Beijing 15.096154 4.604945
 
 # ... and to the seasonal view
 panel |>
@@ -221,7 +221,7 @@ irr <- merra2_cities |>
   summarise(SWGDN = sum(SWGDN), .by = c(city, timeslice))
 
 irr |>
-  recast_calendar(cal, to = "ANNUAL", year = 2019, rule = "sum")
+  recast_calendar(cal, target = "ANNUAL", year = 2019, rule = "sum")
 #>    timeslice      city   SWGDN
 #> 1     ANNUAL   Beijing 1685648
 #> 2     ANNUAL Cape Town 1972784
@@ -288,7 +288,7 @@ three cities:
 
 panel |>
   select(city, timeslice, T10M) |>
-  recast_calendar(cal, to = "MONTH", year = 2019,
+  recast_calendar(cal, target = "MONTH", year = 2019,
                   rule = "weighted_mean") |>
   ggplot(aes(timeslice, T10M, color = city, group = city)) +
   geom_line(linewidth = 1) +

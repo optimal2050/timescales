@@ -219,7 +219,7 @@ calendar_family <- function(x, parent = NULL, child = NULL) {
   }
   # With an explicit `to`, scale_children() is the plain related-labels query
   # and works in either direction.
-  nestedscales::scale_children(calendar, timeframe, label, to = to)
+  nestedscales::scale_children(calendar, timeframe, label, target = to)
 }
 
 #' Navigate a Calendar hierarchy
@@ -228,15 +228,16 @@ calendar_family <- function(x, parent = NULL, child = NULL) {
 #' `geoscales::geoscale_children()` and friends. Timeframes nest
 #' strictly, so these are exact partitions:
 #'
-#' * `calendar_children()` — one step finer (or at `to`).
-#' * `calendar_parents()` — one step coarser (or at `to`).
-#' * `calendar_descendants()` — all finer timeframes (down to `to`).
-#' * `calendar_ancestors()` — all coarser timeframes (up to `to`).
+#' * `calendar_children()` — one step finer (or at `target`).
+#' * `calendar_parents()` — one step coarser (or at `target`).
+#' * `calendar_descendants()` — all finer timeframes (down to `target`).
+#' * `calendar_ancestors()` — all coarser timeframes (up to `target`).
 #'
 #' @param x A [Calendar].
 #' @param timeframe The timeframe `label` lives at.
 #' @param label One or more labels at `timeframe`.
-#' @param to Optional target timeframe; defaults to the adjacent one
+#' @param to Deprecated name of `target`.
+#' @param target Optional target timeframe; defaults to the adjacent one
 #'   (children/parents) or the full transitive range
 #'   (descendants/ancestors).
 #' @return `calendar_children()` / `calendar_parents()` return a
@@ -251,7 +252,13 @@ NULL
 
 #' @rdname calendar_navigate
 #' @export
-calendar_children <- function(x, timeframe, label, to = NULL) {
+calendar_children <- function(x, timeframe, label, target = NULL,
+                              to = lifecycle::deprecated()) {
+  if (lifecycle::is_present(to)) {
+    .arg_renamed("calendar_children", "to", "target", !missing(target))
+    target <- to
+  }
+  to <- target
   tfs <- calendar_timeframes(x)
   i <- match(timeframe, tfs)
   if (is.na(i)) .check_leaf_timeframe(x, timeframe)
@@ -266,7 +273,13 @@ calendar_children <- function(x, timeframe, label, to = NULL) {
 
 #' @rdname calendar_navigate
 #' @export
-calendar_parents <- function(x, timeframe, label, to = NULL) {
+calendar_parents <- function(x, timeframe, label, target = NULL,
+                             to = lifecycle::deprecated()) {
+  if (lifecycle::is_present(to)) {
+    .arg_renamed("calendar_parents", "to", "target", !missing(target))
+    target <- to
+  }
+  to <- target
   tfs <- calendar_timeframes(x)
   i <- match(timeframe, tfs)
   if (is.na(i)) .check_leaf_timeframe(x, timeframe)
@@ -281,13 +294,19 @@ calendar_parents <- function(x, timeframe, label, to = NULL) {
 
 #' @rdname calendar_navigate
 #' @export
-calendar_descendants <- function(x, timeframe, label, to = NULL) {
+calendar_descendants <- function(x, timeframe, label, target = NULL,
+                                 to = lifecycle::deprecated()) {
+  if (lifecycle::is_present(to)) {
+    .arg_renamed("calendar_descendants", "to", "target", !missing(target))
+    target <- to
+  }
+  to <- target
   tfs <- calendar_timeframes(x)
   i <- match(timeframe, tfs)
   if (is.na(i)) .check_leaf_timeframe(x, timeframe)
   j <- if (is.null(to)) length(tfs) else match(to, tfs)
-  if (is.na(j)) .check_leaf_timeframe(x, to, arg = "to")
-  if (j <= i) .stop("`to` must be finer than '%s'", timeframe)
+  if (is.na(j)) .check_leaf_timeframe(x, to, arg = "target")
+  if (j <= i) .stop("`target` must be finer than '%s'", timeframe)
   out <- lapply(tfs[seq(i + 1L, j)], function(tf) {
     data.frame(timeframe = tf,
                label = .calendar_related(x, timeframe, label, tf),
@@ -298,13 +317,19 @@ calendar_descendants <- function(x, timeframe, label, to = NULL) {
 
 #' @rdname calendar_navigate
 #' @export
-calendar_ancestors <- function(x, timeframe, label, to = NULL) {
+calendar_ancestors <- function(x, timeframe, label, target = NULL,
+                               to = lifecycle::deprecated()) {
+  if (lifecycle::is_present(to)) {
+    .arg_renamed("calendar_ancestors", "to", "target", !missing(target))
+    target <- to
+  }
+  to <- target
   tfs <- calendar_timeframes(x)
   i <- match(timeframe, tfs)
   if (is.na(i)) .check_leaf_timeframe(x, timeframe)
   j <- if (is.null(to)) 1L else match(to, tfs)
-  if (is.na(j)) .check_leaf_timeframe(x, to, arg = "to")
-  if (j >= i) .stop("`to` must be coarser than '%s'", timeframe)
+  if (is.na(j)) .check_leaf_timeframe(x, to, arg = "target")
+  if (j >= i) .stop("`target` must be coarser than '%s'", timeframe)
   out <- lapply(tfs[seq(j, i - 1L)], function(tf) {
     data.frame(timeframe = tf,
                label = .calendar_related(x, timeframe, label, tf),

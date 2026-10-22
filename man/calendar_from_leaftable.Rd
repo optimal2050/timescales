@@ -13,6 +13,7 @@ calendar_from_leaftable(
   year_start = list(month = 1L, day = 1L),
   utc_offset_minutes = 0L,
   year_fraction = 1,
+  row_order = c("nested", "given"),
   ...
 )
 }
@@ -40,6 +41,10 @@ first-appearance order.}
 
 \item{year_fraction}{Fraction of a year covered by \code{sum(leaftable$share)}.
 Defaults to \code{1}.}
+
+\item{row_order}{\code{"nested"} (default) sorts the rows by timeframe, coarsest
+first, each in its member order (for a calendar, chronological order); \code{"given"} keeps the rows
+as supplied.}
 
 \item{...}{Additional named entries appended to \code{meta} (free-form).}
 }

@@ -45,6 +45,12 @@ test_that("the energyRt bridge contract holds end to end", {
   cal <- calendar_build("q4", "h24", name = "q4_h24")
   lv <- calendar_leaftable(cal)
   tfs <- calendar_timeframes(cal)
+  # energyRt reads chronology from row order: coarsest-major, member order,
+  # as its calendar import does
+  ord <- do.call(order, lapply(tfs, function(tf) {
+    match(as.character(lv[[tf]]), calendar_timeslices(cal, tf))
+  }))
+  lv <- lv[ord, , drop = FALSE]
   lv$ANNUAL <- "ANNUAL"
   # contract: timeframes coarsest-first, then `timeslice`, then `share` LAST
   tt <- data.table::as.data.table(lv[, c("ANNUAL", tfs, "timeslice",

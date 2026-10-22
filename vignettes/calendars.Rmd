@@ -342,6 +342,6 @@ sum(x$energy)
 Or aggregate within one calendar via the `ANNUAL` root:
 
 ```{r}
-recast_calendar(x, calendars$m12, to = "ANNUAL", year = 2021, rule = "sum",
+recast_calendar(x, calendars$m12, target = "ANNUAL", year = 2021, rule = "sum",
        by = "day")
 ```

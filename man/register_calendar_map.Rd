@@ -7,25 +7,51 @@
 \alias{get_calendar_map_between}
 \title{Register / look up a direct calendar crosswalk}
 \usage{
-register_calendar_map(x, from, to, map)
+register_calendar_map(
+  x,
+  source,
+  target,
+  map,
+  from = lifecycle::deprecated(),
+  to = lifecycle::deprecated()
+)
 
-register_calendar_map_between(from, to, map)
+register_calendar_map_between(
+  source,
+  target,
+  map,
+  from = lifecycle::deprecated(),
+  to = lifecycle::deprecated()
+)
 
-get_calendar_map(x, from, to)
+get_calendar_map(
+  x,
+  source,
+  target,
+  from = lifecycle::deprecated(),
+  to = lifecycle::deprecated()
+)
 
-get_calendar_map_between(from, to)
+get_calendar_map_between(
+  source,
+  target,
+  from = lifecycle::deprecated(),
+  to = lifecycle::deprecated()
+)
 }
 \arguments{
 \item{x}{The \code{\link{Calendar}} the timeframes belong to, or its name.}
 
-\item{from, to}{For the within-calendar functions, timeframe names of \code{x}.
-For the \verb{_between} functions, two \code{\link{Calendar}} objects or their names
-(\code{meta$name}).}
+\item{source, target}{For the within-calendar functions, timeframe names of \code{x}.}
 
 \item{map}{A \code{data.frame} shaped like the corresponding map result: the
 two label columns named after the timeframes (plus \code{n_from},
 \code{n_overlap}, \code{w}, \code{w_from}) or after the calendars (plus \code{year},
 \code{n_from}, \code{n_overlap}, \code{w}). \code{NULL} removes a previously registered map.}
+
+\item{from, to}{Deprecated names of \code{source} and \code{target}.
+For the \verb{_between} functions, two \code{\link{Calendar}} objects or their names
+(\code{meta$name}).}
 }
 \value{
 Invisibly, the registry key. The \code{get_} functions return the

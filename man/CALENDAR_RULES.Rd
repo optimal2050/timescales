@@ -32,7 +32,7 @@ degenerates to 0/NA.}
 \item{\code{share}}{Share within parent: each source timeslice's value
 divided by the total over its parent timeslice. Unlike every other
 rule the result stays keyed by the \strong{source} calendar's timeslices
--- \code{to} (or \verb{parent=}) names the parent calendar or timeframe -- so
+-- \code{target} (or \verb{parent=}) names the parent calendar or timeframe -- so
 it cannot be mixed with other rules in one call. For building
 profile shares and distribution keys; requires the source
 timeslices to nest within the parent's. The two share rules mix

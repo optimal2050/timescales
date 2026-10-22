@@ -123,14 +123,14 @@ in one call — and totals conserve *per group*:
 ```{r}
 annual <- panel |>
   select(city, timeslice, SWGDN) |>
-  recast_calendar(cal, to = "ANNUAL", year = 2019)
+  recast_calendar(cal, target = "ANNUAL", year = 2019)
 annual
 
 # the same totals, straight from the panel:
 panel |> summarise(SWGDN = sum(SWGDN), .by = city)
 ```
 
-(`to =` also accepts a timeframe name of the source calendar — the
+(`target =` also accepts a timeframe name of the source calendar — the
 within-calendar aggregation shortcut, `"ANNUAL"` being the root.)
 
 **3. Coverage is explicit.** Grid points the target does not cover are
@@ -219,7 +219,7 @@ chains time and space when the sibling package geoscales is loaded:
 ```{r, eval = FALSE}
 x |>
   recast(cal_hourly, cal_monthly, year = 2021, rule = "sum") |>
-  recast(gs, to = "r32o11", rule = "sum")     # a geoscales Geoscale
+  recast(gs, target = "r32o11", rule = "sum")     # a geoscales Geoscale
 ```
 
 Same contract on both sides: explicit rules (never a silent fallback),

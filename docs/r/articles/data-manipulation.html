@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">timescales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.6.0</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -55,6 +55,7 @@
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
 </form></li>
+<li class="nav-item"><a class="nav-link" href="../../python/">Python</a></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/optimal2050/timescales/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-lightswitch" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true" aria-label="Light switch"><span class="fa fa-sun"></span></button>
@@ -165,8 +166,8 @@ falls in (instants the calendar does not cover come back
 <code class="sourceCode R"><span><span class="va">cal</span> <span class="op">&lt;-</span> <span class="va">calendars</span><span class="op">$</span><span class="va">m12_h24</span></span>
 <span></span>
 <span><span class="va">merra2_cities</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>timeslice <span class="op">=</span> <span class="fu"><a href="../reference/datetime_to_timeslice.html">datetime_to_timeslice</a></span><span class="op">(</span><span class="va">datetime</span>, <span class="va">cal</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">city</span>, <span class="va">datetime</span>, <span class="va">timeslice</span>, <span class="va">T10M</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">mutate</span><span class="op">(</span>timeslice <span class="op">=</span> <span class="fu"><a href="../reference/datetime_to_timeslice.html">datetime_to_timeslice</a></span><span class="op">(</span><span class="va">datetime</span>, <span class="va">cal</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">select</span><span class="op">(</span><span class="va">city</span>, <span class="va">datetime</span>, <span class="va">timeslice</span>, <span class="va">T10M</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">3</span><span class="op">)</span></span>
 <span><span class="co">#&gt;      city            datetime timeslice T10M</span></span>
 <span><span class="co">#&gt; 1 Beijing 2019-01-01 00:30:00   m01_h00  -10</span></span>
@@ -195,8 +196,8 @@ named like the calendar, else <code>timeslice</code>, else a
 grid):</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">panel</span> <span class="op">&lt;-</span> <span class="va">merra2_cities</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>timeslice <span class="op">=</span> <span class="fu"><a href="../reference/datetime_to_timeslice.html">datetime_to_timeslice</a></span><span class="op">(</span><span class="va">datetime</span>, <span class="va">cal</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarise</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/across.html" class="external-link">across</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">T10M</span>, <span class="va">SWGDN</span><span class="op">)</span>, <span class="va">mean</span><span class="op">)</span>, .by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">city</span>, <span class="va">timeslice</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="fu">mutate</span><span class="op">(</span>timeslice <span class="op">=</span> <span class="fu"><a href="../reference/datetime_to_timeslice.html">datetime_to_timeslice</a></span><span class="op">(</span><span class="va">datetime</span>, <span class="va">cal</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu">summarise</span><span class="op">(</span><span class="fu">across</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">T10M</span>, <span class="va">SWGDN</span><span class="op">)</span>, <span class="va">mean</span><span class="op">)</span>, .by <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">city</span>, <span class="va">timeslice</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">panel</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/join_calendar.html">join_calendar</a></span><span class="op">(</span><span class="va">cal</span>, timeframes <span class="op">=</span> <span class="cn">TRUE</span>, meta <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -214,10 +215,10 @@ coexist on one dataset — and a table carrying two label columns is
 itself an empirical crosswalk between those calendars:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">two</span> <span class="op">&lt;-</span> <span class="va">merra2_cities</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">city</span> <span class="op">==</span> <span class="st">"Helsinki"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/stats/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">city</span> <span class="op">==</span> <span class="st">"Helsinki"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/join_calendar.html">join_calendar</a></span><span class="op">(</span><span class="va">calendars</span><span class="op">$</span><span class="va">m12_h24</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="../reference/join_calendar.html">join_calendar</a></span><span class="op">(</span><span class="va">calendars</span><span class="op">$</span><span class="va">q4_hp3</span><span class="op">)</span></span>
-<span><span class="va">two</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">datetime</span>, <span class="va">m12_h24</span>, <span class="va">q4_hp3</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">3</span><span class="op">)</span></span>
+<span><span class="va">two</span> <span class="op">|&gt;</span> <span class="fu">select</span><span class="op">(</span><span class="va">datetime</span>, <span class="va">m12_h24</span>, <span class="va">q4_hp3</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">3</span><span class="op">)</span></span>
 <span><span class="co">#&gt;              datetime m12_h24 q4_hp3</span></span>
 <span><span class="co">#&gt; 1 2019-01-01 00:30:00    &lt;NA&gt;   &lt;NA&gt;</span></span>
 <span><span class="co">#&gt; 2 2019-01-01 01:30:00    &lt;NA&gt;   &lt;NA&gt;</span></span>
@@ -282,8 +283,8 @@ columns, so panel data converts in one call — and totals conserve
 <em>per group</em>:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">annual</span> <span class="op">&lt;-</span> <span class="va">panel</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">city</span>, <span class="va">timeslice</span>, <span class="va">SWGDN</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="../reference/recast_calendar.html">recast_calendar</a></span><span class="op">(</span><span class="va">cal</span>, to <span class="op">=</span> <span class="st">"ANNUAL"</span>, year <span class="op">=</span> <span class="fl">2019</span><span class="op">)</span></span>
+<span>  <span class="fu">select</span><span class="op">(</span><span class="va">city</span>, <span class="va">timeslice</span>, <span class="va">SWGDN</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/recast_calendar.html">recast_calendar</a></span><span class="op">(</span><span class="va">cal</span>, target <span class="op">=</span> <span class="st">"ANNUAL"</span>, year <span class="op">=</span> <span class="fl">2019</span><span class="op">)</span></span>
 <span><span class="va">annual</span></span>
 <span><span class="co">#&gt;    timeslice      city    SWGDN</span></span>
 <span><span class="co">#&gt; 1     ANNUAL   Beijing 55342.67</span></span>
@@ -300,7 +301,7 @@ columns, so panel data converts in one call — and totals conserve
 <span><span class="co">#&gt; 12    ANNUAL     Tokyo 53330.26</span></span>
 <span></span>
 <span><span class="co"># the same totals, straight from the panel:</span></span>
-<span><span class="va">panel</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarise</a></span><span class="op">(</span>SWGDN <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">SWGDN</span><span class="op">)</span>, .by <span class="op">=</span> <span class="va">city</span><span class="op">)</span></span>
+<span><span class="va">panel</span> <span class="op">|&gt;</span> <span class="fu">summarise</span><span class="op">(</span>SWGDN <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">SWGDN</span><span class="op">)</span>, .by <span class="op">=</span> <span class="va">city</span><span class="op">)</span></span>
 <span><span class="co">#&gt;         city    SWGDN</span></span>
 <span><span class="co">#&gt; 1    Beijing 55342.67</span></span>
 <span><span class="co">#&gt; 2  Cape Town 64983.83</span></span>
@@ -314,7 +315,7 @@ columns, so panel data converts in one call — and totals conserve
 <span><span class="co">#&gt; 10 Reykjavik 32893.18</span></span>
 <span><span class="co">#&gt; 11    Sydney 63287.80</span></span>
 <span><span class="co">#&gt; 12     Tokyo 53330.26</span></span></code></pre></div>
-<p>(<code>to =</code> also accepts a timeframe name of the source
+<p>(<code>target =</code> also accepts a timeframe name of the source
 calendar — the within-calendar aggregation shortcut,
 <code>"ANNUAL"</code> being the root.)</p>
 <p><strong>3. Coverage is explicit.</strong> Grid points the target does
@@ -418,7 +419,7 @@ geoscales is loaded:</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">x</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/pkg/nestedscales/man/recast.html" class="external-link">recast</a></span><span class="op">(</span><span class="va">cal_hourly</span>, <span class="va">cal_monthly</span>, year <span class="op">=</span> <span class="fl">2021</span>, rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/pkg/nestedscales/man/recast.html" class="external-link">recast</a></span><span class="op">(</span><span class="va">gs</span>, to <span class="op">=</span> <span class="st">"r32o11"</span>, rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span>     <span class="co"># a geoscales Geoscale</span></span></code></pre></div>
+<span>  <span class="fu"><a href="https://rdrr.io/pkg/nestedscales/man/recast.html" class="external-link">recast</a></span><span class="op">(</span><span class="va">gs</span>, target <span class="op">=</span> <span class="st">"r32o11"</span>, rule <span class="op">=</span> <span class="st">"sum"</span><span class="op">)</span>     <span class="co"># a geoscales Geoscale</span></span></code></pre></div>
 <p>Same contract on both sides: explicit rules (never a silent
 fallback), identifier columns preserved, backends welcome.</p>
 </div>

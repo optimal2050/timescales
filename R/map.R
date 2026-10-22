@@ -29,35 +29,47 @@
 #'
 #' Materialises the `from -> timeslices -> to` route within one calendar as
 #' a table: one row per pair of overlapping units with `n_from` (timeslices
-#' in the `from` unit), `n_overlap` (timeslices the pair shares), `w` (the
-#' weight of the overlap) and `w_from` (the full weight of the `from` unit).
+#' in the `source` unit), `n_overlap` (timeslices the pair shares), `w` (the
+#' weight of the overlap) and `w_from` (the full weight of the `source` unit).
 #' The two label columns are named by the timeframes. A crosswalk registered
 #' with [`register_calendar_map()`] is returned as-is instead of being
 #' derived.
 #'
 #' @param x The [`Calendar`] the timeframes belong to.
-#' @param from,to Timeframe names of `x`.
+#' @param source,target Timeframe names of `x`.
+#' @param from,to Deprecated names of `source` and `target`.
 #' @param weight Weight column for `w`. `NULL` uses the calendar's default
 #'   weight; when it declares none, every timeslice gets weight 1.
 #' @param ... Passed to the shared core, e.g. `by =` for extra identifier
 #'   columns.
 #'
-#' @return A `data.frame` with columns `<from>`, `<to>` (`NA` = uncovered by
-#'   `to`), `n_from`, `n_overlap`, `w`, `w_from`.
+#' @return A `data.frame` with columns `<source>`, `<target>` (`NA` = uncovered by
+#'   `target`), `n_from`, `n_overlap`, `w`, `w_from`.
 #'
 #' @seealso [`calendar_map_between()`] for the map between two calendars.
 #' @examples
 #' cal <- calendar("m12_h24")
 #' head(calendar_map(cal, "MONTH", "HOUR"))
 #' @export
-calendar_map <- function(x, from, to, weight = NULL, ...) {
+calendar_map <- function(x, source, target, weight = NULL, ...,
+                         from = lifecycle::deprecated(), to = lifecycle::deprecated()) {
+  if (lifecycle::is_present(from)) {
+    .arg_renamed("calendar_map", "from", "source", !missing(source))
+    source <- from
+  }
+  if (lifecycle::is_present(to)) {
+    .arg_renamed("calendar_map", "to", "target", !missing(target))
+    target <- to
+  }
+  from <- source
+  to <- target
   if (S7::S7_inherits(from, Calendar) || S7::S7_inherits(to, Calendar)) {
-    .stop(paste0("`from` and `to` are timeframe names of `x`; for the map ",
+    .stop(paste0("`source` and `target` are timeframe names of `x`; for the map ",
                  "between two calendars use `calendar_map_between()`"))
   }
   .check_calendar(x, "x")
-  .check_timeframe(x, from, "from")
-  .check_timeframe(x, to, "to")
+  .check_timeframe(x, from, "source")
+  .check_timeframe(x, to, "target")
   nestedscales::scale_map(x, from, to, weight = weight, ...)
 }
 
@@ -66,7 +78,7 @@ calendar_map <- function(x, from, to, weight = NULL, ...) {
 #' Materialises the `A -> base -> B` route as a table: for the requested
 #' model year(s), one row per pair of overlapping timeslices with
 #'
-#' * `n_from` -- grid points in the `from` timeslice (its full set, before
+#' * `n_from` -- grid points in the `source` timeslice (its full set, before
 #'   any target coverage is considered),
 #' * `n_overlap` -- grid points the pair shares,
 #' * `w` -- the share weight of the overlap
@@ -75,19 +87,20 @@ calendar_map <- function(x, from, to, weight = NULL, ...) {
 #'
 #' The two label columns are named by the calendars' names (so the map
 #' joins directly onto datasets labelled by [`join_calendar()`]); rows with
-#' an `NA` target label are grid points `to` does not cover. A crosswalk
+#' an `NA` target label are grid points `target` does not cover. A crosswalk
 #' registered with [`register_calendar_map_between()`] is returned as-is
 #' instead of being derived from the grid.
 #'
-#' @param from,to [`Calendar`] objects (both must be named).
+#' @param source,target [`Calendar`] objects (both must be named).
+#' @param from,to Deprecated names of `source` and `target`.
 #' @param year Integer vector of model year(s); multi-year maps carry all
 #'   years in the `year` column.
 #' @param by Grid resolution (`seq.POSIXt` step). Default: the finest
 #'   timeframe of the two calendars.
 #' @param tz Time zone of the grid. Default `"UTC"`.
 #'
-#' @return A `data.frame` with columns `year`, `<from name>`, `<to name>`
-#'   (`NA` = uncovered by `to`), `n_from`, `n_overlap`, `w`.
+#' @return A `data.frame` with columns `year`, `<source name>`, `<target name>`
+#'   (`NA` = uncovered by `target`), `n_from`, `n_overlap`, `w`.
 #'
 #' @seealso [`calendar_map()`] for the map between two timeframes of one
 #'   calendar.
@@ -96,13 +109,24 @@ calendar_map <- function(x, from, to, weight = NULL, ...) {
 #' q4  <- calendar_build("q4")
 #' calendar_map_between(m12, q4, year = 2021)
 #' @export
-calendar_map_between <- function(from, to, year, by = NULL, tz = "UTC") {
-  .check_calendar(from, "from")
-  .check_calendar(to, "to")
-  from_nm <- .calendar_name(from, arg = "from")
-  to_nm   <- .calendar_name(to, arg = "to")
+calendar_map_between <- function(source, target, year, by = NULL, tz = "UTC",
+                                 from = lifecycle::deprecated(), to = lifecycle::deprecated()) {
+  if (lifecycle::is_present(from)) {
+    .arg_renamed("calendar_map_between", "from", "source", !missing(source))
+    source <- from
+  }
+  if (lifecycle::is_present(to)) {
+    .arg_renamed("calendar_map_between", "to", "target", !missing(target))
+    target <- to
+  }
+  from <- source
+  to <- target
+  .check_calendar(from, "source")
+  .check_calendar(to, "target")
+  from_nm <- .calendar_name(from, arg = "source")
+  to_nm   <- .calendar_name(to, arg = "target")
   if (identical(from_nm, to_nm)) {
-    .stop(paste0("`from` and `to` have the same name (\"%s\"); the map's ",
+    .stop(paste0("`source` and `target` have the same name (\"%s\"); the map's ",
                  "label columns are named by the calendars -- rename one"),
           from_nm)
   }
@@ -148,7 +172,7 @@ calendar_map_between <- function(from, to, year, by = NULL, tz = "UTC") {
   })
   map <- do.call(rbind, Filter(Negate(is.null), chunks))
   if (is.null(map) || nrow(map) == 0L) {
-    .stop("the grid produced no overlap between `from` and `to`")
+    .stop("the grid produced no overlap between `source` and `target`")
   }
   map <- map |>
     dplyr::group_by(.data$year, .data$from) |>
@@ -185,7 +209,8 @@ calendar_map_between <- function(from, to, year, by = NULL, tz = "UTC") {
 #' a pair of calendars.
 #'
 #' @param x The [`Calendar`] the timeframes belong to, or its name.
-#' @param from,to For the within-calendar functions, timeframe names of `x`.
+#' @param source,target For the within-calendar functions, timeframe names of `x`.
+#' @param from,to Deprecated names of `source` and `target`.
 #'   For the `_between` functions, two [`Calendar`] objects or their names
 #'   (`meta$name`).
 #' @param map A `data.frame` shaped like the corresponding map result: the
@@ -209,16 +234,38 @@ calendar_map_between <- function(from, to, year, by = NULL, tz = "UTC") {
 #' identical(get_calendar_map(cal, "MONTH", "HOUR"), within)
 #' clear_calendar_maps(registry = TRUE)
 #' @export
-register_calendar_map <- function(x, from, to, map) {
+register_calendar_map <- function(x, source, target, map,
+                                  from = lifecycle::deprecated(), to = lifecycle::deprecated()) {
+  if (lifecycle::is_present(from)) {
+    .arg_renamed("register_calendar_map", "from", "source", !missing(source))
+    source <- from
+  }
+  if (lifecycle::is_present(to)) {
+    .arg_renamed("register_calendar_map", "to", "target", !missing(target))
+    target <- to
+  }
+  from <- source
+  to <- target
   if (!is.character(x)) .check_calendar(x, "x")
   nestedscales::register_scale_map(x, from, to, map)
 }
 
 #' @rdname register_calendar_map
 #' @export
-register_calendar_map_between <- function(from, to, map) {
-  from_nm <- .map_name_of(from, "from")
-  to_nm   <- .map_name_of(to, "to")
+register_calendar_map_between <- function(source, target, map,
+                                          from = lifecycle::deprecated(), to = lifecycle::deprecated()) {
+  if (lifecycle::is_present(from)) {
+    .arg_renamed("register_calendar_map_between", "from", "source", !missing(source))
+    source <- from
+  }
+  if (lifecycle::is_present(to)) {
+    .arg_renamed("register_calendar_map_between", "to", "target", !missing(target))
+    target <- to
+  }
+  from <- source
+  to <- target
+  from_nm <- .map_name_of(from, "source")
+  to_nm   <- .map_name_of(to, "target")
   key <- paste0(from_nm, "->", to_nm)
   if (is.null(map)) {
     if (exists(key, envir = .MAP_REGISTRY, inherits = FALSE)) {
@@ -257,15 +304,37 @@ register_calendar_map_between <- function(from, to, map) {
 
 #' @rdname register_calendar_map
 #' @export
-get_calendar_map <- function(x, from, to) {
+get_calendar_map <- function(x, source, target,
+                             from = lifecycle::deprecated(), to = lifecycle::deprecated()) {
+  if (lifecycle::is_present(from)) {
+    .arg_renamed("get_calendar_map", "from", "source", !missing(source))
+    source <- from
+  }
+  if (lifecycle::is_present(to)) {
+    .arg_renamed("get_calendar_map", "to", "target", !missing(target))
+    target <- to
+  }
+  from <- source
+  to <- target
   if (!is.character(x)) .check_calendar(x, "x")
   nestedscales::get_scale_map(x, from, to)
 }
 
 #' @rdname register_calendar_map
 #' @export
-get_calendar_map_between <- function(from, to) {
-  .get_calendar_map(.map_name_of(from, "from"), .map_name_of(to, "to"))
+get_calendar_map_between <- function(source, target,
+                                     from = lifecycle::deprecated(), to = lifecycle::deprecated()) {
+  if (lifecycle::is_present(from)) {
+    .arg_renamed("get_calendar_map_between", "from", "source", !missing(source))
+    source <- from
+  }
+  if (lifecycle::is_present(to)) {
+    .arg_renamed("get_calendar_map_between", "to", "target", !missing(target))
+    target <- to
+  }
+  from <- source
+  to <- target
+  .get_calendar_map(.map_name_of(from, "source"), .map_name_of(to, "target"))
 }
 
 #' List the registered crosswalks

@@ -20,7 +20,7 @@ identical(calendar_leaftable(cal), calendar_leaftable(cal2))
 instants — `d365` has no Feb 29), or `representative` (timeslices stand
 for recurring types rather than a partition of the timeline — `q4_h24`
 is a representative day per quarter). **Regularity** flags designs whose
-timeslices differ in length within a level (`m12_md365`: February is
+timeslices differ in length within a timeframe (`m12_md365`: February is
 short).
 
 The full table is one
@@ -440,7 +440,7 @@ head(calendar_layout(calendars$q4_h24), 7)
 [`calendar_plot()`](https://optimal2050.github.io/timescales/r/reference/calendar_plot.md)
 is the data-on-calendar heatmap: hand it a `data.frame` keyed by
 timeslice (or nothing, to see the share structure). The layout follows
-the hierarchy — finest timeframe on y, next on x, coarser levels as
+the hierarchy — finest timeframe on y, next on x, coarser timeframes as
 facets:
 
 ``` r
@@ -513,7 +513,7 @@ Or aggregate within one calendar via the `ANNUAL` root:
 
 ``` r
 
-recast_calendar(x, calendars$m12, to = "ANNUAL", year = 2021, rule = "sum",
+recast_calendar(x, calendars$m12, target = "ANNUAL", year = 2021, rule = "sum",
        by = "day")
 #>   timeslice energy
 #> 1    ANNUAL   3210

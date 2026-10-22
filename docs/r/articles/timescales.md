@@ -54,7 +54,7 @@ identical(cal_my@timeframes, cal_my2@timeframes)
 #> [1] TRUE
 ```
 
-For full control there is the lowest-level constructor
+For full control there is the most flexible constructor
 [`calendar_from_leaftable()`](https://optimal2050.github.io/timescales/r/reference/calendar_from_leaftable.md),
 where you supply the leaves table directly.
 
@@ -69,9 +69,9 @@ cal_my@timeframes               # the timeframe hierarchy, coarsest first
 head(calendar_leaftable(cal_my), 4)          # the leaf table (one row per timeslice)
 #>   MONTH HOUR       share weight timeslice
 #> 1   m01  h00 0.003538813     31   m01_h00
-#> 2   m02  h00 0.003196347     28   m02_h00
-#> 3   m03  h00 0.003538813     31   m03_h00
-#> 4   m04  h00 0.003424658     30   m04_h00
+#> 2   m01  h01 0.003538813     31   m01_h01
+#> 3   m01  h02 0.003538813     31   m01_h02
+#> 4   m01  h03 0.003538813     31   m01_h03
 cal_my@members$MONTH             # ordered label vocabulary per timeframe
 #>  [1] "m01" "m02" "m03" "m04" "m05" "m06" "m07" "m08" "m09" "m10" "m11" "m12"
 cal_my@meta[c("name", "year_fraction")]
@@ -88,7 +88,7 @@ columns:
 - `timeslice` — the unique timeslice ID,
 - `share` — fraction of a year,
 - `weight` — timeslice weight in hours (default `share * 8760`),
-- one column per timeframe — the member label at that level.
+- one column per timeframe — the corresponding member label.
 
 ### 3. Map real datetimes onto the calendar
 
@@ -113,7 +113,7 @@ monthly <- data.frame(
   load  = c(120, 118, 105,  92,  85,  88,  95, 100,  98,  90, 105, 122)
 )
 
-recast_calendar(monthly, from = cal_m, to = cal_q, year = 2025,
+recast_calendar(monthly, source = cal_m, target = cal_q, year = 2025,
        rule = "weighted_mean", by = "day")
 #>   timeslice      load
 #> 1        Q1 114.21111

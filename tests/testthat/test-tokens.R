@@ -150,7 +150,7 @@ test_that("calendar() result works with recast_calendar()", {
   cal_q <- calendar("q4")
   x <- data.frame(timeslice = sprintf("m%02d", 1:12),
                   load  = seq(100, 210, length.out = 12))
-  out <- recast_calendar(x, from = cal_m, to = cal_q, year = 2021,
+  out <- recast_calendar(x, source = cal_m, target = cal_q, year = 2021,
                 rule = "weighted_mean", by = "day")
   expect_equal(out$timeslice, sprintf("Q%d", 1:4))
   v <- x$load

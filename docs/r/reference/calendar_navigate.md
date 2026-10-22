@@ -2,18 +2,42 @@
 
 Labels related to `label` across timeframes — the time-side mirror of
 [`geoscales::geoscale_children()`](https://optimal2050.github.io/geoscales/r/reference/geoscale_navigate.html)
-and friends. Time levels nest strictly, so these are exact partitions:
+and friends. Timeframes nest strictly, so these are exact partitions:
 
 ## Usage
 
 ``` r
-calendar_children(x, timeframe, label, to = NULL)
+calendar_children(
+  x,
+  timeframe,
+  label,
+  target = NULL,
+  to = lifecycle::deprecated()
+)
 
-calendar_parents(x, timeframe, label, to = NULL)
+calendar_parents(
+  x,
+  timeframe,
+  label,
+  target = NULL,
+  to = lifecycle::deprecated()
+)
 
-calendar_descendants(x, timeframe, label, to = NULL)
+calendar_descendants(
+  x,
+  timeframe,
+  label,
+  target = NULL,
+  to = lifecycle::deprecated()
+)
 
-calendar_ancestors(x, timeframe, label, to = NULL)
+calendar_ancestors(
+  x,
+  timeframe,
+  label,
+  target = NULL,
+  to = lifecycle::deprecated()
+)
 ```
 
 ## Arguments
@@ -31,11 +55,15 @@ calendar_ancestors(x, timeframe, label, to = NULL)
 
   One or more labels at `timeframe`.
 
-- to:
+- target:
 
   Optional target timeframe; defaults to the adjacent one
   (children/parents) or the full transitive range
   (descendants/ancestors).
+
+- to:
+
+  Deprecated name of `target`.
 
 ## Value
 
@@ -45,13 +73,13 @@ calendar_ancestors(x, timeframe, label, to = NULL)
 
 ## Details
 
-- `calendar_children()` — one step finer (or at `to`).
+- `calendar_children()` — one step finer (or at `target`).
 
-- `calendar_parents()` — one step coarser (or at `to`).
+- `calendar_parents()` — one step coarser (or at `target`).
 
-- `calendar_descendants()` — all finer timeframes (down to `to`).
+- `calendar_descendants()` — all finer timeframes (down to `target`).
 
-- `calendar_ancestors()` — all coarser timeframes (up to `to`).
+- `calendar_ancestors()` — all coarser timeframes (up to `target`).
 
 ## Examples
 

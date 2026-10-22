@@ -420,8 +420,8 @@ expand_calendar <- function(x, year, by = NULL, tz = "UTC",
 #' Recast values from one calendar to another
 #'
 #' The central conversion verb. Takes a table keyed by timeslice in
-#' calendar `from` with one or more numeric value columns, and returns the
-#' same table keyed by timeslice in calendar `to`. Every conversion routes
+#' calendar `source` with one or more numeric value columns, and returns the
+#' same table keyed by timeslice in calendar `target`. Every conversion routes
 #' `A -> base -> B` through the shared datetime grid: source values are
 #' projected down to grid points, then aggregated up to target timeslices,
 #' so aggregation and disaggregation are one operation. The route is
@@ -436,7 +436,7 @@ expand_calendar <- function(x, year, by = NULL, tz = "UTC",
 #' grouping columns, so panel data recasts correctly in one call; this is
 #' what makes mixed pipelines like
 #' `x |> recast_calendar(...) |> recast_geoscale(...)` work. Columns named like
-#' `from`'s timeframes are treated as timeslice attributes and dropped.
+#' `source`'s timeframes are treated as timeslice attributes and dropped.
 #'
 #' The public halves of the route are [`recast_to_timebase()`] and
 #' [`recast_from_timebase()`]; `recast_calendar(x, from, to)` is equivalent to
@@ -453,8 +453,9 @@ expand_calendar <- function(x, year, by = NULL, tz = "UTC",
 #' @param x The data to recast, in any supported backend, with a column
 #'   named by `key` plus one or more numeric value columns; other columns
 #'   are preserved as identifiers.
-#' @param from Source [`Calendar`].
-#' @param to Destination [`Calendar`], or a timeframe name of `from`
+#' @param from,to Deprecated names of `source` and `target`.
+#' @param source Source [`Calendar`].
+#' @param target Destination [`Calendar`], or a timeframe name of `source`
 #'   (including `"ANNUAL"`) for within-calendar aggregation via
 #'   [`prune_calendar()`].
 #' @param year Integer scalar model year used to materialise both calendars
@@ -462,7 +463,7 @@ expand_calendar <- function(x, year, by = NULL, tz = "UTC",
 #' @param key Name of the timeslice key column in `x`. `NULL` (default)
 #'   resolves to `"timeslice"`.
 #' @param values Character vector of value columns to transform. Default:
-#'   all numeric columns other than `key` and `from`'s timeframe columns.
+#'   all numeric columns other than `key` and `source`'s timeframe columns.
 #'   Numeric identifiers (e.g. `year`) must be excluded explicitly.
 #' @param rule One of [`CALENDAR_RULES`], applied to every value column; or
 #'   `NULL` (default) to look each column up with [`get_calendar_rule()`]. A column
@@ -472,21 +473,21 @@ expand_calendar <- function(x, year, by = NULL, tz = "UTC",
 #' @param by Grid resolution for the shared datetime grid. Defaults to the
 #'   finest timeframe of the two calendars.
 #' @param tz Time zone for the shared grid. Default `"UTC"`.
-#' @param na_action What to do with grid points not covered by `to`:
+#' @param na_action What to do with grid points not covered by `target`:
 #'   `"drop"` (default, with a warning -- the affected source share is
 #'   genuinely lost), `"error"`, or `"keep"` (retain an explicit `NA`
-#'   timeslice row so totals conserve). Grid points not covered by `from`
+#'   timeslice row so totals conserve). Grid points not covered by `source`
 #'   carry no data and are always dropped.
 #' @param parent `rule = "share"` only: the [`Calendar`] (or timeframe name
-#'   of `from`) defining the groups the shares are taken within. `NULL`
-#'   (default) uses `to` when it differs from `from`, else `from` pruned
+#'   of `source`) defining the groups the shares are taken within. `NULL`
+#'   (default) uses `target` when it differs from `source`, else `source` pruned
 #'   to its second-finest timeframe.
 #' @param collect For lazy inputs (arrow, dtplyr): materialise the result
 #'   (`TRUE`) or return the uncollected query (default).
 #'
 #' @return The recast table in the input's class, with columns
 #'   `c(key, identifiers, values)`: per identifier combination, one row per
-#'   timeslice in `to` (the full target vocabulary, `NA` where uncovered --
+#'   timeslice in `target` (the full target vocabulary, `NA` where uncovered --
 #'   a deliberate divergence from `recast_geoscale()`, which emits observed
 #'   combinations only), plus an `NA` timeslice row under
 #'   `na_action = "keep"`. Identifier column types are preserved.
@@ -502,10 +503,10 @@ expand_calendar <- function(x, year, by = NULL, tz = "UTC",
 #' calendar has exactly one weighting, its `leaves$share`.
 #'
 #' `"share"` inverts the output contract: the result stays keyed by
-#' `from`'s timeslices, and each value becomes that timeslice's share of
+#' `source`'s timeslices, and each value becomes that timeslice's share of
 #' the total over its parent timeslice (so shares sum to 1 per parent, per
-#' identifier combination). The parent is `parent=`, defaulting to `to` --
-#' `recast_calendar(x, cal_h, to = "YDAY", rule = "share")` reads: each
+#' identifier combination). The parent is `parent=`, defaulting to `target` --
+#' `recast_calendar(x, cal_h, target = "YDAY", rule = "share")` reads: each
 #' hour's share within its day. The source timeslices must nest within the
 #' parent's (a week-vs-month pair errors). A parent whose total is zero
 #' yields `NA` shares. `"share"` cannot be combined with other rules in
@@ -519,7 +520,7 @@ expand_calendar <- function(x, year, by = NULL, tz = "UTC",
 #'   timeslice = sprintf("m%02d", 1:12),
 #'   load  = seq(100, 210, length.out = 12)
 #' )
-#' recast_calendar(x, from = cal_m, to = cal_q, year = 2021,
+#' recast_calendar(x, source = cal_m, target = cal_q, year = 2021,
 #'                 rule = "weighted_mean")
 #'
 #' # Panel data: the city column is carried through
@@ -529,9 +530,9 @@ expand_calendar <- function(x, year, by = NULL, tz = "UTC",
 #' # Within-calendar aggregation, and the ANNUAL root
 #' cal <- calendar_build("q4", "h24")
 #' xh <- data.frame(timeslice = S7::prop(cal, "leaftable")$timeslice, energy = 1)
-#' recast_calendar(xh, cal, to = "ANNUAL", year = 2021, rule = "sum")  # 96
+#' recast_calendar(xh, cal, target = "ANNUAL", year = 2021, rule = "sum")  # 96
 #' @export
-recast_calendar <- function(x, from, to, year,
+recast_calendar <- function(x, source, target, year,
                             key = NULL,
                             values = NULL,
                             rule = NULL,
@@ -539,7 +540,18 @@ recast_calendar <- function(x, from, to, year,
                             tz = "UTC",
                             na_action = c("drop", "error", "keep"),
                             parent = NULL,
-                            collect = NULL) {
+                            collect = NULL,
+                            from = lifecycle::deprecated(), to = lifecycle::deprecated()) {
+  if (lifecycle::is_present(from)) {
+    .arg_renamed("recast_calendar", "from", "source", !missing(source))
+    source <- from
+  }
+  if (lifecycle::is_present(to)) {
+    .arg_renamed("recast_calendar", "to", "target", !missing(target))
+    target <- to
+  }
+  from <- source
+  to <- target
   na_action <- match.arg(na_action)
 
   backend <- .ts_backend(x)
@@ -553,11 +565,11 @@ recast_calendar <- function(x, from, to, year,
     .stop("`x` has no column named `%s`; pass `key=`", key)
   }
   .check_ts_cols(schema)
-  .check_calendar(from, "from")
+  .check_calendar(from, "source")
   if (is.character(to)) {
     to <- prune_calendar(from, to)
   } else {
-    .check_calendar(to, "to")
+    .check_calendar(to, "target")
   }
   year <- as.integer(year)
   if (length(year) != 1L || is.na(year)) {
@@ -605,15 +617,15 @@ recast_calendar <- function(x, from, to, year,
   src_keys <- unique(stats::na.omit(as.character(src_keys)))
   unknown <- setdiff(src_keys, from_leaves$timeslice)
   if (length(unknown) > 0L) {
-    .warn("%d code(s) in `x$%s` are not timeslices of `from` and were ignored: %s",
+    .warn("%d code(s) in `x$%s` are not timeslices of `source` and were ignored: %s",
           length(unknown), key, .preview(unknown))
   }
 
-  # -- share within parent: result keyed by `from`'s timeslices -------------
+  # -- share within parent: result keyed by `source`'s timeslices -------------
   is_share <- rules %in% c("share", "logshare")
   if (any(is_share)) {
     if (!all(is_share)) {
-      .stop(paste0("rule \"share\" keeps the output keyed by `from` and ",
+      .stop(paste0("rule \"share\" keeps the output keyed by `source` and ",
                    "cannot be mixed with other rules in one call; recast ",
                    "the columns separately"))
     }
@@ -641,7 +653,7 @@ recast_calendar <- function(x, from, to, year,
   if (any(uncovered)) {
     if (na_action == "drop") {
       affected <- intersect(unique(map[[from_nm]][uncovered]), src_keys)
-      .warn(paste0("%d grid point(s) are not covered by `to`; the share ",
+      .warn(paste0("%d grid point(s) are not covered by `target`; the share ",
                    "of %d source timeslice(s) falling on them is dropped; use ",
                    "na_action = \"keep\" to conserve totals"),
             sum(map$n_overlap[uncovered]), length(affected))
@@ -674,7 +686,7 @@ recast_calendar <- function(x, from, to, year,
   map$year <- NULL
   keep_na_row <- na_action == "keep" && any(uncovered)
   res <- nestedscales::recast_crosswalk(
-    x, map, from = from_nm, to = to_nm, key = key, values = values,
+    x, map, source = from_nm, target = to_nm, key = key, values = values,
     rule = rules, ids = id_cols,
     targets = c(S7::prop(to, "leaftable")$timeslice,
                 if (keep_na_row) NA_character_),
@@ -683,15 +695,15 @@ recast_calendar <- function(x, from, to, year,
 }
 
 #' Resolve the parent calendar for rule "share": explicit `parent=` wins
-#' (a timeframe name is pruned from `from`), then `to` when it differs from
-#' `from`, then `from` pruned to its second-finest timeframe.
+#' (a timeframe name is pruned from `source`), then `target` when it differs from
+#' `source`, then `source` pruned to its second-finest timeframe.
 #' @noRd
 .ts_share_parent <- function(from, to, parent) {
   if (!is.null(parent)) {
     if (is.character(parent)) parent <- prune_calendar(from, parent)
     .check_calendar(parent, "parent")
     if (!identical(to, from) && !identical(to, parent)) {
-      .stop(paste0("conflicting parents: `to` and `parent` name ",
+      .stop(paste0("conflicting parents: `target` and `parent` name ",
                    "different calendars; for rule \"share\" pass ",
                    "the parent once"))
     }
@@ -700,14 +712,14 @@ recast_calendar <- function(x, from, to, year,
   if (!identical(to, from)) return(to)
   tfs <- S7::prop(from, "timeframes")
   if (length(tfs) < 2L) {
-    .stop(paste0("`from` has a single timeframe and no coarser ",
+    .stop(paste0("`source` has a single timeframe and no coarser ",
                  "parent; pass `parent=`"))
   }
   prune_calendar(from, tfs[[length(tfs) - 1L]])
 }
 
 #' rule = "share": each source timeslice's value over its parent-group
-#' total. Output stays keyed by `from`'s timeslices -- the one rule that
+#' total. Output stays keyed by `source`'s timeslices -- the one rule that
 #' does not change the key.
 #' @noRd
 .ts_recast_share <- function(x, backend, from, to, parent, year, key,
@@ -727,11 +739,11 @@ recast_calendar <- function(x, from, to, year,
   map <- as.data.frame(calendar_map_between(from2, par2, year, by = by, tz = tz))
   mem <- unique(map[, c(from_nm, par_nm)])
 
-  # shares within a parent are only well-defined when `from` nests in it
+  # shares within a parent are only well-defined when `source` nests in it
   n_par <- table(mem[[from_nm]][!is.na(mem[[par_nm]])])
   split_codes <- names(n_par)[n_par > 1L]
   if (length(split_codes) > 0L) {
-    .stop(paste0("rule \"share\": %d timeslice(s) of `from` straddle ",
+    .stop(paste0("rule \"share\": %d timeslice(s) of `source` straddle ",
                  "more than one parent timeslice (%s); the source must ",
                  "nest within the parent"),
           length(split_codes), .preview(split_codes))
@@ -740,12 +752,12 @@ recast_calendar <- function(x, from, to, year,
   orphan <- is.na(mem[[par_nm]])
   if (any(orphan)) {
     if (na_action == "error") {
-      .stop(paste0("%d timeslice(s) of `from` are not covered by the ",
+      .stop(paste0("%d timeslice(s) of `source` are not covered by the ",
                    "parent; use na_action = \"drop\" or \"keep\""),
             sum(orphan))
     }
     if (na_action == "drop") {
-      .warn(paste0("%d timeslice(s) of `from` are not covered by the ",
+      .warn(paste0("%d timeslice(s) of `source` are not covered by the ",
                    "parent and get NA shares (%s). Use na_action = ",
                    "\"keep\" to treat them as one group."),
             sum(orphan), .preview(mem[[from_nm]][orphan]))
@@ -1109,14 +1121,14 @@ recast_from_timebase <- function(x, calendar, year = NULL,
 # external generic (S7's cross-package mechanism; activated by
 # S7::methods_register() in .onLoad).
 .recast_generic <- S7::new_external_generic("nestedscales", "recast",
-                                            c("x", "from"))
+                                            c("x", "scale"))
 
 S7::method(.recast_generic, list(S7::class_any, Calendar)) <-
-  function(x, from, to, year,
+  function(x, scale, target, year,
            key = NULL, values = NULL, rule = NULL, by = NULL,
            tz = "UTC", na_action = c("drop", "error", "keep"),
            collect = NULL, ...) {
-    recast_calendar(x, from = from, to = to, year = year, key = key,
+    recast_calendar(x, source = scale, target = target, year = year, key = key,
                     values = values, rule = rule, by = by, tz = tz,
                     na_action = na_action, collect = collect)
   }

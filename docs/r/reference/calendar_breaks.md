@@ -22,7 +22,7 @@ calendar_breaks(n = 6)
 
 ## Value
 
-A function of the level vector, for `breaks =`.
+A function of the discrete value vector, for `breaks =`.
 
 ## Details
 

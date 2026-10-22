@@ -27,13 +27,13 @@ calendar_layout(x, annual = TRUE)
 
 ## Value
 
-A `data.frame` with columns `timeframe`, `label` (the level value of the
-segment), `timeslice` (the full prefix path id), `rank` (0 for `ANNUAL`,
-then 1 = coarsest), `xmin`/`xmax` (in `[0, 1]`), `ymin`/`ymax` (bands,
-top row highest), `share` (segment share of the year), `weight` (segment
-weight sum), `order` (index of the segment's first leaf in chronological
-order), and `within` (1-based position among its siblings, restarting
-per parent).
+A `data.frame` with columns `timeframe`, `label` (the member value of
+the segment), `timeslice` (the full prefix path id), `rank` (0 for
+`ANNUAL`, then 1 = coarsest), `xmin`/`xmax` (in `[0, 1]`), `ymin`/`ymax`
+(bands, top row highest), `share` (segment share of the year), `weight`
+(segment weight sum), `order` (index of the segment's first leaf in
+chronological order), and `within` (1-based position among its siblings,
+restarting per parent).
 
 ## Examples
 

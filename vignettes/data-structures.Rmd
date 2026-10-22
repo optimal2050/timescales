@@ -146,7 +146,7 @@ calendar's timeslice IDs.
 ```{r}
 src <- data.frame(timeslice = sprintf("m%02d", 1:12),
                   load  = seq(100, 210, length.out = 12))
-recast_calendar(src, from = calendar("m12"), to = calendar("q4"),
+recast_calendar(src, source = calendar("m12"), target = calendar("q4"),
        year = 2025, rule = "weighted_mean", by = "day")
 ```
 

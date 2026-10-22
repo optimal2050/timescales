@@ -9,8 +9,8 @@
 - [Data
   structures](https://optimal2050.github.io/timescales/r/articles/data-structures.md):
 
-  Anatomy of the Calendar S7 class, the leaves table, the levels list,
-  and meta.
+  Anatomy of the Calendar S7 class, the leaftable, members, and
+  metadata.
 
 - [Data manipulation with
   calendars](https://optimal2050.github.io/timescales/r/articles/data-manipulation.md):

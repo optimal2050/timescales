@@ -40,6 +40,12 @@ footer:
 
 navbar:
   bg: primary
+  structure:
+    right: [search, python, github, lightswitch]
+  components:
+    python:
+      text: Python
+      href: ../python/
 
 reference:
   - title: "Calendars"

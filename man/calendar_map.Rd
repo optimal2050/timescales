@@ -4,28 +4,38 @@
 \alias{calendar_map}
 \title{Crosswalk between two timeframes of a calendar}
 \usage{
-calendar_map(x, from, to, weight = NULL, ...)
+calendar_map(
+  x,
+  source,
+  target,
+  weight = NULL,
+  ...,
+  from = lifecycle::deprecated(),
+  to = lifecycle::deprecated()
+)
 }
 \arguments{
 \item{x}{The \code{\link{Calendar}} the timeframes belong to.}
 
-\item{from, to}{Timeframe names of \code{x}.}
+\item{source, target}{Timeframe names of \code{x}.}
 
 \item{weight}{Weight column for \code{w}. \code{NULL} uses the calendar's default
 weight; when it declares none, every timeslice gets weight 1.}
 
 \item{...}{Passed to the shared core, e.g. \verb{by =} for extra identifier
 columns.}
+
+\item{from, to}{Deprecated names of \code{source} and \code{target}.}
 }
 \value{
-A \code{data.frame} with columns \verb{<from>}, \verb{<to>} (\code{NA} = uncovered by
-\code{to}), \code{n_from}, \code{n_overlap}, \code{w}, \code{w_from}.
+A \code{data.frame} with columns \verb{<source>}, \verb{<target>} (\code{NA} = uncovered by
+\code{target}), \code{n_from}, \code{n_overlap}, \code{w}, \code{w_from}.
 }
 \description{
 Materialises the \code{from -> timeslices -> to} route within one calendar as
 a table: one row per pair of overlapping units with \code{n_from} (timeslices
-in the \code{from} unit), \code{n_overlap} (timeslices the pair shares), \code{w} (the
-weight of the overlap) and \code{w_from} (the full weight of the \code{from} unit).
+in the \code{source} unit), \code{n_overlap} (timeslices the pair shares), \code{w} (the
+weight of the overlap) and \code{w_from} (the full weight of the \code{source} unit).
 The two label columns are named by the timeframes. A crosswalk registered
 with \code{\link[=register_calendar_map]{register_calendar_map()}} is returned as-is instead of being
 derived.

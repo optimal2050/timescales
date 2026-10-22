@@ -33,7 +33,7 @@
 #'   \item{`share`}{Share within parent: each source timeslice's value
 #'     divided by the total over its parent timeslice. Unlike every other
 #'     rule the result stays keyed by the **source** calendar's timeslices
-#'     -- `to` (or `parent=`) names the parent calendar or timeframe -- so
+#'     -- `target` (or `parent=`) names the parent calendar or timeframe -- so
 #'     it cannot be mixed with other rules in one call. For building
 #'     profile shares and distribution keys; requires the source
 #'     timeslices to nest within the parent's. The two share rules mix
@@ -172,7 +172,8 @@ clear_calendar_rules <- function(param = NULL) {
 #' for one named calendar pair — the escape hatch for exact nested-calendar
 #' arithmetic or anything the grid cannot express.
 #'
-#' @param from,to Calendar names (`meta$name`) the override applies to.
+#' @param source,target Calendar names (`meta$name`) the override applies to.
+#' @param from,to Deprecated names of `source` and `target`.
 #' @param fun A function with signature `fun(x, from, to, ...)` receiving the
 #'   same arguments as [`recast_calendar()`] and returning the recast `data.frame`.
 #'   `NULL` removes a previously registered override.
@@ -189,10 +190,21 @@ clear_calendar_rules <- function(param = NULL) {
 #' "m12->q4" %in% list_calendar_conversions()$key
 #' clear_calendar_conversions()
 #' @export
-register_calendar_conversion <- function(from, to, fun) {
+register_calendar_conversion <- function(source, target, fun,
+                                         from = lifecycle::deprecated(), to = lifecycle::deprecated()) {
+  if (lifecycle::is_present(from)) {
+    .arg_renamed("register_calendar_conversion", "from", "source", !missing(source))
+    source <- from
+  }
+  if (lifecycle::is_present(to)) {
+    .arg_renamed("register_calendar_conversion", "to", "target", !missing(target))
+    target <- to
+  }
+  from <- source
+  to <- target
   for (nm in c(from, to)) {
     if (!is.character(nm) || length(nm) != 1L || is.na(nm) || !nzchar(nm)) {
-      stop("`from` and `to` must be single non-empty calendar names",
+      stop("`source` and `target` must be single non-empty calendar names",
            call. = FALSE)
     }
   }
@@ -213,7 +225,18 @@ register_calendar_conversion <- function(from, to, fun) {
 #' @rdname register_calendar_conversion
 #' @return `get_calendar_conversion()` returns the registered function or `NULL`.
 #' @export
-get_calendar_conversion <- function(from, to) {
+get_calendar_conversion <- function(source, target,
+                                    from = lifecycle::deprecated(), to = lifecycle::deprecated()) {
+  if (lifecycle::is_present(from)) {
+    .arg_renamed("get_calendar_conversion", "from", "source", !missing(source))
+    source <- from
+  }
+  if (lifecycle::is_present(to)) {
+    .arg_renamed("get_calendar_conversion", "to", "target", !missing(target))
+    target <- to
+  }
+  from <- source
+  to <- target
   key <- paste0(from, "->", to)
   if (!exists(key, envir = .CONVERSION_REGISTRY, inherits = FALSE)) {
     return(NULL)

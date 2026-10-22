@@ -15,8 +15,8 @@ format:
 calendars — from annual to hourly, typical periods, and fiscal years —
 keep your tables as tables while they gain calendar structure, convert
 values between any two resolutions with conserved totals, sample partial
-years, and see every level of a design at once. The R implementation is
-active; a C++ core and Python bindings are in development.
+years, and see every level of a design at once. The R and
+Python implementations are available; a C++ core is in development.
 :::
 
 ## Documentation
@@ -25,7 +25,7 @@ active; a C++ core and Python bindings are in development.
 |----------|--------|---------------|
 | **R** | Available | [R reference and articles](r/) |
 | **C++** | In development | — |
-| **Python** | In development | — |
+| **Python** | Available | [Python reference](python/) |
 
 - [Source on GitHub](https://github.com/optimal2050/timescales)
 - Companion package for the spatial dimension:

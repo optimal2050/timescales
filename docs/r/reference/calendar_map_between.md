@@ -6,12 +6,20 @@ model year(s), one row per pair of overlapping timeslices with
 ## Usage
 
 ``` r
-calendar_map_between(from, to, year, by = NULL, tz = "UTC")
+calendar_map_between(
+  source,
+  target,
+  year,
+  by = NULL,
+  tz = "UTC",
+  from = lifecycle::deprecated(),
+  to = lifecycle::deprecated()
+)
 ```
 
 ## Arguments
 
-- from, to:
+- source, target:
 
   [`Calendar`](https://optimal2050.github.io/timescales/r/reference/Calendar.md)
   objects (both must be named).
@@ -30,14 +38,18 @@ calendar_map_between(from, to, year, by = NULL, tz = "UTC")
 
   Time zone of the grid. Default `"UTC"`.
 
+- from, to:
+
+  Deprecated names of `source` and `target`.
+
 ## Value
 
-A `data.frame` with columns `year`, `<from name>`, `<to name>` (`NA` =
-uncovered by `to`), `n_from`, `n_overlap`, `w`.
+A `data.frame` with columns `year`, `<source name>`, `<target name>`
+(`NA` = uncovered by `target`), `n_from`, `n_overlap`, `w`.
 
 ## Details
 
-- `n_from` – grid points in the `from` timeslice (its full set, before
+- `n_from` – grid points in the `source` timeslice (its full set, before
   any target coverage is considered),
 
 - `n_overlap` – grid points the pair shares,
@@ -49,8 +61,8 @@ uncovered by `to`), `n_from`, `n_overlap`, `w`.
 The two label columns are named by the calendars' names (so the map
 joins directly onto datasets labelled by
 [`join_calendar()`](https://optimal2050.github.io/timescales/r/reference/join_calendar.md));
-rows with an `NA` target label are grid points `to` does not cover. A
-crosswalk registered with
+rows with an `NA` target label are grid points `target` does not cover.
+A crosswalk registered with
 [`register_calendar_map_between()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_map.md)
 is returned as-is instead of being derived from the grid.
 

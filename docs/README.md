@@ -12,7 +12,8 @@ docs/
 ├── index.qmd        # landing page source (rendered with Quarto)
 ├── index.html       # ... and its rendered output, committed
 ├── styles.css       # landing page styling only
-└── r/               # pkgdown site (see ../_pkgdown.yml, destination: docs/r)
+├── r/               # pkgdown site (see ../_pkgdown.yml, destination: docs/r)
+└── python/          # MkDocs site of the Python binding
 ```
 
 | URL | What |
@@ -22,12 +23,13 @@ docs/
 
 ## Rebuilding
 
-```r
-pkgdown::build_site()          # -> docs/r/
-```
 ```sh
-quarto render docs/index.qmd   # -> docs/index.html
+Rscript tools/site/build_site.R   # docs/r/, docs/python/ and docs/index.html
 ```
+
+It runs `pkgdown::build_site()` (-> `docs/r/`), writes the Python
+reference pages and builds them with MkDocs (-> `docs/python/`, using
+`python/.venv` with the `docs` extra), and renders `docs/index.qmd`.
 
 Commit the result.
 

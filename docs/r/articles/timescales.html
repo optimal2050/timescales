@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">timescales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.6.0</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -55,6 +55,7 @@
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
 </form></li>
+<li class="nav-item"><a class="nav-link" href="../../python/">Python</a></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/optimal2050/timescales/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-lightswitch" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true" aria-label="Light switch"><span class="fa fa-sun"></span></button>
@@ -136,7 +137,7 @@ reporting years):</p>
 <code class="sourceCode R"><span><span class="va">cal_my2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calendar_build.html">calendar_build</a></span><span class="op">(</span><span class="st">"m12"</span>, <span class="st">"h24"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="va">cal_my</span><span class="op">@</span><span class="va">timeframes</span>, <span class="va">cal_my2</span><span class="op">@</span><span class="va">timeframes</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
-<p>For full control there is the lowest-level constructor
+<p>For full control there is the most flexible constructor
 <code><a href="../reference/calendar_from_leaftable.html">calendar_from_leaftable()</a></code>, where you supply the leaves
 table directly.</p>
 </div>
@@ -150,9 +151,9 @@ table directly.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu"><a href="../reference/calendar_leaftable.html">calendar_leaftable</a></span><span class="op">(</span><span class="va">cal_my</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span>          <span class="co"># the leaf table (one row per timeslice)</span></span>
 <span><span class="co">#&gt;   MONTH HOUR       share weight timeslice</span></span>
 <span><span class="co">#&gt; 1   m01  h00 0.003538813     31   m01_h00</span></span>
-<span><span class="co">#&gt; 2   m02  h00 0.003196347     28   m02_h00</span></span>
-<span><span class="co">#&gt; 3   m03  h00 0.003538813     31   m03_h00</span></span>
-<span><span class="co">#&gt; 4   m04  h00 0.003424658     30   m04_h00</span></span>
+<span><span class="co">#&gt; 2   m01  h01 0.003538813     31   m01_h01</span></span>
+<span><span class="co">#&gt; 3   m01  h02 0.003538813     31   m01_h02</span></span>
+<span><span class="co">#&gt; 4   m01  h03 0.003538813     31   m01_h03</span></span>
 <span><span class="va">cal_my</span><span class="op">@</span><span class="va">members</span><span class="op">$</span><span class="va">MONTH</span>             <span class="co"># ordered label vocabulary per timeframe</span></span>
 <span><span class="co">#&gt;  [1] "m01" "m02" "m03" "m04" "m05" "m06" "m07" "m08" "m09" "m10" "m11" "m12"</span></span>
 <span><span class="va">cal_my</span><span class="op">@</span><span class="va">meta</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"name"</span>, <span class="st">"year_fraction"</span><span class="op">)</span><span class="op">]</span></span>
@@ -171,7 +172,7 @@ is one timeslice, with columns:</p>
 <li>
 <code>weight</code> — timeslice weight in hours (default
 <code>share * 8760</code>),</li>
-<li>one column per timeframe — the member label at that level.</li>
+<li>one column per timeframe — the corresponding member label.</li>
 </ul>
 </div>
 <div class="section level3">
@@ -195,7 +196,7 @@ is one timeslice, with columns:</p>
 <span>  load  <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">120</span>, <span class="fl">118</span>, <span class="fl">105</span>,  <span class="fl">92</span>,  <span class="fl">85</span>,  <span class="fl">88</span>,  <span class="fl">95</span>, <span class="fl">100</span>,  <span class="fl">98</span>,  <span class="fl">90</span>, <span class="fl">105</span>, <span class="fl">122</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="../reference/recast_calendar.html">recast_calendar</a></span><span class="op">(</span><span class="va">monthly</span>, from <span class="op">=</span> <span class="va">cal_m</span>, to <span class="op">=</span> <span class="va">cal_q</span>, year <span class="op">=</span> <span class="fl">2025</span>,</span>
+<span><span class="fu"><a href="../reference/recast_calendar.html">recast_calendar</a></span><span class="op">(</span><span class="va">monthly</span>, source <span class="op">=</span> <span class="va">cal_m</span>, target <span class="op">=</span> <span class="va">cal_q</span>, year <span class="op">=</span> <span class="fl">2025</span>,</span>
 <span>       rule <span class="op">=</span> <span class="st">"weighted_mean"</span>, by <span class="op">=</span> <span class="st">"day"</span><span class="op">)</span></span>
 <span><span class="co">#&gt;   timeslice      load</span></span>
 <span><span class="co">#&gt; 1        Q1 114.21111</span></span>

@@ -16,8 +16,8 @@
 <script src="deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Nested Timeframes and Calendars for Optimization and Simulation Models">
-<meta name="description" content="Discrete time representations for optimization and simulation models, including calendar-based nested sets of timeframes, conversion between alternative temporal resolutions, and mapping of data onto calendar grids for modeling and visualization. Built on nestedscales; successor to the timeslices package and the time-domain companion to geoscales.">
-<meta property="og:description" content="Discrete time representations for optimization and simulation models, including calendar-based nested sets of timeframes, conversion between alternative temporal resolutions, and mapping of data onto calendar grids for modeling and visualization. Built on nestedscales; successor to the timeslices package and the time-domain companion to geoscales.">
+<meta name="description" content="Provides discrete temporal representations for optimization and simulation models. A calendar records ordered timeframes, their members and duration-weighted timeslices, including full-resolution, representative-period and fiscal-year designs. Maps timestamps to timeslices, joins calendar labels to tabular data, and recasts values between temporal resolutions using explicit aggregation and disaggregation rules. Includes a catalog of predefined calendars and visualization helpers for calendar structures and time-series data. Extends nestedscales with temporal semantics.">
+<meta property="og:description" content="Provides discrete temporal representations for optimization and simulation models. A calendar records ordered timeframes, their members and duration-weighted timeslices, including full-resolution, representative-period and fiscal-year designs. Maps timestamps to timeslices, joins calendar labels to tabular data, and recasts values between temporal resolutions using explicit aggregation and disaggregation rules. Includes a catalog of predefined calendars and visualization helpers for calendar structures and time-series data. Extends nestedscales with temporal semantics.">
 <meta property="og:image" content="https://optimal2050.github.io/timescales/r/logo.png">
 </head>
 <body>
@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="index.html">timescales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.6.0</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -55,6 +55,7 @@
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="search.json">
 </form></li>
+<li class="nav-item"><a class="nav-link" href="../python/">Python</a></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/optimal2050/timescales/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-lightswitch" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true" aria-label="Light switch"><span class="fa fa-sun"></span></button>
@@ -82,7 +83,7 @@
 <div class="section level2">
 <h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
 </h2>
-<p>timescales provides <strong>nested timeframes and calendars</strong> for optimization and simulation models: organize the time dimension of your model data, convert it between resolutions, and see every level at once.</p>
+<p>timescales provides <strong>nested timeframes and calendars</strong> for optimization and simulation models: organize the time dimension of your model data, convert it between resolutions, and see every timeframe at once.</p>
 <ul>
 <li>
 <a href="https://optimal2050.github.io/timescales/r/reference/calendar_build.html"><code>calendar()</code></a> builds a <code>Calendar</code> — ordered timeframes, their members, and one leaftable row per timeslice with duration-proportional shares; 43 curated designs, from <code>d365_h24</code> to typical-period compressions and fiscal years, ship pre-built in <a href="https://optimal2050.github.io/timescales/r/reference/calendars.html"><code>calendars</code></a>.</li>
@@ -93,7 +94,7 @@
 <li>
 <a href="https://optimal2050.github.io/timescales/r/reference/filter_calendar.html"><code>filter_calendar()</code></a> and <a href="https://optimal2050.github.io/timescales/r/reference/prune_calendar.html"><code>prune_calendar()</code></a> carve partial-year samples and coarser designs for model runs.</li>
 <li>
-<a href="https://optimal2050.github.io/timescales/r/reference/geom_calendar.html"><code>geom_calendar()</code></a>, <a href="https://optimal2050.github.io/timescales/r/reference/calendar_autoplot.html"><code>calendar_autoplot()</code></a> and friends draw any level: heatmaps, wall calendars, icicles, and axonometric stacks.</li>
+<a href="https://optimal2050.github.io/timescales/r/reference/geom_calendar.html"><code>geom_calendar()</code></a>, <a href="https://optimal2050.github.io/timescales/r/reference/calendar_autoplot.html"><code>calendar_autoplot()</code></a> and friends draw any timeframe: heatmaps, wall calendars, icicles, and axonometric stacks.</li>
 </ul>
 <p>timescales is the time-domain package of the <a href="https://github.com/optimal2050" class="external-link">optimal2050</a> modeling stack; its spatial companion, <a href="https://github.com/optimal2050/geoscales" class="external-link">geoscales</a>, shares the same design and vocabulary.</p>
 <p>If you are new to timescales, the best place to start is the <a href="https://optimal2050.github.io/timescales/r/articles/timescales.html">get-started vignette</a> (<code><a href="articles/timescales.html">vignette("timescales")</a></code>).</p>

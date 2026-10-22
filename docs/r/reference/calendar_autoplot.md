@@ -75,7 +75,7 @@ plot(x, ...)
 
 - labels:
 
-  Segment labels. Icicle: `"name"` (level value, e.g. `h00`; default),
+  Segment labels. Icicle: `"name"` (member value, e.g. `h00`; default),
   `"timeslice"` (full path, e.g. `Q1_h00`), or `"none"`; `TRUE`/`FALSE`
   are accepted as shorthands. `type = "stack"`: a character vector of
   timeframes whose member names are drawn on their plane's segments

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">timescales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.6.0</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -28,6 +28,7 @@
 <li class="active nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
+<li class="nav-item"><a class="nav-link" href="../../python/">Python</a></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/optimal2050/timescales/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-lightswitch" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true" aria-label="Light switch"><span class="fa fa-sun"></span></button>
@@ -47,12 +48,26 @@
     </div>
 
     <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.7.0" id="timescales-070">timescales 0.7.0<a class="anchor" aria-label="anchor" href="#timescales-070"></a></h2>
+<ul><li>Requires nestedscales 0.2.0.</li>
+<li>Leaftable rows are in nested, chronological order by default: sorted by timeframe, coarsest first, each in its member order. <code>row_order = "given"</code> keeps the rows as supplied.</li>
+<li>
+<code>from</code> and <code>to</code> are now <code>source</code> and <code>target</code> in the navigation, map, conversion-registry and <code><a href="../reference/recast_calendar.html">recast_calendar()</a></code> functions, matching nestedscales. The old names still work, with a deprecation warning, and will be removed in a later release.</li>
+<li>The <code><a href="https://rdrr.io/pkg/nestedscales/man/recast.html" class="external-link">recast()</a></code> method follows the generic’s new arguments: <code>recast(x, scale, target, source = NULL, ...)</code>.</li>
+</ul></div>
+    <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.6.0" id="timescales-060">timescales 0.6.0<a class="anchor" aria-label="anchor" href="#timescales-060"></a></h2>
 <div class="section level3">
-<h3 id="breaking-crosswalk-functions-split-by-task-0-6-0">Breaking: crosswalk functions split by task<a class="anchor" aria-label="anchor" href="#breaking-crosswalk-functions-split-by-task-0-6-0"></a></h3>
+<h3 id="breaking-changes-0-6-0">Breaking changes<a class="anchor" aria-label="anchor" href="#breaking-changes-0-6-0"></a></h3>
 <ul><li>
 <code>calendar_map(x, from, to)</code> now maps between two timeframes of one calendar (through the shared core); the map between two calendars on the base grid, formerly <code>calendar_map(from, to, year)</code>, is <code>calendar_map_between(from, to, year)</code>. The registry follows the same split: <code>register_calendar_map(x, from, to, map)</code> / <code>get_calendar_map(x, from, to)</code> for timeframes of one calendar, <code><a href="../reference/register_calendar_map.html">register_calendar_map_between()</a></code> / <code><a href="../reference/register_calendar_map.html">get_calendar_map_between()</a></code> for two calendars. <code><a href="../reference/list_calendar_maps.html">list_calendar_maps()</a></code> reports both; <code>clear_calendar_maps(registry = TRUE)</code> clears both. No deprecation aliases.</li>
 <li>The shared core package is now called nestedscales (formerly multiscales); <code>data/calendars.rda</code> was rebuilt against it.</li>
+</ul></div>
+<div class="section level3">
+<h3 id="bug-fixes-0-6-0">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-6-0"></a></h3>
+<ul><li>Panel-data expansion to the datetime base now declares its expected many-to-many join and no longer emits a dplyr relationship warning.</li>
+<li>
+<code><a href="../reference/datetime_to_timeslice.html">datetime_to_timeslice()</a></code> on a <code>drop_feb29</code> calendar (<code>d365</code>, <code>d365_h24</code>, <code>fy04_d365*</code>) returns <code>NA</code> for a missing datetime instead of erroring.</li>
 </ul></div>
 </div>
     <div class="section level2">

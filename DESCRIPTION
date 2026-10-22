@@ -1,6 +1,6 @@
 Package: timescales
 Title: Nested Timeframes and Calendars for Optimization and Simulation Models
-Version: 0.6.0
+Version: 0.7.0
 URL: https://optimal2050.github.io/timescales/r/,
     https://optimal2050.github.io/timescales/,
     https://github.com/optimal2050/timescales
@@ -28,8 +28,9 @@ Depends:
     R (>= 4.2)
 Imports:
     dplyr (>= 1.1.1),
+    lifecycle,
     lubridate,
-    nestedscales (>= 0.1.0),
+    nestedscales (>= 0.2.0),
     rlang,
     S7,
     stats,
@@ -52,4 +53,4 @@ Additional_repositories: https://optimal2050.r-universe.dev
 Config/testthat/edition: 3
 Config/Needs/website: pkgdown, rmarkdown, energypal
 VignetteBuilder: knitr
-Config/roxygen2/version: 8.1.0
+Config/roxygen2/version: 8.1.1

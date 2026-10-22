@@ -7,20 +7,33 @@
 \alias{clear_calendar_conversions}
 \title{Register a pairwise calendar conversion override}
 \usage{
-register_calendar_conversion(from, to, fun)
+register_calendar_conversion(
+  source,
+  target,
+  fun,
+  from = lifecycle::deprecated(),
+  to = lifecycle::deprecated()
+)
 
-get_calendar_conversion(from, to)
+get_calendar_conversion(
+  source,
+  target,
+  from = lifecycle::deprecated(),
+  to = lifecycle::deprecated()
+)
 
 list_calendar_conversions()
 
 clear_calendar_conversions(key = NULL)
 }
 \arguments{
-\item{from, to}{Calendar names (\code{meta$name}) the override applies to.}
+\item{source, target}{Calendar names (\code{meta$name}) the override applies to.}
 
 \item{fun}{A function with signature \code{fun(x, from, to, ...)} receiving the
 same arguments as \code{\link[=recast_calendar]{recast_calendar()}} and returning the recast \code{data.frame}.
 \code{NULL} removes a previously registered override.}
+
+\item{from, to}{Deprecated names of \code{source} and \code{target}.}
 
 \item{key}{Optional character vector of \code{"from->to"} keys to remove;
 \code{NULL} (default) clears everything.}

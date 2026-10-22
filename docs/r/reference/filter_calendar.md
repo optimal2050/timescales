@@ -6,8 +6,8 @@ the time-side mirror of
 Shares are NOT renormalized: the result is a partial-year calendar whose
 `meta$year_fraction` is set to the surviving `sum(share)` (use
 [`calendar_share()`](https://optimal2050.github.io/timescales/r/reference/calendar_share.md)
-when normalized shares are needed). Level vocabularies are subset to the
-surviving labels.
+when normalized shares are needed). Timeframe vocabularies are subset to
+the surviving labels.
 
 ## Usage
 

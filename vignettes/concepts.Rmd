@@ -133,7 +133,7 @@ monthly <- data.frame(
   load  = c(120, 118, 105,  92,  85,  88,  95, 100,  98,  90, 105, 122)
 )
 
-recast_calendar(monthly, from = cal_m, to = cal_q, year = 2025,
+recast_calendar(monthly, source = cal_m, target = cal_q, year = 2025,
        rule = "weighted_mean", by = "day")
 ```
 
@@ -202,12 +202,12 @@ head(xt, 3)
 
 Every calendar has an implicit whole-year root named `ANNUAL`.
 `prune_calendar()` truncates a calendar at one of its own timeframes,
-and `recast_calendar()` accepts a timeframe name for `to=`:
+and `recast_calendar()` accepts a timeframe name for `target=`:
 
 ```{r}
 cal <- calendar("q4_h24")
 x <- data.frame(timeslice = calendar_leaftable(cal)$timeslice, energy = 1)
-recast_calendar(x, cal, to = "ANNUAL", year = 2025, rule = "sum")
+recast_calendar(x, cal, target = "ANNUAL", year = 2025, rule = "sum")
 ```
 
 ## The *scales naming lattice (glossary)

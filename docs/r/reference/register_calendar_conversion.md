@@ -10,9 +10,20 @@ arithmetic or anything the grid cannot express.
 ## Usage
 
 ``` r
-register_calendar_conversion(from, to, fun)
+register_calendar_conversion(
+  source,
+  target,
+  fun,
+  from = lifecycle::deprecated(),
+  to = lifecycle::deprecated()
+)
 
-get_calendar_conversion(from, to)
+get_calendar_conversion(
+  source,
+  target,
+  from = lifecycle::deprecated(),
+  to = lifecycle::deprecated()
+)
 
 list_calendar_conversions()
 
@@ -21,7 +32,7 @@ clear_calendar_conversions(key = NULL)
 
 ## Arguments
 
-- from, to:
+- source, target:
 
   Calendar names (`meta$name`) the override applies to.
 
@@ -32,6 +43,10 @@ clear_calendar_conversions(key = NULL)
   [`recast_calendar()`](https://optimal2050.github.io/timescales/r/reference/recast_calendar.md)
   and returning the recast `data.frame`. `NULL` removes a previously
   registered override.
+
+- from, to:
+
+  Deprecated names of `source` and `target`.
 
 - key:
 

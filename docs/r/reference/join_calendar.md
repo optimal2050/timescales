@@ -96,19 +96,19 @@ x <- data.frame(timeslice = S7::prop(cal, "leaftable")$timeslice, load = 1)
 head(join_calendar(x, cal))                    # adds `m12_h24`
 #>   timeslice load m12_h24
 #> 1   m01_h00    1 m01_h00
-#> 2   m02_h00    1 m02_h00
-#> 3   m03_h00    1 m03_h00
-#> 4   m04_h00    1 m04_h00
-#> 5   m05_h00    1 m05_h00
-#> 6   m06_h00    1 m06_h00
+#> 2   m01_h01    1 m01_h01
+#> 3   m01_h02    1 m01_h02
+#> 4   m01_h03    1 m01_h03
+#> 5   m01_h04    1 m01_h04
+#> 6   m01_h05    1 m01_h05
 head(join_calendar(x, cal, timeframes = TRUE)) # + m12_h24.MONTH, ...
 #>   timeslice load m12_h24 m12_h24.MONTH m12_h24.HOUR
 #> 1   m01_h00    1 m01_h00           m01          h00
-#> 2   m02_h00    1 m02_h00           m02          h00
-#> 3   m03_h00    1 m03_h00           m03          h00
-#> 4   m04_h00    1 m04_h00           m04          h00
-#> 5   m05_h00    1 m05_h00           m05          h00
-#> 6   m06_h00    1 m06_h00           m06          h00
+#> 2   m01_h01    1 m01_h01           m01          h01
+#> 3   m01_h02    1 m01_h02           m01          h02
+#> 4   m01_h03    1 m01_h03           m01          h03
+#> 5   m01_h04    1 m01_h04           m01          h04
+#> 6   m01_h05    1 m01_h05           m01          h05
 
 # two calendars on one dataset = a direct crosswalk between them
 xt <- data.frame(datetime = seq(as.POSIXct("2021-01-01", tz = "UTC"),

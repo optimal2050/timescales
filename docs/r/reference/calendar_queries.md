@@ -56,7 +56,7 @@ vector; `calendar_rank()` an integer.
   unknown names.
 
 - `calendar_timeslices()` — with a `timeframe`, the canonical ordered
-  labels at that level; without, the leaf `timeslice` ids.
+  labels in that timeframe; without, the leaf `timeslice` ids.
 
 - [`names()`](https://rdrr.io/r/base/names.html) on a Calendar returns
   the timeframe names (identical to `calendar_timeframes()`), NOT the

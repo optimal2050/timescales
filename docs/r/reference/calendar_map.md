@@ -2,17 +2,25 @@
 
 Materialises the `from -> timeslices -> to` route within one calendar as
 a table: one row per pair of overlapping units with `n_from` (timeslices
-in the `from` unit), `n_overlap` (timeslices the pair shares), `w` (the
-weight of the overlap) and `w_from` (the full weight of the `from`
-unit). The two label columns are named by the timeframes. A crosswalk
-registered with
+in the `source` unit), `n_overlap` (timeslices the pair shares), `w`
+(the weight of the overlap) and `w_from` (the full weight of the
+`source` unit). The two label columns are named by the timeframes. A
+crosswalk registered with
 [`register_calendar_map()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_map.md)
 is returned as-is instead of being derived.
 
 ## Usage
 
 ``` r
-calendar_map(x, from, to, weight = NULL, ...)
+calendar_map(
+  x,
+  source,
+  target,
+  weight = NULL,
+  ...,
+  from = lifecycle::deprecated(),
+  to = lifecycle::deprecated()
+)
 ```
 
 ## Arguments
@@ -23,7 +31,7 @@ calendar_map(x, from, to, weight = NULL, ...)
   [`Calendar`](https://optimal2050.github.io/timescales/r/reference/Calendar.md)
   the timeframes belong to.
 
-- from, to:
+- source, target:
 
   Timeframe names of `x`.
 
@@ -36,10 +44,14 @@ calendar_map(x, from, to, weight = NULL, ...)
 
   Passed to the shared core, e.g. `by =` for extra identifier columns.
 
+- from, to:
+
+  Deprecated names of `source` and `target`.
+
 ## Value
 
-A `data.frame` with columns `<from>`, `<to>` (`NA` = uncovered by `to`),
-`n_from`, `n_overlap`, `w`, `w_from`.
+A `data.frame` with columns `<source>`, `<target>` (`NA` = uncovered by
+`target`), `n_from`, `n_overlap`, `w`, `w_from`.
 
 ## See also
 

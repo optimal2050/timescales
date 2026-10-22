@@ -133,8 +133,8 @@ cal <- calendar("q4_h24")
 head(calendar_leaftable(cal), 3)
 #>   QUARTER HOUR      share weight timeslice
 #> 1      Q1  h00 0.01027397     90    Q1_h00
-#> 2      Q2  h00 0.01038813     91    Q2_h00
-#> 3      Q3  h00 0.01050228     92    Q3_h00
+#> 2      Q1  h01 0.01027397     90    Q1_h01
+#> 3      Q1  h02 0.01027397     90    Q1_h02
 cat(nrow(calendar_leaftable(cal)), "leaves, share sums to", sum(calendar_leaftable(cal)$share))
 #> 96 leaves, share sums to 1
 ```
@@ -156,7 +156,7 @@ monthly <- data.frame(
   load  = c(120, 118, 105,  92,  85,  88,  95, 100,  98,  90, 105, 122)
 )
 
-recast_calendar(monthly, from = cal_m, to = cal_q, year = 2025,
+recast_calendar(monthly, source = cal_m, target = cal_q, year = 2025,
        rule = "weighted_mean", by = "day")
 #>   timeslice      load
 #> 1        Q1 114.21111
@@ -244,13 +244,13 @@ Every calendar has an implicit whole-year root named `ANNUAL`.
 [`prune_calendar()`](https://optimal2050.github.io/timescales/r/reference/prune_calendar.md)
 truncates a calendar at one of its own timeframes, and
 [`recast_calendar()`](https://optimal2050.github.io/timescales/r/reference/recast_calendar.md)
-accepts a timeframe name for `to=`:
+accepts a timeframe name for `target=`:
 
 ``` r
 
 cal <- calendar("q4_h24")
 x <- data.frame(timeslice = calendar_leaftable(cal)$timeslice, energy = 1)
-recast_calendar(x, cal, to = "ANNUAL", year = 2025, rule = "sum")
+recast_calendar(x, cal, target = "ANNUAL", year = 2025, rule = "sum")
 #>   timeslice energy
 #> 1    ANNUAL     96
 ```
