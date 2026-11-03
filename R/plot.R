@@ -172,15 +172,20 @@ calendar_layout <- function(x, annual = TRUE) {
 #' @param view `type = "stack"` only: a predefined point of view --
 #'   `"oblique"` (the shear/depth default), `"top-down"`, `"cavalier"`,
 #'   `"cabinet"`, `"military"`, `"isometric"`, `"dimetric"`,
-#'   `"trimetric"`, or `"perspective"` (receding planes shrink).
+#'   `"trimetric"`, `"perspective"` (receding planes shrink) or
+#'   `"pyramid"` (receding planes grow: the coarsest timeframe is the small
+#'   top, the finest the wide base).
 #' @param angle,ratio `type = "stack"` only: oblique view by angle
 #'   (degrees of the receding axis) and foreshortening ratio --
 #'   `e2 = ratio * (cos(angle), sin(angle))`. Overridden by `view`.
 #' @param shear,depth,gap `type = "stack"` only: the raw receding-axis
 #'   components (`e2 = (shear, depth)`; used when neither `view` nor
-#'   `angle`/`ratio` is given) and the vertical spacing between planes.
+#'   `angle`/`ratio` is given) and the vertical spacing between planes:
+#'   one value for every pair, or one per pair from the top down.
 #'   `gap = NULL` (default) spaces planes almost touching, with a slight
-#'   overlap (0.85 x the plane's screen height).
+#'   overlap (0.85 x the plane's screen height). Under `"perspective"` and
+#'   `"pyramid"` each spacing is scaled with the planes it separates, so
+#'   it stays uniform relative to their size.
 #' @param rotate `type = "stack"` only: in-plane rotation of each plane
 #'   (degrees, counter-clockwise) before projection.
 #' @param direction `type = "stack"` only: `"up"` (default) stacks the
@@ -740,7 +745,8 @@ utils::globalVariables(c("xmin", "xmax", "ymin", "ymax",
   if (!is.null(view)) {
     view <- match.arg(view, c("oblique", "top-down", "cavalier",
                               "cabinet", "military", "isometric",
-                              "dimetric", "trimetric", "perspective"))
+                              "dimetric", "trimetric", "perspective",
+                              "pyramid"))
     return(switch(view,
       "oblique"     = list(e1 = c(1, 0), e2 = c(shear, depth), scale = 1),
       "top-down"    = list(e1 = c(1, 0), e2 = c(0, 1), scale = 1),
@@ -764,7 +770,11 @@ utils::globalVariables(c("xmin", "xmax", "ymin", "ymax",
                            scale = 1),
       "perspective" = list(e1 = c(1, 0),
                            e2 = 0.5 * c(cos(45 * deg), sin(45 * deg)),
-                           scale = 0.82)
+                           scale = 0.82),
+      # the inverse of perspective: each plane below the top is larger
+      "pyramid"     = list(e1 = c(1, 0),
+                           e2 = 0.5 * c(cos(45 * deg), sin(45 * deg)),
+                           scale = 1 / 0.82)
     ))
   }
   if (!is.null(angle) || !is.null(ratio)) {
@@ -829,14 +839,30 @@ utils::globalVariables(c("xmin", "xmax", "ymin", "ymax",
   }
   ctr <- corner(0.5, 0.5)                        # plane center, pre-lift
 
-  # vertical placement: coarsest on top ("up", default) or bottom
-  zlev <- if (direction == "up") (nk - seq_len(nk)) * gap
-          else (seq_len(nk) - 1) * gap
   top_rank <- if (direction == "up") seq_len(nk) - 1 else nk - seq_len(nk)
+  # per-plane size factor. A factor below 1 shrinks the planes below the
+  # top (perspective); a factor above 1 is applied from the bottom up, so
+  # the largest plane is always full size and pyramid mirrors perspective.
+  fac <- if (v$scale < 1) v$scale^top_rank
+         else (1 / v$scale)^(nk - 1 - top_rank)
+  # vertical placement: coarsest on top ("up", default) or bottom. `gap` is
+  # the spacing between consecutive planes, top to bottom, one value for all
+  # or one per pair. Each step scales with the larger of the two planes it
+  # separates, so spacing stays uniform relative to plane size and pyramid
+  # mirrors perspective exactly.
+  if (!length(gap) %in% c(1L, nk - 1L)) {
+    .stop("`gap` must be a single value or one per pair of planes (%d)",
+          nk - 1L)
+  }
+  pos <- if (direction == "up") seq_len(nk) else rev(seq_len(nk))  # 1 = top
+  fac_tb <- fac[order(pos)]                                       # top to bottom
+  steps <- rep_len(gap, nk - 1L) * pmax(fac_tb[-nk], fac_tb[-1L])
+  zlev <- vapply(pos, function(p) sum(steps[seq_len(nk - 1L) >= p]),
+                 numeric(1))
 
   quads <- do.call(rbind, lapply(seq_along(tfs), function(k) {
     d <- lay[lay$timeframe == tfs[k], , drop = FALSE]
-    sk <- v$scale^top_rank[k]                    # top plane is largest
+    sk <- fac[k]
     n <- nrow(d)
     do.call(rbind, lapply(seq_len(n), function(i) {
       p <- corner(c(d$xmin[i], d$xmax[i], d$xmax[i], d$xmin[i]),
@@ -882,7 +908,7 @@ utils::globalVariables(c("xmin", "xmax", "ymin", "ymax",
     cn <- corner(c(-fp, 1 + fp, 1 + fp, -fp),
                  c(-fp, -fp, 1 + fp, 1 + fp))
     frames <- lapply(seq_len(nk), function(k) {
-      q <- sweep(sweep(cn, 2, ctr) * v$scale^top_rank[k], 2, ctr, `+`)
+      q <- sweep(sweep(cn, 2, ctr) * fac[k], 2, ctr, `+`)
       data.frame(x = q[, 1], y = q[, 2] + zlev[k])
     })
   }
@@ -943,7 +969,7 @@ utils::globalVariables(c("xmin", "xmax", "ymin", "ymax",
     labdf <- do.call(rbind, lapply(match(labels, tfs), function(k) {
       d <- lay[lay$timeframe == tfs[k], , drop = FALSE]
       pc <- corner((d$xmin + d$xmax) / 2, rep(0.5, nrow(d)))
-      pc <- sweep(sweep(pc, 2, ctr) * v$scale^top_rank[k], 2, ctr, `+`)
+      pc <- sweep(sweep(pc, 2, ctr) * fac[k], 2, ctr, `+`)
       data.frame(x = pc[, 1], y = pc[, 2] + zlev[k], .label = d$label,
                  stringsAsFactors = FALSE)
     }))

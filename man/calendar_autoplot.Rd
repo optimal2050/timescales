@@ -82,7 +82,9 @@ you can supply your own (e.g. an energypal scale).}
 \item{view}{\code{type = "stack"} only: a predefined point of view --
 \code{"oblique"} (the shear/depth default), \code{"top-down"}, \code{"cavalier"},
 \code{"cabinet"}, \code{"military"}, \code{"isometric"}, \code{"dimetric"},
-\code{"trimetric"}, or \code{"perspective"} (receding planes shrink).}
+\code{"trimetric"}, \code{"perspective"} (receding planes shrink) or
+\code{"pyramid"} (receding planes grow: the coarsest timeframe is the small
+top, the finest the wide base).}
 
 \item{angle, ratio}{\code{type = "stack"} only: oblique view by angle
 (degrees of the receding axis) and foreshortening ratio --
@@ -90,9 +92,12 @@ you can supply your own (e.g. an energypal scale).}
 
 \item{shear, depth, gap}{\code{type = "stack"} only: the raw receding-axis
 components (\verb{e2 = (shear, depth)}; used when neither \code{view} nor
-\code{angle}/\code{ratio} is given) and the vertical spacing between planes.
+\code{angle}/\code{ratio} is given) and the vertical spacing between planes:
+one value for every pair, or one per pair from the top down.
 \code{gap = NULL} (default) spaces planes almost touching, with a slight
-overlap (0.85 x the plane's screen height).}
+overlap (0.85 x the plane's screen height). Under \code{"perspective"} and
+\code{"pyramid"} each spacing is scaled with the planes it separates, so
+it stays uniform relative to their size.}
 
 \item{rotate}{\code{type = "stack"} only: in-plane rotation of each plane
 (degrees, counter-clockwise) before projection.}

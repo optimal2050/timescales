@@ -319,7 +319,7 @@ frames, ready for whatever figure this vignette did not anticipate.
 per timeframe, `ANNUAL` on top, each plane segmented at the true
 duration shares. Points of view come as presets (`view =` `"oblique"`,
 `"top-down"`, `"cavalier"`, `"cabinet"`, `"military"`, `"isometric"`,
-`"dimetric"`, `"trimetric"`, `"perspective"`), with `rotate =` and
+`"dimetric"`, `"trimetric"`, `"perspective"`, `"pyramid"`), with `rotate =` and
 `direction =` to turn and flip the stack; `frame =` draws each plane's
 sheet, `frame_fill =` tints it like glass, and `connectors =` adds the
 corner guides that keep the projection readable:

@@ -1,3 +1,12 @@
+# timescales 0.7.1
+
+* `calendar_autoplot(type = "stack")` gains `view = "pyramid"`, the mirror
+  image of `"perspective"`: the coarsest timeframe is the small top and the
+  finest the wide base.
+* `gap` accepts one value per pair of planes, top to bottom. Under
+  `"perspective"` and `"pyramid"` the spacing is scaled with the planes it
+  separates, so it stays uniform relative to their size.
+
 # timescales 0.7.0
 
 * Requires nestedscales 0.2.0.

@@ -135,10 +135,18 @@ test_that("stack views, rotation and direction all render", {
   skip_if_not_installed("ggplot2")
   cal <- calendar("s4_hp3")
   for (vw in c("top-down", "cabinet", "military", "isometric",
-               "perspective")) {
+               "perspective", "pyramid")) {
     expect_s3_class(calendar_autoplot(cal, type = "stack", view = vw),
                     "ggplot")
   }
+  # pyramid inverts perspective: same axes, reciprocal per-plane factor
+  expect_equal(timescales:::.stack_view("pyramid")$scale,
+               1 / timescales:::.stack_view("perspective")$scale)
+  # one gap per pair of planes, top to bottom (ANNUAL + 2 timeframes = 3)
+  expect_s3_class(calendar_autoplot(cal, type = "stack",
+                                    gap = c(0.25, 0.3)), "ggplot")
+  expect_error(calendar_autoplot(cal, type = "stack", gap = c(0.2, 0.3, 0.4)),
+               "one per pair")
   p <- calendar_autoplot(cal, type = "stack", angle = 30, ratio = 0.4,
                          rotate = 15, direction = "down")
   expect_s3_class(p, "ggplot")

@@ -1,6 +1,6 @@
 Package: timescales
 Title: Nested Timeframes and Calendars for Optimization and Simulation Models
-Version: 0.7.0
+Version: 0.7.1
 URL: https://optimal2050.github.io/timescales/r/,
     https://optimal2050.github.io/timescales/,
     https://github.com/optimal2050/timescales
