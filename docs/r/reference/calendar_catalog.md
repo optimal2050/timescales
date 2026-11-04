@@ -2,8 +2,7 @@
 
 Enumerates the named calendar designs
 [`calendar()`](https://optimal2050.github.io/timescales/r/reference/calendar_build.md)
-knows about — the curated set ported from the predecessor `timeslices`
-package, all with duration-proportional shares. Every id here can be
+knows about, all with duration-proportional shares. Every id here can be
 built with `calendar(id)`; the same objects are shipped pre-built in the
 [`calendars`](https://optimal2050.github.io/timescales/r/reference/calendars.md)
 dataset.

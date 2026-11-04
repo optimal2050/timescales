@@ -11,7 +11,7 @@ year on [0, 1]. autoplot() and plot() on a Calendar dispatch here."><meta proper
 
     <a class="navbar-brand me-2" href="../index.html">timescales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.0</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -152,7 +152,7 @@ render as smooth gradients.</p></dd>
 <dd><p>Viridis option letter or name (<code>"D"</code>/<code>"viridis"</code>,
 <code>"C"</code>/<code>"plasma"</code>, <code>"B"</code>, <code>"A"</code>, <code>"E"</code>, <code>"turbo"</code>...). Default <code>"D"</code>.
 <code>type = "stack"</code> also accepts <code>NULL</code>: no fill scale is added, so
-you can supply your own (e.g. an energypal scale).</p></dd>
+a custom scale can be supplied (e.g. an energypal scale).</p></dd>
 
 
 <dt id="arg-annual">annual<a class="anchor" aria-label="anchor" href="#arg-annual"></a></dt>
@@ -163,7 +163,9 @@ you can supply your own (e.g. an energypal scale).</p></dd>
 <dd><p><code>type = "stack"</code> only: a predefined point of view –
 <code>"oblique"</code> (the shear/depth default), <code>"top-down"</code>, <code>"cavalier"</code>,
 <code>"cabinet"</code>, <code>"military"</code>, <code>"isometric"</code>, <code>"dimetric"</code>,
-<code>"trimetric"</code>, or <code>"perspective"</code> (receding planes shrink).</p></dd>
+<code>"trimetric"</code>, <code>"perspective"</code> (receding planes shrink) or
+<code>"pyramid"</code> (receding planes grow: the coarsest timeframe is the small
+top, the finest the wide base).</p></dd>
 
 
 <dt id="arg-angle-ratio">angle, ratio<a class="anchor" aria-label="anchor" href="#arg-angle-ratio"></a></dt>
@@ -175,9 +177,12 @@ you can supply your own (e.g. an energypal scale).</p></dd>
 <dt id="arg-shear-depth-gap">shear, depth, gap<a class="anchor" aria-label="anchor" href="#arg-shear-depth-gap"></a></dt>
 <dd><p><code>type = "stack"</code> only: the raw receding-axis
 components (<code>e2 = (shear, depth)</code>; used when neither <code>view</code> nor
-<code>angle</code>/<code>ratio</code> is given) and the vertical spacing between planes.
+<code>angle</code>/<code>ratio</code> is given) and the vertical spacing between planes:
+one value for every pair, or one per pair from the top down.
 <code>gap = NULL</code> (default) spaces planes almost touching, with a slight
-overlap (0.85 x the plane's screen height).</p></dd>
+overlap (0.85 x the plane's screen height). Under <code>"perspective"</code> and
+<code>"pyramid"</code> each spacing is scaled with the planes it separates, so
+it stays uniform relative to their size.</p></dd>
 
 
 <dt id="arg-rotate">rotate<a class="anchor" aria-label="anchor" href="#arg-rotate"></a></dt>

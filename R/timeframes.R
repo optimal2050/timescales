@@ -14,6 +14,9 @@
 #' plus week-related axes.
 #'
 #' @format Character vector of timeframe names.
+#' @returns A character vector of the core timeframe names.
+#' @examples
+#' CORE_TIMEFRAMES
 #' @export
 CORE_TIMEFRAMES <- c(
   "YEAR",    # Calendar year (e.g. 2020, 2021)

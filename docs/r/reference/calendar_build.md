@@ -11,8 +11,7 @@ build the catalog design (with `coverage_class`/`regularity` metadata
 attached; the `m12_md*` family uses a dedicated ragged month/day
 builder). Any other name is parsed as `_`-joined tokens and dispatched
 to `calendar_build()`. The leading `y_` prefix (year-qualified) is
-currently stripped and recorded in `meta$year_qualified` — full
-year-prefix semantics arrive in a later phase.
+stripped and recorded in `meta$year_qualified`.
 
 ## Usage
 
@@ -56,8 +55,7 @@ calendar(name, ...)
 - utc_offset_minutes:
 
   Integer minutes; defaults to 0 (UTC). Local time = UTC + offset; e.g.
-  `330L` for IST (UTC+5:30). Constant offsets only – Olson time zones /
-  DST are a planned later phase.
+  `330L` for IST (UTC+5:30). Constant offsets only.
 
 - year_fraction:
 

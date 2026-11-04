@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">timescales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.0</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -232,7 +232,7 @@ fixes deterministic ordering for downstream sorting and plotting.</p>
 <h3 id="meta">
 <code>@meta</code><a class="anchor" aria-label="anchor" href="#meta"></a>
 </h3>
-<p>A free-form named list. Recognised keys today:</p>
+<p>A free-form named list. Recognised keys:</p>
 <table class="table">
 <colgroup>
 <col width="25%">
@@ -305,8 +305,7 @@ lookup</td>
 </tr>
 </tbody>
 </table>
-<p>Anything else you put in <code>@meta</code> is preserved
-untouched.</p>
+<p>Other entries in <code>@meta</code> are preserved untouched.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">cal</span><span class="op">@</span><span class="va">meta</span><span class="op">)</span></span>
 <span><span class="co">#&gt;  [1] "name"               "desc"               "year_start"        </span></span>
@@ -393,8 +392,8 @@ token.</li>
 <li>each <code>members[[tf]]</code> is set-equal to
 <code>unique(leaftable[[tf]])</code>.</li>
 </ul>
-<p>Any violation throws at construction time, so a <code>Calendar</code>
-you hold is always internally consistent.</p>
+<p>Any violation throws at construction time, so every
+<code>Calendar</code> instance is internally consistent.</p>
 </div>
 <div class="section level2">
 <h2 id="conversion-outputs">Conversion outputs<a class="anchor" aria-label="anchor" href="#conversion-outputs"></a>

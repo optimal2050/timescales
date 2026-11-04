@@ -1,5 +1,7 @@
 # timescales 0.7.1
 
+## New features
+
 * `calendar_autoplot(type = "stack")` gains `view = "pyramid"`, the mirror
   image of `"perspective"`: the coarsest timeframe is the small top and the
   finest the wide base.
@@ -9,16 +11,21 @@
 
 # timescales 0.7.0
 
+## Breaking changes
+
 * Requires nestedscales 0.2.0.
 * Leaftable rows are in nested, chronological order by default: sorted by
   timeframe, coarsest first, each in its member order. `row_order = "given"`
   keeps the rows as supplied.
+* The `recast()` method follows the generic's new arguments:
+  `recast(x, scale, target, source = NULL, ...)`.
+
+## Deprecations
+
 * `from` and `to` are now `source` and `target` in the navigation, map,
   conversion-registry and `recast_calendar()` functions, matching
   nestedscales. The old names still work, with a deprecation warning, and
   will be removed in a later release.
-* The `recast()` method follows the generic's new arguments:
-  `recast(x, scale, target, source = NULL, ...)`.
 
 # timescales 0.6.0
 

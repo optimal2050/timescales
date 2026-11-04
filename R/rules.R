@@ -46,6 +46,8 @@
 #' }
 #'
 #' @format A character vector of length 7.
+#' @returns A character vector of the seven rule names accepted by the `rule`
+#'   argument of [recast_calendar()] and [register_calendar_rule()].
 #' @examples
 #' CALENDAR_RULES
 #' @export
@@ -54,10 +56,8 @@ CALENDAR_RULES <- c("weighted_mean", "sum", "mean", "copy", "sd", "share",
 
 #' Supported alignment rules
 #'
-#' Alignment declares how real Gregorian instants that fall outside a
-#' calendar's vocabulary map onto it — a separate axis from aggregation
-#' (conflating the two is how a non-conserving `sum` arises). Resurrects the
-#' `alignment_rule` vocabulary of the predecessor `timeslices` package.
+#' Alignment declares how Gregorian instants that fall outside a calendar's
+#' vocabulary map onto it. It is a separate axis from aggregation.
 #'
 #' \describe{
 #'   \item{`exact`}{Error if any instant falls outside the vocabulary.}
@@ -75,6 +75,7 @@ CALENDAR_RULES <- c("weighted_mean", "sum", "mean", "copy", "sd", "share",
 #' `NA`, surfaced by `recast_calendar()`'s `na_action`.
 #'
 #' @format A character vector of length 4.
+#' @returns A character vector of the four alignment rule names.
 #' @examples
 #' ALIGNMENT_RULES
 #' @export

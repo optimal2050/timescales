@@ -151,9 +151,8 @@
 
 #' The calendar catalog
 #'
-#' Enumerates the named calendar designs [`calendar()`] knows about — the
-#' curated set ported from the predecessor `timeslices` package, all with
-#' duration-proportional shares. Every id here can be built with
+#' Enumerates the named calendar designs [`calendar()`] knows about, all
+#' with duration-proportional shares. Every id here can be built with
 #' `calendar(id)`; the same objects are shipped pre-built in the
 #' [`calendars`] dataset.
 #'

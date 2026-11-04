@@ -112,7 +112,7 @@
 #' normal ggplot2 path. The tile fill is the aggregated `value`; axes are
 #' vocabulary-ordered factors, so `scale_x_discrete()` etc. apply as usual.
 #'
-#' **Faceting**: list the columns your facets need in `by=` — aggregation
+#' **Faceting**: list the columns the facets need in `by=` — aggregation
 #' then happens within each combination and the columns survive into the
 #' layer data (see the example).
 #'

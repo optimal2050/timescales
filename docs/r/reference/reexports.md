@@ -5,4 +5,4 @@ to see their documentation.
 
 - nestedscales:
 
-  [`recast()`](https://rdrr.io/pkg/nestedscales/man/recast.html)
+  [`recast()`](https://optimal2050.github.io/nestedscales/r/reference/recast.html)

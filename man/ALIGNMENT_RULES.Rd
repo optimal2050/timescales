@@ -9,11 +9,12 @@ A character vector of length 4.
 \usage{
 ALIGNMENT_RULES
 }
+\value{
+A character vector of the four alignment rule names.
+}
 \description{
-Alignment declares how real Gregorian instants that fall outside a
-calendar's vocabulary map onto it — a separate axis from aggregation
-(conflating the two is how a non-conserving \code{sum} arises). Resurrects the
-\code{alignment_rule} vocabulary of the predecessor \code{timeslices} package.
+Alignment declares how Gregorian instants that fall outside a calendar's
+vocabulary map onto it. It is a separate axis from aggregation.
 }
 \details{
 \describe{

@@ -1,19 +1,36 @@
 # Changelog
 
+## timescales 0.7.1
+
+### New features
+
+- `calendar_autoplot(type = "stack")` gains `view = "pyramid"`, the
+  mirror image of `"perspective"`: the coarsest timeframe is the small
+  top and the finest the wide base.
+- `gap` accepts one value per pair of planes, top to bottom. Under
+  `"perspective"` and `"pyramid"` the spacing is scaled with the planes
+  it separates, so it stays uniform relative to their size.
+
 ## timescales 0.7.0
+
+### Breaking changes
 
 - Requires nestedscales 0.2.0.
 - Leaftable rows are in nested, chronological order by default: sorted
   by timeframe, coarsest first, each in its member order.
   `row_order = "given"` keeps the rows as supplied.
+- The
+  [`recast()`](https://optimal2050.github.io/nestedscales/r/reference/recast.html)
+  method follows the generic’s new arguments:
+  `recast(x, scale, target, source = NULL, ...)`.
+
+### Deprecations
+
 - `from` and `to` are now `source` and `target` in the navigation, map,
   conversion-registry and
   [`recast_calendar()`](https://optimal2050.github.io/timescales/r/reference/recast_calendar.md)
   functions, matching nestedscales. The old names still work, with a
   deprecation warning, and will be removed in a later release.
-- The [`recast()`](https://rdrr.io/pkg/nestedscales/man/recast.html)
-  method follows the generic’s new arguments:
-  `recast(x, scale, target, source = NULL, ...)`.
 
 ## timescales 0.6.0
 
@@ -47,10 +64,11 @@
 
 ### The shared core
 
-- The [`recast()`](https://rdrr.io/pkg/nestedscales/man/recast.html)
+- The
+  [`recast()`](https://optimal2050.github.io/nestedscales/r/reference/recast.html)
   generic is now owned by `nestedscales`, the dimension-agnostic core,
   and re-exported here.
-  [`timescales::recast`](https://rdrr.io/pkg/nestedscales/man/recast.html)
+  [`timescales::recast`](https://optimal2050.github.io/nestedscales/r/reference/recast.html)
   resolves exactly as before and dispatches on `Calendar` exactly as
   before – the object behind the name is simply shared with `geoscales`
   rather than owned by this package. Nothing changes for callers.
@@ -67,12 +85,12 @@
   [`register_calendar_rule()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_rule.md)
   are kept in the `nestedscales` registry under the scope `"calendar"`,
   so
-  [`nestedscales::recast_scale()`](https://rdrr.io/pkg/nestedscales/man/recast_scale.html)
+  [`nestedscales::recast_scale()`](https://optimal2050.github.io/nestedscales/r/reference/recast_scale.html)
   on a Calendar finds them too. A rule registered there without a scope
   now also applies to calendars.
 - [`recast_calendar()`](https://optimal2050.github.io/timescales/r/reference/recast_calendar.md)
   aggregates through
-  [`nestedscales::recast_crosswalk()`](https://rdrr.io/pkg/nestedscales/man/recast_crosswalk.html).
+  [`nestedscales::recast_crosswalk()`](https://optimal2050.github.io/nestedscales/r/reference/recast_crosswalk.html).
   Results are unchanged. Panel data no longer builds an in-memory grid
   of every identifier combination times the crosswalk before joining.
 - [`expand_calendar()`](https://optimal2050.github.io/timescales/r/reference/expand_calendar.md)
@@ -299,9 +317,10 @@ sharing one naming convention with the sibling package geoscales.
   two calendars via the base datetime grid; identifier (panel) columns
   are preserved as groups, and `to =` accepts a timeframe name
   (`"ANNUAL"` = the root) for within-calendar aggregation.
-- [`recast()`](https://rdrr.io/pkg/nestedscales/man/recast.html) is an
-  S7 generic dispatching on the scale object, so pipelines chain across
-  packages: `x |> recast(cal_a, cal_b) |> recast(gs, to = "country")`.
+- [`recast()`](https://optimal2050.github.io/nestedscales/r/reference/recast.html)
+  is an S7 generic dispatching on the scale object, so pipelines chain
+  across packages:
+  `x |> recast(cal_a, cal_b) |> recast(gs, to = "country")`.
 - [`recast_to_timebase()`](https://optimal2050.github.io/timescales/r/reference/recast_to_timebase.md)
   /
   [`recast_from_timebase()`](https://optimal2050.github.io/timescales/r/reference/recast_to_timebase.md)
@@ -491,7 +510,8 @@ Old names warn and forward; removal before 1.0: `calendar_recast()` -\>
   [`as_timeframe()`](https://optimal2050.github.io/timescales/r/reference/as_timeframe.md),
   first-generation `instant_to_timeslice()` /
   [`expand_calendar()`](https://optimal2050.github.io/timescales/r/reference/expand_calendar.md)
-  / [`recast()`](https://rdrr.io/pkg/nestedscales/man/recast.html),
+  /
+  [`recast()`](https://optimal2050.github.io/nestedscales/r/reference/recast.html),
   three vignettes, pkgdown site, CI.
 
 ## timescales 0.0.0.9000

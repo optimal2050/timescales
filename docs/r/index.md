@@ -3,8 +3,8 @@
 ## Overview
 
 timescales provides **nested timeframes and calendars** for optimization
-and simulation models: organize the time dimension of your model data,
-convert it between resolutions, and see every timeframe at once.
+and simulation models: it organizes the time dimension of model data,
+converts it between resolutions, and draws every timeframe at once.
 
 - [`calendar()`](https://optimal2050.github.io/timescales/r/reference/calendar_build.html)
   builds a `Calendar` — ordered timeframes, their members, and one
@@ -14,7 +14,7 @@ convert it between resolutions, and see every timeframe at once.
   [`calendars`](https://optimal2050.github.io/timescales/r/reference/calendars.html).
 - [`join_calendar()`](https://optimal2050.github.io/timescales/r/reference/join_calendar.html)
   decorates a table keyed by timeslices with the calendar’s label and
-  share/weight columns — your tables stay tables (data.frame, tibble,
+  share/weight columns — tables stay tables (data.frame, tibble,
   data.table, dtplyr/arrow in; the same class out).
 - [`recast_calendar()`](https://optimal2050.github.io/timescales/r/reference/recast_calendar.html)
   converts values between any two calendars — one rule per value column,
@@ -34,15 +34,21 @@ spatial companion,
 [geoscales](https://github.com/optimal2050/geoscales), shares the same
 design and vocabulary.
 
-If you are new to timescales, the best place to start is the
-[get-started
+The [get-started
 vignette](https://optimal2050.github.io/timescales/r/articles/timescales.html)
-([`vignette("timescales")`](https://optimal2050.github.io/timescales/r/articles/timescales.md)).
+([`vignette("timescales")`](https://optimal2050.github.io/timescales/r/articles/timescales.md))
+is the entry point.
 
 ## Installation
 
-timescales is not on CRAN yet; install the development version from
-GitHub:
+From CRAN:
+
+``` r
+
+install.packages("timescales")
+```
+
+The development version from GitHub:
 
 ``` r
 
@@ -104,8 +110,8 @@ ggplot(rey) +
 
 ![](reference/figures/README-demo-heatmap-1.png)
 
-And a familiar wall calendar is just another calendar design — here the
-same city’s temperature:
+A wall calendar is another calendar design — here the same city’s
+temperature:
 
 ``` r
 

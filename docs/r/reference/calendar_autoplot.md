@@ -100,8 +100,8 @@ plot(x, ...)
 
   Viridis option letter or name (`"D"`/`"viridis"`, `"C"`/`"plasma"`,
   `"B"`, `"A"`, `"E"`, `"turbo"`...). Default `"D"`. `type = "stack"`
-  also accepts `NULL`: no fill scale is added, so you can supply your
-  own (e.g. an energypal scale).
+  also accepts `NULL`: no fill scale is added, so a custom scale can be
+  supplied (e.g. an energypal scale).
 
 - annual:
 
@@ -111,8 +111,10 @@ plot(x, ...)
 
   `type = "stack"` only: a predefined point of view – `"oblique"` (the
   shear/depth default), `"top-down"`, `"cavalier"`, `"cabinet"`,
-  `"military"`, `"isometric"`, `"dimetric"`, `"trimetric"`, or
-  `"perspective"` (receding planes shrink).
+  `"military"`, `"isometric"`, `"dimetric"`, `"trimetric"`,
+  `"perspective"` (receding planes shrink) or `"pyramid"` (receding
+  planes grow: the coarsest timeframe is the small top, the finest the
+  wide base).
 
 - angle, ratio:
 
@@ -124,9 +126,12 @@ plot(x, ...)
 
   `type = "stack"` only: the raw receding-axis components
   (`e2 = (shear, depth)`; used when neither `view` nor `angle`/`ratio`
-  is given) and the vertical spacing between planes. `gap = NULL`
-  (default) spaces planes almost touching, with a slight overlap (0.85 x
-  the plane's screen height).
+  is given) and the vertical spacing between planes: one value for every
+  pair, or one per pair from the top down. `gap = NULL` (default) spaces
+  planes almost touching, with a slight overlap (0.85 x the plane's
+  screen height). Under `"perspective"` and `"pyramid"` each spacing is
+  scaled with the planes it separates, so it stays uniform relative to
+  their size.
 
 - rotate:
 

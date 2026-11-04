@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">timescales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.0</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -90,9 +90,9 @@
 <h2 id="the-catalog">The catalog<a class="anchor" aria-label="anchor" href="#the-catalog"></a>
 </h2>
 <p><code>timescales</code> ships a curated catalog of named calendar
-designs, ported from the predecessor <code>timeslices</code> package.
-Every id can be built fresh with <code>calendar(id)</code>, and the same
-objects come pre-built in the <code>calendars</code> dataset:</p>
+designs. Every id can be built fresh with <code>calendar(id)</code>, and
+the same objects come pre-built in the <code>calendars</code>
+dataset:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cal</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calendar_build.html">calendar</a></span><span class="op">(</span><span class="st">"m12_h24"</span><span class="op">)</span>     <span class="co"># build on demand</span></span>
 <span><span class="va">cal2</span> <span class="op">&lt;-</span> <span class="va">calendars</span><span class="op">$</span><span class="va">m12_h24</span>      <span class="co"># pre-built package data</span></span>
@@ -604,9 +604,7 @@ below).</p>
 <div class="section level2">
 <h2 id="shares-are-duration-proportional">Shares are duration-proportional<a class="anchor" aria-label="anchor" href="#shares-are-duration-proportional"></a>
 </h2>
-<p>Unlike the timeslices originals — which gave every timeslice a
-uniform share — catalog calendars weight timeslices by real
-duration:</p>
+<p>Catalog calendars weight timeslices by real duration:</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">m12</span> <span class="op">&lt;-</span> <span class="va">calendars</span><span class="op">$</span><span class="va">m12</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>timeslice <span class="op">=</span> <span class="fu"><a href="../reference/calendar_leaftable.html">calendar_leaftable</a></span><span class="op">(</span><span class="va">m12</span><span class="op">)</span><span class="op">$</span><span class="va">timeslice</span>, share <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="../reference/calendar_leaftable.html">calendar_leaftable</a></span><span class="op">(</span><span class="va">m12</span><span class="op">)</span><span class="op">$</span><span class="va">share</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">3</span>, <span class="op">]</span></span>
@@ -670,8 +668,8 @@ month and day-of-month:</p>
 <div class="section level2">
 <h2 id="type-axes-season-daytype-hourtype">Type axes: SEASON, DAYTYPE, HOURTYPE<a class="anchor" aria-label="anchor" href="#type-axes-season-daytype-hourtype"></a>
 </h2>
-<p>Three derived timeframes back the compact “typical periods” designs —
-and unlike in timeslices, they are fully datetime-convertible:</p>
+<p>Three derived timeframes back the compact “typical periods” designs;
+all three are datetime-convertible:</p>
 <ul>
 <li>
 <code>SEASON</code> — meteorological: <code>WIN</code> = Dec–Feb,
@@ -692,10 +690,9 @@ and unlike in timeslices, they are fully datetime-convertible:</p>
 <span><span class="co">#&gt; [1] "WIN_NIGHT" "WIN_PEAK"  "SUM_DAY"</span></span>
 <span><span class="fu"><a href="../reference/datetime_to_timeslice.html">datetime_to_timeslice</a></span><span class="op">(</span><span class="va">dtm</span>, <span class="va">calendars</span><span class="op">$</span><span class="va">wk2_h24</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "WORKDAY_h03" "WEEKEND_h18" "WORKDAY_h12"</span></span></code></pre></div>
-<p>The mappings are defaults, not dogma — register your own token
-(e.g. a different peak window) with
-<code><a href="../reference/register_calendar_token.html">register_calendar_token()</a></code> and build a custom calendar from
-it.</p>
+<p>The mappings are defaults; a custom token (e.g. a different peak
+window) is registered with <code><a href="../reference/register_calendar_token.html">register_calendar_token()</a></code> and a
+custom calendar built from it.</p>
 </div>
 <div class="section level2">
 <h2 id="fiscal-years-the-fy04_-family">Fiscal years: the <code>fy04_*</code> family<a class="anchor" aria-label="anchor" href="#fiscal-years-the-fy04_-family"></a>
@@ -722,18 +719,16 @@ most prominently. The <code>fy04_*</code> entries
 <li>
 <strong>Labels stay Gregorian.</strong> April is <code>m04</code>
 and Apr–Jun is <code>Q2</code>, always; only the member <em>order</em>
-starts at the anchor (<code>m04..m03</code>, <code>Q2,Q3,Q4,Q1</code>).
-Fiscal-renumbered labels would silently collide with the Gregorian label
-matcher.</li>
+starts at the anchor (<code>m04..m03</code>,
+<code>Q2,Q3,Q4,Q1</code>).</li>
 <li>
 <strong>The catalog is UTC.</strong> Data already in Indian local
 time maps as-is; to map true-UTC instants at Indian midnight boundaries,
 pass the IST offset:
 <code>calendar("fy04_m12", utc_offset_minutes = 330L)</code>. (Constant
-offsets only for now — Olson time zones / DST are a planned later
-phase.)</li>
+offsets only; Olson time zones and DST are not supported.)</li>
 </ul>
-<p>Leap years take care of themselves: <code>fy04_d365</code> drops the
+<p>Leap years need no special handling: <code>fy04_d365</code> drops the
 Feb 29 that falls in the <em>following</em> Gregorian year (FY2023
 contains 2024-02-29) and keeps March aligned to <code>d365</code>. Any
 other anchor works by argument on any design:
@@ -791,10 +786,10 @@ rectangles, usable from any plotting system:</p>
 <span><span class="co">#&gt; 5   2208    73      4</span></span>
 <span><span class="co">#&gt; 6     90     1      1</span></span>
 <span><span class="co">#&gt; 7     90     2      2</span></span></code></pre></div>
-<p><code><a href="../reference/calendar_plot.html">calendar_plot()</a></code> is the data-on-calendar heatmap: hand it
-a <code>data.frame</code> keyed by timeslice (or nothing, to see the
-share structure). The layout follows the hierarchy — finest timeframe on
-y, next on x, coarser timeframes as facets:</p>
+<p><code><a href="../reference/calendar_plot.html">calendar_plot()</a></code> is the data-on-calendar heatmap: it
+takes a <code>data.frame</code> keyed by timeslice (or none, which shows
+the share structure). The layout follows the hierarchy — finest
+timeframe on y, next on x, coarser timeframes as facets:</p>
 <div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>timeslice <span class="op">=</span> <span class="fu"><a href="../reference/calendar_leaftable.html">calendar_leaftable</a></span><span class="op">(</span><span class="va">calendars</span><span class="op">$</span><span class="va">m12_h24</span><span class="op">)</span><span class="op">$</span><span class="va">timeslice</span><span class="op">)</span></span>
 <span><span class="va">x</span><span class="op">$</span><span class="va">load</span> <span class="op">&lt;-</span> <span class="fl">80</span> <span class="op">+</span> <span class="fl">40</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">sin</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">6</span> <span class="op">*</span> <span class="va">pi</span>, length.out <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
@@ -813,7 +808,7 @@ year-free 7-wide sequence with a message.</p>
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/calendar_wall_plot.html">calendar_wall_plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/calendar_build.html">calendar</a></span><span class="op">(</span><span class="st">"m12_md365"</span><span class="op">)</span>, year <span class="op">=</span> <span class="fl">2021</span><span class="op">)</span></span></code></pre></div>
 <p><img src="calendars_files/figure-html/unnamed-chunk-26-1.png" class="r-plt" alt="" width="768"></p>
 <p>Daily (or finer – aggregated by <code>fun</code>) data fills the
-cells, and the fiscal calendars facet April-first out of the box:</p>
+cells, and the fiscal calendars facet April-first:</p>
 <div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cal</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calendar_build.html">calendar</a></span><span class="op">(</span><span class="st">"fy04_d365"</span><span class="op">)</span></span>
 <span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>timeslice <span class="op">=</span> <span class="fu"><a href="../reference/calendar_leaftable.html">calendar_leaftable</a></span><span class="op">(</span><span class="va">cal</span><span class="op">)</span><span class="op">$</span><span class="va">timeslice</span>,</span>

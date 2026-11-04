@@ -108,8 +108,7 @@ datetime_to_timeslice(as.Date(c("2020-02-29", "2020-12-31")), d365)
 ## 3. Calendars
 
 A **Calendar** is the actual product of one or more tokens. The leaves
-of the resulting tree are the timeslices the rest of your model talks
-about.
+of the resulting tree are the timeslices the rest of a model refers to.
 
 Three constructors, in increasing flexibility:
 
@@ -258,8 +257,7 @@ recast_calendar(x, cal, target = "ANNUAL", year = 2025, rule = "sum")
 ## The \*scales naming lattice (glossary)
 
 The sibling packages `timescales` (time) and `geoscales` (space) share
-one vocabulary, locked 2026-08. No surviving word changes meaning
-between the packages; the word “levels” is retired from both.
+one vocabulary; no word changes meaning between the packages.
 
 | term | definition | timescales | geoscales | energyRt |
 |----|----|----|----|----|
@@ -292,5 +290,5 @@ then an error — never a silent fallback.
 - **Label-stable.** A calendar’s timeslice IDs and ordering are fixed at
   construction time. Conversions never mutate them.
 - **Explicit registries only.** Constructors return values; the token,
-  rule, and conversion registries change behaviour only when you
-  register into them.
+  rule, and conversion registries change behaviour only through explicit
+  registration.

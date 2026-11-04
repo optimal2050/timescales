@@ -1,6 +1,6 @@
 # Getting started with timescales
 
-## What problem does this solve?
+## Purpose
 
 Energy-system, climate, and operations models all carve the year into
 discrete *timeslices*. Different models pick different slicings: 365
@@ -11,8 +11,8 @@ error-prone.
 
 `timescales` represents any such slicing as a **Calendar**: an ordered
 hierarchy of *timeframes* (`YEAR`, `MONTH`, `HOUR`, …) whose finest
-nodes — enumerated in the `@leaftable` — are the timeslices. With one
-object you get:
+nodes — enumerated in the `@leaftable` — are the timeslices. One object
+provides:
 
 - a stable schema for the timeslice labels and their year-share weights,
 - well-defined mappings to and from real datetimes,
@@ -54,9 +54,9 @@ identical(cal_my@timeframes, cal_my2@timeframes)
 #> [1] TRUE
 ```
 
-For full control there is the most flexible constructor
+The most flexible constructor,
 [`calendar_from_leaftable()`](https://optimal2050.github.io/timescales/r/reference/calendar_from_leaftable.md),
-where you supply the leaves table directly.
+takes the leaf table directly.
 
 ### 2. Inspect the structure
 
@@ -101,7 +101,7 @@ datetime_to_timeslice(times, cal_my)
 
 ### 4. Convert data between calendars
 
-Suppose you have monthly load values and need quarterly averages:
+Monthly load values converted to quarterly averages:
 
 ``` r
 
@@ -123,8 +123,7 @@ recast_calendar(monthly, source = cal_m, target = cal_q, year = 2025,
 ```
 
 The result is day-weighted: Q1 = (31·v₁ + 28·v₂ + 31·v₃) / 90. The
-`rule` is deliberately mandatory — pass one, or register it per column
-with
+`rule` is mandatory: passed explicitly, or registered per column with
 [`register_calendar_rule()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_rule.md);
 a silently guessed rule would be a silent unit error.
 [`join_calendar()`](https://optimal2050.github.io/timescales/r/reference/join_calendar.md)
@@ -153,7 +152,7 @@ ggplot(x) +
 
 ![](timescales_files/figure-html/unnamed-chunk-6-1.png)
 
-## Where to next?
+## Further reading
 
 - [Concepts](https://optimal2050.github.io/timescales/r/articles/concepts.md)
   — the core ideas behind calendars and timeframes.

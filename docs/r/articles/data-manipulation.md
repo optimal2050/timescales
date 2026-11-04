@@ -12,7 +12,7 @@
 | [`calendar_map_between()`](https://optimal2050.github.io/timescales/r/reference/calendar_map_between.md) | A → B crosswalk | the conversion, materialised as a small table |
 | [`register_calendar_rule()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_rule.md) / [`register_calendar_map_between()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_map.md) / [`register_calendar_conversion()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_conversion.md) | registries | per-column rules, exact crosswalks, functional overrides |
 
-Everything below runs on the shipped `merra2_cities` sample (three
+Everything below runs on the shipped `merra2_cities` sample (twelve
 cities × 8,760 hours of 2019) in tidyverse style — data flows through
 `|>`, and every verb accepts a `data.frame`, tibble, `data.table`,
 dtplyr, or arrow input (see [Backends](#backends)).
@@ -106,7 +106,7 @@ instead.
 [`recast_calendar()`](https://optimal2050.github.io/timescales/r/reference/recast_calendar.md)
 converts values from one calendar to another — aggregation and
 disaggregation are the same operation, routed `A -> base -> B` through
-the shared grid. Three things to know:
+the shared grid. Three rules apply:
 
 **1. One rule per value column, and the rule is mandatory.** Pass
 `rule=` for all columns, or register per-column rules once; a column
@@ -220,9 +220,9 @@ g |>
 #> 4        Q4 2019     33
 ```
 
-Use the halves when you need to *do something on the grid* between the
-two ends — join weather covariates by datetime, filter a season out,
-resample — with conservation guarantees intact.
+The halves serve operations *on the grid* between the two ends — joining
+weather covariates by datetime, filtering a season out, resampling —
+with conservation guarantees intact.
 
 ## The crosswalk, inspectable and overridable
 
@@ -246,7 +246,7 @@ provably nested designs),
 [`register_calendar_map_between()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_map.md)
 short-circuits the grid derivation for that pair;
 [`register_calendar_conversion()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_conversion.md)
-goes one step further and replaces the whole conversion with your
+goes one step further and replaces the whole conversion with a supplied
 function. Both are keyed by calendar names, like the attach.
 
 ## Backends
@@ -276,15 +276,16 @@ head(as.data.frame(dplyr::collect(lazy)), 3)
 #> 3        Q3 Beijing 1822.0688 16604.30
 ```
 
-Two contract details worth knowing for lazy sources (dtplyr, arrow):
-results carry the *observed* target timeslices only — the
-full-vocabulary completion happens on materialisation — and the calendar
-side of every join is a small in-memory frame, so an on-disk arrow
-dataset is never pulled into memory for the calendar arithmetic.
+Two contract details for lazy sources (dtplyr, arrow): results carry the
+*observed* target timeslices only — the full-vocabulary completion
+happens on materialisation — and the calendar side of every join is a
+small in-memory frame, so an on-disk arrow dataset is never pulled into
+memory for the calendar arithmetic.
 
 ## Across dimensions
 
-The bare [`recast()`](https://rdrr.io/pkg/nestedscales/man/recast.html)
+The bare
+[`recast()`](https://optimal2050.github.io/nestedscales/r/reference/recast.html)
 generic dispatches on the scale object, so one verb chains time and
 space when the sibling package geoscales is loaded:
 
@@ -296,9 +297,9 @@ x |>
 ```
 
 Same contract on both sides: explicit rules (never a silent fallback),
-identifier columns preserved, backends welcome.
+identifier columns preserved, the same backends accepted.
 
-## Where to next?
+## Further reading
 
 - [Concepts](https://optimal2050.github.io/timescales/r/articles/concepts.md)
   — why the route always goes through the base grid, and the shared

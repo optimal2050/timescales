@@ -84,7 +84,7 @@ layer) data — nested scales, facets, and themes then work through the
 normal ggplot2 path. The tile fill is the aggregated \code{value}; axes are
 vocabulary-ordered factors, so \code{scale_x_discrete()} etc. apply as usual.
 
-\strong{Faceting}: list the columns your facets need in \verb{by=} — aggregation
+\strong{Faceting}: list the columns the facets need in \verb{by=} — aggregation
 then happens within each combination and the columns survive into the
 layer data (see the example).
 }

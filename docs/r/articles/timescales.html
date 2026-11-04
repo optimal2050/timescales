@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">timescales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.0</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -87,7 +87,7 @@
     
     
 <div class="section level2">
-<h2 id="what-problem-does-this-solve">What problem does this solve?<a class="anchor" aria-label="anchor" href="#what-problem-does-this-solve"></a>
+<h2 id="purpose">Purpose<a class="anchor" aria-label="anchor" href="#purpose"></a>
 </h2>
 <p>Energy-system, climate, and operations models all carve the year into
 discrete <em>timeslices</em>. Different models pick different slicings:
@@ -99,7 +99,7 @@ and converting data between slicings is error-prone.</p>
 <strong>Calendar</strong>: an ordered hierarchy of <em>timeframes</em>
 (<code>YEAR</code>, <code>MONTH</code>, <code>HOUR</code>, …) whose
 finest nodes — enumerated in the <code>@leaftable</code> — are the
-timeslices. With one object you get:</p>
+timeslices. One object provides:</p>
 <ul>
 <li>a stable schema for the timeslice labels and their year-share
 weights,</li>
@@ -137,9 +137,9 @@ reporting years):</p>
 <code class="sourceCode R"><span><span class="va">cal_my2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calendar_build.html">calendar_build</a></span><span class="op">(</span><span class="st">"m12"</span>, <span class="st">"h24"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="va">cal_my</span><span class="op">@</span><span class="va">timeframes</span>, <span class="va">cal_my2</span><span class="op">@</span><span class="va">timeframes</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
-<p>For full control there is the most flexible constructor
-<code><a href="../reference/calendar_from_leaftable.html">calendar_from_leaftable()</a></code>, where you supply the leaves
-table directly.</p>
+<p>The most flexible constructor,
+<code><a href="../reference/calendar_from_leaftable.html">calendar_from_leaftable()</a></code>, takes the leaf table
+directly.</p>
 </div>
 <div class="section level3">
 <h3 id="inspect-the-structure">2. Inspect the structure<a class="anchor" aria-label="anchor" href="#inspect-the-structure"></a>
@@ -186,7 +186,7 @@ is one timeslice, with columns:</p>
 <div class="section level3">
 <h3 id="convert-data-between-calendars">4. Convert data between calendars<a class="anchor" aria-label="anchor" href="#convert-data-between-calendars"></a>
 </h3>
-<p>Suppose you have monthly load values and need quarterly averages:</p>
+<p>Monthly load values converted to quarterly averages:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cal_m</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calendar_build.html">calendar</a></span><span class="op">(</span><span class="st">"m12"</span><span class="op">)</span></span>
 <span><span class="va">cal_q</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calendar_build.html">calendar</a></span><span class="op">(</span><span class="st">"q4"</span><span class="op">)</span></span>
@@ -204,10 +204,10 @@ is one timeslice, with columns:</p>
 <span><span class="co">#&gt; 3        Q3  97.66304</span></span>
 <span><span class="co">#&gt; 4        Q4 105.67391</span></span></code></pre></div>
 <p>The result is day-weighted: Q1 = (31·v₁ + 28·v₂ + 31·v₃) / 90. The
-<code>rule</code> is deliberately mandatory — pass one, or register it
-per column with <code><a href="../reference/register_calendar_rule.html">register_calendar_rule()</a></code>; a silently
-guessed rule would be a silent unit error. <code><a href="../reference/join_calendar.html">join_calendar()</a></code>
-is the lighter companion: it <em>attaches</em> a calendar’s labels and
+<code>rule</code> is mandatory: passed explicitly, or registered per
+column with <code><a href="../reference/register_calendar_rule.html">register_calendar_rule()</a></code>; a silently guessed
+rule would be a silent unit error. <code><a href="../reference/join_calendar.html">join_calendar()</a></code> is the
+lighter companion: it <em>attaches</em> a calendar’s labels and
 timeframe columns to a dataset instead of converting it.</p>
 </div>
 <div class="section level3">
@@ -232,7 +232,7 @@ structure figures (icicles and stacks take
 </div>
 </div>
 <div class="section level2">
-<h2 id="where-to-next">Where to next?<a class="anchor" aria-label="anchor" href="#where-to-next"></a>
+<h2 id="further-reading">Further reading<a class="anchor" aria-label="anchor" href="#further-reading"></a>
 </h2>
 <ul>
 <li>

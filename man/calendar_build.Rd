@@ -33,7 +33,7 @@ first -- labels stay Gregorian (\code{m04} is April, always).}
 
 \item{utc_offset_minutes}{Integer minutes; defaults to 0 (UTC). Local
 time = UTC + offset; e.g. \code{330L} for IST (UTC+5:30). Constant offsets
-only -- Olson time zones / DST are a planned later phase.}
+only.}
 
 \item{year_fraction}{Year fraction covered. Defaults to 1.}
 }
@@ -53,8 +53,7 @@ catalog design (with \code{coverage_class}/\code{regularity} metadata attached; 
 \verb{m12_md*} family uses a dedicated ragged month/day builder). Any other
 name is parsed as \verb{_}-joined tokens and dispatched to
 \code{\link[=calendar_build]{calendar_build()}}. The leading \code{y_} prefix (year-qualified) is
-currently stripped and recorded in \code{meta$year_qualified} — full
-year-prefix semantics arrive in a later phase.
+stripped and recorded in \code{meta$year_qualified}.
 }
 \section{Fiscal calendars}{
 

@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="index.html">timescales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.0</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -83,12 +83,12 @@
 <div class="section level2">
 <h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
 </h2>
-<p>timescales provides <strong>nested timeframes and calendars</strong> for optimization and simulation models: organize the time dimension of your model data, convert it between resolutions, and see every timeframe at once.</p>
+<p>timescales provides <strong>nested timeframes and calendars</strong> for optimization and simulation models: it organizes the time dimension of model data, converts it between resolutions, and draws every timeframe at once.</p>
 <ul>
 <li>
 <a href="https://optimal2050.github.io/timescales/r/reference/calendar_build.html"><code>calendar()</code></a> builds a <code>Calendar</code> — ordered timeframes, their members, and one leaftable row per timeslice with duration-proportional shares; 43 curated designs, from <code>d365_h24</code> to typical-period compressions and fiscal years, ship pre-built in <a href="https://optimal2050.github.io/timescales/r/reference/calendars.html"><code>calendars</code></a>.</li>
 <li>
-<a href="https://optimal2050.github.io/timescales/r/reference/join_calendar.html"><code>join_calendar()</code></a> decorates a table keyed by timeslices with the calendar’s label and share/weight columns — your tables stay tables (data.frame, tibble, data.table, dtplyr/arrow in; the same class out).</li>
+<a href="https://optimal2050.github.io/timescales/r/reference/join_calendar.html"><code>join_calendar()</code></a> decorates a table keyed by timeslices with the calendar’s label and share/weight columns — tables stay tables (data.frame, tibble, data.table, dtplyr/arrow in; the same class out).</li>
 <li>
 <a href="https://optimal2050.github.io/timescales/r/reference/recast_calendar.html"><code>recast_calendar()</code></a> converts values between any two calendars — one rule per value column, totals conserved, up or down.</li>
 <li>
@@ -97,13 +97,16 @@
 <a href="https://optimal2050.github.io/timescales/r/reference/geom_calendar.html"><code>geom_calendar()</code></a>, <a href="https://optimal2050.github.io/timescales/r/reference/calendar_autoplot.html"><code>calendar_autoplot()</code></a> and friends draw any timeframe: heatmaps, wall calendars, icicles, and axonometric stacks.</li>
 </ul>
 <p>timescales is the time-domain package of the <a href="https://github.com/optimal2050" class="external-link">optimal2050</a> modeling stack; its spatial companion, <a href="https://github.com/optimal2050/geoscales" class="external-link">geoscales</a>, shares the same design and vocabulary.</p>
-<p>If you are new to timescales, the best place to start is the <a href="https://optimal2050.github.io/timescales/r/articles/timescales.html">get-started vignette</a> (<code><a href="articles/timescales.html">vignette("timescales")</a></code>).</p>
+<p>The <a href="https://optimal2050.github.io/timescales/r/articles/timescales.html">get-started vignette</a> (<code><a href="articles/timescales.html">vignette("timescales")</a></code>) is the entry point.</p>
 </div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>timescales is not on CRAN yet; install the development version from GitHub:</p>
+<p>From CRAN:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"timescales"</span><span class="op">)</span></span></code></pre></div>
+<p>The development version from GitHub:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("pak")</span></span>
 <span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pkg_install.html" class="external-link">pkg_install</a></span><span class="op">(</span><span class="st">"optimal2050/timescales"</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -111,7 +114,7 @@
 <h2 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a>
 </h2>
 <p>One <code>Calendar</code>, three resolutions of the same year: Reykjavik’s hourly wind (NASA MERRA-2, 2019) on the <code>m12_h24</code> calendar — the annual mean on top, months in the middle, the full month-by-hour texture at the bottom, every plane on one shared wind-speed scale. Its spatial twin — Iceland’s wind resource on the map — opens the <a href="https://github.com/optimal2050/geoscales" class="external-link">geoscales README</a>.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://optimal2050.github.io/timescales/r/">timescales</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span>, warn.conflicts <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
@@ -132,7 +135,7 @@
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>fill <span class="op">=</span> <span class="st">"m/s at 50m"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/README-hero-reykjavik-wind-1.png" alt="" width="100%"></p>
 <p>Datetime data lands on any calendar as one ggplot2 layer — the same wind year at its full 365 x 24 resolution:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
 <span><span class="va">rey</span> <span class="op">&lt;-</span> <span class="va">merra2_cities</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">city</span> <span class="op">==</span> <span class="st">"Reykjavik"</span><span class="op">)</span></span>
 <span></span>
@@ -146,8 +149,8 @@
 <span>       title <span class="op">=</span> <span class="st">"Reykjavik wind on the d365_h24 calendar"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="reference/geom_calendar.html">theme_calendar</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <p><img src="reference/figures/README-demo-heatmap-1.png" alt="" width="100%"></p>
-<p>And a familiar wall calendar is just another calendar design — here the same city’s temperature:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<p>A wall calendar is another calendar design — here the same city’s temperature:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/calendar_wall_plot.html">calendar_wall_plot</a></span><span class="op">(</span><span class="fu"><a href="reference/calendar_build.html">calendar</a></span><span class="op">(</span><span class="st">"m12_md365"</span><span class="op">)</span>, <span class="va">rey</span>, z <span class="op">=</span> <span class="st">"T10M"</span>, year <span class="op">=</span> <span class="fl">2019</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_viridis.html" class="external-link">scale_fill_viridis_c</a></span><span class="op">(</span>option <span class="op">=</span> <span class="st">"C"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>fill <span class="op">=</span> <span class="st">"degC"</span>, title <span class="op">=</span> <span class="st">"Reykjavik temperature as a wall calendar"</span><span class="op">)</span></span></code></pre></div>

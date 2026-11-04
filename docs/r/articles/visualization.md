@@ -4,19 +4,19 @@
 
 | kind | functions | use when |
 |----|----|----|
-| composable layers | [`geom_calendar()`](https://optimal2050.github.io/timescales/r/reference/geom_calendar.md), [`geom_calendar_tile()`](https://optimal2050.github.io/timescales/r/reference/geom_calendar.md), [`theme_calendar()`](https://optimal2050.github.io/timescales/r/reference/geom_calendar.md), [`calendar_breaks()`](https://optimal2050.github.io/timescales/r/reference/calendar_breaks.md) | you are building your own [`ggplot()`](https://ggplot2.tidyverse.org/reference/ggplot.html) and want data-on-calendar tiles as one layer among others |
-| assembled figures | [`calendar_autoplot()`](https://optimal2050.github.io/timescales/r/reference/calendar_autoplot.md) (structure icicle), [`calendar_plot()`](https://optimal2050.github.io/timescales/r/reference/calendar_plot.md) (heatmap), [`calendar_wall_plot()`](https://optimal2050.github.io/timescales/r/reference/calendar_wall_plot.md) (wall calendar) | you want a finished figure in one call |
-| layout workers | [`calendar_layout()`](https://optimal2050.github.io/timescales/r/reference/calendar_layout.md), [`calendar_wall_layout()`](https://optimal2050.github.io/timescales/r/reference/calendar_wall_layout.md), [`calendar_weekdays()`](https://optimal2050.github.io/timescales/r/reference/calendar_weekdays.md) | you want the plain data frames behind the figures, to draw something the package did not anticipate |
+| composable layers | [`geom_calendar()`](https://optimal2050.github.io/timescales/r/reference/geom_calendar.md), [`geom_calendar_tile()`](https://optimal2050.github.io/timescales/r/reference/geom_calendar.md), [`theme_calendar()`](https://optimal2050.github.io/timescales/r/reference/geom_calendar.md), [`calendar_breaks()`](https://optimal2050.github.io/timescales/r/reference/calendar_breaks.md) | data-on-calendar tiles as one layer among others in a custom [`ggplot()`](https://ggplot2.tidyverse.org/reference/ggplot.html) |
+| assembled figures | [`calendar_autoplot()`](https://optimal2050.github.io/timescales/r/reference/calendar_autoplot.md) (structure icicle), [`calendar_plot()`](https://optimal2050.github.io/timescales/r/reference/calendar_plot.md) (heatmap), [`calendar_wall_plot()`](https://optimal2050.github.io/timescales/r/reference/calendar_wall_plot.md) (wall calendar) | a finished figure in one call |
+| layout workers | [`calendar_layout()`](https://optimal2050.github.io/timescales/r/reference/calendar_layout.md), [`calendar_wall_layout()`](https://optimal2050.github.io/timescales/r/reference/calendar_wall_layout.md), [`calendar_weekdays()`](https://optimal2050.github.io/timescales/r/reference/calendar_weekdays.md) | the plain data frames behind the figures, for figures the package does not provide |
 
-This vignette walks through all three tiers on one running example — and
-because every axis is an ordinary vocabulary-ordered factor, everything
-composes with standard ggplot2 scales, facets, and themes.
+All three tiers are shown on one running example. Because every axis is
+an ordinary vocabulary-ordered factor, the layers compose with standard
+ggplot2 scales, facets, and themes.
 
 ## The sample
 
-`merra2_cities` ships three contrasting hourly weather series for 2019 —
-Helsinki (high latitude), Lima (equatorial), Sydney (southern
-hemisphere) — extracted from NASA’s MERRA-2 reanalysis:
+`merra2_cities` ships hourly weather series for 2019 for twelve cities —
+among them Helsinki (high latitude), Lima (equatorial) and Sydney
+(southern hemisphere) — extracted from NASA’s MERRA-2 reanalysis:
 
 ``` r
 
@@ -52,9 +52,7 @@ a custom ggproto Geom or Stat. That has three visible consequences:
   — `datetime =`, `timeslice =`, `z =` name columns of the data. ggplot2
   trains positional scales *before* statistics run, so a Stat cannot
   emit the discrete axes a calendar heatmap needs; a layer factory that
-  pre-aggregates can. (The predecessor package solved this with ~340
-  lines of custom `scale_x/y_calendar` machinery — deliberately not
-  ported.)
+  pre-aggregates can.
 - **Axes are vocabulary-ordered factors**, so
   [`scale_x_discrete()`](https://ggplot2.tidyverse.org/reference/scale_discrete.html),
   [`facet_wrap()`](https://ggplot2.tidyverse.org/reference/facet_wrap.html),
@@ -121,10 +119,10 @@ ggplot(merra2_cities) +
 ## Wall calendars
 
 [`calendar_wall_plot()`](https://optimal2050.github.io/timescales/r/reference/calendar_wall_plot.md)
-puts the same daily story in the familiar wall form: one facet per
-month, day cells in a week grid, weekday initials across the top. The
-hourly datetimes are detected automatically and collapse into day cells
-with `fun`:
+draws the same daily data in the wall form: one facet per month, day
+cells in a week grid, weekday initials across the top. The hourly
+datetimes are detected automatically and collapse into day cells with
+`fun`:
 
 ``` r
 
@@ -176,8 +174,8 @@ ggplot(hel_timeslices) +
 Timeslice-keyed panels recast between any two calendars, and identifier
 columns like `city` are preserved as grouping columns — the same
 mechanics that let mixed pipelines chain
-`x |> recast_calendar(...) |> recast_geoscale(...)`. Aggregate all three
-cities onto `m12_h24`, then move the panel across resolutions:
+`x |> recast_calendar(...) |> recast_geoscale(...)`. All cities are
+aggregated onto `m12_h24`, then the panel is moved across resolutions:
 
 ``` r
 
@@ -255,12 +253,11 @@ irr |> summarise(SWGDN = sum(SWGDN), .by = city)
 
 ## One resource, three calendars
 
-Model design is choosing a resolution. The same Reykjavik wind year on
-three calendars of decreasing size — the full month × hour grid, one
-representative day per quarter, and four seasons × three hour-types —
-shows exactly what each compression keeps. (The spatial twin of this
-figure — one wind resource at three map resolutions — lives in the
-[geoscales visualization
+The same Reykjavik wind year on three calendars of decreasing size — the
+full month × hour grid, one representative day per quarter, and four
+seasons × three hour-types — shows exactly what each compression keeps.
+(The spatial twin of this figure — one wind resource at three map
+resolutions — lives in the [geoscales visualization
 article](https://optimal2050.github.io/geoscales/r/articles/visualization.html).)
 
 ``` r
@@ -282,7 +279,7 @@ for (id in c("m12_h24", "q4_h24", "s4_hp3")) {
 
 Because timeslices come back as ordered factors, line plots need only
 `group=`. The same temperature series at monthly resolution for all
-three cities:
+cities:
 
 ``` r
 
@@ -326,8 +323,8 @@ panel |>
 
 ## Ranges: ribbons
 
-Roll-your-own composition is plain ggplot. Monthly temperature envelopes
-— hourly extremes around the mean — are one grouped
+Custom composition is plain ggplot2. Monthly temperature envelopes —
+hourly extremes around the mean — are one grouped
 [`summarise()`](https://dplyr.tidyverse.org/reference/summarise.html)
 and a
 [`geom_ribbon()`](https://ggplot2.tidyverse.org/reference/geom_ribbon.html):
@@ -355,9 +352,9 @@ merra2_cities |>
 ## Duration curves
 
 The classic energy view: values sorted descending against cumulative
-duration. Shares make the x axis honest — `join_calendar(meta = TRUE)`
-attaches each timeslice’s share of the year, and the cumulative share
-times 8760 is hours:
+duration. Shares place the x axis in real duration —
+`join_calendar(meta = TRUE)` attaches each timeslice’s share of the
+year, and the cumulative share times 8760 is hours:
 
 ``` r
 
@@ -406,8 +403,7 @@ the wall form’s frames come from
 [`calendar_wall_layout()`](https://optimal2050.github.io/timescales/r/reference/calendar_wall_layout.md)
 and
 [`calendar_weekdays()`](https://optimal2050.github.io/timescales/r/reference/calendar_weekdays.md)
-— all plain data frames, ready for whatever figure this vignette did not
-anticipate.
+— all plain data frames, for figures the package does not provide.
 
 ## The stack view
 
@@ -415,10 +411,10 @@ anticipate.
 per timeframe, `ANNUAL` on top, each plane segmented at the true
 duration shares. Points of view come as presets (`view =` `"oblique"`,
 `"top-down"`, `"cavalier"`, `"cabinet"`, `"military"`, `"isometric"`,
-`"dimetric"`, `"trimetric"`, `"perspective"`), with `rotate =` and
-`direction =` to turn and flip the stack; `frame =` draws each plane’s
-sheet, `frame_fill =` tints it like glass, and `connectors =` adds the
-corner guides that keep the projection readable:
+`"dimetric"`, `"trimetric"`, `"perspective"`, `"pyramid"`), with
+`rotate =` and `direction =` to turn and flip the stack; `frame =` draws
+each plane’s sheet, `frame_fill =` tints it like glass, and
+`connectors =` adds the corner guides that keep the projection readable:
 
 ``` r
 
@@ -436,8 +432,8 @@ the plot, and every plane receives it recast to its own timeframe
 arguments; the base grid is hourly by default), so the whole stack
 shares one continuous scale — the annual mean on top, the finest
 resolution at the bottom. `labels =` names timeframes whose member names
-are written on the plane, and `palette = NULL` lets you attach your own
-fill scale:
+are written on the plane, and `palette = NULL` leaves the fill scale to
+the caller:
 
 ``` r
 
@@ -458,8 +454,8 @@ calendar_autoplot(cal, type = "stack",
 Member order flows into every axis and facet automatically. On the
 `fy04_*` calendars (Indian fiscal year: April..March, see
 [`vignette("calendars")`](https://optimal2050.github.io/timescales/r/articles/calendars.md))
-the wall facets and every axis start in April with no plotting changes
-at all — and because the wall knows the real dates, its facets carry the
+the wall facets and every axis start in April without plotting changes —
+and because the wall knows the real dates, its facets carry the
 Gregorian year (`APR 2019 .. MAR 2020`), making the rollover explicit.
 The sample covers calendar 2019, so fiscal 2019 has its last quarter
 empty — filter to the fiscal window first, or Jan-Mar 2019 would land on
@@ -479,8 +475,8 @@ calendar_wall_plot(calendar("fy04_d365"), hel_fy, z = "SWGDN",
 
 ![](visualization_files/figure-html/fiscal-wall-1.png)
 
-For value axes, label the fiscal months with their calendar year — the
-axis runs `Apr 2019 .. Mar 2020`:
+For value axes, the fiscal months are labelled with their calendar year
+— the axis runs `Apr 2019 .. Mar 2020`:
 
 ``` r
 
@@ -508,6 +504,6 @@ hel_fy |>
 For the spatial dimension, the sibling package geoscales draws region
 hierarchies and choropleths the same way (whole-plot
 `geoscale_plot()`/`geoscale_autoplot()` over `geoscale_layout()`); see
-its “Plotting geoscales” article. `geom_calendar*()` is the stack’s only
-composable geom family — spatial maps facet and dissolve rather than
-layer.
+its “Visualization with ggplot2” article. `geom_calendar*()` is the
+stack’s only composable geom family — spatial maps facet and dissolve
+rather than layer.

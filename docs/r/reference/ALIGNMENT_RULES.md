@@ -1,9 +1,7 @@
 # Supported alignment rules
 
-Alignment declares how real Gregorian instants that fall outside a
-calendar's vocabulary map onto it — a separate axis from aggregation
-(conflating the two is how a non-conserving `sum` arises). Resurrects
-the `alignment_rule` vocabulary of the predecessor `timeslices` package.
+Alignment declares how Gregorian instants that fall outside a calendar's
+vocabulary map onto it. It is a separate axis from aggregation.
 
 ## Usage
 
@@ -14,6 +12,10 @@ ALIGNMENT_RULES
 ## Format
 
 A character vector of length 4.
+
+## Value
+
+A character vector of the four alignment rule names.
 
 ## Details
 

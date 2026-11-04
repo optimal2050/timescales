@@ -9,6 +9,10 @@ A character vector of length 7.
 \usage{
 CALENDAR_RULES
 }
+\value{
+A character vector of the seven rule names accepted by the \code{rule}
+argument of \code{\link[=recast_calendar]{recast_calendar()}} and \code{\link[=register_calendar_rule]{register_calendar_rule()}}.
+}
 \description{
 Each rule defines behaviour in \strong{both} directions of the instant grid, so
 aggregation and disaggregation are one operation (the geoscales split of

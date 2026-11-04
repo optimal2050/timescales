@@ -28,7 +28,7 @@
 #'   first -- labels stay Gregorian (`m04` is April, always).
 #' @param utc_offset_minutes Integer minutes; defaults to 0 (UTC). Local
 #'   time = UTC + offset; e.g. `330L` for IST (UTC+5:30). Constant offsets
-#'   only -- Olson time zones / DST are a planned later phase.
+#'   only.
 #' @param year_fraction Year fraction covered. Defaults to 1.
 #'
 #' @return A [`Calendar`].
@@ -186,8 +186,7 @@ calendar_build <- function(...,
 #' `m12_md*` family uses a dedicated ragged month/day builder). Any other
 #' name is parsed as `_`-joined tokens and dispatched to
 #' [`calendar_build()`]. The leading `y_` prefix (year-qualified) is
-#' currently stripped and recorded in `meta$year_qualified` — full
-#' year-prefix semantics arrive in a later phase.
+#' stripped and recorded in `meta$year_qualified`.
 #'
 #' @param name Character scalar — a token-style calendar name (`"d365"`,
 #'   `"d365_h24"`, `"m12_h24"`, `"q4_h24"`, ...).

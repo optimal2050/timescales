@@ -167,7 +167,7 @@ calendar_layout <- function(x, annual = TRUE) {
 #' @param palette Viridis option letter or name (`"D"`/`"viridis"`,
 #'   `"C"`/`"plasma"`, `"B"`, `"A"`, `"E"`, `"turbo"`...). Default `"D"`.
 #'   `type = "stack"` also accepts `NULL`: no fill scale is added, so
-#'   you can supply your own (e.g. an energypal scale).
+#'   a custom scale can be supplied (e.g. an energypal scale).
 #' @param annual Include the `ANNUAL` root band. Default `TRUE`.
 #' @param view `type = "stack"` only: a predefined point of view --
 #'   `"oblique"` (the shear/depth default), `"top-down"`, `"cavalier"`,

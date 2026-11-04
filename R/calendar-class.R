@@ -25,9 +25,7 @@
 #' A nested time partition: a flat table of weighted leaf timeslices plus the
 #' ordered hierarchy of timeframes that produced them.
 #'
-#' Construct with [`calendar_from_leaftable()`] (the general escape hatch).
-#' Higher-level constructors built on tokens and a catalog will arrive in a
-#' later phase.
+#' Construct with [`calendar()`] from the catalog, [`calendar_build()`] from tokens, or [`calendar_from_leaftable()`] from a leaftable.
 #'
 #' @param leaftable `data.frame` with columns `timeslice`, `share`, `weight`,
 #'   plus one column per timeframe in `timeframes`.
@@ -39,6 +37,8 @@
 #' @param meta Named list of model-level attributes (`name`, `desc`,
 #'   `year_start`, `utc_offset_minutes`, `year_fraction`).
 #'
+#' @returns A `Calendar` object: an S7 object with properties `leaftable`,
+#'   `timeframes`, `members` and `meta`.
 #' @export
 Calendar <- S7::new_class(
   "Calendar",

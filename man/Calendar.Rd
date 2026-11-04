@@ -20,12 +20,14 @@ as a set.}
 \item{meta}{Named list of model-level attributes (\code{name}, \code{desc},
 \code{year_start}, \code{utc_offset_minutes}, \code{year_fraction}).}
 }
+\value{
+A \code{Calendar} object: an S7 object with properties \code{leaftable},
+\code{timeframes}, \code{members} and \code{meta}.
+}
 \description{
 A nested time partition: a flat table of weighted leaf timeslices plus the
 ordered hierarchy of timeframes that produced them.
 }
 \details{
-Construct with \code{\link[=calendar_from_leaftable]{calendar_from_leaftable()}} (the general escape hatch).
-Higher-level constructors built on tokens and a catalog will arrive in a
-later phase.
+Construct with \code{\link[=calendar]{calendar()}} from the catalog, \code{\link[=calendar_build]{calendar_build()}} from tokens, or \code{\link[=calendar_from_leaftable]{calendar_from_leaftable()}} from a leaftable.
 }

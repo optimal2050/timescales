@@ -2,10 +2,9 @@
 
 ## The catalog
 
-`timescales` ships a curated catalog of named calendar designs, ported
-from the predecessor `timeslices` package. Every id can be built fresh
-with `calendar(id)`, and the same objects come pre-built in the
-`calendars` dataset:
+`timescales` ships a curated catalog of named calendar designs. Every id
+can be built fresh with `calendar(id)`, and the same objects come
+pre-built in the `calendars` dataset:
 
 ``` r
 
@@ -237,8 +236,7 @@ ggplot2::autoplot(calendars$fy04_m12)
 
 ## Shares are duration-proportional
 
-Unlike the timeslices originals — which gave every timeslice a uniform
-share — catalog calendars weight timeslices by real duration:
+Catalog calendars weight timeslices by real duration:
 
 ``` r
 
@@ -311,8 +309,8 @@ datetime_to_timeslice(as.Date(c("2021-03-15", "2020-02-29")), md)  # Feb 29 -> N
 
 ## Type axes: SEASON, DAYTYPE, HOURTYPE
 
-Three derived timeframes back the compact “typical periods” designs —
-and unlike in timeslices, they are fully datetime-convertible:
+Three derived timeframes back the compact “typical periods” designs; all
+three are datetime-convertible:
 
 - `SEASON` — meteorological: `WIN` = Dec–Feb, `SPR`, `SUM`, `FAL`
 - `DAYTYPE` — `WORKDAY` (Mon–Fri) / `WEEKEND`
@@ -328,10 +326,10 @@ datetime_to_timeslice(dtm, calendars$wk2_h24)
 #> [1] "WORKDAY_h03" "WEEKEND_h18" "WORKDAY_h12"
 ```
 
-The mappings are defaults, not dogma — register your own token (e.g. a
-different peak window) with
+The mappings are defaults; a custom token (e.g. a different peak window)
+is registered with
 [`register_calendar_token()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_token.md)
-and build a custom calendar from it.
+and a custom calendar built from it.
 
 ## Fiscal years: the `fy04_*` family
 
@@ -358,15 +356,13 @@ Two rules keep fiscal calendars unambiguous:
 
 - **Labels stay Gregorian.** April is `m04` and Apr–Jun is `Q2`, always;
   only the member *order* starts at the anchor (`m04..m03`,
-  `Q2,Q3,Q4,Q1`). Fiscal-renumbered labels would silently collide with
-  the Gregorian label matcher.
+  `Q2,Q3,Q4,Q1`).
 - **The catalog is UTC.** Data already in Indian local time maps as-is;
   to map true-UTC instants at Indian midnight boundaries, pass the IST
   offset: `calendar("fy04_m12", utc_offset_minutes = 330L)`. (Constant
-  offsets only for now — Olson time zones / DST are a planned later
-  phase.)
+  offsets only; Olson time zones and DST are not supported.)
 
-Leap years take care of themselves: `fy04_d365` drops the Feb 29 that
+Leap years need no special handling: `fy04_d365` drops the Feb 29 that
 falls in the *following* Gregorian year (FY2023 contains 2024-02-29) and
 keeps March aligned to `d365`. Any other anchor works by argument on any
 design: `calendar("m12", year_start = list(month = 7L, day = 1L))`.
@@ -438,8 +434,8 @@ head(calendar_layout(calendars$q4_h24), 7)
 ```
 
 [`calendar_plot()`](https://optimal2050.github.io/timescales/r/reference/calendar_plot.md)
-is the data-on-calendar heatmap: hand it a `data.frame` keyed by
-timeslice (or nothing, to see the share structure). The layout follows
+is the data-on-calendar heatmap: it takes a `data.frame` keyed by
+timeslice (or none, which shows the share structure). The layout follows
 the hierarchy — finest timeframe on y, next on x, coarser timeframes as
 facets:
 
@@ -468,7 +464,7 @@ calendar_wall_plot(calendar("m12_md365"), year = 2021)
 ![](calendars_files/figure-html/unnamed-chunk-26-1.png)
 
 Daily (or finer – aggregated by `fun`) data fills the cells, and the
-fiscal calendars facet April-first out of the box:
+fiscal calendars facet April-first:
 
 ``` r
 

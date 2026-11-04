@@ -13,7 +13,7 @@ knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 library(timescales)
 ```
 
-## What problem does this solve?
+## Purpose
 
 Energy-system, climate, and operations models all carve the year into
 discrete *timeslices*. Different models pick different slicings:
@@ -24,8 +24,8 @@ error-prone.
 
 `timescales` represents any such slicing as a **Calendar**: an ordered
 hierarchy of *timeframes* (`YEAR`, `MONTH`, `HOUR`, ...) whose finest
-nodes — enumerated in the `@leaftable` — are the timeslices. With one
-object you get:
+nodes — enumerated in the `@leaftable` — are the timeslices. One
+object provides:
 
 - a stable schema for the timeslice labels and their year-share weights,
 - well-defined mappings to and from real datetimes,
@@ -54,8 +54,8 @@ cal_my2 <- calendar_build("m12", "h24")
 identical(cal_my@timeframes, cal_my2@timeframes)
 ```
 
-For full control there is the most flexible constructor
-`calendar_from_leaftable()`, where you supply the leaves table directly.
+The most flexible constructor, `calendar_from_leaftable()`, takes the
+leaf table directly.
 
 ### 2. Inspect the structure
 
@@ -85,7 +85,7 @@ datetime_to_timeslice(times, cal_my)
 
 ### 4. Convert data between calendars
 
-Suppose you have monthly load values and need quarterly averages:
+Monthly load values converted to quarterly averages:
 
 ```{r}
 cal_m <- calendar("m12")
@@ -101,7 +101,7 @@ recast_calendar(monthly, source = cal_m, target = cal_q, year = 2025,
 ```
 
 The result is day-weighted: Q1 = (31·v₁ + 28·v₂ + 31·v₃) / 90. The
-`rule` is deliberately mandatory — pass one, or register it per column
+`rule` is mandatory: passed explicitly, or registered per column
 with `register_calendar_rule()`; a silently guessed rule would be a silent unit
 error. `join_calendar()` is the lighter companion: it *attaches* a
 calendar's labels and timeframe columns to a dataset instead of
@@ -126,7 +126,7 @@ ggplot(x) +
   theme_calendar()
 ```
 
-## Where to next?
+## Further reading
 
 - [Concepts](concepts.html) — the core ideas behind calendars and timeframes.
 - [Data structures](data-structures.html) — anatomy of a `Calendar` object

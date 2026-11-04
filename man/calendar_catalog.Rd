@@ -13,9 +13,8 @@ A \code{data.frame} with one row per catalog entry: \code{id}, \code{tokens}
 (\code{regular}/\code{irregular}), and a generated \code{desc}.
 }
 \description{
-Enumerates the named calendar designs \code{\link[=calendar]{calendar()}} knows about — the
-curated set ported from the predecessor \code{timeslices} package, all with
-duration-proportional shares. Every id here can be built with
+Enumerates the named calendar designs \code{\link[=calendar]{calendar()}} knows about, all
+with duration-proportional shares. Every id here can be built with
 \code{calendar(id)}; the same objects are shipped pre-built in the
 \code{\link{calendars}} dataset.
 }

@@ -8,8 +8,7 @@ catalog design (with coverage_class/regularity metadata attached; the
 m12_md* family uses a dedicated ragged month/day builder). Any other
 name is parsed as _-joined tokens and dispatched to
 calendar_build(). The leading y_ prefix (year-qualified) is
-currently stripped and recorded in meta$year_qualified — full
-year-prefix semantics arrive in a later phase."><meta property="og:description" content="Declarative constructor: name the timeframe vocabulary tokens in coarsest-
+stripped and recorded in meta$year_qualified."><meta property="og:description" content="Declarative constructor: name the timeframe vocabulary tokens in coarsest-
 to-finest order. The Cartesian product of their labels becomes the leaf
 table; each leaf's share is the product of its tokens' shares, scaled to
 year_fraction.
@@ -18,8 +17,7 @@ catalog design (with coverage_class/regularity metadata attached; the
 m12_md* family uses a dedicated ragged month/day builder). Any other
 name is parsed as _-joined tokens and dispatched to
 calendar_build(). The leading y_ prefix (year-qualified) is
-currently stripped and recorded in meta$year_qualified — full
-year-prefix semantics arrive in a later phase."><meta property="og:image" content="https://optimal2050.github.io/timescales/r/logo.png"></head><body>
+stripped and recorded in meta$year_qualified."><meta property="og:image" content="https://optimal2050.github.io/timescales/r/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -27,7 +25,7 @@ year-prefix semantics arrive in a later phase."><meta property="og:image" conten
 
     <a class="navbar-brand me-2" href="../index.html">timescales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.0</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -78,8 +76,7 @@ catalog design (with <code>coverage_class</code>/<code>regularity</code> metadat
 <code>m12_md*</code> family uses a dedicated ragged month/day builder). Any other
 name is parsed as <code>_</code>-joined tokens and dispatched to
 <code>calendar_build()</code>. The leading <code>y_</code> prefix (year-qualified) is
-currently stripped and recorded in <code>meta$year_qualified</code> — full
-year-prefix semantics arrive in a later phase.</p>
+stripped and recorded in <code>meta$year_qualified</code>.</p>
     </div>
 
     <div class="section level2">
@@ -125,7 +122,7 @@ first – labels stay Gregorian (<code>m04</code> is April, always).</p></dd>
 <dt id="arg-utc-offset-minutes">utc_offset_minutes<a class="anchor" aria-label="anchor" href="#arg-utc-offset-minutes"></a></dt>
 <dd><p>Integer minutes; defaults to 0 (UTC). Local
 time = UTC + offset; e.g. <code>330L</code> for IST (UTC+5:30). Constant offsets
-only – Olson time zones / DST are a planned later phase.</p></dd>
+only.</p></dd>
 
 
 <dt id="arg-year-fraction">year_fraction<a class="anchor" aria-label="anchor" href="#arg-year-fraction"></a></dt>

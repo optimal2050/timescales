@@ -28,7 +28,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">timescales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.0</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -107,8 +107,9 @@
 <code><a href="../reference/geom_calendar.html">geom_calendar()</a></code>, <code><a href="../reference/geom_calendar.html">geom_calendar_tile()</a></code>,
 <code><a href="../reference/geom_calendar.html">theme_calendar()</a></code>, <code><a href="../reference/calendar_breaks.html">calendar_breaks()</a></code>
 </td>
-<td>you are building your own <code><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot()</a></code> and want
-data-on-calendar tiles as one layer among others</td>
+<td>data-on-calendar tiles as one layer among others in a custom
+<code><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot()</a></code>
+</td>
 </tr>
 <tr class="even">
 <td>assembled figures</td>
@@ -116,7 +117,7 @@ data-on-calendar tiles as one layer among others</td>
 <code><a href="../reference/calendar_autoplot.html">calendar_autoplot()</a></code> (structure icicle),
 <code><a href="../reference/calendar_plot.html">calendar_plot()</a></code> (heatmap),
 <code><a href="../reference/calendar_wall_plot.html">calendar_wall_plot()</a></code> (wall calendar)</td>
-<td>you want a finished figure in one call</td>
+<td>a finished figure in one call</td>
 </tr>
 <tr class="odd">
 <td>layout workers</td>
@@ -124,22 +125,22 @@ data-on-calendar tiles as one layer among others</td>
 <code><a href="../reference/calendar_layout.html">calendar_layout()</a></code>, <code><a href="../reference/calendar_wall_layout.html">calendar_wall_layout()</a></code>,
 <code><a href="../reference/calendar_weekdays.html">calendar_weekdays()</a></code>
 </td>
-<td>you want the plain data frames behind the figures, to draw something
-the package did not anticipate</td>
+<td>the plain data frames behind the figures, for figures the package
+does not provide</td>
 </tr>
 </tbody>
 </table>
-<p>This vignette walks through all three tiers on one running example —
-and because every axis is an ordinary vocabulary-ordered factor,
-everything composes with standard ggplot2 scales, facets, and
-themes.</p>
+<p>All three tiers are shown on one running example. Because every axis
+is an ordinary vocabulary-ordered factor, the layers compose with
+standard ggplot2 scales, facets, and themes.</p>
 </div>
 <div class="section level2">
 <h2 id="the-sample">The sample<a class="anchor" aria-label="anchor" href="#the-sample"></a>
 </h2>
-<p><code>merra2_cities</code> ships three contrasting hourly weather
-series for 2019 — Helsinki (high latitude), Lima (equatorial), Sydney
-(southern hemisphere) — extracted from NASA’s MERRA-2 reanalysis:</p>
+<p><code>merra2_cities</code> ships hourly weather series for 2019 for
+twelve cities — among them Helsinki (high latitude), Lima (equatorial)
+and Sydney (southern hemisphere) — extracted from NASA’s MERRA-2
+reanalysis:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">merra2_cities</span><span class="op">)</span></span>
 <span><span class="co">#&gt; 'data.frame':    105120 obs. of  11 variables:</span></span>
@@ -172,9 +173,7 @@ mappings</strong> — <code>datetime =</code>, <code>timeslice =</code>,
 <code>z =</code> name columns of the data. ggplot2 trains positional
 scales <em>before</em> statistics run, so a Stat cannot emit the
 discrete axes a calendar heatmap needs; a layer factory that
-pre-aggregates can. (The predecessor package solved this with ~340 lines
-of custom <code>scale_x/y_calendar</code> machinery — deliberately not
-ported.)</li>
+pre-aggregates can.</li>
 <li>
 <strong>Axes are vocabulary-ordered factors</strong>, so
 <code><a href="https://ggplot2.tidyverse.org/reference/scale_discrete.html" class="external-link">scale_x_discrete()</a></code>, <code><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap()</a></code>, coordinate
@@ -234,10 +233,10 @@ shifts this to local time):</p>
 <div class="section level2">
 <h2 id="wall-calendars">Wall calendars<a class="anchor" aria-label="anchor" href="#wall-calendars"></a>
 </h2>
-<p><code><a href="../reference/calendar_wall_plot.html">calendar_wall_plot()</a></code> puts the same daily story in the
-familiar wall form: one facet per month, day cells in a week grid,
-weekday initials across the top. The hourly datetimes are detected
-automatically and collapse into day cells with <code>fun</code>:</p>
+<p><code><a href="../reference/calendar_wall_plot.html">calendar_wall_plot()</a></code> draws the same daily data in the
+wall form: one facet per month, day cells in a week grid, weekday
+initials across the top. The hourly datetimes are detected automatically
+and collapse into day cells with <code>fun</code>:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/calendar_wall_plot.html">calendar_wall_plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/calendar_build.html">calendar</a></span><span class="op">(</span><span class="st">"m12_md365"</span><span class="op">)</span>, <span class="va">hel</span>, z <span class="op">=</span> <span class="st">"T10M"</span>,</span>
 <span>                   year <span class="op">=</span> <span class="fl">2019</span><span class="op">)</span> <span class="op">+</span></span>
@@ -280,8 +279,8 @@ columns for manual workflows:</p>
 identifier columns like <code>city</code> are preserved as grouping
 columns — the same mechanics that let mixed pipelines chain
 <code>x |&gt; recast_calendar(...) |&gt; recast_geoscale(...)</code>.
-Aggregate all three cities onto <code>m12_h24</code>, then move the
-panel across resolutions:</p>
+All cities are aggregated onto <code>m12_h24</code>, then the panel is
+moved across resolutions:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">panel</span> <span class="op">&lt;-</span> <span class="va">merra2_cities</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>timeslice <span class="op">=</span> <span class="fu"><a href="../reference/datetime_to_timeslice.html">datetime_to_timeslice</a></span><span class="op">(</span><span class="va">datetime</span>, <span class="va">cal</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -354,11 +353,11 @@ timeslice), each city’s annual total survives the trip to
 <div class="section level2">
 <h2 id="one-resource-three-calendars">One resource, three calendars<a class="anchor" aria-label="anchor" href="#one-resource-three-calendars"></a>
 </h2>
-<p>Model design is choosing a resolution. The same Reykjavik wind year
-on three calendars of decreasing size — the full month × hour grid, one
-representative day per quarter, and four seasons × three hour-types —
-shows exactly what each compression keeps. (The spatial twin of this
-figure — one wind resource at three map resolutions — lives in the <a href="https://optimal2050.github.io/geoscales/r/articles/visualization.html" class="external-link">geoscales
+<p>The same Reykjavik wind year on three calendars of decreasing size —
+the full month × hour grid, one representative day per quarter, and four
+seasons × three hour-types — shows exactly what each compression keeps.
+(The spatial twin of this figure — one wind resource at three map
+resolutions — lives in the <a href="https://optimal2050.github.io/geoscales/r/articles/visualization.html" class="external-link">geoscales
 visualization article</a>.)</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">rey</span> <span class="op">&lt;-</span> <span class="va">merra2_cities</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">city</span> <span class="op">==</span> <span class="st">"Reykjavik"</span><span class="op">)</span></span>
@@ -377,7 +376,7 @@ visualization article</a>.)</p>
 </h2>
 <p>Because timeslices come back as ordered factors, line plots need only
 <code>group=</code>. The same temperature series at monthly resolution
-for all three cities:</p>
+for all cities:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">panel</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">city</span>, <span class="va">timeslice</span>, <span class="va">T10M</span><span class="op">)</span> <span class="op">|&gt;</span></span>
@@ -413,8 +412,8 @@ one dataset):</p>
 <div class="section level2">
 <h2 id="ranges-ribbons">Ranges: ribbons<a class="anchor" aria-label="anchor" href="#ranges-ribbons"></a>
 </h2>
-<p>Roll-your-own composition is plain ggplot. Monthly temperature
-envelopes — hourly extremes around the mean — are one grouped
+<p>Custom composition is plain ggplot2. Monthly temperature envelopes —
+hourly extremes around the mean — are one grouped
 <code><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarise()</a></code> and a <code><a href="https://ggplot2.tidyverse.org/reference/geom_ribbon.html" class="external-link">geom_ribbon()</a></code>:</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">merra2_cities</span> <span class="op">|&gt;</span></span>
@@ -437,7 +436,7 @@ envelopes — hourly extremes around the mean — are one grouped
 <h2 id="duration-curves">Duration curves<a class="anchor" aria-label="anchor" href="#duration-curves"></a>
 </h2>
 <p>The classic energy view: values sorted descending against cumulative
-duration. Shares make the x axis honest —
+duration. Shares place the x axis in real duration —
 <code>join_calendar(meta = TRUE)</code> attaches each timeslice’s share
 of the year, and the cumulative share times 8760 is hours:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
@@ -471,8 +470,7 @@ heatmap over the same layout machinery:</p>
 <p>Their shared geometry is available without ggplot2 via
 <code><a href="../reference/calendar_layout.html">calendar_layout()</a></code>; the wall form’s frames come from
 <code><a href="../reference/calendar_wall_layout.html">calendar_wall_layout()</a></code> and <code><a href="../reference/calendar_weekdays.html">calendar_weekdays()</a></code>
-— all plain data frames, ready for whatever figure this vignette did not
-anticipate.</p>
+— all plain data frames, for figures the package does not provide.</p>
 </div>
 <div class="section level2">
 <h2 id="the-stack-view">The stack view<a class="anchor" aria-label="anchor" href="#the-stack-view"></a>
@@ -484,11 +482,12 @@ segmented at the true duration shares. Points of view come as presets
 <code>"cavalier"</code>, <code>"cabinet"</code>,
 <code>"military"</code>, <code>"isometric"</code>,
 <code>"dimetric"</code>, <code>"trimetric"</code>,
-<code>"perspective"</code>), with <code>rotate =</code> and
-<code>direction =</code> to turn and flip the stack;
-<code>frame =</code> draws each plane’s sheet, <code>frame_fill =</code>
-tints it like glass, and <code>connectors =</code> adds the corner
-guides that keep the projection readable:</p>
+<code>"perspective"</code>, <code>"pyramid"</code>), with
+<code>rotate =</code> and <code>direction =</code> to turn and flip the
+stack; <code>frame =</code> draws each plane’s sheet,
+<code>frame_fill =</code> tints it like glass, and
+<code>connectors =</code> adds the corner guides that keep the
+projection readable:</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/calendar_autoplot.html">calendar_autoplot</a></span><span class="op">(</span><span class="va">calendars</span><span class="op">$</span><span class="va">s4_hp3</span>, type <span class="op">=</span> <span class="st">"stack"</span>,</span>
 <span>                  frame <span class="op">=</span> <span class="cn">TRUE</span>, connectors <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -501,7 +500,7 @@ its own timeframe (<code>rule =</code> and <code>year =</code> are the
 default), so the whole stack shares one continuous scale — the annual
 mean on top, the finest resolution at the bottom. <code>labels =</code>
 names timeframes whose member names are written on the plane, and
-<code>palette = NULL</code> lets you attach your own fill scale:</p>
+<code>palette = NULL</code> leaves the fill scale to the caller:</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/calendar_autoplot.html">calendar_autoplot</a></span><span class="op">(</span><span class="va">cal</span>, type <span class="op">=</span> <span class="st">"stack"</span>,</span>
 <span>                  data <span class="op">=</span> <span class="va">hel_timeslices</span>, z <span class="op">=</span> <span class="st">"T10M"</span>,</span>
@@ -519,8 +518,8 @@ names timeframes whose member names are written on the plane, and
 <p>Member order flows into every axis and facet automatically. On the
 <code>fy04_*</code> calendars (Indian fiscal year: April..March, see
 <code><a href="../articles/calendars.html">vignette("calendars")</a></code>) the wall facets and every axis start
-in April with no plotting changes at all — and because the wall knows
-the real dates, its facets carry the Gregorian year
+in April without plotting changes — and because the wall knows the real
+dates, its facets carry the Gregorian year
 (<code>APR 2019 .. MAR 2020</code>), making the rollover explicit. The
 sample covers calendar 2019, so fiscal 2019 has its last quarter empty —
 filter to the fiscal window first, or Jan-Mar 2019 would land on the
@@ -535,8 +534,8 @@ Jan-Mar 2020 slots:</p>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>fill <span class="op">=</span> <span class="st">"W/m2"</span>,</span>
 <span>       title <span class="op">=</span> <span class="st">"Helsinki solar irradiance, fiscal 2019 (Apr-Mar)"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="visualization_files/figure-html/fiscal-wall-1.png" class="r-plt" alt="" width="768"></p>
-<p>For value axes, label the fiscal months with their calendar year —
-the axis runs <code>Apr 2019 .. Mar 2020</code>:</p>
+<p>For value axes, the fiscal months are labelled with their calendar
+year — the axis runs <code>Apr 2019 .. Mar 2020</code>:</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">fy</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calendar_build.html">calendar</a></span><span class="op">(</span><span class="st">"fy04_m12"</span><span class="op">)</span></span>
 <span></span>
@@ -559,9 +558,9 @@ the axis runs <code>Apr 2019 .. Mar 2020</code>:</p>
 <p>For the spatial dimension, the sibling package geoscales draws region
 hierarchies and choropleths the same way (whole-plot
 <code>geoscale_plot()</code>/<code>geoscale_autoplot()</code> over
-<code>geoscale_layout()</code>); see its “Plotting geoscales” article.
-<code>geom_calendar*()</code> is the stack’s only composable geom family
-— spatial maps facet and dissolve rather than layer.</p>
+<code>geoscale_layout()</code>); see its “Visualization with ggplot2”
+article. <code>geom_calendar*()</code> is the stack’s only composable
+geom family — spatial maps facet and dissolve rather than layer.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

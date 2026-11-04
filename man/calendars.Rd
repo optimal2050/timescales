@@ -20,10 +20,8 @@ calendars
 \description{
 A named list holding every calendar in \code{\link[=calendar_catalog]{calendar_catalog()}},
 pre-constructed — \code{calendars$d365_h24} is identical to
-\code{calendar("d365_h24")}. Ported from the predecessor \code{timeslices} package's
-calendar library, with one deliberate difference: shares here are
-\strong{duration-proportional} (January is \code{31/365} of the year, not \code{1/12}),
-where timeslices shipped uniform shares.
+\code{calendar("d365_h24")}. Shares are duration-proportional (January is
+\code{31/365} of the year, not \code{1/12}).
 }
 \examples{
 names(calendars)

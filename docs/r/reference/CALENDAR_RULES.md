@@ -14,6 +14,14 @@ CALENDAR_RULES
 
 A character vector of length 7.
 
+## Value
+
+A character vector of the seven rule names accepted by the `rule`
+argument of
+[`recast_calendar()`](https://optimal2050.github.io/timescales/r/reference/recast_calendar.md)
+and
+[`register_calendar_rule()`](https://optimal2050.github.io/timescales/r/reference/register_calendar_rule.md).
+
 ## Details
 
 - `weighted_mean`:

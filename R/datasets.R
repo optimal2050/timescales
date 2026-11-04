@@ -6,10 +6,8 @@
 #'
 #' A named list holding every calendar in [`calendar_catalog()`],
 #' pre-constructed — `calendars$d365_h24` is identical to
-#' `calendar("d365_h24")`. Ported from the predecessor `timeslices` package's
-#' calendar library, with one deliberate difference: shares here are
-#' **duration-proportional** (January is `31/365` of the year, not `1/12`),
-#' where timeslices shipped uniform shares.
+#' `calendar("d365_h24")`. Shares are duration-proportional (January is
+#' `31/365` of the year, not `1/12`).
 #'
 #' @format A named list of 43 [`Calendar`] objects. Names are the catalog
 #'   ids (`d365`, `d365_h24`, `m12`, `m12_h24`, `m12_md365`, `q4_h24`,

@@ -3,10 +3,8 @@
 A named list holding every calendar in
 [`calendar_catalog()`](https://optimal2050.github.io/timescales/r/reference/calendar_catalog.md),
 pre-constructed — `calendars$d365_h24` is identical to
-`calendar("d365_h24")`. Ported from the predecessor `timeslices`
-package's calendar library, with one deliberate difference: shares here
-are **duration-proportional** (January is `31/365` of the year, not
-`1/12`), where timeslices shipped uniform shares.
+`calendar("d365_h24")`. Shares are duration-proportional (January is
+`31/365` of the year, not `1/12`).
 
 ## Usage
 

@@ -113,7 +113,7 @@ work through the normal ggplot2 path. The tile fill is the aggregated
 [`scale_x_discrete()`](https://ggplot2.tidyverse.org/reference/scale_discrete.html)
 etc. apply as usual.
 
-**Faceting**: list the columns your facets need in `by=` — aggregation
+**Faceting**: list the columns the facets need in `by=` — aggregation
 then happens within each combination and the columns survive into the
 layer data (see the example).
 

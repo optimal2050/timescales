@@ -13,3 +13,16 @@ CORE_TIMEFRAMES
 ## Format
 
 Character vector of timeframe names.
+
+## Value
+
+A character vector of the core timeframe names.
+
+## Examples
+
+``` r
+CORE_TIMEFRAMES
+#>  [1] "YEAR"     "QUARTER"  "MONTH"    "MDAY"     "YDAY"     "HOUR"    
+#>  [7] "MINUTE"   "SECOND"   "WDAY"     "WHOUR"    "MWEEK"    "WEEK"    
+#> [13] "SEASON"   "DAYTYPE"  "HOURTYPE"
+```

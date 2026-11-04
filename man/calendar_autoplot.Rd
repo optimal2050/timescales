@@ -75,7 +75,7 @@ render as smooth gradients.}
 \item{palette}{Viridis option letter or name (\code{"D"}/\code{"viridis"},
 \code{"C"}/\code{"plasma"}, \code{"B"}, \code{"A"}, \code{"E"}, \code{"turbo"}...). Default \code{"D"}.
 \code{type = "stack"} also accepts \code{NULL}: no fill scale is added, so
-you can supply your own (e.g. an energypal scale).}
+a custom scale can be supplied (e.g. an energypal scale).}
 
 \item{annual}{Include the \code{ANNUAL} root band. Default \code{TRUE}.}
 

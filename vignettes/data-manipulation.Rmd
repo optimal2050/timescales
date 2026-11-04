@@ -28,7 +28,7 @@ has_dt <- requireNamespace("data.table", quietly = TRUE) &&
 | `calendar_map_between()` | A → B crosswalk | the conversion, materialised as a small table |
 | `register_calendar_rule()` / `register_calendar_map_between()` / `register_calendar_conversion()` | registries | per-column rules, exact crosswalks, functional overrides |
 
-Everything below runs on the shipped `merra2_cities` sample (three
+Everything below runs on the shipped `merra2_cities` sample (twelve
 cities × 8,760 hours of 2019) in tidyverse style — data flows through
 `|>`, and every verb accepts a `data.frame`, tibble, `data.table`,
 dtplyr, or arrow input (see [Backends](#backends)).
@@ -93,7 +93,7 @@ instead.
 
 `recast_calendar()` converts values from one calendar to another —
 aggregation and disaggregation are the same operation, routed
-`A -> base -> B` through the shared grid. Three things to know:
+`A -> base -> B` through the shared grid. Three rules apply:
 
 **1. One rule per value column, and the rule is mandatory.** Pass
 `rule=` for all columns, or register per-column rules once; a column
@@ -165,9 +165,9 @@ g |>
   recast_from_timebase(calendars$q4, rule = "sum", by = "day")
 ```
 
-Use the halves when you need to *do something on the grid* between the
-two ends — join weather covariates by datetime, filter a season out,
-resample — with conservation guarantees intact.
+The halves serve operations *on the grid* between the two ends —
+joining weather covariates by datetime, filtering a season out,
+resampling — with conservation guarantees intact.
 
 ## The crosswalk, inspectable and overridable
 
@@ -182,7 +182,7 @@ calendar_map_between(calendars$m12, calendars$q4, year = 2019) |> head(4)
 When an exact correspondence is known (hand-audited concordances,
 provably nested designs), `register_calendar_map_between()` short-circuits the
 grid derivation for that pair; `register_calendar_conversion()` goes one step
-further and replaces the whole conversion with your function. Both are
+further and replaces the whole conversion with a supplied function. Both are
 keyed by calendar names, like the attach.
 
 ## Backends
@@ -205,7 +205,7 @@ class(lazy)                        # the query, not the result
 head(as.data.frame(dplyr::collect(lazy)), 3)
 ```
 
-Two contract details worth knowing for lazy sources (dtplyr, arrow):
+Two contract details for lazy sources (dtplyr, arrow):
 results carry the *observed* target timeslices only — the
 full-vocabulary completion happens on materialisation — and the
 calendar side of every join is a small in-memory frame, so an on-disk
@@ -223,9 +223,9 @@ x |>
 ```
 
 Same contract on both sides: explicit rules (never a silent fallback),
-identifier columns preserved, backends welcome.
+identifier columns preserved, the same backends accepted.
 
-## Where to next?
+## Further reading
 
 - [Concepts](concepts.html) — why the route always goes through the
   base grid, and the shared *scales naming lattice.
