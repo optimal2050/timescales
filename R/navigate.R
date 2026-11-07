@@ -510,3 +510,110 @@ calendar_coverage <- function(x, weight = NULL) {
 #' @rdname filter_calendar
 #' @export
 `[.timescales::Calendar` <- `[.Calendar`
+
+# =============================================================================
+# Successors — what follows what in time
+# =============================================================================
+# A calendar is a hierarchy, and the queries above read it as one: parents,
+# children, ancestors. But time also has an ORDER the hierarchy does not
+# express, and two things need it. Storage carries a level from one timeslice
+# into the next, so its balance equation needs each slice's successor;
+# ramping limits the change between consecutive slices and needs the same.
+# `nestedscales::cluster_contiguous(adjacency = "order")` presumes the
+# ordering exists as well.
+#
+# Chronological order is already a contract of the leaftable's row order, so
+# this reads it rather than deriving it from labels, which cannot be parsed
+# (see the stack's rule against parsing timeslice labels).
+# =============================================================================
+
+#' The timeslice that follows each timeslice
+#'
+#' The successor chain at a timeframe: for every timeslice, the one that comes
+#' next. Used wherever a quantity is carried from one slice into the next — a
+#' storage level, a ramping limit — and by order-constrained clustering.
+#'
+#' @param x A [Calendar].
+#' @param timeframe Timeframe whose timeslices are chained. Defaults to the
+#'   finest.
+#' @param within Optional coarser timeframe whose boundaries the chain stays
+#'   inside: the successor of the last slice of a day is the first slice of
+#'   that same day, not of the next one. `NULL` (default) chains the whole
+#'   timeframe as one sequence, and `"ANNUAL"` says the same thing explicitly
+#'   -- the root is the whole year, so a chain confined to it is not confined
+#'   at all.
+#' @param wrap `TRUE` (default) closes each chain into a cycle, so the last
+#'   slice's successor is the first of its group. `FALSE` gives `NA` there,
+#'   leaving the sequence open.
+#'
+#' @return A `data.frame` with one row per timeslice at `timeframe`, in
+#'   chronological order: `timeslice` and `next_timeslice`, both qualified
+#'   node ids as [`calendar_timeslices()`] with `qualified = TRUE` returns
+#'   them. With `wrap = FALSE`, `next_timeslice` is `NA` on the last row of
+#'   each group.
+#'
+#' @details
+#' A cycle is the default because an energy-system calendar represents a
+#' *typical* period rather than a one-off interval: a storage level that must
+#' return to where it started makes the period repeatable, and an open chain
+#' lets the model empty the store for free on the last slice.
+#'
+#' Grouping under `within` uses each node's whole path, not its label, so a
+#' calendar whose hour labels repeat under every day chains each day
+#' separately rather than pooling the twenty-four labels into one group.
+#'
+#' @seealso [`calendar_children()`], [`calendar_timeslices()`]
+#'
+#' @examples
+#' cal <- calendar("d365_h24")
+#' head(calendar_next(cal))                             # all 8760, cyclic
+#' head(calendar_next(cal, within = "YDAY"))            # 365 cycles of 24
+#' head(calendar_next(cal, within = "YDAY", wrap = FALSE))
+#' @export
+calendar_next <- function(x, timeframe = NULL, within = NULL, wrap = TRUE) {
+  .check_calendar(x)
+  tfs <- calendar_timeframes(x)
+  timeframe <- timeframe %||% tfs[length(tfs)]
+  .check_leaf_timeframe(x, timeframe)
+  # the ANNUAL root IS the whole year, so confining a chain to it confines
+  # nothing; `.check_leaf_timeframe()` would reject it for having no labels,
+  # which is true but beside the point here
+  if (identical(within, "ANNUAL")) within <- NULL
+  if (!is.null(within)) {
+    .check_leaf_timeframe(x, within, arg = "within")
+    if (match(within, tfs) >= match(timeframe, tfs)) {
+      .stop(paste0("`within` = '%s' must be COARSER than `timeframe` = ",
+                   "'%s'; it names the frame the chain stays inside."),
+            within, timeframe)
+    }
+  }
+
+  # the pruned leaftable: one row per node at `timeframe`, in chronological
+  # order, with a column per coarser frame
+  lt <- calendar_leaftable(prune_calendar(x, timeframe))
+  ids <- as.character(lt$timeslice)
+  n <- length(ids)
+  if (n == 0L) {
+    return(data.frame(timeslice = character(), next_timeslice = character(),
+                      stringsAsFactors = FALSE))
+  }
+
+  grp <- if (is.null(within)) {
+    rep(1L, n)
+  } else {
+    # the whole path down to `within`, so repeated labels do not pool
+    upto <- tfs[seq_len(match(within, tfs))]
+    key <- do.call(paste, c(lapply(upto, function(f) as.character(lt[[f]])),
+                            list(sep = "\r")))
+    match(key, unique(key))
+  }
+
+  nxt <- rep(NA_character_, n)
+  for (g in unique(grp)) {
+    i <- which(grp == g)
+    if (length(i) > 1L) nxt[i[-length(i)]] <- ids[i[-1L]]
+    if (isTRUE(wrap)) nxt[i[length(i)]] <- ids[i[1L]]
+  }
+  data.frame(timeslice = ids, next_timeslice = nxt,
+             stringsAsFactors = FALSE)
+}
