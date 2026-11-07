@@ -1,3 +1,9 @@
+# timescales 0.7.2
+
+## New features
+
+* `recast_calendar()` takes a rule per column. `rule=` accepts a named vector as well as a scalar, matching `geoscales` and `nestedscales`, which both already did; a column the vector does not name still falls back to the registry. A table whose columns need different rules no longer has to be recast once per rule group.
+
 # timescales 0.7.1
 
 ## New features

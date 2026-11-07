@@ -42,11 +42,12 @@ resolves to \code{"timeslice"}.}
 all numeric columns other than \code{key} and \code{source}'s timeframe columns.
 Numeric identifiers (e.g. \code{year}) must be excluded explicitly.}
 
-\item{rule}{One of \code{\link{CALENDAR_RULES}}, applied to every value column; or
-\code{NULL} (default) to look each column up with \code{\link[=get_calendar_rule]{get_calendar_rule()}}. A column
-with neither an explicit \verb{rule=} nor a registry entry is an ERROR --
-there is deliberately no fallback (a silently guessed rule is a
-silent unit error).}
+\item{rule}{One of \code{\link{CALENDAR_RULES}} applied to every value column, or a
+NAMED vector giving a rule per column, or \code{NULL} (default) to look each
+column up with \code{\link[=get_calendar_rule]{get_calendar_rule()}}. A column that \code{rule} does not name
+falls back to the registry; one with neither an explicit rule nor a
+registry entry is an ERROR -- there is deliberately no fallback (a
+silently guessed rule is a silent unit error).}
 
 \item{by}{Grid resolution for the shared datetime grid. Defaults to the
 finest timeframe of the two calendars.}

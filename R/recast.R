@@ -348,15 +348,46 @@ expand_calendar <- function(x, year, by = NULL, tz = "UTC",
 #' guessed rule is a silent unit error waiting to happen.
 #' @noRd
 .rules_for <- function(values, rule) {
-  vapply(values, function(v) {
-    if (!is.null(rule)) return(match.arg(rule, CALENDAR_RULES))
-    reg <- get_calendar_rule(v)
-    if (is.null(reg)) {
-      .stop(paste0("no aggregation rule for value column `%s`; pass `rule=` ",
-                   "or register one with register_calendar_rule(\"%s\", ...)"), v, v)
+  # `rule` is a scalar applied to every column, or a NAMED vector naming some
+  # of them; a column it does not name falls back to the registry. Mirrors
+  # nestedscales::.rules_for() and geoscales, which both take a named vector.
+  per <- stats::setNames(vector("list", length(values)), values)
+  if (!is.null(rule)) {
+    if (length(rule) == 1L && is.null(names(rule))) {
+      per <- stats::setNames(rep(list(unname(rule)), length(values)), values)
+    } else {
+      if (is.null(names(rule))) {
+        .stop(paste0("`rule` must be a single value or a NAMED vector with ",
+                     "one entry per value column"))
+      }
+      unknown <- setdiff(names(rule), values)
+      if (length(unknown) > 0L) {
+        .stop("`rule` names columns that are not value columns: %s",
+              .preview(unknown))
+      }
+      for (v in names(rule)) per[[v]] <- unname(rule[[v]])
     }
-    reg$rule
-  }, character(1))
+  }
+  out <- stats::setNames(character(length(values)), values)
+  missing <- character()
+  for (v in values) {
+    r <- per[[v]]
+    if (is.null(r)) {
+      reg <- get_calendar_rule(v)
+      if (is.null(reg)) {
+        missing <- c(missing, v)
+        next
+      }
+      r <- reg$rule
+    }
+    out[[v]] <- match.arg(r, CALENDAR_RULES)
+  }
+  if (length(missing) > 0L) {
+    .stop(paste0("no aggregation rule for value column(s): %s; pass `rule=` ",
+                 "or register one with register_calendar_rule()"),
+          .preview(missing))
+  }
+  out
 }
 
 #' Auto-detect numeric value columns of `x` (given its zero-row schema)
@@ -465,11 +496,12 @@ expand_calendar <- function(x, year, by = NULL, tz = "UTC",
 #' @param values Character vector of value columns to transform. Default:
 #'   all numeric columns other than `key` and `source`'s timeframe columns.
 #'   Numeric identifiers (e.g. `year`) must be excluded explicitly.
-#' @param rule One of [`CALENDAR_RULES`], applied to every value column; or
-#'   `NULL` (default) to look each column up with [`get_calendar_rule()`]. A column
-#'   with neither an explicit `rule=` nor a registry entry is an ERROR --
-#'   there is deliberately no fallback (a silently guessed rule is a
-#'   silent unit error).
+#' @param rule One of [`CALENDAR_RULES`] applied to every value column, or a
+#'   NAMED vector giving a rule per column, or `NULL` (default) to look each
+#'   column up with [`get_calendar_rule()`]. A column that `rule` does not name
+#'   falls back to the registry; one with neither an explicit rule nor a
+#'   registry entry is an ERROR -- there is deliberately no fallback (a
+#'   silently guessed rule is a silent unit error).
 #' @param by Grid resolution for the shared datetime grid. Defaults to the
 #'   finest timeframe of the two calendars.
 #' @param tz Time zone for the shared grid. Default `"UTC"`.

@@ -578,3 +578,66 @@ test_that("the calendar data fill computes shares per row on the fly", {
   sums <- tapply(v$HOUR$load, substr(v$HOUR$timeslice, 1, 2), sum)
   expect_equal(as.vector(sums), rep(1, 4), tolerance = 1e-12)
 })
+
+# --- per-column rules -------------------------------------------------------
+# `rule=` used to collapse to one value for the whole call, so a table whose
+# columns need different rules had to be recast once per rule group. The
+# sibling packages both take a named vector; this one now does too.
+
+test_that("rule= accepts a named vector, one rule per column", {
+  cal <- calendar_build("q4", "h24")
+  x <- data.frame(timeslice = S7::prop(cal, "leaftable")$timeslice,
+                  energy = 1, factor = 0.5)
+  out <- recast_calendar(x, source = cal, target = calendar_build("q4"),
+                         year = 2021,
+                         rule = c(energy = "sum", factor = "weighted_mean"))
+  expect_equal(sum(out$energy), 96)        # extensive: conserved
+  expect_equal(out$factor, rep(0.5, 4))    # intensive: unchanged by the mean
+})
+
+test_that("a column the vector does not name falls back to the registry", {
+  on.exit(clear_calendar_rules(), add = TRUE)
+  register_calendar_rule("factor", "weighted_mean")
+  cal <- calendar_build("q4", "h24")
+  x <- data.frame(timeslice = S7::prop(cal, "leaftable")$timeslice,
+                  energy = 1, factor = 0.5)
+  out <- recast_calendar(x, source = cal, target = calendar_build("q4"),
+                         year = 2021, rule = c(energy = "sum"))
+  expect_equal(sum(out$energy), 96)
+  expect_equal(out$factor, rep(0.5, 4))
+})
+
+test_that("a scalar rule still applies to every column", {
+  cal <- calendar_build("q4", "h24")
+  x <- data.frame(timeslice = S7::prop(cal, "leaftable")$timeslice,
+                  a = 1, b = 2)
+  out <- recast_calendar(x, source = cal, target = calendar_build("q4"),
+                         year = 2021, rule = "sum")
+  expect_equal(sum(out$a), 96)
+  expect_equal(sum(out$b), 192)
+})
+
+test_that("a malformed rule vector is refused", {
+  cal <- calendar_build("q4", "h24")
+  x <- data.frame(timeslice = S7::prop(cal, "leaftable")$timeslice,
+                  a = 1, b = 2)
+  q4 <- calendar_build("q4")
+  expect_error(
+    recast_calendar(x, source = cal, target = q4, year = 2021,
+                    rule = c(a = "sum", zzz = "sum")),
+    "not value columns")
+  expect_error(
+    recast_calendar(x, source = cal, target = q4, year = 2021,
+                    rule = c("sum", "weighted_mean")),
+    "NAMED vector")
+})
+
+test_that("share still cannot be mixed with another rule", {
+  cal <- calendar_build("q4", "h24")
+  x <- data.frame(timeslice = S7::prop(cal, "leaftable")$timeslice,
+                  a = 1, b = 2)
+  expect_error(
+    recast_calendar(x, source = cal, target = calendar_build("q4"),
+                    year = 2021, rule = c(a = "share", b = "sum")),
+    "cannot be mixed")
+})
