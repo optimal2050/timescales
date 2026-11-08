@@ -1,4 +1,4 @@
-# recast_to_timebase() / recast_from_timebase(): the public halves of the route ------
+# recast_to_timebase() / recast_from_timebase(): the public halves ----------
 
 test_that("recast_to_timebase conserves totals for extensive columns", {
   m12 <- calendar_build("m12")
@@ -15,7 +15,8 @@ test_that("recast_to_timebase conserves totals for extensive columns", {
 test_that("recast_to_timebase repeats intensive columns and attaches weight", {
   m12 <- calendar_build("m12")
   x <- data.frame(timeslice = sprintf("m%02d", 1:12), price = 21:32)
-  g <- recast_to_timebase(x, m12, year = 2021, rule = "weighted_mean", by = "day")
+  g <- recast_to_timebase(x, m12, year = 2021, rule = "weighted_mean",
+                          by = "day")
   jan <- g[format(g$datetime, "%m") == "01", ]
   expect_true(all(jan$price == 21))
   expect_equal(sum(g$weight), 1, tolerance = 1e-9)

@@ -9,7 +9,9 @@
 
 # @covers recast_calendar depth=P
 test_that("sum conserves and completes across the direction grid", {
-  m12 <- .month_cal(); q4 <- .quarter_cal(); mh <- .month_hour_cal()
+  m12 <- .month_cal()
+  q4 <- .quarter_cal()
+  mh <- .month_hour_cal()
   x_m <- fx_tbl(m12, ids = c("A", "B"))
   # up, down, within-hierarchy to a timeframe, and to the root
   up <- recast_calendar(x_m, m12, q4, year = 2021, rule = "sum", by = "day")
@@ -30,7 +32,8 @@ test_that("sum conserves and completes across the direction grid", {
 
 # @covers recast_calendar depth=P
 test_that("sum round-trips down-then-up per id group", {
-  m12 <- .month_cal(); q4 <- .quarter_cal()
+  m12 <- .month_cal()
+  q4 <- .quarter_cal()
   x_q <- fx_tbl(q4, values = list(energy = c(120, 90, 60, 95)),
                 ids = c("A", "B"))
   down <- recast_calendar(x_q, q4, m12, year = 2021, rule = "sum",
@@ -44,7 +47,8 @@ test_that("sum round-trips down-then-up per id group", {
 test_that("mean and weighted_mean stay in the envelope; weighting matters", {
   # months have unequal day shares (31/28/31 inside Q1), so on m12 -> q4
   # weighted_mean and mean MUST disagree -- pins the 0.1.0 defect class
-  m12 <- .month_cal(); q4 <- .quarter_cal()
+  m12 <- .month_cal()
+  q4 <- .quarter_cal()
   x <- fx_tbl(m12, values = list(v = c(10, 2, 7, 100, 3, 8,
                                        50, 1, 9, 40, 6, 11)))
   for (r in c("mean", "weighted_mean")) {
@@ -66,7 +70,7 @@ test_that("mean and weighted_mean stay in the envelope; weighting matters", {
 })
 
 # @covers recast_calendar depth=P
-test_that("copy carries constants and rejects non-constants; sd aggregates only", {
+test_that("copy requires constants; sd aggregates only", {
   mh <- .month_hour_cal()
   x <- fx_tbl(mh, values = list(flag = 7))
   up <- recast_calendar(x, mh, "MONTH", year = 2021, rule = "copy")
@@ -101,7 +105,8 @@ test_that("na_action grid behaves identically for every aggregating rule", {
   # a MISSING SOURCE slice is the other path: NA values + a warning,
   # identically for every rule (na_action does not apply to it)
   q4 <- .quarter_cal()
-  x2 <- fx_tbl(m12); x2 <- x2[x2$timeslice != "m01", ]
+  x2 <- fx_tbl(m12)
+  x2 <- x2[x2$timeslice != "m01", ]
   for (r in c("sum", "mean", "weighted_mean")) {
     expect_warning(
       out <- recast_calendar(x2, m12, q4, year = 2021, rule = r,
@@ -117,7 +122,8 @@ test_that("na_action grid behaves identically for every aggregating rule", {
 
 # @covers recast_to_timebase recast_from_timebase depth=P
 test_that("timebase composition equals the fused recast, per rule, with ids", {
-  m12 <- .month_cal(); q4 <- .quarter_cal()
+  m12 <- .month_cal()
+  q4 <- .quarter_cal()
   x <- fx_tbl(m12, values = list(energy = NULL, level = 5), ids = c("A", "B"))
   for (r in c("sum", "mean", "weighted_mean")) {
     base <- recast_to_timebase(x, m12, year = 2021, by = "day", rule = r)
@@ -192,9 +198,11 @@ test_that("join edge shapes: duplicate keys, NA keys, zero rows, idempotence", {
 
 # @covers recast_calendar depth=P
 test_that("explicit key=, tz=, and a vector year work on recast_calendar", {
-  m12 <- .month_cal(); q4 <- .quarter_cal()
+  m12 <- .month_cal()
+  q4 <- .quarter_cal()
 
-  x <- fx_tbl(m12); names(x)[1] <- "slice_id"
+  x <- fx_tbl(m12)
+  names(x)[1] <- "slice_id"
   out <- recast_calendar(x, m12, q4, year = 2021, key = "slice_id",
                          rule = "sum", by = "day")
   expect_conserves(x, out, "energy")

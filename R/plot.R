@@ -61,8 +61,9 @@ calendar_layout <- function(x, annual = TRUE) {
 
   # Chronological order = vocabulary order of each timeframe, coarsest key
   # first, so segment grouping below reduces to run-length detection
-  keys <- lapply(tfs, function(tf) match(as.character(leaves[[tf]]),
-                                         levels[[tf]]))
+  keys <- lapply(tfs, function(tf) {
+    match(as.character(leaves[[tf]]), levels[[tf]])
+  })
   leaves <- leaves[do.call(order, keys), , drop = FALSE]
 
   n_leaf <- nrow(leaves)
@@ -501,7 +502,8 @@ calendar_autoplot <- function(x,
     r$share  <- sum(row_df$share[i])
     r$weight <- sum(row_df$weight[i])
     r$.fill  <- stats::weighted.mean(row_df$.fill[i], width[i])
-    r$timeslice  <- NA_character_   # a bin is not a real timeslice; also mutes labels
+    # a bin is not a real timeslice; this also mutes labels
+    r$timeslice  <- NA_character_
     r
   })
   do.call(rbind, out)
@@ -514,10 +516,10 @@ calendar_autoplot <- function(x,
 #' Heatmap of data on a calendar
 #'
 #' The package's single data-on-calendar renderer (the analogue of
-#' `geoscales::geoscale_plot()`): callers prepare a `data.frame` keyed by timeslice
-#' and hand it over. With no data, the calendar's own `share` is drawn — a
-#' quick structural view. Layout follows the calendar's hierarchy: finest
-#' timeframe on y, next-finest on x, anything coarser as facets
+#' `geoscales::geoscale_plot()`): callers prepare a `data.frame` keyed by
+#' timeslice and hand it over. With no data, the calendar's own `share` is
+#' drawn — a quick structural view. Layout follows the calendar's hierarchy:
+#' finest timeframe on y, next-finest on x, anything coarser as facets
 #' (overridable via `x_tf`/`y_tf`/`facet_tf`).
 #'
 #' @param x A [`Calendar`].
@@ -831,7 +833,8 @@ utils::globalVariables(c("xmin", "xmax", "ymin", "ymax",
 
   rad <- rotate * pi / 180
   corner <- function(u, w) {
-    du <- u - 0.5; dw <- w - 0.5                 # in-plane rotation first
+    du <- u - 0.5                                # in-plane rotation first
+    dw <- w - 0.5
     ur <- 0.5 + du * cos(rad) - dw * sin(rad)
     wr <- 0.5 + du * sin(rad) + dw * cos(rad)
     cbind(ur * v$e1[1] + wr * v$e2[1],
@@ -855,7 +858,7 @@ utils::globalVariables(c("xmin", "xmax", "ymin", "ymax",
           nk - 1L)
   }
   pos <- if (direction == "up") seq_len(nk) else rev(seq_len(nk))  # 1 = top
-  fac_tb <- fac[order(pos)]                                       # top to bottom
+  fac_tb <- fac[order(pos)]  # top to bottom
   steps <- rep_len(gap, nk - 1L) * pmax(fac_tb[-nk], fac_tb[-1L])
   zlev <- vapply(pos, function(p) sum(steps[seq_len(nk - 1L) >= p]),
                  numeric(1))

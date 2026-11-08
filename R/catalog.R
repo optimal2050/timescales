@@ -127,7 +127,8 @@
                        regularity = "regular",
                        year_start = list(month = 4L, day = 1L)),
   fy04_q4_h24   = list(tokens = c("q4", "h24"),
-                       coverage_class = "representative", regularity = "regular",
+                       coverage_class = "representative",
+                       regularity = "regular",
                        year_start = list(month = 4L, day = 1L)),
   fy04_d365     = list(tokens = "d365", coverage_class = "truncated",
                        regularity = "regular",
@@ -201,8 +202,8 @@ calendar_catalog <- function() {
     if ("h24" %in% entry$tokens) tfs <- c(tfs, "HOUR")
     return(tfs)
   }
-  vapply(entry$tokens, function(tok) get_calendar_token(tok)$timeframe, character(1),
-         USE.NAMES = FALSE)
+  vapply(entry$tokens, function(tok) get_calendar_token(tok)$timeframe,
+         character(1), USE.NAMES = FALSE)
 }
 
 #' Leaf count of a catalog entry

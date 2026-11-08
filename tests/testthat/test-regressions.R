@@ -23,7 +23,8 @@ test_that("m12a converts datetimes (the silent-NA calendar defect)", {
 })
 
 test_that("weighted_mean reads the shares (the weighted_mean == mean defect)", {
-  m <- .month_cal(); q <- .quarter_cal()
+  m <- .month_cal()
+  q <- .quarter_cal()
   xm <- data.frame(timeslice = sprintf("m%02d", 1:12),
                    load = seq(100, 210, length.out = 12))
   wm <- recast_calendar(xm, m, q, year = 2021, rule = "weighted_mean",

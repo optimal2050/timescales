@@ -82,7 +82,7 @@ test_that("filter_calendar keeps raw shares and sets year_fraction", {
   expect_error(filter_calendar(cal, "SEASON", "nope"), "unknown label")
 })
 
-test_that("calendar_family() returns an empty table when the filter leaves no pair", {
+test_that("calendar_family() is empty when the filter leaves no pair", {
   cal <- calendar("q4_h24")
   # QUARTER is the coarsest timeframe, so nothing has it as a child
   out <- calendar_family(cal, child = "QUARTER")

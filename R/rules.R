@@ -28,8 +28,8 @@
 #'   \item{`copy`}{Down: copy. Up: the common value, erroring if it is not
 #'     constant. For timeslice-invariant scalars.}
 #'   \item{`sd`}{Up: standard deviation over instants — the spread of the
-#'     fine signal within each target timeslice. Aggregation-only; going finer it
-#'     degenerates to 0/NA.}
+#'     fine signal within each target timeslice. Aggregation-only; going
+#'     finer it degenerates to 0/NA.}
 #'   \item{`share`}{Share within parent: each source timeslice's value
 #'     divided by the total over its parent timeslice. Unlike every other
 #'     rule the result stays keyed by the **source** calendar's timeslices
@@ -71,8 +71,8 @@ CALENDAR_RULES <- c("weighted_mean", "sum", "mean", "copy", "sd", "share",
 #'
 #' Alignment lives per-timeframe in a calendar's `meta$alignment` (a named
 #' list), seeded by the tokens that built it and overridable at construction
-#' or in [`datetime_to_timeslice()`]. Unaligned out-of-vocabulary grid points map to
-#' `NA`, surfaced by `recast_calendar()`'s `na_action`.
+#' or in [`datetime_to_timeslice()`]. Unaligned out-of-vocabulary grid points
+#' map to `NA`, surfaced by `recast_calendar()`'s `na_action`.
 #'
 #' @format A character vector of length 4.
 #' @returns A character vector of the four alignment rule names.
@@ -90,10 +90,10 @@ ALIGNMENT_RULES <- c("exact", "drop_last", "drop_feb29", "repeat_last")
 #' Register how a parameter should be recast
 #'
 #' Records the aggregation rule to use for a named value column, so callers
-#' of [`recast_calendar()`] need not repeat it. Downstream packages can register their
-#' own parameter maps at load time. An explicit `rule=` argument to
-#' [`recast_calendar()`] always wins; unregistered columns default to
-#' `"weighted_mean"`.
+#' of [`recast_calendar()`] need not repeat it. Downstream packages can
+#' register their own parameter maps at load time. An explicit `rule=`
+#' argument to [`recast_calendar()`] always wins; unregistered columns
+#' default to `"weighted_mean"`.
 #'
 #' @param param Name of the value column.
 #' @param rule One of [`CALENDAR_RULES`].
@@ -168,16 +168,16 @@ clear_calendar_rules <- function(param = NULL) {
 
 #' Register a pairwise calendar conversion override
 #'
-#' By default [`recast_calendar()`] routes every conversion through the shared instant
-#' grid (`A -> base -> B`). A registered override short-circuits that route
-#' for one named calendar pair — the escape hatch for exact nested-calendar
-#' arithmetic or anything the grid cannot express.
+#' By default [`recast_calendar()`] routes every conversion through the shared
+#' instant grid (`A -> base -> B`). A registered override short-circuits that
+#' route for one named calendar pair — the escape hatch for exact
+#' nested-calendar arithmetic or anything the grid cannot express.
 #'
 #' @param source,target Calendar names (`meta$name`) the override applies to.
 #' @param from,to Deprecated names of `source` and `target`.
 #' @param fun A function with signature `fun(x, from, to, ...)` receiving the
-#'   same arguments as [`recast_calendar()`] and returning the recast `data.frame`.
-#'   `NULL` removes a previously registered override.
+#'   same arguments as [`recast_calendar()`] and returning the recast
+#'   `data.frame`. `NULL` removes a previously registered override.
 #'
 #' @return Invisibly, the registry key (`"from->to"`).
 #'
@@ -192,13 +192,16 @@ clear_calendar_rules <- function(param = NULL) {
 #' clear_calendar_conversions()
 #' @export
 register_calendar_conversion <- function(source, target, fun,
-                                         from = lifecycle::deprecated(), to = lifecycle::deprecated()) {
+                                         from = lifecycle::deprecated(),
+                                         to = lifecycle::deprecated()) {
   if (lifecycle::is_present(from)) {
-    .arg_renamed("register_calendar_conversion", "from", "source", !missing(source))
+    .arg_renamed("register_calendar_conversion", "from", "source",
+                 !missing(source))
     source <- from
   }
   if (lifecycle::is_present(to)) {
-    .arg_renamed("register_calendar_conversion", "to", "target", !missing(target))
+    .arg_renamed("register_calendar_conversion", "to", "target",
+                 !missing(target))
     target <- to
   }
   from <- source
@@ -224,10 +227,12 @@ register_calendar_conversion <- function(source, target, fun,
 }
 
 #' @rdname register_calendar_conversion
-#' @return `get_calendar_conversion()` returns the registered function or `NULL`.
+#' @return `get_calendar_conversion()` returns the registered function or
+#'   `NULL`.
 #' @export
 get_calendar_conversion <- function(source, target,
-                                    from = lifecycle::deprecated(), to = lifecycle::deprecated()) {
+                                    from = lifecycle::deprecated(),
+                                    to = lifecycle::deprecated()) {
   if (lifecycle::is_present(from)) {
     .arg_renamed("get_calendar_conversion", "from", "source", !missing(source))
     source <- from
@@ -246,7 +251,8 @@ get_calendar_conversion <- function(source, target,
 }
 
 #' @rdname register_calendar_conversion
-#' @return `list_calendar_conversions()` returns a `data.frame` with column `key`.
+#' @return `list_calendar_conversions()` returns a `data.frame` with column
+#'   `key`.
 #' @export
 list_calendar_conversions <- function() {
   data.frame(key = sort(ls(envir = .CONVERSION_REGISTRY, all.names = FALSE)),

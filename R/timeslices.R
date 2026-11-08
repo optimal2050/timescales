@@ -5,9 +5,10 @@
 #
 # Every conversion here is a JOIN against a table the package already builds --
 # `calendar_leaftable()` when the calendar holds the timeframe,
-# `calendar_map_between()` when it does not -- never a parse of the label text. Labels
-# are an output format, not a data structure: `h168` labels hours of the WEEK
-# as "h000".."h167", so reading "h" + digits as an hour of the day is wrong.
+# `calendar_map_between()` when it does not -- never a parse of the label
+# text. Labels are an output format, not a data structure: `h168` labels
+# hours of the WEEK as "h000".."h167", so reading "h" + digits as an hour
+# of the day is wrong.
 # =============================================================================
 
 # Target token for a timeframe a calendar does not hold. Several tokens can
@@ -73,9 +74,10 @@
 #' vocabulary those labels come from (needed to turn them into numbers).
 #' Two routes, both joins:
 #' * the calendar holds the timeframe -- its leaftable already has the column;
-#' * it does not -- `calendar_map_between()` builds the crosswalk to the timeframe's
-#'   own calendar, which must be a FUNCTION of the source timeslices. A month
-#'   does not determine an hour, and that is an error rather than a guess.
+#' * it does not -- `calendar_map_between()` builds the crosswalk to the
+#'   timeframe's own calendar, which must be a FUNCTION of the source
+#'   timeslices. A month does not determine an hour, and that is an error
+#'   rather than a guess.
 #' @noRd
 .resolve_timeframe <- function(x, cal, timeframe, year = NULL) {
   x <- as.character(x)

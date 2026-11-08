@@ -8,7 +8,7 @@ test_that("CALENDAR_RULES and ALIGNMENT_RULES expose the documented sets", {
                c("exact", "drop_last", "drop_feb29", "repeat_last"))
 })
 
-test_that("register_calendar_rule / get_calendar_rule / list_calendar_rules / clear_calendar_rules round-trip", {
+test_that("the calendar rule registry round-trips", {
   on.exit(clear_calendar_rules(), add = TRUE)
   register_calendar_rule("cap", "sum")
   register_calendar_rule("eff", "weighted_mean")

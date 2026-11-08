@@ -15,7 +15,8 @@
 #' timeslices directly as a `data.frame`, name the timeframe columns, and
 #' optionally pin down the per-timeframe vocabulary and model-level metadata.
 #'
-#' @param leaftable A `data.frame` with one row per leaf timeslice. Must contain:
+#' @param leaftable A `data.frame` with one row per leaf timeslice. Must
+#'   contain:
 #'   * one column per timeframe named in `timeframes`
 #'   * `share` — numeric > 0; sums to `year_fraction`
 #'   * `weight` — numeric >= 0; user-defined importance weight
@@ -31,8 +32,8 @@
 #' @param year_fraction Fraction of a year covered by `sum(leaftable$share)`.
 #'   Defaults to `1`.
 #' @param row_order `"nested"` (default) sorts the rows by timeframe, coarsest
-#'   first, each in its member order (for a calendar, chronological order); `"given"` keeps the rows
-#'   as supplied.
+#'   first, each in its member order (for a calendar, chronological order);
+#'   `"given"` keeps the rows as supplied.
 #' @param ... Additional named entries appended to `meta` (free-form).
 #'
 #' @return A [`Calendar`] object.
@@ -86,7 +87,8 @@ calendar_from_leaftable <- function(leaftable,
     stop("`leaftable` is missing required column `share`", call. = FALSE)
   }
   if (!"weight" %in% names(leaftable)) {
-    leaftable$weight <- as.numeric(leaftable$share) * 8760  # default: hours-per-year
+    # default: hours per year
+    leaftable$weight <- as.numeric(leaftable$share) * 8760
   }
 
   # Build members in first-appearance order if not supplied
@@ -144,7 +146,7 @@ calendar_from_leaftable <- function(leaftable,
   do.call(order, c(keys, list(na.last = TRUE, method = "radix")))
 }
 
-# Internal: build composite timeslice IDs from a row's timeframe columns -----------
+# Internal: build composite timeslice IDs from a row's timeframe columns ----
 #' @noRd
 .make_timeslice_ids <- function(df, timeframes) {
   parts <- lapply(timeframes, function(tf) as.character(df[[tf]]))

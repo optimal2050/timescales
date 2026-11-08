@@ -14,11 +14,11 @@
 #' table; each leaf's share is the product of its tokens' shares, scaled to
 #' `year_fraction`.
 #'
-#' @param ... Character token names (see [`list_calendar_tokens()`]) in coarsest-first
-#'   order, as positional arguments; each token's timeframe must be unique
-#'   within the call. Additional NAMED entries are appended to `meta` of
-#'   the resulting [`Calendar`] (names colliding with construction
-#'   arguments are an error).
+#' @param ... Character token names (see [`list_calendar_tokens()`]) in
+#'   coarsest-first order, as positional arguments; each token's timeframe
+#'   must be unique within the call. Additional NAMED entries are appended
+#'   to `meta` of the resulting [`Calendar`] (names colliding with
+#'   construction arguments are an error).
 #' @param name Calendar name. Defaults to `paste(tokens, collapse = "_")`.
 #' @param desc Free-text description.
 #' @param year_start `list(month = , day = )`; defaults to January 1. A
@@ -212,8 +212,8 @@ calendar <- function(name, ...) {
     parsed_name <- sub("^y_", "", parsed_name)
   }
 
-  # Catalog entries first: they carry coverage_class/regularity metadata, and the
-  # m12_md* designs are non-Cartesian (not expressible as a token product)
+  # Catalog entries first: they carry coverage_class/regularity metadata,
+  # and the m12_md* designs are non-Cartesian (not a token product)
   entry <- .CALENDAR_CATALOG[[parsed_name]]
   if (!is.null(entry)) {
     cal <- .calendar_from_catalog(parsed_name, entry, name = name, ...)
@@ -228,8 +228,9 @@ calendar <- function(name, ...) {
   if (length(unknown) > 0L) {
     stop("Unknown token(s) in '", name, "': ",
          paste(unknown, collapse = ", "),
-         ". Use list_calendar_tokens() to see available tokens and calendar_catalog() ",
-         "for the named designs, or register_calendar_token() to add custom tokens.",
+         ". Use list_calendar_tokens() to see available tokens and ",
+         "calendar_catalog() for the named designs, or ",
+         "register_calendar_token() to add custom tokens.",
          call. = FALSE)
   }
 

@@ -28,9 +28,10 @@ from the token inherit it in \code{meta$alignment}.}
 }
 \value{
 \code{register_calendar_token()} invisibly returns the token name.
-\code{get_calendar_token()} returns the token definition (a list with \code{timeframe},
-\code{expand}, and optionally \code{alignment}). \code{list_calendar_tokens()} returns a
-character vector of all registered token names.
+\code{get_calendar_token()} returns the token definition (a list with
+\code{timeframe}, \code{expand}, and optionally \code{alignment}).
+\code{list_calendar_tokens()} returns a character vector of all registered
+token names.
 }
 \description{
 Tokens are named recipes for the labels (and within-year shares) of one

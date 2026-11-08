@@ -6,8 +6,8 @@
 #   datetime_to_timeslice(dtm, cal)   datetime vector -> timeslice IDs
 #   expand_calendar(cal, years, by)   enumerate the base grid of model year(s)
 #                                     -> data.frame(datetime, year, timeslice)
-#   recast_to_timebase(x, cal)            timeslice data -> base-grid (datetime) rows
-#   recast_from_timebase(x, cal)          datetime rows  -> timeslice data
+#   recast_to_timebase(x, cal)        timeslice data -> base-grid rows
+#   recast_from_timebase(x, cal)      base-grid rows -> timeslice data
 #   recast(x, from, to, ...)          value-on-timeslice-in-A -> in-B
 #
 # Every conversion routes `A -> base -> B` through the shared datetime grid
@@ -561,7 +561,7 @@ expand_calendar <- function(x, year, by = NULL, tz = "UTC",
 #'
 #' # Within-calendar aggregation, and the ANNUAL root
 #' cal <- calendar_build("q4", "h24")
-#' xh <- data.frame(timeslice = S7::prop(cal, "leaftable")$timeslice, energy = 1)
+#' xh <- data.frame(timeslice = calendar_leaftable(cal)$timeslice, energy = 1)
 #' recast_calendar(xh, cal, target = "ANNUAL", year = 2021, rule = "sum")  # 96
 #' @export
 recast_calendar <- function(x, source, target, year,
@@ -573,7 +573,8 @@ recast_calendar <- function(x, source, target, year,
                             na_action = c("drop", "error", "keep"),
                             parent = NULL,
                             collect = NULL,
-                            from = lifecycle::deprecated(), to = lifecycle::deprecated()) {
+                            from = lifecycle::deprecated(),
+                            to = lifecycle::deprecated()) {
   if (lifecycle::is_present(from)) {
     .arg_renamed("recast_calendar", "from", "source", !missing(source))
     source <- from
@@ -649,7 +650,8 @@ recast_calendar <- function(x, source, target, year,
   src_keys <- unique(stats::na.omit(as.character(src_keys)))
   unknown <- setdiff(src_keys, from_leaves$timeslice)
   if (length(unknown) > 0L) {
-    .warn("%d code(s) in `x$%s` are not timeslices of `source` and were ignored: %s",
+    .warn(paste0("%d code(s) in `x$%s` are not timeslices of `source` and ",
+                 "were ignored: %s"),
           length(unknown), key, .preview(unknown))
   }
 
@@ -700,8 +702,9 @@ recast_calendar <- function(x, source, target, year,
     keysets <- .ts_pull(dplyr::distinct(
       dplyr::select(x, dplyr::all_of(c(id_cols, key)))))
     gk <- do.call(paste, c(lapply(keysets[id_cols], as.character), sep = "\r"))
-    all_missing <- unique(unlist(lapply(split(keysets[[key]], gk), function(kk)
-      setdiff(grid_from, as.character(kk)))))
+    all_missing <- unique(unlist(lapply(
+      split(keysets[[key]], gk),
+      function(kk) setdiff(grid_from, as.character(kk)))))
   } else {
     all_missing <- setdiff(grid_from, src_keys)
   }
@@ -727,8 +730,8 @@ recast_calendar <- function(x, source, target, year,
 }
 
 #' Resolve the parent calendar for rule "share": explicit `parent=` wins
-#' (a timeframe name is pruned from `source`), then `target` when it differs from
-#' `source`, then `source` pruned to its second-finest timeframe.
+#' (a timeframe name is pruned from `source`), then `target` when it differs
+#' from `source`, then `source` pruned to its second-finest timeframe.
 #' @noRd
 .ts_share_parent <- function(from, to, parent) {
   if (!is.null(parent)) {
@@ -768,7 +771,8 @@ recast_calendar <- function(x, source, target, year,
     S7::prop(par2, "meta") <- pm
     par_nm <- pm$name
   }
-  map <- as.data.frame(calendar_map_between(from2, par2, year, by = by, tz = tz))
+  map <- calendar_map_between(from2, par2, year, by = by, tz = tz)
+  map <- as.data.frame(map)
   mem <- unique(map[, c(from_nm, par_nm)])
 
   # shares within a parent are only well-defined when `source` nests in it

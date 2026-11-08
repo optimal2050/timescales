@@ -31,8 +31,8 @@ when declared shares differ from real-time coverage.}
 \item{\code{copy}}{Down: copy. Up: the common value, erroring if it is not
 constant. For timeslice-invariant scalars.}
 \item{\code{sd}}{Up: standard deviation over instants — the spread of the
-fine signal within each target timeslice. Aggregation-only; going finer it
-degenerates to 0/NA.}
+fine signal within each target timeslice. Aggregation-only; going
+finer it degenerates to 0/NA.}
 \item{\code{share}}{Share within parent: each source timeslice's value
 divided by the total over its parent timeslice. Unlike every other
 rule the result stays keyed by the \strong{source} calendar's timeslices

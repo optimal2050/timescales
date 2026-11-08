@@ -102,8 +102,9 @@ test_that("weekday-derived timeframes differ by year, which is why", {
 test_that("day-derived timeframes are the same in every year", {
   tsl <- c("d001_h00", "d100_h20", "d365_h23")
   for (tf in c("MONTH", "QUARTER", "SEASON", "WEEK")) {
-    v <- lapply(c(2021L, 2022L, 2025L), function(y)
-      as_timeframe(tsl, tf, calendar = "d365_h24", year = y))
+    v <- lapply(c(2021L, 2022L, 2025L), function(y) {
+      as_timeframe(tsl, tf, calendar = "d365_h24", year = y)
+    })
     expect_equal(v[[2]], v[[1]], info = tf)
     expect_equal(v[[3]], v[[1]], info = tf)
   }
@@ -273,7 +274,7 @@ test_that("a hand-built calendar with no token metadata still values labels", {
   expect_equal(tsl2yday("d100_h20", h), 100L)
 })
 
-test_that("a hand-built SUBSET calendar is dated via its inferred complete form", {
+test_that("a hand-built SUBSET calendar is dated via its complete form", {
   # This is the shape energyRt's sampled calendars arrive in: a leaftable
   # holding a few representative days, with no meta$tokens and no
   # meta$parent_name. The complete calendar has to be inferred from the labels.

@@ -145,9 +145,10 @@ local({
 #'   from the token inherit it in `meta$alignment`.
 #'
 #' @return `register_calendar_token()` invisibly returns the token name.
-#'   `get_calendar_token()` returns the token definition (a list with `timeframe`,
-#'   `expand`, and optionally `alignment`). `list_calendar_tokens()` returns a
-#'   character vector of all registered token names.
+#'   `get_calendar_token()` returns the token definition (a list with
+#'   `timeframe`, `expand`, and optionally `alignment`).
+#'   `list_calendar_tokens()` returns a character vector of all registered
+#'   token names.
 #'
 #' @examples
 #' # Register a custom 4-period day-of-year partition
@@ -191,7 +192,8 @@ register_calendar_token <- function(name, timeframe, expand, alignment = NULL) {
 get_calendar_token <- function(name) {
   if (!exists(name, envir = .TOKEN_REGISTRY, inherits = FALSE)) {
     stop("Unknown token: '", name,
-         "'. Use list_calendar_tokens() to see available tokens.", call. = FALSE)
+         "'. Use list_calendar_tokens() to see available tokens.",
+         call. = FALSE)
   }
   get(name, envir = .TOKEN_REGISTRY, inherits = FALSE)
 }
@@ -250,8 +252,14 @@ list_calendar_tokens <- function() {
     if (!identical(entry$timeframe, timeframe)) next
     vocab <- entry$expand()$label
     if (!all(labels %in% vocab)) next
-    if (setequal(vocab, labels)) { best <- nm; break }
-    if (length(vocab) < best_n) { best <- nm; best_n <- length(vocab) }
+    if (setequal(vocab, labels)) {
+      best <- nm
+      break
+    }
+    if (length(vocab) < best_n) {
+      best <- nm
+      best_n <- length(vocab)
+    }
   }
   assign(key, best, envir = .VOCAB_CACHE)
   best
@@ -266,10 +274,12 @@ list_calendar_tokens <- function() {
 #' @noRd
 .complete_calendar <- function(cal) {
   tfs <- calendar_timeframes(cal)
-  toks <- vapply(tfs, function(tf)
-    .infer_token(calendar_timeslices(cal, tf), tf), character(1))
+  toks <- vapply(tfs, function(tf) {
+    .infer_token(calendar_timeslices(cal, tf), tf)
+  }, character(1))
   if (anyNA(toks)) return(NULL)
-  out <- tryCatch(calendar(paste(toks, collapse = "_")), error = function(e) NULL)
+  out <- tryCatch(calendar(paste(toks, collapse = "_")),
+                  error = function(e) NULL)
   if (is.null(out)) return(NULL)
   if (identical(.calendar_name(out, require = FALSE),
                 .calendar_name(cal, require = FALSE))) return(NULL)

@@ -43,8 +43,8 @@
 #' @param ... Passed to the shared core, e.g. `by =` for extra identifier
 #'   columns.
 #'
-#' @return A `data.frame` with columns `<source>`, `<target>` (`NA` = uncovered by
-#'   `target`), `n_from`, `n_overlap`, `w`, `w_from`.
+#' @return A `data.frame` with columns `<source>`, `<target>` (`NA` =
+#'   uncovered by `target`), `n_from`, `n_overlap`, `w`, `w_from`.
 #'
 #' @seealso [`calendar_map_between()`] for the map between two calendars.
 #' @examples
@@ -52,7 +52,8 @@
 #' head(calendar_map(cal, "MONTH", "HOUR"))
 #' @export
 calendar_map <- function(x, source, target, weight = NULL, ...,
-                         from = lifecycle::deprecated(), to = lifecycle::deprecated()) {
+                         from = lifecycle::deprecated(),
+                         to = lifecycle::deprecated()) {
   if (lifecycle::is_present(from)) {
     .arg_renamed("calendar_map", "from", "source", !missing(source))
     source <- from
@@ -64,8 +65,8 @@ calendar_map <- function(x, source, target, weight = NULL, ...,
   from <- source
   to <- target
   if (S7::S7_inherits(from, Calendar) || S7::S7_inherits(to, Calendar)) {
-    .stop(paste0("`source` and `target` are timeframe names of `x`; for the map ",
-                 "between two calendars use `calendar_map_between()`"))
+    .stop(paste0("`source` and `target` are timeframe names of `x`; for the ",
+                 "map between two calendars use `calendar_map_between()`"))
   }
   .check_calendar(x, "x")
   .check_timeframe(x, from, "source")
@@ -110,7 +111,8 @@ calendar_map <- function(x, source, target, weight = NULL, ...,
 #' calendar_map_between(m12, q4, year = 2021)
 #' @export
 calendar_map_between <- function(source, target, year, by = NULL, tz = "UTC",
-                                 from = lifecycle::deprecated(), to = lifecycle::deprecated()) {
+                                 from = lifecycle::deprecated(),
+                                 to = lifecycle::deprecated()) {
   if (lifecycle::is_present(from)) {
     .arg_renamed("calendar_map_between", "from", "source", !missing(source))
     source <- from
@@ -126,8 +128,9 @@ calendar_map_between <- function(source, target, year, by = NULL, tz = "UTC",
   from_nm <- .calendar_name(from, arg = "source")
   to_nm   <- .calendar_name(to, arg = "target")
   if (identical(from_nm, to_nm)) {
-    .stop(paste0("`source` and `target` have the same name (\"%s\"); the map's ",
-                 "label columns are named by the calendars -- rename one"),
+    .stop(paste0("`source` and `target` have the same name (\"%s\"); ",
+                 "the map's label columns are named by the calendars -- ",
+                 "rename one"),
           from_nm)
   }
   year <- as.integer(year)
@@ -209,10 +212,10 @@ calendar_map_between <- function(source, target, year, by = NULL, tz = "UTC",
 #' a pair of calendars.
 #'
 #' @param x The [`Calendar`] the timeframes belong to, or its name.
-#' @param source,target For the within-calendar functions, timeframe names of `x`.
+#' @param source,target For the within-calendar functions, timeframe names
+#'   of `x`. For the `_between` functions, two [`Calendar`] objects or their
+#'   names (`meta$name`).
 #' @param from,to Deprecated names of `source` and `target`.
-#'   For the `_between` functions, two [`Calendar`] objects or their names
-#'   (`meta$name`).
 #' @param map A `data.frame` shaped like the corresponding map result: the
 #'   two label columns named after the timeframes (plus `n_from`,
 #'   `n_overlap`, `w`, `w_from`) or after the calendars (plus `year`,
@@ -235,7 +238,8 @@ calendar_map_between <- function(source, target, year, by = NULL, tz = "UTC",
 #' clear_calendar_maps(registry = TRUE)
 #' @export
 register_calendar_map <- function(x, source, target, map,
-                                  from = lifecycle::deprecated(), to = lifecycle::deprecated()) {
+                                  from = lifecycle::deprecated(),
+                                  to = lifecycle::deprecated()) {
   if (lifecycle::is_present(from)) {
     .arg_renamed("register_calendar_map", "from", "source", !missing(source))
     source <- from
@@ -253,13 +257,16 @@ register_calendar_map <- function(x, source, target, map,
 #' @rdname register_calendar_map
 #' @export
 register_calendar_map_between <- function(source, target, map,
-                                          from = lifecycle::deprecated(), to = lifecycle::deprecated()) {
+                                          from = lifecycle::deprecated(),
+                                          to = lifecycle::deprecated()) {
   if (lifecycle::is_present(from)) {
-    .arg_renamed("register_calendar_map_between", "from", "source", !missing(source))
+    .arg_renamed("register_calendar_map_between", "from", "source",
+                 !missing(source))
     source <- from
   }
   if (lifecycle::is_present(to)) {
-    .arg_renamed("register_calendar_map_between", "to", "target", !missing(target))
+    .arg_renamed("register_calendar_map_between", "to", "target",
+                 !missing(target))
     target <- to
   }
   from <- source
@@ -305,7 +312,8 @@ register_calendar_map_between <- function(source, target, map,
 #' @rdname register_calendar_map
 #' @export
 get_calendar_map <- function(x, source, target,
-                             from = lifecycle::deprecated(), to = lifecycle::deprecated()) {
+                             from = lifecycle::deprecated(),
+                             to = lifecycle::deprecated()) {
   if (lifecycle::is_present(from)) {
     .arg_renamed("get_calendar_map", "from", "source", !missing(source))
     source <- from
@@ -323,7 +331,8 @@ get_calendar_map <- function(x, source, target,
 #' @rdname register_calendar_map
 #' @export
 get_calendar_map_between <- function(source, target,
-                                     from = lifecycle::deprecated(), to = lifecycle::deprecated()) {
+                                     from = lifecycle::deprecated(),
+                                     to = lifecycle::deprecated()) {
   if (lifecycle::is_present(from)) {
     .arg_renamed("get_calendar_map_between", "from", "source", !missing(source))
     source <- from

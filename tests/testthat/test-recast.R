@@ -1,15 +1,15 @@
 # Fixtures: .month_cal()/.quarter_cal()/.month_hour_cal() live in
 # helper-fixtures.R (shared across the suite).
 
-# datetime_to_timeslice -----------------------------------------------------------
+# datetime_to_timeslice --------------------------------------------------------
 
-test_that("datetime_to_timeslice maps datetimes to timeslice IDs (single timeframe)", {
+test_that("datetime_to_timeslice maps datetimes to IDs (single timeframe)", {
   cal <- .month_cal()
   dtm <- lubridate::ymd(c("2021-01-15", "2021-07-04", "2021-12-31"))
   expect_equal(datetime_to_timeslice(dtm, cal), c("m01", "m07", "m12"))
 })
 
-test_that("datetime_to_timeslice maps to composite timeslice IDs (two timeframes)", {
+test_that("datetime_to_timeslice maps to composite IDs (two timeframes)", {
   cal <- .month_hour_cal()
   dtm <- lubridate::ymd_h(c("2021-01-15 00", "2021-07-04 13"), tz = "UTC")
   expect_equal(datetime_to_timeslice(dtm, cal), c("m01_h00", "m07_h13"))
@@ -21,7 +21,8 @@ test_that("datetime_to_timeslice returns NA for instants outside coverage", {
                    share = c(31, 28) / 365, weight = c(31, 28))
   cal <- calendar_from_leaftable(df, timeframes = "MONTH",
                               year_fraction = 59 / 365)
-  out <- datetime_to_timeslice(lubridate::ymd(c("2021-01-15", "2021-07-04")), cal)
+  dts <- lubridate::ymd(c("2021-01-15", "2021-07-04"))
+  out <- datetime_to_timeslice(dts, cal)
   expect_equal(out, c("m01", NA_character_))
 })
 
@@ -79,7 +80,8 @@ test_that("w52 folds week 53 into w52 (repeat_last)", {
 test_that("alignment override 'exact' errors on uncovered instants", {
   cal <- calendar_build("d360")
   expect_error(
-    datetime_to_timeslice(lubridate::ymd("2021-12-31"), cal, alignment = "exact"),
+    datetime_to_timeslice(lubridate::ymd("2021-12-31"), cal,
+                          alignment = "exact"),
     "exact"
   )
 })
@@ -172,8 +174,8 @@ test_that("recast 'sum' conserves totals (the 0.1.0 defect)", {
 test_that("recast 'sum' conserves through a two-level hierarchy", {
   cal  <- calendar_build("q4", "h24")
   x <- data.frame(timeslice = S7::prop(cal, "leaftable")$timeslice, v = 1)
-  out <- recast_calendar(x, source = cal, target = calendar_build("q4"), year = 2021,
-                rule = "sum")
+  out <- recast_calendar(x, source = cal, target = calendar_build("q4"),
+                         year = 2021, rule = "sum")
   expect_equal(sum(out$v), 96)  # was 8760 before the fix
   expect_equal(out$v, rep(24, 4))
 })
@@ -192,7 +194,8 @@ test_that("recast 'weighted_mean' reads declared shares (differs from mean)", {
 
   wm <- recast_calendar(x, cal_eq, cal_q, year = 2021, rule = "weighted_mean",
                by = "day")
-  mn <- recast_calendar(x, cal_eq, cal_q, year = 2021, rule = "mean", by = "day")
+  mn <- recast_calendar(x, cal_eq, cal_q, year = 2021, rule = "mean",
+                        by = "day")
 
   # weighted_mean: equal declared shares -> plain average of the months
   expect_equal(wm$v[1], mean(v[1:3]), tolerance = 1e-10)
@@ -206,12 +209,14 @@ test_that("recast 'copy' returns the common value and rejects non-constant", {
   cal_m <- .month_cal()
   cal_q <- .quarter_cal()
   x_const <- data.frame(timeslice = sprintf("m%02d", 1:12), v = rep(7, 12))
-  out <- recast_calendar(x_const, cal_m, cal_q, year = 2021, rule = "copy", by = "day")
+  out <- recast_calendar(x_const, cal_m, cal_q, year = 2021, rule = "copy",
+                         by = "day")
   expect_equal(out$v, rep(7, 4))
 
   x_vary <- data.frame(timeslice = sprintf("m%02d", 1:12), v = 1:12 * 1.0)
   expect_error(
-    recast_calendar(x_vary, cal_m, cal_q, year = 2021, rule = "copy", by = "day"),
+    recast_calendar(x_vary, cal_m, cal_q, year = 2021, rule = "copy",
+                    by = "day"),
     "not constant"
   )
 })
@@ -230,13 +235,14 @@ test_that("recast disaggregates: sum splits, weighted_mean copies", {
   cal_q <- .quarter_cal()
   xq <- data.frame(timeslice = sprintf("Q%d", 1:4), v = c(90, 91, 92, 92) * 1.0)
 
-  down_sum <- recast_calendar(xq, cal_q, cal_m, year = 2021, rule = "sum", by = "day")
+  down_sum <- recast_calendar(xq, cal_q, cal_m, year = 2021, rule = "sum",
+                              by = "day")
   # Q1's 90 split over its 90 days: January gets 31
   expect_equal(down_sum$v[1], 31, tolerance = 1e-10)
   expect_equal(sum(down_sum$v), sum(xq$v), tolerance = 1e-10)
 
-  down_int <- recast_calendar(xq, cal_q, cal_m, year = 2021, rule = "weighted_mean",
-                     by = "day")
+  down_int <- recast_calendar(xq, cal_q, cal_m, year = 2021,
+                              rule = "weighted_mean", by = "day")
   expect_equal(down_int$v[1:3], rep(90, 3), tolerance = 1e-10)
 })
 
@@ -274,7 +280,8 @@ test_that("na_action = 'drop' warns and loses uncovered share", {
   cal_d360 <- calendar_build("d360")  # Dec 27-31 uncovered
   x <- data.frame(timeslice = sprintf("m%02d", 1:12), v = rep(1, 12))
   expect_warning(
-    out <- recast_calendar(x, cal_m, cal_d360, year = 2021, rule = "sum", by = "day"),
+    out <- recast_calendar(x, cal_m, cal_d360, year = 2021, rule = "sum",
+                           by = "day"),
     "not covered by `target`"
   )
   expect_lt(sum(out$v, na.rm = TRUE), 12)
@@ -295,8 +302,8 @@ test_that("na_action = 'keep' conserves totals in an explicit NA row", {
   cal_m <- .month_cal()
   cal_d360 <- calendar_build("d360")
   x <- data.frame(timeslice = sprintf("m%02d", 1:12), v = rep(1, 12))
-  out <- recast_calendar(x, cal_m, cal_d360, year = 2021, rule = "sum", by = "day",
-                na_action = "keep")
+  out <- recast_calendar(x, cal_m, cal_d360, year = 2021, rule = "sum",
+                         by = "day", na_action = "keep")
   expect_true(anyNA(out$timeslice))
   expect_equal(sum(out$v, na.rm = TRUE), 12, tolerance = 1e-10)
 })
@@ -366,8 +373,8 @@ test_that("recast handles multiple value columns", {
   x <- data.frame(timeslice = sprintf("m%02d", 1:12),
                   a = 1:12 * 1.0,
                   b = 12:1 * 1.0)
-  out <- recast_calendar(x, source = cal_m, target = cal_q, year = 2021, by = "day",
-                         rule = "weighted_mean")
+  out <- recast_calendar(x, source = cal_m, target = cal_q, year = 2021,
+                         by = "day", rule = "weighted_mean")
   expect_named(out, c("timeslice", "a", "b"))
   expect_equal(nrow(out), 4)
 })
@@ -465,7 +472,8 @@ test_that("rule share stays keyed by `from` and sums to 1 per parent", {
   cal <- calendar_build("q4", "h24")
   lt <- S7::prop(cal, "leaftable")
   x <- data.frame(timeslice = lt$timeslice, load = seq_len(nrow(lt)))
-  out <- recast_calendar(x, cal, target = "QUARTER", year = 2021, rule = "share")
+  out <- recast_calendar(x, cal, target = "QUARTER", year = 2021,
+                         rule = "share")
   expect_named(out, c("timeslice", "load"))
   expect_setequal(out$timeslice, lt$timeslice)
   sums <- tapply(out$load, substr(out$timeslice, 1, 2), sum)
@@ -504,7 +512,8 @@ test_that("rule share: a zero-total parent yields NA shares", {
   lt <- S7::prop(cal, "leaftable")
   x <- data.frame(timeslice = lt$timeslice, load = seq_len(nrow(lt)))
   x$load[substr(x$timeslice, 1, 2) == "Q1"] <- 0
-  out <- recast_calendar(x, cal, target = "QUARTER", year = 2021, rule = "share")
+  out <- recast_calendar(x, cal, target = "QUARTER", year = 2021,
+                         rule = "share")
   q1 <- substr(out$timeslice, 1, 2) == "Q1"
   expect_true(all(is.na(out$load[q1])))
   expect_equal(sum(out$load[!q1]), 3, tolerance = 1e-12)

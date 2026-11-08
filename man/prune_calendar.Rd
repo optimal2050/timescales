@@ -23,9 +23,9 @@ whole-year root — a one-timeslice calendar (the root is named \code{ANNUAL}, n
 \code{YEAR}, which is reserved for the Gregorian-year axis).
 }
 \details{
-Together with \code{\link[=recast_calendar]{recast_calendar()}}'s acceptance of a timeframe name for \verb{to=},
-this covers within-calendar aggregation (e.g. \code{q4_h24 -> q4}) without
-constructing a second calendar by hand.
+Together with \code{\link[=recast_calendar]{recast_calendar()}}'s acceptance of a timeframe name for
+\verb{target=}, this covers within-calendar aggregation (e.g. \code{q4_h24 -> q4})
+without constructing a second calendar by hand.
 }
 \examples{
 cal <- calendar_build("q4", "h24")

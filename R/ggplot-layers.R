@@ -151,7 +151,7 @@
 #'     theme_calendar()
 #'
 #'   # timeslice mode
-#'   y <- data.frame(timeslice = S7::prop(cal, "leaftable")$timeslice, v = 1:288)
+#'   y <- data.frame(timeslice = calendar_leaftable(cal)$timeslice, v = 1:288)
 #'   ggplot(y) +
 #'     geom_calendar_tile(calendar = cal, z = "v") +
 #'     theme_calendar()

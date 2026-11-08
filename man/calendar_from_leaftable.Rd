@@ -18,7 +18,8 @@ calendar_from_leaftable(
 )
 }
 \arguments{
-\item{leaftable}{A \code{data.frame} with one row per leaf timeslice. Must contain:
+\item{leaftable}{A \code{data.frame} with one row per leaf timeslice. Must
+contain:
 \itemize{
 \item one column per timeframe named in \code{timeframes}
 \item \code{share} — numeric > 0; sums to \code{year_fraction}
@@ -43,8 +44,8 @@ first-appearance order.}
 Defaults to \code{1}.}
 
 \item{row_order}{\code{"nested"} (default) sorts the rows by timeframe, coarsest
-first, each in its member order (for a calendar, chronological order); \code{"given"} keeps the rows
-as supplied.}
+first, each in its member order (for a calendar, chronological order);
+\code{"given"} keeps the rows as supplied.}
 
 \item{...}{Additional named entries appended to \code{meta} (free-form).}
 }

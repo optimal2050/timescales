@@ -286,8 +286,11 @@ calendar_wall_plot <- function(x, data = NULL, z = NULL,
 #' @noRd
 .wall_day_layer <- function(calendar) {
   tfs <- S7::prop(calendar, "timeframes")
-  day_tf <- if ("YDAY" %in% tfs) "YDAY" else if ("MDAY" %in% tfs) "MDAY"
-            else {
+  day_tf <- if ("YDAY" %in% tfs) {
+    "YDAY"
+  } else if ("MDAY" %in% tfs) {
+    "MDAY"
+  } else {
     .stop(paste0("wall layout needs a day-resolution timeframe (YDAY or ",
                  "MDAY); this calendar has: %s"),
           paste(tfs, collapse = ", "))
@@ -299,7 +302,6 @@ calendar_wall_plot <- function(x, data = NULL, z = NULL,
 #' @noRd
 .wall_days <- function(day) {
   leaves <- S7::prop(day$cal, "leaftable")
-  tfs    <- S7::prop(day$cal, "timeframes")
 
   if (day$day_tf == "MDAY") {
     months <- S7::prop(day$cal, "members")$MONTH
@@ -328,7 +330,7 @@ calendar_wall_plot <- function(x, data = NULL, z = NULL,
   )
   ord <- ((start_month - 1L + 0:11) %% 12L) + 1L
   month <- rep(sprintf("m%02d", ord), lengths[ord])
-  mday  <- unlist(lapply(lengths[ord], seq_len), use.names = FALSE)
+  mday  <- sequence(lengths[ord])
   data.frame(month = month[seq_len(n_days)], mday = mday[seq_len(n_days)],
              stringsAsFactors = FALSE)
 }
@@ -371,8 +373,9 @@ calendar_wall_plot <- function(x, data = NULL, z = NULL,
   day_leaves <- S7::prop(day$cal, "leaftable")
 
   if (is.null(key)) {
-    key <- if ("timeslice" %in% names(data)) "timeslice"
-           else {
+    key <- if ("timeslice" %in% names(data)) {
+      "timeslice"
+    } else {
       is_dtm <- vapply(data, inherits, logical(1),
                        what = c("POSIXt", "Date"))
       if (!any(is_dtm)) {
@@ -408,11 +411,10 @@ calendar_wall_plot <- function(x, data = NULL, z = NULL,
 .wall_roll_up <- function(calendar, day, ids) {
   leaves <- S7::prop(calendar, "leaftable")
   keep   <- S7::prop(day$cal, "timeframes")
-  full_key <- do.call(paste, c(lapply(keep, function(tf)
-    as.character(leaves[[tf]])), sep = "\r"))
+  full_key <- do.call(paste, c(lapply(leaves[keep], as.character), sep = "\r"))
   day_leaves <- S7::prop(day$cal, "leaftable")
-  day_key <- do.call(paste, c(lapply(keep, function(tf)
-    as.character(day_leaves[[tf]])), sep = "\r"))
+  day_key <- do.call(paste,
+                     c(lapply(day_leaves[keep], as.character), sep = "\r"))
   cell_of <- stats::setNames(
     day_leaves$timeslice[match(full_key, day_key)], leaves$timeslice)
   unname(cell_of[ids])

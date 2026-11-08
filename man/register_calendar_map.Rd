@@ -42,16 +42,16 @@ get_calendar_map_between(
 \arguments{
 \item{x}{The \code{\link{Calendar}} the timeframes belong to, or its name.}
 
-\item{source, target}{For the within-calendar functions, timeframe names of \code{x}.}
+\item{source, target}{For the within-calendar functions, timeframe names
+of \code{x}. For the \verb{_between} functions, two \code{\link{Calendar}} objects or their
+names (\code{meta$name}).}
 
 \item{map}{A \code{data.frame} shaped like the corresponding map result: the
 two label columns named after the timeframes (plus \code{n_from},
 \code{n_overlap}, \code{w}, \code{w_from}) or after the calendars (plus \code{year},
 \code{n_from}, \code{n_overlap}, \code{w}). \code{NULL} removes a previously registered map.}
 
-\item{from, to}{Deprecated names of \code{source} and \code{target}.
-For the \verb{_between} functions, two \code{\link{Calendar}} objects or their names
-(\code{meta$name}).}
+\item{from, to}{Deprecated names of \code{source} and \code{target}.}
 }
 \value{
 Invisibly, the registry key. The \code{get_} functions return the

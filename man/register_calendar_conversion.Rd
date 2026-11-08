@@ -30,8 +30,8 @@ clear_calendar_conversions(key = NULL)
 \item{source, target}{Calendar names (\code{meta$name}) the override applies to.}
 
 \item{fun}{A function with signature \code{fun(x, from, to, ...)} receiving the
-same arguments as \code{\link[=recast_calendar]{recast_calendar()}} and returning the recast \code{data.frame}.
-\code{NULL} removes a previously registered override.}
+same arguments as \code{\link[=recast_calendar]{recast_calendar()}} and returning the recast
+\code{data.frame}. \code{NULL} removes a previously registered override.}
 
 \item{from, to}{Deprecated names of \code{source} and \code{target}.}
 
@@ -41,15 +41,17 @@ same arguments as \code{\link[=recast_calendar]{recast_calendar()}} and returnin
 \value{
 Invisibly, the registry key (\code{"from->to"}).
 
-\code{get_calendar_conversion()} returns the registered function or \code{NULL}.
+\code{get_calendar_conversion()} returns the registered function or
+\code{NULL}.
 
-\code{list_calendar_conversions()} returns a \code{data.frame} with column \code{key}.
+\code{list_calendar_conversions()} returns a \code{data.frame} with column
+\code{key}.
 }
 \description{
-By default \code{\link[=recast_calendar]{recast_calendar()}} routes every conversion through the shared instant
-grid (\code{A -> base -> B}). A registered override short-circuits that route
-for one named calendar pair — the escape hatch for exact nested-calendar
-arithmetic or anything the grid cannot express.
+By default \code{\link[=recast_calendar]{recast_calendar()}} routes every conversion through the shared
+instant grid (\code{A -> base -> B}). A registered override short-circuits that
+route for one named calendar pair — the escape hatch for exact
+nested-calendar arithmetic or anything the grid cannot express.
 }
 \examples{
 register_calendar_conversion("m12", "q4", function(x, from, to, ...) {

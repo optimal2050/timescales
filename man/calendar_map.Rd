@@ -28,8 +28,8 @@ columns.}
 \item{from, to}{Deprecated names of \code{source} and \code{target}.}
 }
 \value{
-A \code{data.frame} with columns \verb{<source>}, \verb{<target>} (\code{NA} = uncovered by
-\code{target}), \code{n_from}, \code{n_overlap}, \code{w}, \code{w_from}.
+A \code{data.frame} with columns \verb{<source>}, \verb{<target>} (\code{NA} =
+uncovered by \code{target}), \code{n_from}, \code{n_overlap}, \code{w}, \code{w_from}.
 }
 \description{
 Materialises the \code{from -> timeslices -> to} route within one calendar as

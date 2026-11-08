@@ -10,5 +10,8 @@ linters: linters_with_defaults(
   )
 exclusions: list(
     "tests/testthat.R",
-    "vignettes"
+    "vignettes",
+    # lintr lints each file alone: helper files call testthat expectations
+    # and sibling helpers without a library() call in the file.
+    "tests/testthat" = list(object_usage_linter = Inf)
   )

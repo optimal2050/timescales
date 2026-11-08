@@ -4,7 +4,8 @@
 # A `Calendar` is a nested time partition of a (model) year:
 #
 #   * `leaftable`  — flat enumeration of leaf timeslices (one row per leaf,
-#                    one column per timeframe plus `timeslice`, `share`, `weight`)
+#                    one column per timeframe plus `timeslice`, `share`,
+#                    `weight`)
 #   * `timeframes` — ordered character vector naming the hierarchy, coarsest
 #                    first (e.g. `c("MONTH", "MDAY", "HOUR")`)
 #   * `members`    — named list giving each timeframe's ordered member labels
@@ -25,7 +26,8 @@
 #' A nested time partition: a flat table of weighted leaf timeslices plus the
 #' ordered hierarchy of timeframes that produced them.
 #'
-#' Construct with [`calendar()`] from the catalog, [`calendar_build()`] from tokens, or [`calendar_from_leaftable()`] from a leaftable.
+#' Construct with [`calendar()`] from the catalog, [`calendar_build()`] from
+#' tokens, or [`calendar_from_leaftable()`] from a leaftable.
 #'
 #' @param leaftable `data.frame` with columns `timeslice`, `share`, `weight`,
 #'   plus one column per timeframe in `timeframes`.
@@ -142,13 +144,13 @@ Calendar <- S7::new_class(
       }
     }
 
-    # timeslice / share / weight columns -----------------------------------------
+    # timeslice / share / weight columns ---------------------------------------
     if ("timeslice" %in% names(leaftable)) {
       sid <- leaftable$timeslice
       if (!is.character(sid) || anyNA(sid) || any(sid == "") ||
           anyDuplicated(sid)) {
-        errs <- c(errs,
-                  "`leaftable$timeslice` must be a unique non-empty character vector")
+        errs <- c(errs, paste0("`leaftable$timeslice` must be a unique ",
+                               "non-empty character vector"))
       }
     }
     if ("share" %in% names(leaftable)) {
@@ -202,7 +204,8 @@ Calendar <- S7::new_class(
             got <- sum(leaftable[[w]], na.rm = TRUE) / pt[[w]]
             if (abs(got - cov[[w]]) > 1e-8) {
               errs <- c(errs, sprintf(
-                "`meta$coverage[\"%s\"]` (%.6g) does not match the leaftable (%.6g)",
+                paste0("`meta$coverage[\"%s\"]` (%.6g) does not match the ",
+                       "leaftable (%.6g)"),
                 w, cov[[w]], got))
             }
           }

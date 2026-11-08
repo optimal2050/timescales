@@ -149,6 +149,6 @@ recast_calendar(xp, cal_m, cal_q, year = 2021, rule = "sum")
 
 # Within-calendar aggregation, and the ANNUAL root
 cal <- calendar_build("q4", "h24")
-xh <- data.frame(timeslice = S7::prop(cal, "leaftable")$timeslice, energy = 1)
+xh <- data.frame(timeslice = calendar_leaftable(cal)$timeslice, energy = 1)
 recast_calendar(xh, cal, target = "ANNUAL", year = 2021, rule = "sum")  # 96
 }

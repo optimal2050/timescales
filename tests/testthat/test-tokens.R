@@ -55,7 +55,7 @@ test_that("register_calendar_token() adds and can be retrieved", {
   expect_equal(get_calendar_token("my_d2")$timeframe, "YDAY")
 })
 
-test_that("register_calendar_token() records an alignment and calendars inherit it", {
+test_that("a registered token's alignment is inherited by calendars", {
   register_calendar_token("d180", "YDAY", function() {
     data.frame(label = sprintf("d%03d", 1:180), share = rep(1 / 180, 180))
   }, alignment = "drop_last")
@@ -124,7 +124,8 @@ test_that("calendar('d365_h24') == calendar_build('d365','h24')", {
   c2 <- calendar_build("d365", "h24", name = "d365_h24")
   expect_equal(nrow(c1@leaftable), nrow(c2@leaftable))
   expect_equal(c1@timeframes, c2@timeframes)
-  expect_equal(sum(c1@leaftable$share), sum(c2@leaftable$share), tolerance = 1e-12)
+  expect_equal(sum(c1@leaftable$share), sum(c2@leaftable$share),
+               tolerance = 1e-12)
 })
 
 test_that("calendar() handles single-token names", {
@@ -143,7 +144,7 @@ test_that("calendar() recognises year-qualified prefix", {
   expect_equal(nrow(cal@leaftable), 365 * 24)
 })
 
-# Round-trip with recast_calendar() ---------------------------------------------------
+# Round-trip with recast_calendar() --------------------------------------------
 
 test_that("calendar() result works with recast_calendar()", {
   cal_m <- calendar("m12")

@@ -53,7 +53,8 @@ test_that("a registered direct map short-circuits the grid", {
   register_calendar_map_between(m12, q4, fake)
   got <- calendar_map_between(m12, q4, year = 1999)   # any year: registry wins
   expect_identical(got, fake)
-  register_calendar_map_between(m12, q4, NULL)        # removal restores the grid
+  # removal restores the grid
+  register_calendar_map_between(m12, q4, NULL)
   got2 <- calendar_map_between(m12, q4, year = 2021)
   expect_false(isTRUE(all.equal(got2$w, fake$w)))
   clear_calendar_maps(registry = TRUE)
