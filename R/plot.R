@@ -3,15 +3,17 @@
 # =============================================================================
 # Three layers, mirroring geoscales/R/plot.R:
 #
-#   calendar_layout(cal)      -> plain data.frame of rectangles (no ggplot2);
-#                                the plotting-system-agnostic foundation
-#   calendar_autoplot(cal)    -> the structure icicle (standard geom_rect)
-#   calendar_plot(cal, data)  -> the single data-on-calendar heatmap renderer
+#   calendar_layout(cal)       -> plain data.frame of rectangles (no ggplot2);
+#                                 the plotting-system-agnostic foundation
+#   gg_calendar(cal, type = )  -> the assembled figures: icicle, stack,
+#                                 heatmap (data on a timeframe grid), wall
+#   autoplot(cal) / plot(cal)  -> methods over gg_calendar(); autoplot()
+#                                 returns the ggplot, plot() draws it
 #
-# autoplot()/plot() dispatch to calendar_autoplot(). ggplot2 is a Suggests
-# dependency, guarded by .need_ggplot(); custom stat_*/geom_* layers are a
-# deliberate later stage built over the same layout/heat-data helpers (see
-# dev/review-core.md and the plan) — nothing here uses ggproto.
+# ggplot2 is a Suggests dependency, guarded by .need_ggplot(); custom
+# stat_*/geom_* layers are a deliberate later stage built over the same
+# layout/heat-data helpers (see dev/review-core.md) — nothing here uses
+# ggproto.
 # =============================================================================
 
 #' @noRd
@@ -33,7 +35,7 @@
 #' implicit `ANNUAL` root), one rectangle per contiguous timeslice segment,
 #' x normalized to `[0, 1]` (share of the covered year). Exposed so the
 #' layout can be drawn with something other than ggplot2; the same frame
-#' backs [`calendar_autoplot()`].
+#' backs [`gg_calendar()`].
 #'
 #' @param x A [`Calendar`].
 #' @param annual Include the `ANNUAL` root band on top? Default `TRUE`.
@@ -135,181 +137,356 @@ calendar_layout <- function(x, annual = TRUE) {
 }
 
 # -----------------------------------------------------------------------------
-# calendar_autoplot()
+# gg_calendar(): one entry point, `type` selects the figure
 # -----------------------------------------------------------------------------
 
-#' Plot a calendar's structure as an icicle
+# Arguments each figure type accepts, besides `object`, `type` and `...`.
+# Anything listed for another type only is refused, never ignored.
+.GG_CALENDAR_ARGS <- list(
+  icicle  = c("data", "z", "key", "year", "palette", "labels", "rule", "by",
+              "reference", "annual", "fill", "color_pattern", "max_labels",
+              "max_segments", "border"),
+  stack   = c("data", "z", "key", "year", "palette", "labels", "rule", "by",
+              "annual", "view", "angle", "ratio", "shear", "depth", "gap",
+              "rotate", "direction", "colour", "linewidth", "frame",
+              "frame_fill", "connectors"),
+  heatmap = c("data", "z", "key", "palette", "fun", "x_tf", "y_tf",
+              "facet_tf"),
+  wall    = c("data", "z", "key", "year", "palette", "labels", "fun",
+              "arrange", "week_start")
+)
+
+#' Refuse arguments that belong to another figure type
 #'
-#' One horizontal band per timeframe (`ANNUAL` root on top, coarsest first),
-#' rectangle widths proportional to timeslice shares, x spanning the covered
-#' year on `[0, 1]`. `autoplot()` and `plot()` on a Calendar dispatch here.
+#' `call` is the `match.call()` of the entry point: names passed through
+#' the methods' `...` are expanded there, so the check sees them too.
+#' Names outside the table are the entry point's own `...` (fixed
+#' aesthetics for the drawing layer) and pass.
+#' @noRd
+.gg_check_args <- function(call, type, table, fn) {
+  given <- setdiff(names(call)[-1], c("", "object", "type"))
+  known <- unique(unlist(table))
+  bad <- setdiff(intersect(given, known), table[[type]])
+  if (length(bad)) {
+    .stop("`%s` does not apply to %s(type = \"%s\")",
+          paste(bad, collapse = "`, `"), fn, type)
+  }
+}
+
+#' The palette sentinels: `NULL` is the type's default scale, `NA` is none
+#' @noRd
+.gg_palette <- function(palette, type, default) {
+  if (!is.null(palette)) return(palette)
+  if (type %in% c("icicle", "stack")) default else NULL
+}
+
+#' @noRd
+.has_palette <- function(palette) {
+  !is.null(palette) && !(length(palette) == 1L && is.na(palette))
+}
+
+#' Add a layer with fixed aesthetics; the user's `...` override the defaults
+#' @noRd
+.gg_layer <- function(geom, mapping, defaults, dots, data = NULL) {
+  names(dots)[names(dots) == "color"] <- "colour"
+  args <- utils::modifyList(defaults, dots)
+  if (!is.null(data)) args$data <- data
+  do.call(geom, c(list(mapping = mapping), args))
+}
+
+#' Plot a calendar
 #'
-#' @param x A [`Calendar`].
-#' @param type `"icicle"` (default) or `"stack"` — the axonometric
-#'   stacked-planes view (see below).
-#' @param fill What drives the fill gradient: `"order"` (chronological
-#'   position, default), `"share"`, or `"weight"`.
-#' @param color_pattern For `fill = "order"`: `"within"` (default) restarts
-#'   the gradient inside each parent timeslice (hours recycle every day);
-#'   `"global"` sweeps once across the whole year.
-#' @param labels Segment labels. Icicle: `"name"` (member value, e.g.
-#'   `h00`; default), `"timeslice"` (full path, e.g. `Q1_h00`), or
-#'   `"none"`; `TRUE`/`FALSE` are accepted as shorthands.
-#'   `type = "stack"`: a character vector of timeframes whose member
-#'   names are drawn on their plane's segments (e.g.
-#'   `labels = "SEASON"`); unset = none.
-#' @param max_labels Rows with more segments than this get no labels.
-#'   Default 60.
-#' @param max_segments Rows with more segments than this are binned by
-#'   x-midpoint before drawing (fill = width-weighted mean), keeping
-#'   hourly calendars fast. Default 2000.
-#' @param border Rectangle border color. Default `NA` (none), so dense rows
-#'   render as smooth gradients.
-#' @param palette Viridis option letter or name (`"D"`/`"viridis"`,
-#'   `"C"`/`"plasma"`, `"B"`, `"A"`, `"E"`, `"turbo"`...). Default `"D"`.
-#'   `type = "stack"` also accepts `NULL`: no fill scale is added, so
-#'   a custom scale can be supplied (e.g. an energypal scale).
-#' @param annual Include the `ANNUAL` root band. Default `TRUE`.
-#' @param view `type = "stack"` only: a predefined point of view --
-#'   `"oblique"` (the shear/depth default), `"top-down"`, `"cavalier"`,
-#'   `"cabinet"`, `"military"`, `"isometric"`, `"dimetric"`,
-#'   `"trimetric"`, `"perspective"` (receding planes shrink) or
-#'   `"pyramid"` (receding planes grow: the coarsest timeframe is the small
-#'   top, the finest the wide base).
-#' @param angle,ratio `type = "stack"` only: oblique view by angle
-#'   (degrees of the receding axis) and foreshortening ratio --
-#'   `e2 = ratio * (cos(angle), sin(angle))`. Overridden by `view`.
-#' @param shear,depth,gap `type = "stack"` only: the raw receding-axis
-#'   components (`e2 = (shear, depth)`; used when neither `view` nor
-#'   `angle`/`ratio` is given) and the vertical spacing between planes:
-#'   one value for every pair, or one per pair from the top down.
-#'   `gap = NULL` (default) spaces planes almost touching, with a slight
-#'   overlap (0.85 x the plane's screen height). Under `"perspective"` and
-#'   `"pyramid"` each spacing is scaled with the planes it separates, so
-#'   it stays uniform relative to their size.
-#' @param rotate `type = "stack"` only: in-plane rotation of each plane
-#'   (degrees, counter-clockwise) before projection.
-#' @param direction `type = "stack"` only: `"up"` (default) stacks the
-#'   coarsest timeframe on top; `"down"` puts it at the bottom.
-#' @param colour,linewidth `type = "stack"` only: segment border colour
-#'   and width, recycled across the planes (one entry per plane styles
-#'   them individually). Defaults `"grey35"` and `0.2` -- ggplot2's own
-#'   sf polygon border. (The icicle's rectangle border is the separate
-#'   `border` argument.)
-#' @param frame `type = "stack"` only: draw each plane's outline (the
-#'   unit box run through the same projection) as a guide. `TRUE` uses
-#'   `"grey80"`, a colour string uses that colour, `NULL` (default)
-#'   draws no frames.
-#' @param frame_fill `type = "stack"` only: fill for the plane sheets;
-#'   best mostly transparent, e.g.
-#'   `frame_fill = ggplot2::alpha("grey60", 0.12)`. Setting a fill
-#'   draws the frames even without `frame`; `NA` (default) = no fill.
-#' @param data,z Colour the figure by a value instead of by structure:
-#'   works for BOTH types -- the icicle fills each band's rectangles,
-#'   the stack fills each plane. `data` is a data.frame with a
-#'   `timeslice` column at the calendar's resolution (or a
-#'   calendar-named label column) plus the value column named by `z`;
-#'   every timeframe gets the value recast to its resolution, so the
-#'   whole figure shares one continuous fill scale (legend title via
-#'   `labs(fill = )`). On the icicle, `data` overrides
-#'   `fill`/`color_pattern`, and dense bands are binned with
-#'   width-weighted means.
-#' @param rule With `data`: aggregation rule for the per-timeframe
-#'   recasts (`"sum"`, `"mean"`, `"weighted_mean"`, ... -- see
-#'   [`recast_calendar()`]; explicit or registered, never guessed).
-#'   `"share"` colours every row by each timeslice's share within the
-#'   row above it (the top row by its share of the year) on a fixed
-#'   linear 0..1 scale; `"logshare"` is the same on a fixed log10
-#'   percent scale.
-#' @param year With `data`: the model year the recast routes through
-#'   (required by [`recast_calendar()`]).
-#' @param by With `data`: base-grid granularity for the per-timeframe
-#'   recasts. Defaults to `"hour"` -- always correct (the automatic
-#'   choice can pick a daily grid for sub-daily calendars, which
+#' One function for every calendar figure, selected by `type`: the structure
+#' icicle (default), the axonometric stack, a heatmap of data on a timeframe
+#' grid, and a wall calendar. `autoplot()` on a [`Calendar`] returns the same
+#' ggplot; `plot()` draws it and returns it invisibly.
+#'
+#' @param object A [`Calendar`].
+#' @param type The figure: `"icicle"` (default), `"stack"`, `"heatmap"` or
+#'   `"wall"`; see the sections below. An argument that belongs to another
+#'   type is an error, not ignored.
+#' @param data,z Colour the figure by a value instead of by structure.
+#'   `data` is a data.frame keyed by timeslice (see `key`) with the value
+#'   column named by `z`; `z` is required whenever `data` is given. The
+#'   icicle and the stack recast the value to every timeframe shown, so the
+#'   whole figure shares one continuous fill scale; the heatmap and the wall
+#'   collapse the leaves into the cells shown with `fun`. Legend title via
+#'   `labs(fill = )`.
+#' @param key Key column of `data`. `NULL` (default) uses `timeslice` when
+#'   present; the wall also accepts a POSIXct/Date column and detects the
+#'   first one.
+#' @param year The calendar year the figure is about: the wall arranges its
+#'   days by that year's weekdays, the icicle and the stack route their
+#'   recasts through it (required with `data`, see [`recast_calendar()`]).
+#' @param rule,fun Aggregation. `rule` is the registry rule of the
+#'   per-timeframe recasts on the icicle and the stack (`"sum"`, `"mean"`,
+#'   `"weighted_mean"`, ... as in [`recast_calendar()`]; explicit or
+#'   registered, never guessed). `"share"` colours every row by each
+#'   timeslice's share within the row above it on a fixed linear 0..1
+#'   scale; `"logshare"` is the same on a fixed log10 percent scale. `fun`
+#'   is the function that collapses several observations into one cell on
+#'   the heatmap and the wall (default `mean`).
+#' @param by With `data` on the icicle or the stack: base-grid granularity
+#'   of the recasts. Defaults to `"hour"`, which is always correct (the
+#'   automatic choice can pick a daily grid for sub-daily calendars, which
 #'   silently collapses hour-type slices).
-#' @param connectors `type = "stack"` only: dashed lines joining the
-#'   corresponding frame corners of adjacent planes. `TRUE` uses the
-#'   frame colour, a colour string picks its own; default `FALSE`.
-#' @param ... Ignored (future extension).
+#' @param palette Fill scale. `NULL` (default) is the type's own: viridis
+#'   `"D"` on the icicle and the stack, ggplot2's default gradient on the
+#'   heatmap and the wall. A viridis option letter or name (`"C"`,
+#'   `"plasma"`, `"turbo"`, ...) opts into that palette on any type. `NA`
+#'   adds no fill scale at all, so a custom one can be supplied.
+#' @param labels What is labelled. `NULL` (default) is the type's own.
+#'   Icicle: `"name"` (the member value, e.g. `h00`; the default),
+#'   `"timeslice"` (the full path, e.g. `Q1_h00`) or `"none"`; `TRUE` and
+#'   `FALSE` are shorthands. Stack: a character vector of timeframes whose
+#'   member names are drawn on their plane (`TRUE` = all; default none).
+#'   Wall: `TRUE` (default) draws the day numbers. The heatmap has no labels.
+#' @param reference Icicle only: a complete [`Calendar`] to draw a sampled
+#'   `object` against. The layout is the reference's; segments without a
+#'   timeslice of `object` are left empty (grey). `TRUE` resolves the
+#'   reference from `meta$parent_name`, as recorded by
+#'   [`filter_calendar()`].
+#' @param annual Icicle and stack: include the `ANNUAL` root. Default `TRUE`.
+#' @param fill Icicle: what drives the structure fill, `"order"`
+#'   (chronological position, default), `"share"` or `"weight"`. `data`
+#'   overrides it.
+#' @param color_pattern Icicle, for `fill = "order"`: `"within"` (default)
+#'   restarts the gradient inside each parent timeslice (hours recycle every
+#'   day); `"global"` sweeps once across the whole year.
+#' @param max_labels Icicle: rows with more segments than this get no
+#'   labels. Default 60.
+#' @param max_segments Icicle: rows with more segments than this are binned
+#'   by x-midpoint before drawing (fill = width-weighted mean), keeping
+#'   hourly calendars fast. Default 2000.
+#' @param border Icicle: rectangle border colour. Default `NA` (none), so
+#'   dense rows render as smooth gradients.
+#' @param view Stack: a predefined point of view -- `"oblique"` (the
+#'   shear/depth default), `"top-down"`, `"cavalier"`, `"cabinet"`,
+#'   `"military"`, `"isometric"`, `"dimetric"`, `"trimetric"`,
+#'   `"perspective"` (receding planes shrink) or `"pyramid"` (receding
+#'   planes grow: the coarsest timeframe is the small top, the finest the
+#'   wide base).
+#' @param angle,ratio Stack: oblique view by angle (degrees of the receding
+#'   axis) and foreshortening ratio -- `e2 = ratio * (cos(angle),
+#'   sin(angle))`. Overridden by `view`.
+#' @param shear,depth,gap Stack: the raw receding-axis components
+#'   (`e2 = (shear, depth)`; used when neither `view` nor `angle`/`ratio`
+#'   is given) and the vertical spacing between planes: one value for every
+#'   pair, or one per pair from the top down. `gap = NULL` (default) spaces
+#'   planes almost touching, with a slight overlap (0.85 x the plane's
+#'   screen height). Under `"perspective"` and `"pyramid"` each spacing is
+#'   scaled with the planes it separates, so it stays uniform relative to
+#'   their size.
+#' @param rotate Stack: in-plane rotation of each plane (degrees,
+#'   counter-clockwise) before projection.
+#' @param direction Stack: `"up"` (default) stacks the coarsest timeframe
+#'   on top; `"down"` puts it at the bottom.
+#' @param colour,linewidth Stack: segment border colour and width, recycled
+#'   across the planes (one entry per plane styles them individually).
+#'   Defaults `"grey35"` and `0.2`, ggplot2's own sf polygon border. The
+#'   icicle's rectangle border is the separate `border` argument.
+#' @param frame Stack: draw each plane's outline (the unit box run through
+#'   the same projection) as a guide. `TRUE` uses `"grey80"`, a colour
+#'   string uses that colour, `NULL` (default) draws no frames.
+#' @param frame_fill Stack: fill for the plane sheets; best mostly
+#'   transparent, e.g. `frame_fill = ggplot2::alpha("grey60", 0.12)`.
+#'   Setting a fill draws the frames even without `frame`; `NA` (default)
+#'   = no fill.
+#' @param connectors Stack: dashed lines joining the corresponding frame
+#'   corners of adjacent planes. `TRUE` uses the frame colour, a colour
+#'   string picks its own; default `FALSE`.
+#' @param x_tf,y_tf,facet_tf Heatmap: timeframe names overriding the
+#'   automatic layout (finest timeframe on y, next-finest on x, anything
+#'   coarser as facets).
+#' @param arrange Wall: `"weekday"` (default) places each day under its
+#'   weekday of `year`; `"sequence"` fills the week grid in order.
+#' @param week_start Wall: first day of the week. Default `"MON"`.
+#' @param ... Fixed aesthetics for the figure's main layer: the icicle's
+#'   `geom_rect()`, the stack's plane polygons, the heatmap's and the wall's
+#'   `geom_tile()` (e.g. `alpha = 0.8`).
+#' @param x A [`Calendar`] (for `plot()`).
 #'
-#' @section The stack view:
-#' `type = "stack"` draws the same structure axonometrically — one
-#' sheared plane per timeframe, `ANNUAL` on top, each plane segmented by
-#' the true duration shares, with segments visibly nesting into the
-#' plane above. `fill`/`labels`/`max_segments` apply to the icicle only;
-#' the stack colours each plane by its own segment order.
+#' @section Icicle (`type = "icicle"`):
+#' One horizontal band per timeframe (`ANNUAL` root on top, coarsest
+#' first), rectangle widths proportional to timeslice shares, x spanning
+#' the covered year on `[0, 1]`. With `data`, each band's rectangles carry
+#' the value recast to that band's timeframe; dense bands are binned with
+#' width-weighted means.
 #'
-#' @return A ggplot object (returned, not printed).
+#' @section Stack (`type = "stack"`):
+#' The same structure drawn axonometrically: one sheared plane per
+#' timeframe, `ANNUAL` on top, each plane segmented by the true duration
+#' shares, with segments visibly nesting into the plane above. Without
+#' `data`, each plane is coloured by its own segment order.
+#'
+#' @section Heatmap (`type = "heatmap"`):
+#' Data on a timeframe grid: finest timeframe on y, next-finest on x,
+#' anything coarser as facets (overridable via `x_tf`/`y_tf`/`facet_tf`).
+#' Without `data`, the calendar's own `share` is drawn.
+#'
+#' @section Wall (`type = "wall"`):
+#' A wall calendar: one facet per month (in member order, so April first
+#' for the `fy04_*` fiscal calendars), day cells in a week grid, weeks
+#' top-down. `data` may be keyed by timeslice (day-level ids directly;
+#' finer ids, e.g. hours of `d365_h24`, roll up into their day cell) or by
+#' datetime (mapped through [`datetime_to_timeslice()`] on the day layer).
+#' Needs a day-resolution timeframe (`YDAY` or `MDAY`).
+#'
+#' @section Methods:
+#' `autoplot(object, ...)` is `gg_calendar(object, ...)`. `plot(x, ...)`
+#' prints that figure and returns it invisibly, like base `plot()`.
+#'
+#' @return A ggplot object.
 #'
 #' @examples
 #' if (requireNamespace("ggplot2", quietly = TRUE)) {
-#'   calendar_autoplot(calendar("q4_h24"))
-#'   ggplot2::autoplot(calendar("m12"))   # same via the generic
-#'   calendar_autoplot(calendar("s4_hp3"), type = "stack")
+#'   cal <- calendar("q4_h24")
+#'   gg_calendar(cal)
+#'   ggplot2::autoplot(cal)                            # the same figure
+#'   gg_calendar(calendar("s4_hp3"), type = "stack")
+#'
+#'   x <- data.frame(timeslice = sprintf("m%02d", 1:12), load = 1:12)
+#'   gg_calendar(calendar("m12"), data = x, z = "load", type = "heatmap")
+#'
+#'   gg_calendar(calendar("m12_md365"), type = "wall", year = 2021)
 #' }
 #' @export
-calendar_autoplot <- function(x,
-                              type = c("icicle", "stack"),
-                              fill = c("order", "share", "weight"),
-                              color_pattern = c("within", "global"),
-                              labels = c("name", "timeslice", "none"),
-                              max_labels = 60L,
-                              max_segments = 2000L,
-                              border = NA,
-                              palette = "D",
-                              annual = TRUE,
-                              view = NULL, angle = NULL, ratio = NULL,
-                              shear = 0.5, depth = 0.3, gap = NULL,
-                              rotate = 0, direction = c("up", "down"),
-                              colour = "grey35", linewidth = 0.2,
-                              frame = NULL, frame_fill = NA,
-                              connectors = FALSE,
-                              data = NULL, z = NULL, rule = "weighted_mean",
-                              year = NULL, by = "hour",
-                              ...) {
-  .need_ggplot("calendar_autoplot()")
-  type <- match.arg(type)
-  if (type == "stack") {
-    # `labels` means something else on the stack (a vector of timeframes
-    # whose member names go on the planes, mirroring geoscales); the
-    # icicle's c("name","timeslice","none") default must not leak in
-    stack_labels <- if (missing(labels)) NULL else labels
-    return(.calendar_stack_plot(x, annual = annual, palette = palette,
-                                view = view, angle = angle, ratio = ratio,
-                                shear = shear, depth = depth, gap = gap,
-                                rotate = rotate, direction = direction,
-                                colour = colour, linewidth = linewidth,
-                                frame = frame, frame_fill = frame_fill,
-                                connectors = connectors,
-                                data = data, z = z, rule = rule,
-                                year = year, by = by,
-                                labels = stack_labels))
+gg_calendar <- function(object,
+                        type = c("icicle", "stack", "heatmap", "wall"),
+                        data = NULL, z = NULL, key = NULL, year = NULL,
+                        rule = "weighted_mean", by = "hour",
+                        fun = mean,
+                        palette = NULL, labels = NULL,
+                        reference = NULL,
+                        annual = TRUE,
+                        fill = c("order", "share", "weight"),
+                        color_pattern = c("within", "global"),
+                        max_labels = 60L, max_segments = 2000L, border = NA,
+                        view = NULL, angle = NULL, ratio = NULL,
+                        shear = 0.5, depth = 0.3, gap = NULL,
+                        rotate = 0, direction = c("up", "down"),
+                        colour = "grey35", linewidth = 0.2,
+                        frame = NULL, frame_fill = NA, connectors = FALSE,
+                        x_tf = NULL, y_tf = NULL, facet_tf = NULL,
+                        arrange = c("weekday", "sequence"), week_start = "MON",
+                        ...) {
+  .need_ggplot("gg_calendar()")
+  if (!S7::S7_inherits(object, Calendar)) {
+    stop("`object` must be a Calendar object", call. = FALSE)
   }
+  type <- match.arg(type)
+  .gg_check_args(match.call(), type, .GG_CALENDAR_ARGS, "gg_calendar")
+  if (!is.null(data) && is.null(z)) {
+    stop("`z` must name the value column of `data`", call. = FALSE)
+  }
+  palette <- .gg_palette(palette, type, default = "D")
+  switch(type,
+    icicle = .gg_calendar_icicle(
+      object, data = data, z = z, key = key, year = year, rule = rule,
+      by = by, palette = palette, labels = labels, reference = reference,
+      annual = annual, fill = fill, color_pattern = color_pattern,
+      max_labels = max_labels, max_segments = max_segments,
+      border = border, ...),
+    stack = .gg_calendar_stack(
+      object, annual = annual, palette = palette, view = view,
+      angle = angle, ratio = ratio, shear = shear, depth = depth, gap = gap,
+      rotate = rotate, direction = direction, colour = colour,
+      linewidth = linewidth, frame = frame, frame_fill = frame_fill,
+      connectors = connectors, data = data, z = z, key = key, rule = rule,
+      year = year, by = by, labels = labels, ...),
+    heatmap = .gg_calendar_heatmap(
+      object, data = data, z = z, key = key, x_tf = x_tf, y_tf = y_tf,
+      facet_tf = facet_tf, fun = fun, palette = palette, ...),
+    wall = .gg_calendar_wall(
+      object, data = data, z = z, year = year, arrange = arrange,
+      week_start = week_start, fun = fun, labels = labels, key = key, ...)
+  )
+}
+
+#' Icicle label mode from the `labels` sentinel
+#' @noRd
+.gg_icicle_labels <- function(labels) {
+  if (is.null(labels) || isTRUE(labels)) return("name")
+  if (isFALSE(labels)) return("none")
+  match.arg(labels, c("name", "timeslice", "none"))
+}
+
+#' Resolve `reference` to a Calendar with the same timeframes, or NULL
+#' @noRd
+.gg_reference <- function(object, reference) {
+  if (is.null(reference) || isFALSE(reference)) return(NULL)
+  if (isTRUE(reference)) {
+    reference <- .reference_calendar(object)
+    if (is.null(reference)) {
+      .stop(paste0("`reference = TRUE` needs a calendar whose complete form ",
+                   "is known: a `meta$parent_name` or inferable tokens"))
+    }
+  }
+  if (!S7::S7_inherits(reference, Calendar)) {
+    .stop("`reference` must be a Calendar, TRUE or NULL")
+  }
+  if (!identical(S7::prop(reference, "timeframes"),
+                 S7::prop(object, "timeframes"))) {
+    .stop("`reference` must have the same timeframes as `object`")
+  }
+  reference
+}
+
+#' Which layout segments contain at least one timeslice of `object`
+#'
+#' A segment's `timeslice` is its prefix path; it is selected when some
+#' leaf of `object` has that path as a prefix. `ANNUAL` is selected
+#' whenever the calendar is non-empty, a day only if the whole day is in.
+#' @noRd
+.gg_selected <- function(object, d) {
+  leaves <- S7::prop(object, "leaftable")
+  tfs    <- S7::prop(object, "timeframes")
+  paths <- unlist(lapply(seq_along(tfs), function(i) {
+    cols <- lapply(tfs[seq_len(i)], function(tf) as.character(leaves[[tf]]))
+    unique(do.call(paste, c(cols, sep = "_")))
+  }))
+  d$timeframe == "ANNUAL" | d$timeslice %in% paths
+}
+
+#' The structure icicle (type = "icicle")
+#' @noRd
+.gg_calendar_icicle <- function(object, data = NULL, z = NULL, key = NULL,
+                                year = NULL, rule = "weighted_mean",
+                                by = "hour", palette = "D", labels = NULL,
+                                reference = NULL, annual = TRUE,
+                                fill = c("order", "share", "weight"),
+                                color_pattern = c("within", "global"),
+                                max_labels = 60L, max_segments = 2000L,
+                                border = NA, ...) {
   fill <- match.arg(fill)
   color_pattern <- match.arg(color_pattern)
-  if (isTRUE(labels)) labels <- "name"
-  if (isFALSE(labels)) labels <- "none"
-  labels <- match.arg(labels)
+  labels <- .gg_icicle_labels(labels)
+  dots <- list(...)
+  empty_col <- "grey90"
 
-  tfs    <- S7::prop(x, "timeframes")
-  levels <- S7::prop(x, "members")
-  meta   <- S7::prop(x, "meta")
+  # With a reference, the layout is the complete calendar's; the segments
+  # that hold no timeslice of `object` are emptied below
+  ref  <- .gg_reference(object, reference)
+  grid <- ref %||% object
+  tfs    <- S7::prop(grid, "timeframes")
+  levels <- S7::prop(grid, "members")
+  meta   <- S7::prop(object, "meta")
 
-  d <- calendar_layout(x, annual = annual)
-  n_leaf <- nrow(S7::prop(x, "leaftable"))
+  d <- calendar_layout(grid, annual = annual)
+  n_leaf <- nrow(S7::prop(grid, "leaftable"))
 
   # Fill values ---------------------------------------------------------------
+  is_share <- any(rule %in% c("share", "logshare"))
   if (!is.null(data)) {
     # data fill: each band's rectangles carry the value recast to that
     # band's timeframe (widths still encode duration shares). Overrides
     # `fill`/`color_pattern`. Dense bands are binned below with
     # width-weighted means, which is the right downsample for a value.
     row_tfs <- unique(d$timeframe)
-    is_share <- any(rule %in% c("share", "logshare"))
     vals <- if (is_share) {
-      .calendar_frame_shares(x, row_tfs, data, z, year, by)
+      .calendar_frame_shares(object, row_tfs, data, z, year, by, key)
     } else {
-      .calendar_frame_values(x, row_tfs, data, z, rule, year, by)
+      .calendar_frame_values(object, row_tfs, data, z, rule, year, by, key)
     }
     d$.fill <- NA_real_
     for (tf in row_tfs) {
@@ -317,30 +494,23 @@ calendar_autoplot <- function(x,
       d$.fill[i] <- vals[[tf]][[z]][match(d$timeslice[i],
                                           vals[[tf]]$timeslice)]
     }
-    # legend title via labs() below so callers can retitle
-    fill_scale <- if (is_share) {
-      .calendar_share_scale(palette, log = any(rule %in% "logshare"))
-    } else {
-      ggplot2::scale_fill_viridis_c(option = palette)
-    }
+    mode <- if (is_share) "share" else "data"
   } else if (fill == "order" && color_pattern == "within") {
     # 0-1 gradient recycling inside each parent; scaled by the timeframe's
     # vocabulary size so h00..h23 always spans the full palette
     klev <- c(ANNUAL = 1L,
               vapply(tfs, function(tf) length(levels[[tf]]), integer(1)))
     d$.fill <- (d$within - 1) / pmax(1, klev[d$timeframe] - 1)
-    fill_scale <- ggplot2::scale_fill_viridis_c(
-      option = palette, limits = c(0, 1), breaks = c(0, 1),
-      labels = c("first", "last"), name = "timeslice")
+    mode <- "within"
   } else if (fill == "order") {
     d$.fill <- d$order
-    fill_scale <- ggplot2::scale_fill_viridis_c(
-      option = palette, limits = c(1, n_leaf), breaks = c(1, n_leaf),
-      labels = c("1", format(n_leaf)), name = "timeslice")
+    mode <- "global"
   } else {
     d$.fill <- d[[fill]]
-    fill_scale <- ggplot2::scale_fill_viridis_c(option = palette,
-                                                name = fill)
+    mode <- "column"
+  }
+  if (!is.null(ref)) {
+    d$.fill[!.gg_selected(object, d)] <- NA_real_
   }
 
   # Bin overly dense rows by x-midpoint ---------------------------------------
@@ -355,14 +525,13 @@ calendar_autoplot <- function(x,
   }
 
   # Base plot ------------------------------------------------------------------
-  row_order <- unique(calendar_layout(x, annual = annual)$timeframe)
+  row_order <- unique(calendar_layout(grid, annual = annual)$timeframe)
   n_rows <- length(row_order)
   p <- ggplot2::ggplot(d) +
-    ggplot2::geom_rect(
-      ggplot2::aes(xmin = xmin, xmax = xmax, ymin = ymin, ymax = ymax,
-                   fill = .fill),
-      color = border, linewidth = 0.15) +
-    fill_scale +
+    .gg_layer(ggplot2::geom_rect,
+              ggplot2::aes(xmin = xmin, xmax = xmax, ymin = ymin,
+                           ymax = ymax, fill = .fill),
+              list(colour = border, linewidth = 0.15), dots) +
     ggplot2::scale_x_continuous("share of the year",
                                 limits = c(0, 1),
                                 expand = ggplot2::expansion(mult = 0.005)) +
@@ -372,14 +541,31 @@ calendar_autoplot <- function(x,
     ggplot2::theme_minimal() +
     ggplot2::theme(panel.grid = ggplot2::element_blank())
 
+  if (.has_palette(palette)) {
+    p <- p + switch(mode,
+      share  = .calendar_share_scale(palette,
+                                     log = any(rule %in% "logshare")),
+      data   = ggplot2::scale_fill_viridis_c(option = palette,
+                                             na.value = empty_col),
+      within = ggplot2::scale_fill_viridis_c(
+        option = palette, limits = c(0, 1), breaks = c(0, 1),
+        labels = c("first", "last"), name = "timeslice",
+        na.value = empty_col),
+      global = ggplot2::scale_fill_viridis_c(
+        option = palette, limits = c(1, n_leaf), breaks = c(1, n_leaf),
+        labels = c("1", format(n_leaf)), name = "timeslice",
+        na.value = empty_col),
+      column = ggplot2::scale_fill_viridis_c(option = palette, name = fill,
+                                             na.value = empty_col))
+  }
+
   if (!is.null(meta$name) && nzchar(meta$name)) {
     p <- p + ggplot2::labs(
       title = meta$name,
       subtitle = if (!is.null(meta$desc) && nzchar(meta$desc)) meta$desc)
   }
   if (!is.null(data)) {
-    p <- p + ggplot2::labs(
-      fill = if (any(rule %in% c("share", "logshare"))) "Share" else z)
+    p <- p + ggplot2::labs(fill = if (is_share) "Share" else z)
   }
 
   # Labels ---------------------------------------------------------------------
@@ -388,10 +574,11 @@ calendar_autoplot <- function(x,
     ld <- d[d$timeframe %in% lab_rows & !is.na(d$timeslice), , drop = FALSE]
     if (nrow(ld) > 0L) {
       ld$.label <- if (labels == "timeslice") ld$timeslice else ld$label
-      # white on dark cells, dark on light ones (normalize fill to [0,1])
+      # white on dark cells, dark on light ones (normalize fill to [0,1]);
+      # empty cells are light, so their text is dark
       rng <- range(d$.fill, finite = TRUE)
       f01 <- if (diff(rng) > 0) (ld$.fill - rng[1]) / diff(rng) else 0.5
-      f01[!is.finite(f01)] <- 0
+      f01[!is.finite(f01)] <- 1
       ld$.label_col <- ifelse(f01 < 0.5, "white", "grey15")
       p <- p + ggplot2::geom_text(
         data = ld,
@@ -413,7 +600,8 @@ calendar_autoplot <- function(x,
 #' NULL when `data` is NULL; a named list of data.frames (one per
 #' timeframe, keyed by `timeslice`) otherwise.
 #' @noRd
-.calendar_frame_values <- function(calendar, tfs, data, z, rule, year, by) {
+.calendar_frame_values <- function(calendar, tfs, data, z, rule, year, by,
+                                   key = NULL) {
   if (is.null(data)) return(NULL)
   if (is.null(z) || !z %in% names(data)) {
     stop("`z` must name a value column of `data`", call. = FALSE)
@@ -424,8 +612,8 @@ calendar_autoplot <- function(x,
   }
   vals <- lapply(tfs, function(tf) {
     as.data.frame(recast_calendar(data, source = calendar, target = tf,
-                                  year = year, values = z, rule = rule,
-                                  by = by))
+                                  year = year, key = key, values = z,
+                                  rule = rule, by = by))
   })
   stats::setNames(vals, tfs)
 }
@@ -458,7 +646,8 @@ calendar_autoplot <- function(x,
 #' row (or ANNUAL) its share of the year. Timeframes of one calendar
 #' always nest, so no cross-cut fallback is needed.
 #' @noRd
-.calendar_frame_shares <- function(calendar, tfs, data, z, year, by) {
+.calendar_frame_shares <- function(calendar, tfs, data, z, year, by,
+                                   key = NULL) {
   if (is.null(z) || !z %in% names(data)) {
     stop("`z` must name a value column of `data`", call. = FALSE)
   }
@@ -472,7 +661,7 @@ calendar_autoplot <- function(x,
       return(data.frame(timeslice = "ANNUAL", v = 1))
     }
     s <- as.data.frame(recast_calendar(data, source = calendar, target = tf,
-                                       year = year, values = z,
+                                       year = year, key = key, values = z,
                                        rule = "sum", by = by))
     parent <- if (i > 1L && tfs[[i - 1L]] != "ANNUAL") tfs[[i - 1L]]
               else "ANNUAL"
@@ -501,7 +690,7 @@ calendar_autoplot <- function(x,
     r$xmax   <- max(row_df$xmax[i])
     r$share  <- sum(row_df$share[i])
     r$weight <- sum(row_df$weight[i])
-    r$.fill  <- stats::weighted.mean(row_df$.fill[i], width[i])
+    r$.fill  <- stats::weighted.mean(row_df$.fill[i], width[i], na.rm = TRUE)
     # a bin is not a real timeslice; this also mutes labels
     r$timeslice  <- NA_character_
     r
@@ -510,67 +699,25 @@ calendar_autoplot <- function(x,
 }
 
 # -----------------------------------------------------------------------------
-# calendar_plot() — the data-on-calendar heatmap
+# The heatmap (type = "heatmap"): data on a timeframe grid
 # -----------------------------------------------------------------------------
 
-#' Heatmap of data on a calendar
-#'
-#' The package's single data-on-calendar renderer (the analogue of
-#' `geoscales::geoscale_plot()`): callers prepare a `data.frame` keyed by
-#' timeslice and hand it over. With no data, the calendar's own `share` is
-#' drawn — a quick structural view. Layout follows the calendar's hierarchy:
-#' finest timeframe on y, next-finest on x, anything coarser as facets
-#' (overridable via `x_tf`/`y_tf`/`facet_tf`).
-#'
-#' @param x A [`Calendar`].
-#' @param data Optional `data.frame` with a `key` column of timeslice IDs plus
-#'   one numeric value column (pick with `values=` if there are several).
-#'   Default `NULL` plots `leaves$share`.
-#' @param values Name of the value column to plot. Default: the first
-#'   numeric column other than `key`.
-#' @param key Name of the timeslice key column in `data`. Default `"timeslice"`.
-#' @param x_tf,y_tf,facet_tf Timeframe names overriding the automatic
-#'   layout.
-#' @param fun Aggregator applied when the chosen layout drops timeframes
-#'   (e.g. plotting an hourly calendar by MONTH x HOUR averages over days).
-#'   Default `mean`.
-#' @param palette `NULL` (default) keeps ggplot2's default continuous
-#'   gradient; a viridis option letter/name opts in.
-#' @param ... Ignored (future extension).
-#'
-#' @return A ggplot object.
-#'
-#' @examples
-#' if (requireNamespace("ggplot2", quietly = TRUE)) {
-#'   calendar_plot(calendar("m12_h24"))   # structure: share heatmap
-#'
-#'   cal <- calendar("m12")
-#'   x <- data.frame(timeslice = sprintf("m%02d", 1:12), load = 1:12)
-#'   calendar_plot(cal, x)
-#' }
-#' @export
-calendar_plot <- function(x, data = NULL,
-                          values = NULL,
-                          key = "timeslice",
-                          x_tf = NULL, y_tf = NULL, facet_tf = NULL,
-                          fun = mean,
-                          palette = NULL,
-                          ...) {
-  .need_ggplot("calendar_plot()")
-  if (!S7::S7_inherits(x, Calendar)) {
-    stop("`x` must be a Calendar object", call. = FALSE)
-  }
-  hd <- .calendar_heat_data(x, data, values, key, x_tf, y_tf, facet_tf, fun)
-  meta <- S7::prop(x, "meta")
+#' @noRd
+.gg_calendar_heatmap <- function(object, data = NULL, z = NULL, key = NULL,
+                                 x_tf = NULL, y_tf = NULL, facet_tf = NULL,
+                                 fun = mean, palette = NULL, ...) {
+  dots <- list(...)
+  hd <- .calendar_heat_data(object, data, z, key, x_tf, y_tf, facet_tf, fun)
+  meta <- S7::prop(object, "meta")
 
   p <- ggplot2::ggplot(hd$df, ggplot2::aes(x = .x, y = .y, fill = .fill)) +
-    ggplot2::geom_tile() +
+    .gg_layer(ggplot2::geom_tile, NULL, list(), dots) +
     ggplot2::scale_x_discrete(hd$x_tf, breaks = hd$x_breaks) +
     ggplot2::scale_y_discrete(hd$y_tf, breaks = hd$y_breaks) +
     ggplot2::labs(fill = hd$fill_label) +
     theme_calendar()
 
-  if (!is.null(palette)) {
+  if (.has_palette(palette)) {
     p <- p + ggplot2::scale_fill_viridis_c(option = palette)
   }
   if (!is.null(hd$facet_tf)) {
@@ -590,11 +737,12 @@ calendar_plot <- function(x, data = NULL,
 #' Join, lay out, and aggregate data onto a calendar for the heatmap.
 #' Kept separate so a future stat_calendar() can wrap it directly.
 #' @noRd
-.calendar_heat_data <- function(cal, data, values, key,
+.calendar_heat_data <- function(cal, data, z, key,
                                 x_tf, y_tf, facet_tf, fun) {
   leaves <- S7::prop(cal, "leaftable")
   tfs    <- S7::prop(cal, "timeframes")
   levels <- S7::prop(cal, "members")
+  key <- key %||% "timeslice"
 
   # Value vector on leaves ----------------------------------------------------
   if (is.null(data)) {
@@ -607,24 +755,16 @@ calendar_plot <- function(x, data = NULL,
     if (!key %in% names(data)) {
       stop(sprintf("`data` has no column named `%s`", key), call. = FALSE)
     }
-    if (is.null(values)) {
-      cand <- setdiff(names(data), key)
-      values <- cand[vapply(data[cand], is.numeric, logical(1))][1]
-      if (is.na(values) || length(values) == 0L) {
-        stop("No numeric value column found in `data`; specify `values=`.",
-             call. = FALSE)
-      }
-    }
-    if (length(values) != 1L || !values %in% names(data)) {
-      stop("`values` must name exactly one column of `data`", call. = FALSE)
+    if (is.null(z) || length(z) != 1L || !z %in% names(data)) {
+      stop("`z` must name exactly one column of `data`", call. = FALSE)
     }
     mi <- match(leaves$timeslice, data[[key]])
     if (all(is.na(mi))) {
       stop("no rows of `data` matched the calendar's timeslices; check `key=`",
            call. = FALSE)
     }
-    val <- data[[values]][mi]
-    fill_label <- values
+    val <- data[[z]][mi]
+    fill_label <- z
   }
 
   # Layout: finest -> y, next-finest -> x, coarser -> facets -------------------
@@ -688,16 +828,13 @@ calendar_plot <- function(x, data = NULL,
 }
 
 # -----------------------------------------------------------------------------
-# Generics: autoplot() and plot()
+# Methods: autoplot() returns the figure, plot() draws it
 # -----------------------------------------------------------------------------
 
-#' @rdname calendar_autoplot
-#' @param object A [`Calendar`] (the S3 `autoplot()` generic's argument
-#'   name; `calendar_autoplot()` itself takes `x`).
-#' @param ... Passed on to [`calendar_autoplot()`].
+#' @rdname gg_calendar
 #' @exportS3Method ggplot2::autoplot
 autoplot.Calendar <- function(object, ...) {
-  calendar_autoplot(object, ...)
+  gg_calendar(object, ...)
 }
 
 #' @rdname calendar_leaftable
@@ -709,12 +846,11 @@ fortify.Calendar <- function(model, data, ...) {
 # Registered on ggplot2::autoplot in .onLoad (R/zzz.R) under both class
 # strings, the geoscales pattern.
 
-#' @rdname calendar_autoplot
-#' @param x A [`Calendar`] (for `plot()`).
+#' @rdname gg_calendar
 #' @export
 #' @method plot Calendar
 plot.Calendar <- function(x, ...) {
-  calendar_autoplot(x, ...)
+  print(gg_calendar(x, ...))
 }
 
 # Base-R S3 dispatch sees the qualified S7 class string first.
@@ -787,7 +923,7 @@ utils::globalVariables(c("xmin", "xmax", "ymin", "ymax",
   list(e1 = c(1, 0), e2 = c(shear, depth), scale = 1)
 }
 
-#' Draw the calendar as stacked planes under a chosen point of view
+#' The axonometric stack (type = "stack" of gg_calendar())
 #'
 #' One plane per timeframe, coarsest on top; each plane's segments are
 #' the timeframe's members at their true duration shares. Colours cycle
@@ -795,17 +931,19 @@ utils::globalVariables(c("xmin", "xmax", "ymin", "ymax",
 #' is smaller than a plane's screen height -- painter order (bottom
 #' first) keeps the stack readable.
 #' @noRd
-.calendar_stack_plot <- function(calendar, annual = TRUE, palette = "D",
-                                 view = NULL, angle = NULL, ratio = NULL,
-                                 shear = 0.5, depth = 0.3, gap = NULL,
-                                 rotate = 0,
-                                 direction = c("up", "down"),
-                                 colour = "grey35", linewidth = 0.2,
-                                 frame = NULL, frame_fill = NA,
-                                 connectors = FALSE,
-                                 data = NULL, z = NULL, rule = "weighted_mean",
-                                 year = NULL, by = "hour",
-                                 labels = NULL) {
+.gg_calendar_stack <- function(calendar, annual = TRUE, palette = "D",
+                               view = NULL, angle = NULL, ratio = NULL,
+                               shear = 0.5, depth = 0.3, gap = NULL,
+                               rotate = 0,
+                               direction = c("up", "down"),
+                               colour = "grey35", linewidth = 0.2,
+                               frame = NULL, frame_fill = NA,
+                               connectors = FALSE,
+                               data = NULL, z = NULL, key = NULL,
+                               rule = "weighted_mean",
+                               year = NULL, by = "hour",
+                               labels = NULL, ...) {
+  dots <- list(...)
   v <- .stack_view(view, angle, ratio, shear, depth)
   direction <- match.arg(direction)
   # default spacing: planes almost touching, slight overlap (the plane's
@@ -819,10 +957,13 @@ utils::globalVariables(c("xmin", "xmax", "ymin", "ymax",
   # one continuous scale spans the stack
   is_share <- any(rule %in% c("share", "logshare"))
   vals <- if (is_share) {
-    .calendar_frame_shares(calendar, tfs, data, z, year, by)
+    .calendar_frame_shares(calendar, tfs, data, z, year, by, key)
   } else {
-    .calendar_frame_values(calendar, tfs, data, z, rule, year, by)
+    .calendar_frame_values(calendar, tfs, data, z, rule, year, by, key)
   }
+  # `labels`: TRUE = every plane, FALSE/NULL = none, else timeframes
+  if (isTRUE(labels)) labels <- tfs
+  if (isFALSE(labels)) labels <- NULL
   if (!is.null(labels)) {
     bad <- setdiff(labels, tfs)
     if (length(bad)) {
@@ -958,14 +1099,14 @@ utils::globalVariables(c("xmin", "xmax", "ymin", "ymax",
                                      linewidth = 0.3)
     }
     p <- p + if (is.null(vals)) {
-      ggplot2::geom_polygon(data = quads[quads$tf == tfs[k], ],
-                            ggplot2::aes(fill = ord),
-                            colour = col_k[k], linewidth = lwd_k[k],
-                            show.legend = FALSE)
+      .gg_layer(ggplot2::geom_polygon, ggplot2::aes(fill = ord),
+                list(colour = col_k[k], linewidth = lwd_k[k],
+                     show.legend = FALSE),
+                dots, data = quads[quads$tf == tfs[k], ])
     } else {
-      ggplot2::geom_polygon(data = quads[quads$tf == tfs[k], ],
-                            ggplot2::aes(fill = .z),
-                            colour = col_k[k], linewidth = lwd_k[k])
+      .gg_layer(ggplot2::geom_polygon, ggplot2::aes(fill = .z),
+                list(colour = col_k[k], linewidth = lwd_k[k]),
+                dots, data = quads[quads$tf == tfs[k], ])
     }
   }
   if (!is.null(labels)) {                # member names, over all planes
@@ -986,7 +1127,7 @@ utils::globalVariables(c("xmin", "xmax", "ymin", "ymax",
   if (!is.null(vals)) {
     p <- p + ggplot2::labs(fill = if (is_share) "Share" else z)
   }
-  if (!is.null(palette)) {               # NULL = caller adds a scale
+  if (.has_palette(palette)) {           # NA = caller adds a scale
     p <- p + if (is.null(vals)) {
       ggplot2::scale_fill_viridis_c(option = palette, guide = "none")
     } else if (is_share) {

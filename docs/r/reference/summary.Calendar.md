@@ -52,7 +52,7 @@ summary(calendar("m12_h24"))
 #>   timeframes:     MONTH (12) / HOUR (24)
 #>   timeslices:     288
 #>   year_fraction:  1
-#>   catalog:        complete, regular
+#>   catalog:        representative, regular
 #>   share range:    0.003196 .. 0.003539
 #>   weight range:   28 .. 31
 #>   year_start:     month=1, day=1

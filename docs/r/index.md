@@ -24,7 +24,7 @@ converts it between resolutions, and draws every timeframe at once.
   [`prune_calendar()`](https://optimal2050.github.io/timescales/r/reference/prune_calendar.html)
   carve partial-year samples and coarser designs for model runs.
 - [`geom_calendar()`](https://optimal2050.github.io/timescales/r/reference/geom_calendar.html),
-  [`calendar_autoplot()`](https://optimal2050.github.io/timescales/r/reference/calendar_autoplot.html)
+  [`gg_calendar()`](https://optimal2050.github.io/timescales/r/reference/gg_calendar.html)
   and friends draw any timeframe: heatmaps, wall calendars, icicles, and
   axonometric stacks.
 
@@ -76,13 +76,13 @@ wind <- merra2_cities |>
   mutate(timeslice = datetime_to_timeslice(datetime, cal)) |>
   summarise(W50M = mean(W50M), .by = timeslice)
 
-calendar_autoplot(cal, type = "stack",
-                  data = wind, z = "W50M",
-                  rule = "weighted_mean", year = 2019,
-                  labels = "MONTH",
-                  colour = c("grey35", "grey35", NA),  # no borders on the
-                  frame = TRUE,                        # dense HOUR plane
-                  frame_fill = ggplot2::alpha("#6FA8DC", 0.15)) +
+gg_calendar(cal, type = "stack", palette = NA,
+            data = wind, z = "W50M",
+            rule = "weighted_mean", year = 2019,
+            labels = "MONTH",
+            colour = c("grey35", "grey35", NA),  # no borders on the
+            frame = TRUE,                        # dense HOUR plane
+            frame_fill = ggplot2::alpha("#6FA8DC", 0.15)) +
   energypal::scale_fill_energy_b(limits = c(3.5, 10)) +
   ggplot2::labs(fill = "m/s at 50m")
 ```
@@ -115,7 +115,8 @@ temperature:
 
 ``` r
 
-calendar_wall_plot(calendar("m12_md365"), rey, z = "T10M", year = 2019) +
+gg_calendar(calendar("m12_md365"), data = rey, z = "T10M", year = 2019,
+            type = "wall") +
   scale_fill_viridis_c(option = "C") +
   labs(fill = "degC", title = "Reykjavik temperature as a wall calendar")
 ```

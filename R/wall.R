@@ -1,16 +1,16 @@
 # =============================================================================
 # Wall-calendar layout: calendar_weekdays() / calendar_wall_layout() /
-# calendar_wall_plot()
+# gg_calendar(type = "wall")
 # =============================================================================
 # The wall form: months as facets, day cells in a week grid -- either
 # arranged by weekday (a true wall calendar; year-specific, since which
 # weekday a date falls on comes from the base grid) or as a plain
 # year-free sequence. Ships as a layout worker + an assembled figure,
-# the same split as calendar_layout()/calendar_plot(): a single ggplot2
+# the same split as calendar_layout()/gg_calendar(): a single ggplot2
 # layer cannot carry facets, and the month faceting is the essence of
 # the form, so this is deliberately NOT a geom_*().
 #
-# ggplot2 stays in Suggests; only calendar_wall_plot() touches it.
+# ggplot2 stays in Suggests; only the wall figure touches it.
 # =============================================================================
 
 #' Weekdays of a calendar's day layer in a given model year
@@ -104,7 +104,7 @@ calendar_weekdays <- function(x, year, week_start = "MON") {
 
 #' Wall-calendar tile layout
 #'
-#' The layout worker behind [`calendar_wall_plot()`]: one row per day
+#' The layout worker behind `gg_calendar(type = "wall")`: one row per day
 #' cell with facet key and grid position. Two arrangements:
 #'
 #' * `arrange = "weekday"` -- a true wall calendar: columns are weekdays
@@ -171,52 +171,25 @@ calendar_wall_layout <- function(x, year = NULL,
   out
 }
 
-#' Wall-calendar figure
+#' The wall calendar (type = "wall" of gg_calendar())
 #'
-#' Draws the calendar as a wall calendar: one facet per month (in member
-#' order -- April first for the `fy04_*` fiscal calendars), day cells in
-#' a week grid, weeks top-down. With `data`, day cells are filled by the
-#' aggregated value; without, a plain calendar (day numbers only).
-#'
-#' `data` may be keyed by timeslice (day-level IDs directly; finer IDs
-#' -- e.g. hours of `d365_h24` -- roll up into their day cell) or by
-#' datetime (mapped through [`datetime_to_timeslice()`] on the day
-#' layer). The key column is auto-detected (`timeslice`, else the first
-#' POSIXct/Date column) unless `key=` names it.
-#'
-#' @inheritParams calendar_wall_layout
-#' @param data Optional `data.frame` of values to fill the day cells.
-#' @param z Name of the numeric value column of `data`.
-#' @param fun Aggregator collapsing multiple observations (sub-daily
-#'   timeslices, repeated dates) into one day cell. Default `mean`.
-#' @param label Draw day-of-month numbers (default `TRUE`).
-#' @param key Key column of `data`; `NULL` auto-detects.
-#' @param ... Passed to [`ggplot2::theme()`] via [`theme_calendar()`].
-#'
-#' @return A ggplot object.
-#'
-#' @examples
-#' if (requireNamespace("ggplot2", quietly = TRUE)) {
-#'   # plain wall calendar for 2021
-#'   calendar_wall_plot(calendar("m12_md365"), year = 2021)
-#'
-#'   # daily data on a fiscal wall (April..March facets)
-#'   cal <- calendar("fy04_d365")
-#'   x <- data.frame(
-#'     timeslice = S7::prop(cal, "leaftable")$timeslice,
-#'     v = cumsum(stats::rnorm(365))
-#'   )
-#'   calendar_wall_plot(cal, x, z = "v", year = 2021)
-#' }
-#' @export
-calendar_wall_plot <- function(x, data = NULL, z = NULL,
-                               year = NULL,
-                               arrange = c("weekday", "sequence"),
-                               week_start = "MON",
-                               fun = mean, label = TRUE, key = NULL,
-                               ...) {
-  .need_ggplot("calendar_wall_plot()")
-  lay <- calendar_wall_layout(x, year = year, arrange = arrange,
+#' One facet per month (in member order -- April first for the `fy04_*`
+#' fiscal calendars), day cells in a week grid, weeks top-down. With
+#' `data`, day cells are filled by the aggregated value; without, a plain
+#' calendar (day numbers only). `data` may be keyed by timeslice (day-level
+#' ids directly; finer ids roll up into their day cell) or by datetime
+#' (mapped through datetime_to_timeslice() on the day layer); `key = NULL`
+#' auto-detects (`timeslice`, else the first POSIXct/Date column).
+#' @noRd
+.gg_calendar_wall <- function(object, data = NULL, z = NULL,
+                              year = NULL,
+                              arrange = c("weekday", "sequence"),
+                              week_start = "MON",
+                              fun = mean, labels = NULL, key = NULL,
+                              ...) {
+  dots <- list(...)
+  labels <- is.null(labels) || isTRUE(labels)
+  lay <- calendar_wall_layout(object, year = year, arrange = arrange,
                               week_start = week_start)
   weekday_mode <- !all(is.na(lay$wday))
 
@@ -224,19 +197,20 @@ calendar_wall_plot <- function(x, data = NULL, z = NULL,
     if (is.null(z)) {
       .stop("`z` must name the value column of `data`")
     }
-    vals <- .wall_values(x, data, z, key, fun)
+    vals <- .wall_values(object, data, z, key, fun)
     lay$value <- vals[lay$timeslice]
   }
 
   p <- ggplot2::ggplot(lay, ggplot2::aes(x = col, y = row))
   p <- if (!is.null(data)) {
-    p + ggplot2::geom_tile(ggplot2::aes(fill = value),
-                           colour = "white", linewidth = 0.4)
+    p + .gg_layer(ggplot2::geom_tile, ggplot2::aes(fill = value),
+                  list(colour = "white", linewidth = 0.4), dots)
   } else {
-    p + ggplot2::geom_tile(fill = "grey93", colour = "white",
-                           linewidth = 0.4)
+    p + .gg_layer(ggplot2::geom_tile, NULL,
+                  list(fill = "grey93", colour = "white", linewidth = 0.4),
+                  dots)
   }
-  if (isTRUE(label)) {
+  if (labels) {
     p <- p + ggplot2::geom_text(ggplot2::aes(label = label), size = 2.6,
                                 colour = "grey25")
   }
@@ -244,7 +218,7 @@ calendar_wall_plot <- function(x, data = NULL, z = NULL,
     ggplot2::scale_y_reverse(breaks = NULL) +
     ggplot2::facet_wrap(~MONTH, labeller = .wall_month_labeller(
       years = if (weekday_mode) .wall_month_years(lay))) +
-    theme_calendar(...) +
+    theme_calendar() +
     ggplot2::labs(x = NULL, y = NULL)
   p <- if (weekday_mode) {
     # single letters (M T W T F S S, rotated to week_start): full names
@@ -420,4 +394,4 @@ calendar_wall_plot <- function(x, data = NULL, z = NULL,
   unname(cell_of[ids])
 }
 
-utils::globalVariables(c("col", "row", "value"))
+utils::globalVariables(c("col", "row", "value", "label"))

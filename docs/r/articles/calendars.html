@@ -225,14 +225,14 @@ representative day of 24 hours.</p>
 <td align="left">m12_h24</td>
 <td align="left">MONTH/HOUR</td>
 <td align="right">288</td>
-<td align="left">complete</td>
+<td align="left">representative</td>
 <td align="left">regular</td>
 </tr>
 <tr class="even">
 <td align="left">m12a_h24</td>
 <td align="left">MONTH/HOUR</td>
 <td align="right">288</td>
-<td align="left">complete</td>
+<td align="left">representative</td>
 <td align="left">regular</td>
 </tr>
 </tbody>
@@ -563,7 +563,7 @@ below).</p>
 <td align="left">fy04_m12_h24</td>
 <td align="left">MONTH/HOUR</td>
 <td align="right">288</td>
-<td align="left">complete</td>
+<td align="left">representative</td>
 <td align="left">regular</td>
 </tr>
 <tr class="odd">
@@ -786,26 +786,27 @@ rectangles, usable from any plotting system:</p>
 <span><span class="co">#&gt; 5   2208    73      4</span></span>
 <span><span class="co">#&gt; 6     90     1      1</span></span>
 <span><span class="co">#&gt; 7     90     2      2</span></span></code></pre></div>
-<p><code><a href="../reference/calendar_plot.html">calendar_plot()</a></code> is the data-on-calendar heatmap: it
-takes a <code>data.frame</code> keyed by timeslice (or none, which shows
-the share structure). The layout follows the hierarchy — finest
-timeframe on y, next on x, coarser timeframes as facets:</p>
+<p><code>gg_calendar(type = "heatmap")</code> is the data-on-calendar
+heatmap: it takes a <code>data.frame</code> keyed by timeslice (or none,
+which shows the share structure). The layout follows the hierarchy —
+finest timeframe on y, next on x, coarser timeframes as facets:</p>
 <div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>timeslice <span class="op">=</span> <span class="fu"><a href="../reference/calendar_leaftable.html">calendar_leaftable</a></span><span class="op">(</span><span class="va">calendars</span><span class="op">$</span><span class="va">m12_h24</span><span class="op">)</span><span class="op">$</span><span class="va">timeslice</span><span class="op">)</span></span>
 <span><span class="va">x</span><span class="op">$</span><span class="va">load</span> <span class="op">&lt;-</span> <span class="fl">80</span> <span class="op">+</span> <span class="fl">40</span> <span class="op">*</span> <span class="fu"><a href="https://rdrr.io/r/base/Trig.html" class="external-link">sin</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">6</span> <span class="op">*</span> <span class="va">pi</span>, length.out <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/calendar_plot.html">calendar_plot</a></span><span class="op">(</span><span class="va">calendars</span><span class="op">$</span><span class="va">m12_h24</span>, <span class="va">x</span>, palette <span class="op">=</span> <span class="st">"C"</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/gg_calendar.html">gg_calendar</a></span><span class="op">(</span><span class="va">calendars</span><span class="op">$</span><span class="va">m12_h24</span>, data <span class="op">=</span> <span class="va">x</span>, z <span class="op">=</span> <span class="st">"load"</span>, palette <span class="op">=</span> <span class="st">"C"</span>,</span>
+<span>            type <span class="op">=</span> <span class="st">"heatmap"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="calendars_files/figure-html/unnamed-chunk-25-1.png" class="r-plt" alt="" width="672"></p>
 </div>
 <div class="section level2">
 <h2 id="wall-calendars">Wall calendars<a class="anchor" aria-label="anchor" href="#wall-calendars"></a>
 </h2>
-<p><code><a href="../reference/calendar_wall_plot.html">calendar_wall_plot()</a></code> draws the familiar wall form: one
-facet per month, day cells in a week grid. The weekday arrangement is
-year-specific (which weekday a date falls on comes from the base grid),
-so pass <code>year=</code>; without it the layout falls back to a
+<p><code>gg_calendar(type = "wall")</code> draws the familiar wall form:
+one facet per month, day cells in a week grid. The weekday arrangement
+is year-specific (which weekday a date falls on comes from the base
+grid), so pass <code>year=</code>; without it the layout falls back to a
 year-free 7-wide sequence with a message.</p>
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/calendar_wall_plot.html">calendar_wall_plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/calendar_build.html">calendar</a></span><span class="op">(</span><span class="st">"m12_md365"</span><span class="op">)</span>, year <span class="op">=</span> <span class="fl">2021</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/gg_calendar.html">gg_calendar</a></span><span class="op">(</span><span class="fu"><a href="../reference/calendar_build.html">calendar</a></span><span class="op">(</span><span class="st">"m12_md365"</span><span class="op">)</span>, type <span class="op">=</span> <span class="st">"wall"</span>, year <span class="op">=</span> <span class="fl">2021</span><span class="op">)</span></span></code></pre></div>
 <p><img src="calendars_files/figure-html/unnamed-chunk-26-1.png" class="r-plt" alt="" width="768"></p>
 <p>Daily (or finer – aggregated by <code>fun</code>) data fills the
 cells, and the fiscal calendars facet April-first:</p>
@@ -813,7 +814,7 @@ cells, and the fiscal calendars facet April-first:</p>
 <code class="sourceCode R"><span><span class="va">cal</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/calendar_build.html">calendar</a></span><span class="op">(</span><span class="st">"fy04_d365"</span><span class="op">)</span></span>
 <span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>timeslice <span class="op">=</span> <span class="fu"><a href="../reference/calendar_leaftable.html">calendar_leaftable</a></span><span class="op">(</span><span class="va">cal</span><span class="op">)</span><span class="op">$</span><span class="va">timeslice</span>,</span>
 <span>                v <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/cumsum.html" class="external-link">cumsum</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fl">365</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="fu"><a href="../reference/calendar_wall_plot.html">calendar_wall_plot</a></span><span class="op">(</span><span class="va">cal</span>, <span class="va">x</span>, z <span class="op">=</span> <span class="st">"v"</span>, year <span class="op">=</span> <span class="fl">2021</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="../reference/gg_calendar.html">gg_calendar</a></span><span class="op">(</span><span class="va">cal</span>, data <span class="op">=</span> <span class="va">x</span>, z <span class="op">=</span> <span class="st">"v"</span>, year <span class="op">=</span> <span class="fl">2021</span>, type <span class="op">=</span> <span class="st">"wall"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="calendars_files/figure-html/unnamed-chunk-27-1.png" class="r-plt" alt="" width="768"></p>
 <p>The pieces are reusable on their own:
 <code>calendar_weekdays(cal, year, week_start = "MON")</code> tabulates

@@ -6,7 +6,7 @@ implicit `ANNUAL` root), one rectangle per contiguous timeslice segment,
 x normalized to `[0, 1]` (share of the covered year). Exposed so the
 layout can be drawn with something other than ggplot2; the same frame
 backs
-[`calendar_autoplot()`](https://optimal2050.github.io/timescales/r/reference/calendar_autoplot.md).
+[`gg_calendar()`](https://optimal2050.github.io/timescales/r/reference/gg_calendar.md).
 
 ## Usage
 

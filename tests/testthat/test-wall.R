@@ -1,4 +1,4 @@
-# calendar_weekdays() / calendar_wall_layout() / calendar_wall_plot() --------
+# calendar_weekdays() / calendar_wall_layout() / gg_calendar("wall") ------
 
 test_that("calendar_weekdays maps a real year onto the day layer", {
   wd <- calendar_weekdays(calendar("m12_md365"), 2021)
@@ -88,17 +88,17 @@ test_that("calendars without a day timeframe error clearly", {
                "day-resolution timeframe")
 })
 
-test_that("calendar_wall_plot assembles figures", {
+test_that("the wall figure assembles", {
   skip_if_not_installed("ggplot2")
   # plain calendar
-  p1 <- calendar_wall_plot(calendar("m12_md365"), year = 2021)
+  p1 <- gg_calendar(calendar("m12_md365"), type = "wall", year = 2021)
   expect_s3_class(p1, "ggplot")
 
   # timeslice-keyed daily data on a fiscal wall: facets April-first
   cal <- calendar("fy04_d365")
   x <- data.frame(timeslice = S7::prop(cal, "leaftable")$timeslice,
                   v = seq_len(365) * 1.0)
-  p2 <- calendar_wall_plot(cal, x, z = "v", year = 2021)
+  p2 <- gg_calendar(cal, data = x, z = "v", year = 2021, type = "wall")
   expect_s3_class(p2, "ggplot")
   expect_equal(head(levels(p2$data$MONTH), 1), "m04")
   expect_true("value" %in% names(p2$data))
@@ -110,7 +110,8 @@ test_that("calendar_wall_plot assembles figures", {
   h <- data.frame(
     datetime = as.POSIXct("2021-01-01 00:00", tz = "UTC") + 3600 * (0:47),
     v = rep(c(1, 3), each = 24))
-  p3 <- calendar_wall_plot(calh, h, z = "v", year = 2021, fun = mean)
+  p3 <- gg_calendar(calh, data = h, z = "v", year = 2021, fun = mean,
+                    type = "wall")
   expect_equal(p3$data$value[p3$data$timeslice == "d001"], 1)
   expect_equal(p3$data$value[p3$data$timeslice == "d002"], 3)
 
@@ -118,14 +119,17 @@ test_that("calendar_wall_plot assembles figures", {
   ht <- data.frame(
     timeslice = c("d001_h00", "d001_h12", "d002_h00"),
     v = c(2, 4, 10))
-  p4 <- calendar_wall_plot(calh, ht, z = "v", year = 2021, fun = mean)
+  p4 <- gg_calendar(calh, data = ht, z = "v", year = 2021, fun = mean,
+                    type = "wall")
   expect_equal(p4$data$value[p4$data$timeslice == "d001"], 3)
   expect_equal(p4$data$value[p4$data$timeslice == "d002"], 10)
 
   # missing z errors; unknown codes warn
-  expect_error(calendar_wall_plot(cal, x, year = 2021), "`z` must name")
+  expect_error(gg_calendar(cal, data = x, year = 2021, type = "wall"),
+               "`z` must name")
   bad <- data.frame(timeslice = c("d001", "nope"), v = c(1, 2))
-  expect_warning(calendar_wall_plot(cal, bad, z = "v", year = 2021),
+  expect_warning(gg_calendar(cal, data = bad, z = "v", year = 2021,
+                             type = "wall"),
                  "not timeslices")
 })
 

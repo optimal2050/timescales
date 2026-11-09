@@ -15,7 +15,7 @@ test_that("summary() returns the classed quantitative view", {
   expect_equal(s$timeframes, c(MONTH = 12L, HOUR = 24L))
   expect_identical(s$n_timeslices, 288L)
   expect_false(s$sampled)
-  expect_identical(s$coverage_class, "complete")  # catalog metadata
+  expect_identical(s$coverage_class, "representative")  # catalog metadata
   expect_output(print(s), "summary of Calendar 'm12_h24'")
   expect_output(print(s), "MONTH \\(12\\) / HOUR \\(24\\)")
 })

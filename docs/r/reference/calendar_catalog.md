@@ -45,8 +45,6 @@ subset(cat_df, coverage_class == "complete")
 #> 8       d366_h24      d366+h24       YDAY/HOUR         8784       complete
 #> 9            m12           m12           MONTH           12       complete
 #> 10          m12a          m12a           MONTH           12       complete
-#> 11       m12_h24       m12+h24      MONTH/HOUR          288       complete
-#> 12      m12a_h24      m12a+h24      MONTH/HOUR          288       complete
 #> 17     m12_md366     m12+md366      MONTH/MDAY          366       complete
 #> 18 m12_md366_h24 m12+md366+h24 MONTH/MDAY/HOUR         8784       complete
 #> 19            q4            q4         QUARTER            4       complete
@@ -54,15 +52,12 @@ subset(cat_df, coverage_class == "complete")
 #> 24           w53           w53            WEEK           53       complete
 #> 28      w53_h168      w53+h168      WEEK/WHOUR         8904       complete
 #> 33      fy04_m12           m12           MONTH           12       complete
-#> 34  fy04_m12_h24       m12+h24      MONTH/HOUR          288       complete
 #> 35       fy04_q4            q4         QUARTER            4       complete
 #>    regularity
 #> 4     regular
 #> 8     regular
 #> 9     regular
 #> 10    regular
-#> 11    regular
-#> 12    regular
 #> 17  irregular
 #> 18  irregular
 #> 19    regular
@@ -70,22 +65,18 @@ subset(cat_df, coverage_class == "complete")
 #> 24    regular
 #> 28  irregular
 #> 33    regular
-#> 34    regular
 #> 35    regular
-#>                                                                             desc
-#> 4                              YDAY calendar (366 timeslices; complete, regular)
-#> 8                        YDAY/HOUR calendar (8784 timeslices; complete, regular)
-#> 9                              MONTH calendar (12 timeslices; complete, regular)
-#> 10                             MONTH calendar (12 timeslices; complete, regular)
-#> 11                       MONTH/HOUR calendar (288 timeslices; complete, regular)
-#> 12                       MONTH/HOUR calendar (288 timeslices; complete, regular)
-#> 17                     MONTH/MDAY calendar (366 timeslices; complete, irregular)
-#> 18               MONTH/MDAY/HOUR calendar (8784 timeslices; complete, irregular)
-#> 19                            QUARTER calendar (4 timeslices; complete, regular)
-#> 20                             SEASON calendar (4 timeslices; complete, regular)
-#> 24                              WEEK calendar (53 timeslices; complete, regular)
-#> 28                    WEEK/WHOUR calendar (8904 timeslices; complete, irregular)
-#> 33       MONTH calendar (12 timeslices; complete, regular; fiscal year from m04)
-#> 34 MONTH/HOUR calendar (288 timeslices; complete, regular; fiscal year from m04)
-#> 35      QUARTER calendar (4 timeslices; complete, regular; fiscal year from m04)
+#>                                                                        desc
+#> 4                         YDAY calendar (366 timeslices; complete, regular)
+#> 8                   YDAY/HOUR calendar (8784 timeslices; complete, regular)
+#> 9                         MONTH calendar (12 timeslices; complete, regular)
+#> 10                        MONTH calendar (12 timeslices; complete, regular)
+#> 17                MONTH/MDAY calendar (366 timeslices; complete, irregular)
+#> 18          MONTH/MDAY/HOUR calendar (8784 timeslices; complete, irregular)
+#> 19                       QUARTER calendar (4 timeslices; complete, regular)
+#> 20                        SEASON calendar (4 timeslices; complete, regular)
+#> 24                         WEEK calendar (53 timeslices; complete, regular)
+#> 28               WEEK/WHOUR calendar (8904 timeslices; complete, irregular)
+#> 33  MONTH calendar (12 timeslices; complete, regular; fiscal year from m04)
+#> 35 QUARTER calendar (4 timeslices; complete, regular; fiscal year from m04)
 ```

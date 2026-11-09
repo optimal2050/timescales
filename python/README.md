@@ -31,7 +31,7 @@ Ported: tokens and the 43-design catalog, `calendar()` /
 `as_timeframe`), `calendar_map()` / `calendar_map_between()`,
 `recast_calendar()` (including the share rules), `recast_to_timebase()` /
 `recast_from_timebase()`, `join_calendar()`, and the timeslice conversions
-(`tsl2*`, `dtm2tsl`, `hour2HOUR`, `yday2YDAY`). Plotting (`calendar_plot`,
+(`tsl2*`, `dtm2tsl`, `hour2HOUR`, `yday2YDAY`). Plotting (`gg_calendar`,
 `geom_calendar`, wall layouts) stays in R.
 
 Function names match R. As agreed for the whole stack, R's `from`/`to`

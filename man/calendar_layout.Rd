@@ -26,7 +26,7 @@ Computes the rectangle geometry of the structure plot as a plain
 implicit \code{ANNUAL} root), one rectangle per contiguous timeslice segment,
 x normalized to \verb{[0, 1]} (share of the covered year). Exposed so the
 layout can be drawn with something other than ggplot2; the same frame
-backs \code{\link[=calendar_autoplot]{calendar_autoplot()}}.
+backs \code{\link[=gg_calendar]{gg_calendar()}}.
 }
 \examples{
 head(calendar_layout(calendar("q4_h24")))

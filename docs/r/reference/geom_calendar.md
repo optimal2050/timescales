@@ -4,9 +4,7 @@ Composable single layers that put time-series data on a calendar inside
 a normal
 [`ggplot()`](https://ggplot2.tidyverse.org/reference/ggplot.html)
 pipeline (the assembled-figure counterparts are
-[`calendar_autoplot()`](https://optimal2050.github.io/timescales/r/reference/calendar_autoplot.md)
-and
-[`calendar_plot()`](https://optimal2050.github.io/timescales/r/reference/calendar_plot.md)):
+[`gg_calendar()`](https://optimal2050.github.io/timescales/r/reference/gg_calendar.md)):
 
 ## Usage
 

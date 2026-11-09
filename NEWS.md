@@ -1,7 +1,16 @@
 # timescales 0.7.2
 
+## Breaking changes
+
+* `gg_calendar()` replaces `calendar_autoplot()`, `calendar_plot()` and `calendar_wall_plot()`: one function, `type = c("icicle", "stack", "heatmap", "wall")`. The old names are gone. `autoplot()` returns the same figure; `plot()` now draws it and returns it invisibly, like base `plot()`.
+* The value column is `z` for every figure (`values=` is gone) and is required whenever `data` is given. `labels=` replaces `label=`. `key = NULL` auto-detects the key column.
+* `palette = NULL` is each figure's default scale; `palette = NA` adds none. The stack's bring-your-own-scale spelling was `NULL`.
+* `...` goes to the figure's drawing layer; the wall no longer forwards it to `theme_calendar()`. An argument that belongs to another `type` is an error.
+* The first argument of the plotting function is `object`.
+
 ## New features
 
+* `gg_calendar(reference =)` draws a sampled calendar against its complete parent: the layout is the reference's, and segments without a timeslice of the calendar are left empty.
 * Timeframes that name a kind of period rather than a stretch of calendar -- `WDAY`, `DAYTYPE`, `HOURTYPE` -- declare the unit their members tile: the seven weekdays make up a week, the three hour types a day. A consumer that needs the length of one member, rather than the total the timeslice accounts for, can now derive it.
 
 ## Bug fixes

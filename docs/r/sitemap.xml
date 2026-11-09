@@ -20,7 +20,6 @@
 <url><loc>https://optimal2050.github.io/timescales/r/reference/Calendar.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/reference/calendars.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/reference/calendar_ancestry.html</loc></url>
-<url><loc>https://optimal2050.github.io/timescales/r/reference/calendar_autoplot.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/reference/calendar_breaks.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/reference/calendar_build.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/reference/calendar_catalog.html</loc></url>
@@ -33,12 +32,10 @@
 <url><loc>https://optimal2050.github.io/timescales/r/reference/calendar_map_between.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/reference/calendar_navigate.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/reference/calendar_next.html</loc></url>
-<url><loc>https://optimal2050.github.io/timescales/r/reference/calendar_plot.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/reference/calendar_queries.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/reference/CALENDAR_RULES.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/reference/calendar_share.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/reference/calendar_wall_layout.html</loc></url>
-<url><loc>https://optimal2050.github.io/timescales/r/reference/calendar_wall_plot.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/reference/calendar_weekdays.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/reference/clear_calendar_maps.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/reference/clear_calendar_rules.html</loc></url>
@@ -48,6 +45,7 @@
 <url><loc>https://optimal2050.github.io/timescales/r/reference/filter_calendar.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/reference/geom_calendar.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/reference/get_calendar_rule.html</loc></url>
+<url><loc>https://optimal2050.github.io/timescales/r/reference/gg_calendar.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/reference/index.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/reference/join_calendar.html</loc></url>
 <url><loc>https://optimal2050.github.io/timescales/r/reference/list_calendar_maps.html</loc></url>

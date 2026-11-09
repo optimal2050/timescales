@@ -2,6 +2,46 @@
 
 ## timescales 0.7.2
 
+### Breaking changes
+
+- [`gg_calendar()`](https://optimal2050.github.io/timescales/r/reference/gg_calendar.md)
+  replaces `calendar_autoplot()`, `calendar_plot()` and
+  `calendar_wall_plot()`: one function,
+  `type = c("icicle", "stack", "heatmap", "wall")`. The old names are
+  gone.
+  [`autoplot()`](https://ggplot2.tidyverse.org/reference/autoplot.html)
+  returns the same figure;
+  [`plot()`](https://rdrr.io/r/graphics/plot.default.html) now draws it
+  and returns it invisibly, like base
+  [`plot()`](https://rdrr.io/r/graphics/plot.default.html).
+- The value column is `z` for every figure (`values=` is gone) and is
+  required whenever `data` is given. `labels=` replaces `label=`.
+  `key = NULL` auto-detects the key column.
+- `palette = NULL` is each figure’s default scale; `palette = NA` adds
+  none. The stack’s bring-your-own-scale spelling was `NULL`.
+- `...` goes to the figure’s drawing layer; the wall no longer forwards
+  it to
+  [`theme_calendar()`](https://optimal2050.github.io/timescales/r/reference/geom_calendar.md).
+  An argument that belongs to another `type` is an error.
+- The first argument of the plotting function is `object`.
+
+### New features
+
+- `gg_calendar(reference =)` draws a sampled calendar against its
+  complete parent: the layout is the reference’s, and segments without a
+  timeslice of the calendar are left empty.
+- Timeframes that name a kind of period rather than a stretch of
+  calendar – `WDAY`, `DAYTYPE`, `HOURTYPE` – declare the unit their
+  members tile: the seven weekdays make up a week, the three hour types
+  a day. A consumer that needs the length of one member, rather than the
+  total the timeslice accounts for, can now derive it.
+
+### Bug fixes
+
+- `m12_h24`, `m12a_h24` and `fy04_m12_h24` are `representative`, not
+  `complete`: each timeslice stands for 28-31 of the hours its timeframe
+  names, as the seasonal designs already declared.
+
 ### New features
 
 - [`calendar_next()`](https://optimal2050.github.io/timescales/r/reference/calendar_next.md)
@@ -418,22 +458,17 @@ sharing one naming convention with the sibling package geoscales.
   [`theme_calendar()`](https://optimal2050.github.io/timescales/r/reference/geom_calendar.md);
   facet columns ride through `by=`; `calendar_breaks(n)` thins dense
   discrete axes while keeping the end values.
-- Wall calendars:
-  [`calendar_wall_plot()`](https://optimal2050.github.io/timescales/r/reference/calendar_wall_plot.md)
-  (month facets in member order, single-letter weekday headers,
-  year-labelled facets — a fiscal wall reads APR 2019 .. MAR 2020), with
+- Wall calendars: `calendar_wall_plot()` (month facets in member order,
+  single-letter weekday headers, year-labelled facets — a fiscal wall
+  reads APR 2019 .. MAR 2020), with
   [`calendar_wall_layout()`](https://optimal2050.github.io/timescales/r/reference/calendar_wall_layout.md)
   and
   [`calendar_weekdays()`](https://optimal2050.github.io/timescales/r/reference/calendar_weekdays.md)
   (weekday, week-of-month, anchored week-of-year) underneath.
-- Structure figures:
-  [`calendar_autoplot()`](https://optimal2050.github.io/timescales/r/reference/calendar_autoplot.md)
-  (icicle;
+- Structure figures: `calendar_autoplot()` (icicle;
   [`autoplot()`](https://ggplot2.tidyverse.org/reference/autoplot.html)/
   [`plot()`](https://rdrr.io/r/graphics/plot.default.html) dispatch
-  here) and
-  [`calendar_plot()`](https://optimal2050.github.io/timescales/r/reference/calendar_plot.md)
-  (heatmap), over the exported
+  here) and `calendar_plot()` (heatmap), over the exported
   [`calendar_layout()`](https://optimal2050.github.io/timescales/r/reference/calendar_layout.md)
   geometry. `calendar_autoplot(type = "stack")` draws the layer-stack
   view: one plane per timeframe, `ANNUAL` on top, segments at their true

@@ -282,7 +282,8 @@ The geometry itself is available without ggplot2 via `calendar_layout()`
 head(calendar_layout(calendars$q4_h24), 7)
 ```
 
-`calendar_plot()` is the data-on-calendar heatmap: it takes a `data.frame`
+`gg_calendar(type = "heatmap")` is the data-on-calendar heatmap: it takes
+a `data.frame`
 keyed by timeslice (or none, which shows the share structure). The layout
 follows the hierarchy — finest timeframe on y, next on x, coarser timeframes
 as facets:
@@ -290,19 +291,20 @@ as facets:
 ```{r, fig.width = 7, fig.height = 4, eval = requireNamespace("ggplot2", quietly = TRUE)}
 x <- data.frame(timeslice = calendar_leaftable(calendars$m12_h24)$timeslice)
 x$load <- 80 + 40 * sin(seq(0, 6 * pi, length.out = nrow(x)))
-calendar_plot(calendars$m12_h24, x, palette = "C")
+gg_calendar(calendars$m12_h24, data = x, z = "load", palette = "C",
+            type = "heatmap")
 ```
 
 ## Wall calendars
 
-`calendar_wall_plot()` draws the familiar wall form: one facet per
+`gg_calendar(type = "wall")` draws the familiar wall form: one facet per
 month, day cells in a week grid. The weekday arrangement is
 year-specific (which weekday a date falls on comes from the base grid),
 so pass `year=`; without it the layout falls back to a year-free
 7-wide sequence with a message.
 
 ```{r, fig.width = 8, fig.height = 6}
-calendar_wall_plot(calendar("m12_md365"), year = 2021)
+gg_calendar(calendar("m12_md365"), type = "wall", year = 2021)
 ```
 
 Daily (or finer -- aggregated by `fun`) data fills the cells, and the
@@ -312,7 +314,7 @@ fiscal calendars facet April-first:
 cal <- calendar("fy04_d365")
 x <- data.frame(timeslice = calendar_leaftable(cal)$timeslice,
                 v = cumsum(rnorm(365)))
-calendar_wall_plot(cal, x, z = "v", year = 2021)
+gg_calendar(cal, data = x, z = "v", year = 2021, type = "wall")
 ```
 
 The pieces are reusable on their own: `calendar_weekdays(cal, year,

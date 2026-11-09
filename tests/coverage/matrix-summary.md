@@ -11,8 +11,8 @@ Key: <kind>
     argument     8    14    27
     constant     3     0     0
  constructor     4     1     1
-        plot    10     0     0
-       query    23     1     0
+        plot     7     0     0
+       query    24     1     0
     registry    17     0     0
         verb     5     0     3
 ```
@@ -34,4 +34,4 @@ Key: <kind>
 Empty data.table (0 rows and 2 cols): name,kind
 ```
 
-Tagged rows: 7 | inferred: 110 | uncovered: 0 of 117
+Tagged rows: 7 | inferred: 108 | uncovered: 0 of 115

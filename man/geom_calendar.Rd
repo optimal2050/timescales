@@ -63,7 +63,7 @@ A single ggplot2 layer (\code{theme_calendar()} returns a theme).
 \description{
 Composable single layers that put time-series data on a calendar inside
 a normal \code{ggplot()} pipeline (the assembled-figure counterparts are
-\code{\link[=calendar_autoplot]{calendar_autoplot()}} and \code{\link[=calendar_plot]{calendar_plot()}}):
+\code{\link[=gg_calendar]{gg_calendar()}}):
 }
 \details{
 \itemize{

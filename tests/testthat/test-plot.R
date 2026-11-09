@@ -65,68 +65,107 @@ test_that("calendar_layout orders rows chronologically regardless of input
 
 # Rendering — guarded ----------------------------------------------------------
 
-test_that("autoplot / plot / calendar_autoplot return ggplot objects", {
+test_that("gg_calendar and autoplot return the figure; plot draws it", {
   skip_if_not_installed("ggplot2")
   cal <- calendar("q4_h24")
-  p1 <- calendar_autoplot(cal)
-  p2 <- ggplot2::autoplot(cal)
-  p3 <- plot(cal)
-  expect_s3_class(p1, "ggplot")
-  expect_s3_class(p2, "ggplot")
-  expect_s3_class(p3, "ggplot")
+  expect_s3_class(gg_calendar(cal), "ggplot")
+  expect_s3_class(ggplot2::autoplot(cal), "ggplot")
+  # autoplot() forwards every argument
+  a <- ggplot2::ggplot_build(ggplot2::autoplot(cal, type = "stack",
+                                               view = "isometric"))$data
+  b <- ggplot2::ggplot_build(gg_calendar(cal, type = "stack",
+                                         view = "isometric"))$data
+  expect_identical(a, b)
+  # plot() prints and returns the figure invisibly
+  pdf(NULL)
+  on.exit(dev.off(), add = TRUE)
+  r <- withVisible(plot(cal))
+  expect_false(r$visible)
+  expect_s3_class(r$value, "ggplot")
 })
 
-test_that("calendar_autoplot fill styles and binning work", {
+test_that("gg_calendar refuses arguments of another type and needs z", {
+  skip_if_not_installed("ggplot2")
+  cal <- calendar("m12")
+  expect_error(gg_calendar(cal, type = "heatmap", view = "isometric"),
+               "does not apply")
+  expect_error(gg_calendar(cal, type = "wall", max_segments = 10),
+               "does not apply")
+  x <- data.frame(timeslice = sprintf("m%02d", 1:12), load = 1:12)
+  expect_error(gg_calendar(cal, type = "heatmap", data = x), "`z`")
+  expect_error(gg_calendar(cal, data = x, year = 2021), "`z`")
+})
+
+test_that("reference draws a sampled calendar against its parent", {
+  skip_if_not_installed("ggplot2")
+  cal <- calendar("q4_h24")
+  sub <- filter_calendar(cal, "QUARTER", c("Q1", "Q2"))
+  p <- gg_calendar(sub, reference = cal)
+  q <- p$data[p$data$timeframe == "QUARTER", ]
+  expect_equal(nrow(q), 4L)                  # the layout is the reference
+  expect_true(all(is.na(q$.fill[q$label %in% c("Q3", "Q4")])))
+  expect_true(all(!is.na(q$.fill[q$label %in% c("Q1", "Q2")])))
+  expect_s3_class(gg_calendar(sub, reference = TRUE), "ggplot")
+  expect_error(gg_calendar(sub, reference = calendar("m12")),
+               "same timeframes")
+})
+
+test_that("gg_calendar fill styles and binning work", {
   skip_if_not_installed("ggplot2")
   cal <- calendar("m12_h24")
   for (f in c("order", "share", "weight")) {
-    expect_s3_class(calendar_autoplot(cal, fill = f), "ggplot")
+    expect_s3_class(gg_calendar(cal, fill = f), "ggplot")
   }
-  expect_s3_class(calendar_autoplot(cal, color_pattern = "global"), "ggplot")
+  expect_s3_class(gg_calendar(cal, color_pattern = "global"), "ggplot")
 
   # d365_h24: the HOUR row (8760 segments) must be binned to <= max_segments
-  p <- calendar_autoplot(calendar("d365_h24"), max_segments = 1000)
+  p <- gg_calendar(calendar("d365_h24"), max_segments = 1000)
   hr <- p$data[p$data$timeframe == "HOUR", ]
   expect_lte(nrow(hr), 1000L)
   # binned rows carry no timeslice ids (mutes labels)
   expect_true(all(is.na(hr$timeslice)))
 })
 
-test_that("calendar_plot renders with and without data", {
+test_that("the heatmap renders with and without data", {
   skip_if_not_installed("ggplot2")
-  expect_s3_class(calendar_plot(calendar("m12_h24")), "ggplot")
+  expect_s3_class(gg_calendar(calendar("m12_h24"), type = "heatmap"),
+                  "ggplot")
 
   cal <- calendar("m12")
   x <- data.frame(timeslice = sprintf("m%02d", 1:12), load = 1:12 * 1.0)
-  p <- calendar_plot(cal, x)
+  p <- gg_calendar(cal, data = x, z = "load", type = "heatmap")
   expect_s3_class(p, "ggplot")
 
   # facet path: 3-level calendar puts the coarsest level in facets
-  p3 <- calendar_plot(calendar("m12_md365_h24"))
+  p3 <- gg_calendar(calendar("m12_md365_h24"), type = "heatmap")
   expect_s3_class(p3, "ggplot")
   expect_true(".facet" %in% names(p3$data))
 })
 
-test_that("calendar_plot validates inputs", {
+test_that("the heatmap validates inputs", {
   skip_if_not_installed("ggplot2")
   cal <- calendar("m12")
-  expect_error(calendar_plot(cal, data.frame(a = 1)), "no column named")
+  expect_error(gg_calendar(cal, data = data.frame(a = 1), z = "a",
+                           type = "heatmap"),
+               "no column named")
   expect_error(
-    calendar_plot(cal, data.frame(timeslice = "nope", v = 1)),
+    gg_calendar(cal, data = data.frame(timeslice = "nope", v = 1), z = "v",
+                type = "heatmap"),
     "matched"
   )
-  expect_error(calendar_plot(cal, x_tf = "HOUR"), "not timeframes")
+  expect_error(gg_calendar(cal, type = "heatmap", x_tf = "HOUR"),
+               "not timeframes")
 })
 
 test_that("the stack view returns a ggplot with one plane per timeframe", {
   skip_if_not_installed("ggplot2")
-  p <- calendar_autoplot(calendar("s4_hp3"), type = "stack")
+  p <- gg_calendar(calendar("s4_hp3"), type = "stack")
   expect_s3_class(p, "ggplot")
   # ANNUAL + SEASON + HOURTYPE planes; 1 + 4 + 12 segments
   expect_equal(length(unique(p$data$tf)), 3L)
   expect_equal(length(unique(p$data$id)), 1L + 4L + 12L)
   # annual = FALSE drops the root plane
-  p2 <- calendar_autoplot(calendar("s4_hp3"), type = "stack",
+  p2 <- gg_calendar(calendar("s4_hp3"), type = "stack",
                           annual = FALSE)
   expect_equal(length(unique(p2$data$tf)), 2L)
 })
@@ -136,18 +175,18 @@ test_that("stack views, rotation and direction all render", {
   cal <- calendar("s4_hp3")
   for (vw in c("top-down", "cabinet", "military", "isometric",
                "perspective", "pyramid")) {
-    expect_s3_class(calendar_autoplot(cal, type = "stack", view = vw),
+    expect_s3_class(gg_calendar(cal, type = "stack", view = vw),
                     "ggplot")
   }
   # pyramid inverts perspective: same axes, reciprocal per-plane factor
   expect_equal(timescales:::.stack_view("pyramid")$scale,
                1 / timescales:::.stack_view("perspective")$scale)
   # one gap per pair of planes, top to bottom (ANNUAL + 2 timeframes = 3)
-  expect_s3_class(calendar_autoplot(cal, type = "stack",
+  expect_s3_class(gg_calendar(cal, type = "stack",
                                     gap = c(0.25, 0.3)), "ggplot")
-  expect_error(calendar_autoplot(cal, type = "stack", gap = c(0.2, 0.3, 0.4)),
+  expect_error(gg_calendar(cal, type = "stack", gap = c(0.2, 0.3, 0.4)),
                "one per pair")
-  p <- calendar_autoplot(cal, type = "stack", angle = 30, ratio = 0.4,
+  p <- gg_calendar(cal, type = "stack", angle = 30, ratio = 0.4,
                          rotate = 15, direction = "down")
   expect_s3_class(p, "ggplot")
   # painter order: rows sorted by plane height (lower planes first)
@@ -158,21 +197,21 @@ test_that("stack frames, connectors and border styling render", {
   skip_if_not_installed("ggplot2")
   cal <- calendar("s4_hp3")
   base_n <- length(ggplot2::ggplot_build(
-    calendar_autoplot(cal, type = "stack"))$plot$layers)
+    gg_calendar(cal, type = "stack"))$plot$layers)
   # frame = one polygon per plane; connectors = one segment layer
-  p <- calendar_autoplot(cal, type = "stack", frame = TRUE,
+  p <- gg_calendar(cal, type = "stack", frame = TRUE,
                          connectors = TRUE)
   expect_equal(length(ggplot2::ggplot_build(p)$plot$layers),
                base_n + 3 + 1)
   # per-plane border colours land on the polygon layers
-  p2 <- calendar_autoplot(cal, type = "stack",
+  p2 <- gg_calendar(cal, type = "stack",
                           colour = c("grey20", "red", "white"))
   cols <- unlist(lapply(p2$layers, function(l) l$aes_params$colour))
   expect_true(all(c("grey20", "red", "white") %in% cols))
-  expect_s3_class(calendar_autoplot(cal, type = "stack",
+  expect_s3_class(gg_calendar(cal, type = "stack",
                                     frame = "steelblue"), "ggplot")
   # frame_fill alone activates the sheets
-  p3 <- calendar_autoplot(cal, type = "stack", frame_fill = "#6FA8DC26")
+  p3 <- gg_calendar(cal, type = "stack", frame_fill = "#6FA8DC26")
   expect_equal(length(ggplot2::ggplot_build(p3)$plot$layers), base_n + 3)
 })
 
@@ -181,7 +220,7 @@ test_that("stack value fill recasts data onto every plane", {
   cal <- calendar("s4_hp3")
   ts <- calendar_timeslices(cal, "HOURTYPE", qualified = TRUE)
   x <- data.frame(timeslice = ts, v = 1)    # one unit per leaf timeslice
-  p <- calendar_autoplot(cal, type = "stack", data = x, z = "v",
+  p <- gg_calendar(cal, type = "stack", data = x, z = "v",
                          rule = "sum", year = 2019)
   expect_s3_class(p, "ggplot")
   d <- p$data
@@ -193,10 +232,10 @@ test_that("stack value fill recasts data onto every plane", {
   expect_equal(sum(seas$.z), 12)
   expect_true(all(seas$.z == 3))
   # errors are explicit
-  expect_error(calendar_autoplot(cal, type = "stack", data = x,
+  expect_error(gg_calendar(cal, type = "stack", data = x,
                                  rule = "sum", year = 2019),
                "`z` must name")
-  expect_error(calendar_autoplot(cal, type = "stack", data = x, z = "v",
+  expect_error(gg_calendar(cal, type = "stack", data = x, z = "v",
                                  rule = "sum"),
                "needs `year =`")
 })
@@ -204,22 +243,24 @@ test_that("stack value fill recasts data onto every plane", {
 test_that("stack labels draw member names of chosen timeframes", {
   skip_if_not_installed("ggplot2")
   cal <- calendar("s4_hp3")
-  p <- calendar_autoplot(cal, type = "stack", labels = "SEASON")
+  p <- gg_calendar(cal, type = "stack", labels = "SEASON")
   lyrs <- ggplot2::ggplot_build(p)$plot$layers
   txt <- NULL
   for (l in lyrs) if (".label" %in% names(l$data)) txt <- l$data
   expect_setequal(txt$.label, c("WIN", "SPR", "SUM", "FAL"))
-  expect_error(calendar_autoplot(cal, type = "stack", labels = "nope"),
+  expect_error(gg_calendar(cal, type = "stack", labels = "nope"),
                "unknown")
 })
 
-test_that("stack palette = NULL leaves the fill scale to the caller", {
+test_that("stack palette = NA leaves the fill scale to the caller", {
   skip_if_not_installed("ggplot2")
   cal <- calendar("s4_hp3")
-  p <- calendar_autoplot(cal, type = "stack", palette = NULL)
+  p <- gg_calendar(cal, type = "stack", palette = NA)
   expect_length(p$scales$scales, 0)
-  p2 <- calendar_autoplot(cal, type = "stack")
+  p2 <- gg_calendar(cal, type = "stack")
   expect_length(p2$scales$scales, 1)
+  p3 <- gg_calendar(cal, type = "stack", palette = NULL)  # the default
+  expect_length(p3$scales$scales, 1)
 })
 
 test_that("icicle data fill recasts values onto every band", {
@@ -227,12 +268,12 @@ test_that("icicle data fill recasts values onto every band", {
   cal <- calendar("s4_hp3")
   ts <- calendar_timeslices(cal, "HOURTYPE", qualified = TRUE)
   x <- data.frame(timeslice = ts, v = 1)
-  p <- calendar_autoplot(cal, data = x, z = "v", rule = "sum", year = 2019)
+  p <- gg_calendar(cal, data = x, z = "v", rule = "sum", year = 2019)
   expect_s3_class(p, "ggplot")
   d <- p$data
   expect_true(all(is.finite(d$.fill)))
   expect_equal(d$.fill[d$timeframe == "ANNUAL"], 12)
   expect_equal(sum(d$.fill[d$timeframe == "SEASON"]), 12)
-  expect_error(calendar_autoplot(cal, data = x, z = "v", rule = "sum"),
+  expect_error(gg_calendar(cal, data = x, z = "v", rule = "sum"),
                "needs `year =`")
 })

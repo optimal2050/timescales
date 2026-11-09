@@ -76,7 +76,7 @@ ns_exports <- function() {
 kind_of <- function(nm, obj) {
   if (!is.function(obj)) return("constant")
   if (grepl("^(register|get|list|clear)_", nm)) return("registry")
-  if (grepl("^(geom_|theme_)|_(autoplot|plot|layout|breaks)$|_wall_|weekdays$",
+  if (grepl("^(gg_|geom_|theme_)|_(autoplot|plot|layout|breaks)$|_wall_|weekdays$",
             nm)) return("plot")
   if (grepl("^(Calendar|Geoscale)$|_from_|_build$|^calendar$|^base_calendar$|^ne_|_example$",
             nm)) return("constructor")

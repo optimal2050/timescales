@@ -131,14 +131,10 @@ Draw calendar structures and data on calendars.
 
 - [`calendar_layout()`](https://optimal2050.github.io/timescales/r/reference/calendar_layout.md)
   : Icicle layout of a calendar's structure
-- [`calendar_autoplot()`](https://optimal2050.github.io/timescales/r/reference/calendar_autoplot.md)
-  [`autoplot(`*`<Calendar>`*`)`](https://optimal2050.github.io/timescales/r/reference/calendar_autoplot.md)
-  [`plot(`*`<Calendar>`*`)`](https://optimal2050.github.io/timescales/r/reference/calendar_autoplot.md)
-  : Plot a calendar's structure as an icicle
-- [`calendar_plot()`](https://optimal2050.github.io/timescales/r/reference/calendar_plot.md)
-  : Heatmap of data on a calendar
-- [`calendar_wall_plot()`](https://optimal2050.github.io/timescales/r/reference/calendar_wall_plot.md)
-  : Wall-calendar figure
+- [`gg_calendar()`](https://optimal2050.github.io/timescales/r/reference/gg_calendar.md)
+  [`autoplot(`*`<Calendar>`*`)`](https://optimal2050.github.io/timescales/r/reference/gg_calendar.md)
+  [`plot(`*`<Calendar>`*`)`](https://optimal2050.github.io/timescales/r/reference/gg_calendar.md)
+  : Plot a calendar
 - [`calendar_wall_layout()`](https://optimal2050.github.io/timescales/r/reference/calendar_wall_layout.md)
   : Wall-calendar tile layout
 - [`calendar_weekdays()`](https://optimal2050.github.io/timescales/r/reference/calendar_weekdays.md)

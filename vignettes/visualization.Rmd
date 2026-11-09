@@ -22,7 +22,7 @@ if (viz) library(ggplot2)
 | kind | functions | use when |
 |---|---|---|
 | composable layers | `geom_calendar()`, `geom_calendar_tile()`, `theme_calendar()`, `calendar_breaks()` | data-on-calendar tiles as one layer among others in a custom `ggplot()` |
-| assembled figures | `calendar_autoplot()` (structure icicle), `calendar_plot()` (heatmap), `calendar_wall_plot()` (wall calendar) | a finished figure in one call |
+| assembled figures | `gg_calendar()` with `type =` `"icicle"`, `"stack"`, `"heatmap"` or `"wall"`; `autoplot()` returns it, `plot()` draws it | a finished figure in one call |
 | layout workers | `calendar_layout()`, `calendar_wall_layout()`, `calendar_weekdays()` | the plain data frames behind the figures, for figures the package does not provide |
 
 All three tiers are shown on one running example. Because every axis
@@ -108,14 +108,14 @@ ggplot(merra2_cities) +
 
 ## Wall calendars
 
-`calendar_wall_plot()` draws the same daily data in the wall
+`gg_calendar(type = "wall")` draws the same daily data in the wall
 form: one facet per month, day cells in a week grid, weekday initials
 across the top. The hourly datetimes are detected automatically and
 collapse into day cells with `fun`:
 
 ```{r wall, fig.width = 8, fig.height = 6, eval = viz}
-calendar_wall_plot(calendar("m12_md365"), hel, z = "T10M",
-                   year = 2019) +
+gg_calendar(calendar("m12_md365"), data = hel, z = "T10M",
+      year = 2019, type = "wall") +
   scale_fill_viridis_c(option = "H") +
   labs(fill = "degC",
        title = "Helsinki daily mean temperature, 2019")
@@ -206,7 +206,8 @@ for (id in c("m12_h24", "q4_h24", "s4_hp3")) {
   w <- rey |>
     mutate(timeslice = datetime_to_timeslice(datetime, cal_i)) |>
     summarise(W50M = mean(W50M), .by = timeslice)
-  print(calendar_plot(cal_i, w, palette = "G") +
+  print(gg_calendar(cal_i, data = w, z = "W50M", palette = "G",
+                    type = "heatmap") +
           labs(title = paste("Reykjavik wind on", id), fill = "m/s"))
 }
 ```
@@ -296,14 +297,15 @@ panel |>
 
 ## Structure figures
 
-The assembled counterparts need no data at all. `calendar_autoplot()`
-(also `autoplot()`/`plot()`) draws the calendar's structure as an
-icicle, and `calendar_plot()` is the one-call heatmap over the same
+The assembled counterparts need no data at all. `gg_calendar()` (also
+`autoplot()`; `plot()` draws it) is the calendar's structure as an
+icicle, and `type = "heatmap"` is the one-call heatmap over the same
 layout machinery:
 
 ```{r structure, fig.width = 7, fig.height = 3, eval = viz}
-calendar_autoplot(calendars$m12_h24)
-calendar_plot(calendars$m12_h24, hel_timeslices, palette = "H")
+gg_calendar(calendars$m12_h24)
+gg_calendar(calendars$m12_h24, data = hel_timeslices, z = "T10M",
+      palette = "H", type = "heatmap")
 ```
 
 Their shared geometry is available without ggplot2 via
@@ -323,9 +325,9 @@ sheet, `frame_fill =` tints it like glass, and `connectors =` adds the
 corner guides that keep the projection readable:
 
 ```{r stack-structure, fig.width = 7, fig.height = 4, eval = viz}
-calendar_autoplot(calendars$s4_hp3, type = "stack",
-                  frame = TRUE, connectors = TRUE,
-                  frame_fill = alpha("grey60", 0.12))
+gg_calendar(calendars$s4_hp3, type = "stack",
+            frame = TRUE, connectors = TRUE,
+            frame_fill = alpha("grey60", 0.12))
 ```
 
 The stack also takes data. `data`/`z` hand a timeslice-keyed value to
@@ -334,16 +336,16 @@ the plot, and every plane receives it recast to its own timeframe
 grid is hourly by default), so the whole stack shares one continuous
 scale — the annual mean on top, the finest resolution at the bottom.
 `labels =` names timeframes whose member names are written on the
-plane, and `palette = NULL` leaves the fill scale to the caller:
+plane, and `palette = NA` leaves the fill scale to the caller:
 
 ```{r stack-data, fig.width = 7, fig.height = 4, eval = viz}
-calendar_autoplot(cal, type = "stack",
-                  data = hel_timeslices, z = "T10M",
-                  rule = "weighted_mean", year = 2019,
-                  labels = "MONTH",
-                  colour = c("grey35", "grey35", NA),  # no borders on the
-                  frame = TRUE,                        # dense HOUR plane
-                  frame_fill = alpha("grey60", 0.10)) +
+gg_calendar(cal, type = "stack",
+            data = hel_timeslices, z = "T10M",
+            rule = "weighted_mean", year = 2019,
+            labels = "MONTH",
+            colour = c("grey35", "grey35", NA),  # no borders on the
+            frame = TRUE,                        # dense HOUR plane
+            frame_fill = alpha("grey60", 0.10)) +
   labs(fill = "degC")
 ```
 
@@ -362,8 +364,8 @@ first, or Jan-Mar 2019 would land on the Jan-Mar 2020 slots:
 hel_fy <- hel |>
   filter(datetime >= as.POSIXct("2019-04-01", tz = "UTC"))
 
-calendar_wall_plot(calendar("fy04_d365"), hel_fy, z = "SWGDN",
-                   year = 2019) +
+gg_calendar(calendar("fy04_d365"), data = hel_fy, z = "SWGDN",
+      year = 2019, type = "wall") +
   scale_fill_viridis_c(option = "H") +
   labs(fill = "W/m2",
        title = "Helsinki solar irradiance, fiscal 2019 (Apr-Mar)")

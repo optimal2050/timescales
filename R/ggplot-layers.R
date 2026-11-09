@@ -1,7 +1,7 @@
 # =============================================================================
 # ggplot2 extension layers
 # =============================================================================
-# The composable layer over the same data helpers that back calendar_plot():
+# The composable layer over the same data helpers that back gg_calendar():
 #
 #   join_calendar()        timeslice-keyed data.frame + timeframe columns (no
 #                          ggplot2 — the tidy-workflow attachment helper)
@@ -94,7 +94,7 @@
 #'
 #' Composable single layers that put time-series data on a calendar inside
 #' a normal `ggplot()` pipeline (the assembled-figure counterparts are
-#' [`calendar_autoplot()`] and [`calendar_plot()`]):
+#' [`gg_calendar()`]):
 #'
 #' * `geom_calendar()` — **datetime mode**: name a POSIXct/Date column
 #'   (`datetime=`) and a measured column (`z=`); instants are cut to timeslices

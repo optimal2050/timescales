@@ -105,9 +105,7 @@ reference:
     desc: "Draw calendar structures and data on calendars."
     contents:
       - calendar_layout
-      - calendar_autoplot
-      - calendar_plot
-      - calendar_wall_plot
+      - gg_calendar
       - calendar_wall_layout
       - calendar_weekdays
       - geom_calendar
@@ -129,6 +127,9 @@ reference:
 # Old article URLs kept alive: weather-data merged into visualization,
 # getting-started renamed to the package-named intro (2026-08).
 redirects:
+  - ["reference/calendar_autoplot.html", "reference/gg_calendar.html"]
+  - ["reference/calendar_plot.html", "reference/gg_calendar.html"]
+  - ["reference/calendar_wall_plot.html", "reference/gg_calendar.html"]
   - ["articles/weather-data.html", "articles/visualization.html"]
   - ["articles/getting-started.html", "articles/timescales.html"]
 

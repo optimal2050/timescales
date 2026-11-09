@@ -1,8 +1,7 @@
 # Wall-calendar tile layout
 
-The layout worker behind
-[`calendar_wall_plot()`](https://optimal2050.github.io/timescales/r/reference/calendar_wall_plot.md):
-one row per day cell with facet key and grid position. Two arrangements:
+The layout worker behind `gg_calendar(type = "wall")`: one row per day
+cell with facet key and grid position. Two arrangements:
 
 ## Usage
 

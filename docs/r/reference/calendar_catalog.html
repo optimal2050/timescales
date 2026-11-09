@@ -98,8 +98,6 @@ with duration-proportional shares. Every id here can be built with
 <span class="r-out co"><span class="r-pr">#&gt;</span> 8       d366_h24      d366+h24       YDAY/HOUR         8784       complete</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 9            m12           m12           MONTH           12       complete</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 10          m12a          m12a           MONTH           12       complete</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 11       m12_h24       m12+h24      MONTH/HOUR          288       complete</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 12      m12a_h24      m12a+h24      MONTH/HOUR          288       complete</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 17     m12_md366     m12+md366      MONTH/MDAY          366       complete</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 18 m12_md366_h24 m12+md366+h24 MONTH/MDAY/HOUR         8784       complete</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 19            q4            q4         QUARTER            4       complete</span>
@@ -107,15 +105,12 @@ with duration-proportional shares. Every id here can be built with
 <span class="r-out co"><span class="r-pr">#&gt;</span> 24           w53           w53            WEEK           53       complete</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 28      w53_h168      w53+h168      WEEK/WHOUR         8904       complete</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 33      fy04_m12           m12           MONTH           12       complete</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 34  fy04_m12_h24       m12+h24      MONTH/HOUR          288       complete</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 35       fy04_q4            q4         QUARTER            4       complete</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    regularity</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 4     regular</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 8     regular</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 9     regular</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 10    regular</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 11    regular</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 12    regular</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 17  irregular</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 18  irregular</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 19    regular</span>
@@ -123,24 +118,20 @@ with duration-proportional shares. Every id here can be built with
 <span class="r-out co"><span class="r-pr">#&gt;</span> 24    regular</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 28  irregular</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 33    regular</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 34    regular</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 35    regular</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>                                                                             desc</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4                              YDAY calendar (366 timeslices; complete, regular)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8                        YDAY/HOUR calendar (8784 timeslices; complete, regular)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9                              MONTH calendar (12 timeslices; complete, regular)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10                             MONTH calendar (12 timeslices; complete, regular)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 11                       MONTH/HOUR calendar (288 timeslices; complete, regular)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 12                       MONTH/HOUR calendar (288 timeslices; complete, regular)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 17                     MONTH/MDAY calendar (366 timeslices; complete, irregular)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 18               MONTH/MDAY/HOUR calendar (8784 timeslices; complete, irregular)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 19                            QUARTER calendar (4 timeslices; complete, regular)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 20                             SEASON calendar (4 timeslices; complete, regular)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 24                              WEEK calendar (53 timeslices; complete, regular)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 28                    WEEK/WHOUR calendar (8904 timeslices; complete, irregular)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 33       MONTH calendar (12 timeslices; complete, regular; fiscal year from m04)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 34 MONTH/HOUR calendar (288 timeslices; complete, regular; fiscal year from m04)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 35      QUARTER calendar (4 timeslices; complete, regular; fiscal year from m04)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>                                                                        desc</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4                         YDAY calendar (366 timeslices; complete, regular)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8                   YDAY/HOUR calendar (8784 timeslices; complete, regular)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9                         MONTH calendar (12 timeslices; complete, regular)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10                        MONTH calendar (12 timeslices; complete, regular)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 17                MONTH/MDAY calendar (366 timeslices; complete, irregular)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 18          MONTH/MDAY/HOUR calendar (8784 timeslices; complete, irregular)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 19                       QUARTER calendar (4 timeslices; complete, regular)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 20                        SEASON calendar (4 timeslices; complete, regular)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 24                         WEEK calendar (53 timeslices; complete, regular)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 28               WEEK/WHOUR calendar (8904 timeslices; complete, irregular)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 33  MONTH calendar (12 timeslices; complete, regular; fiscal year from m04)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 35 QUARTER calendar (4 timeslices; complete, regular; fiscal year from m04)</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

@@ -114,9 +114,10 @@
 <tr class="even">
 <td>assembled figures</td>
 <td>
-<code><a href="../reference/calendar_autoplot.html">calendar_autoplot()</a></code> (structure icicle),
-<code><a href="../reference/calendar_plot.html">calendar_plot()</a></code> (heatmap),
-<code><a href="../reference/calendar_wall_plot.html">calendar_wall_plot()</a></code> (wall calendar)</td>
+<code><a href="../reference/gg_calendar.html">gg_calendar()</a></code> with <code>type =</code>
+<code>"icicle"</code>, <code>"stack"</code>, <code>"heatmap"</code> or
+<code>"wall"</code>; <code><a href="https://ggplot2.tidyverse.org/reference/autoplot.html" class="external-link">autoplot()</a></code> returns it,
+<code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> draws it</td>
 <td>a finished figure in one call</td>
 </tr>
 <tr class="odd">
@@ -233,13 +234,13 @@ shifts this to local time):</p>
 <div class="section level2">
 <h2 id="wall-calendars">Wall calendars<a class="anchor" aria-label="anchor" href="#wall-calendars"></a>
 </h2>
-<p><code><a href="../reference/calendar_wall_plot.html">calendar_wall_plot()</a></code> draws the same daily data in the
-wall form: one facet per month, day cells in a week grid, weekday
+<p><code>gg_calendar(type = "wall")</code> draws the same daily data in
+the wall form: one facet per month, day cells in a week grid, weekday
 initials across the top. The hourly datetimes are detected automatically
 and collapse into day cells with <code>fun</code>:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/calendar_wall_plot.html">calendar_wall_plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/calendar_build.html">calendar</a></span><span class="op">(</span><span class="st">"m12_md365"</span><span class="op">)</span>, <span class="va">hel</span>, z <span class="op">=</span> <span class="st">"T10M"</span>,</span>
-<span>                   year <span class="op">=</span> <span class="fl">2019</span><span class="op">)</span> <span class="op">+</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/gg_calendar.html">gg_calendar</a></span><span class="op">(</span><span class="fu"><a href="../reference/calendar_build.html">calendar</a></span><span class="op">(</span><span class="st">"m12_md365"</span><span class="op">)</span>, data <span class="op">=</span> <span class="va">hel</span>, z <span class="op">=</span> <span class="st">"T10M"</span>,</span>
+<span>      year <span class="op">=</span> <span class="fl">2019</span>, type <span class="op">=</span> <span class="st">"wall"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_viridis.html" class="external-link">scale_fill_viridis_c</a></span><span class="op">(</span>option <span class="op">=</span> <span class="st">"H"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>fill <span class="op">=</span> <span class="st">"degC"</span>,</span>
 <span>       title <span class="op">=</span> <span class="st">"Helsinki daily mean temperature, 2019"</span><span class="op">)</span></span></code></pre></div>
@@ -366,7 +367,8 @@ visualization article</a>.)</p>
 <span>  <span class="va">w</span> <span class="op">&lt;-</span> <span class="va">rey</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>timeslice <span class="op">=</span> <span class="fu"><a href="../reference/datetime_to_timeslice.html">datetime_to_timeslice</a></span><span class="op">(</span><span class="va">datetime</span>, <span class="va">cal_i</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarise</a></span><span class="op">(</span>W50M <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">W50M</span><span class="op">)</span>, .by <span class="op">=</span> <span class="va">timeslice</span><span class="op">)</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="../reference/calendar_plot.html">calendar_plot</a></span><span class="op">(</span><span class="va">cal_i</span>, <span class="va">w</span>, palette <span class="op">=</span> <span class="st">"G"</span><span class="op">)</span> <span class="op">+</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="../reference/gg_calendar.html">gg_calendar</a></span><span class="op">(</span><span class="va">cal_i</span>, data <span class="op">=</span> <span class="va">w</span>, z <span class="op">=</span> <span class="st">"W50M"</span>, palette <span class="op">=</span> <span class="st">"G"</span>,</span>
+<span>                    type <span class="op">=</span> <span class="st">"heatmap"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>          <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>title <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"Reykjavik wind on"</span>, <span class="va">id</span><span class="op">)</span>, fill <span class="op">=</span> <span class="st">"m/s"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 <p><img src="visualization_files/figure-html/scales-trio-1.png" class="r-plt" alt="" width="672"><img src="visualization_files/figure-html/scales-trio-2.png" class="r-plt" alt="" width="672"><img src="visualization_files/figure-html/scales-trio-3.png" class="r-plt" alt="" width="672"></p>
@@ -457,15 +459,16 @@ of the year, and the cumulative share times 8760 is hours:</p>
 <h2 id="structure-figures">Structure figures<a class="anchor" aria-label="anchor" href="#structure-figures"></a>
 </h2>
 <p>The assembled counterparts need no data at all.
-<code><a href="../reference/calendar_autoplot.html">calendar_autoplot()</a></code> (also
-<code><a href="https://ggplot2.tidyverse.org/reference/autoplot.html" class="external-link">autoplot()</a></code>/<code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>) draws the calendar’s
-structure as an icicle, and <code><a href="../reference/calendar_plot.html">calendar_plot()</a></code> is the one-call
-heatmap over the same layout machinery:</p>
+<code><a href="../reference/gg_calendar.html">gg_calendar()</a></code> (also <code><a href="https://ggplot2.tidyverse.org/reference/autoplot.html" class="external-link">autoplot()</a></code>;
+<code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> draws it) is the calendar’s structure as an icicle,
+and <code>type = "heatmap"</code> is the one-call heatmap over the same
+layout machinery:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/calendar_autoplot.html">calendar_autoplot</a></span><span class="op">(</span><span class="va">calendars</span><span class="op">$</span><span class="va">m12_h24</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/gg_calendar.html">gg_calendar</a></span><span class="op">(</span><span class="va">calendars</span><span class="op">$</span><span class="va">m12_h24</span><span class="op">)</span></span></code></pre></div>
 <p><img src="visualization_files/figure-html/structure-1.png" class="r-plt" alt="" width="672"></p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/calendar_plot.html">calendar_plot</a></span><span class="op">(</span><span class="va">calendars</span><span class="op">$</span><span class="va">m12_h24</span>, <span class="va">hel_timeslices</span>, palette <span class="op">=</span> <span class="st">"H"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/gg_calendar.html">gg_calendar</a></span><span class="op">(</span><span class="va">calendars</span><span class="op">$</span><span class="va">m12_h24</span>, data <span class="op">=</span> <span class="va">hel_timeslices</span>, z <span class="op">=</span> <span class="st">"T10M"</span>,</span>
+<span>      palette <span class="op">=</span> <span class="st">"H"</span>, type <span class="op">=</span> <span class="st">"heatmap"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="visualization_files/figure-html/structure-2.png" class="r-plt" alt="" width="672"></p>
 <p>Their shared geometry is available without ggplot2 via
 <code><a href="../reference/calendar_layout.html">calendar_layout()</a></code>; the wall form’s frames come from
@@ -489,9 +492,9 @@ stack; <code>frame =</code> draws each plane’s sheet,
 <code>connectors =</code> adds the corner guides that keep the
 projection readable:</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/calendar_autoplot.html">calendar_autoplot</a></span><span class="op">(</span><span class="va">calendars</span><span class="op">$</span><span class="va">s4_hp3</span>, type <span class="op">=</span> <span class="st">"stack"</span>,</span>
-<span>                  frame <span class="op">=</span> <span class="cn">TRUE</span>, connectors <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>                  frame_fill <span class="op">=</span> <span class="fu"><a href="https://scales.r-lib.org/reference/alpha.html" class="external-link">alpha</a></span><span class="op">(</span><span class="st">"grey60"</span>, <span class="fl">0.12</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/gg_calendar.html">gg_calendar</a></span><span class="op">(</span><span class="va">calendars</span><span class="op">$</span><span class="va">s4_hp3</span>, type <span class="op">=</span> <span class="st">"stack"</span>,</span>
+<span>            frame <span class="op">=</span> <span class="cn">TRUE</span>, connectors <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>            frame_fill <span class="op">=</span> <span class="fu"><a href="https://scales.r-lib.org/reference/alpha.html" class="external-link">alpha</a></span><span class="op">(</span><span class="st">"grey60"</span>, <span class="fl">0.12</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="visualization_files/figure-html/stack-structure-1.png" class="r-plt" alt="" width="672"></p>
 <p>The stack also takes data. <code>data</code>/<code>z</code> hand a
 timeslice-keyed value to the plot, and every plane receives it recast to
@@ -500,15 +503,15 @@ its own timeframe (<code>rule =</code> and <code>year =</code> are the
 default), so the whole stack shares one continuous scale — the annual
 mean on top, the finest resolution at the bottom. <code>labels =</code>
 names timeframes whose member names are written on the plane, and
-<code>palette = NULL</code> leaves the fill scale to the caller:</p>
+<code>palette = NA</code> leaves the fill scale to the caller:</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/calendar_autoplot.html">calendar_autoplot</a></span><span class="op">(</span><span class="va">cal</span>, type <span class="op">=</span> <span class="st">"stack"</span>,</span>
-<span>                  data <span class="op">=</span> <span class="va">hel_timeslices</span>, z <span class="op">=</span> <span class="st">"T10M"</span>,</span>
-<span>                  rule <span class="op">=</span> <span class="st">"weighted_mean"</span>, year <span class="op">=</span> <span class="fl">2019</span>,</span>
-<span>                  labels <span class="op">=</span> <span class="st">"MONTH"</span>,</span>
-<span>                  colour <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"grey35"</span>, <span class="st">"grey35"</span>, <span class="cn">NA</span><span class="op">)</span>,  <span class="co"># no borders on the</span></span>
-<span>                  frame <span class="op">=</span> <span class="cn">TRUE</span>,                        <span class="co"># dense HOUR plane</span></span>
-<span>                  frame_fill <span class="op">=</span> <span class="fu"><a href="https://scales.r-lib.org/reference/alpha.html" class="external-link">alpha</a></span><span class="op">(</span><span class="st">"grey60"</span>, <span class="fl">0.10</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/gg_calendar.html">gg_calendar</a></span><span class="op">(</span><span class="va">cal</span>, type <span class="op">=</span> <span class="st">"stack"</span>,</span>
+<span>            data <span class="op">=</span> <span class="va">hel_timeslices</span>, z <span class="op">=</span> <span class="st">"T10M"</span>,</span>
+<span>            rule <span class="op">=</span> <span class="st">"weighted_mean"</span>, year <span class="op">=</span> <span class="fl">2019</span>,</span>
+<span>            labels <span class="op">=</span> <span class="st">"MONTH"</span>,</span>
+<span>            colour <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"grey35"</span>, <span class="st">"grey35"</span>, <span class="cn">NA</span><span class="op">)</span>,  <span class="co"># no borders on the</span></span>
+<span>            frame <span class="op">=</span> <span class="cn">TRUE</span>,                        <span class="co"># dense HOUR plane</span></span>
+<span>            frame_fill <span class="op">=</span> <span class="fu"><a href="https://scales.r-lib.org/reference/alpha.html" class="external-link">alpha</a></span><span class="op">(</span><span class="st">"grey60"</span>, <span class="fl">0.10</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>fill <span class="op">=</span> <span class="st">"degC"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="visualization_files/figure-html/stack-data-1.png" class="r-plt" alt="" width="672"></p>
 </div>
@@ -528,8 +531,8 @@ Jan-Mar 2020 slots:</p>
 <code class="sourceCode R"><span><span class="va">hel_fy</span> <span class="op">&lt;-</span> <span class="va">hel</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">datetime</span> <span class="op">&gt;=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.POSIXlt.html" class="external-link">as.POSIXct</a></span><span class="op">(</span><span class="st">"2019-04-01"</span>, tz <span class="op">=</span> <span class="st">"UTC"</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu"><a href="../reference/calendar_wall_plot.html">calendar_wall_plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/calendar_build.html">calendar</a></span><span class="op">(</span><span class="st">"fy04_d365"</span><span class="op">)</span>, <span class="va">hel_fy</span>, z <span class="op">=</span> <span class="st">"SWGDN"</span>,</span>
-<span>                   year <span class="op">=</span> <span class="fl">2019</span><span class="op">)</span> <span class="op">+</span></span>
+<span><span class="fu"><a href="../reference/gg_calendar.html">gg_calendar</a></span><span class="op">(</span><span class="fu"><a href="../reference/calendar_build.html">calendar</a></span><span class="op">(</span><span class="st">"fy04_d365"</span><span class="op">)</span>, data <span class="op">=</span> <span class="va">hel_fy</span>, z <span class="op">=</span> <span class="st">"SWGDN"</span>,</span>
+<span>      year <span class="op">=</span> <span class="fl">2019</span>, type <span class="op">=</span> <span class="st">"wall"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_viridis.html" class="external-link">scale_fill_viridis_c</a></span><span class="op">(</span>option <span class="op">=</span> <span class="st">"H"</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">labs</a></span><span class="op">(</span>fill <span class="op">=</span> <span class="st">"W/m2"</span>,</span>
 <span>       title <span class="op">=</span> <span class="st">"Helsinki solar irradiance, fiscal 2019 (Apr-Mar)"</span><span class="op">)</span></span></code></pre></div>

@@ -30,7 +30,7 @@ order), \code{label} (day-of-month number), \code{col}, \code{row}, \code{wday}
 (factor, \code{NA} in sequence mode), \code{date} (\code{NA} in sequence mode).
 }
 \description{
-The layout worker behind \code{\link[=calendar_wall_plot]{calendar_wall_plot()}}: one row per day
+The layout worker behind \code{gg_calendar(type = "wall")}: one row per day
 cell with facet key and grid position. Two arrangements:
 }
 \details{
