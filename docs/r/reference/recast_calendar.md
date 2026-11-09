@@ -76,13 +76,14 @@ recast_calendar(
 - rule:
 
   One of
-  [`CALENDAR_RULES`](https://optimal2050.github.io/timescales/r/reference/CALENDAR_RULES.md),
-  applied to every value column; or `NULL` (default) to look each column
-  up with
+  [`CALENDAR_RULES`](https://optimal2050.github.io/timescales/r/reference/CALENDAR_RULES.md)
+  applied to every value column, or a NAMED vector giving a rule per
+  column, or `NULL` (default) to look each column up with
   [`get_calendar_rule()`](https://optimal2050.github.io/timescales/r/reference/get_calendar_rule.md).
-  A column with neither an explicit `rule=` nor a registry entry is an
-  ERROR – there is deliberately no fallback (a silently guessed rule is
-  a silent unit error).
+  A column that `rule` does not name falls back to the registry; one
+  with neither an explicit rule nor a registry entry is an ERROR – there
+  is deliberately no fallback (a silently guessed rule is a silent unit
+  error).
 
 - by:
 
@@ -207,7 +208,7 @@ recast_calendar(xp, cal_m, cal_q, year = 2021, rule = "sum")
 
 # Within-calendar aggregation, and the ANNUAL root
 cal <- calendar_build("q4", "h24")
-xh <- data.frame(timeslice = S7::prop(cal, "leaftable")$timeslice, energy = 1)
+xh <- data.frame(timeslice = calendar_leaftable(cal)$timeslice, energy = 1)
 recast_calendar(xh, cal, target = "ANNUAL", year = 2021, rule = "sum")  # 96
 #>   timeslice energy
 #> 1    ANNUAL     96

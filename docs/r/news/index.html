@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">timescales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.1</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -47,6 +47,14 @@
       <small>Source: <a href="https://github.com/optimal2050/timescales/blob/HEAD/NEWS.md" class="external-link"><code>NEWS.md</code></a></small>
     </div>
 
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="0.7.2" id="timescales-072">timescales 0.7.2<a class="anchor" aria-label="anchor" href="#timescales-072"></a></h2>
+<div class="section level3">
+<h3 id="new-features-0-7-2">New features<a class="anchor" aria-label="anchor" href="#new-features-0-7-2"></a></h3>
+<ul><li><p><code><a href="../reference/calendar_next.html">calendar_next()</a></code> gives the timeslice that follows each timeslice at a timeframe. <code>within</code> keeps each chain inside a coarser timeframe, so the successor of a day’s last hour is that day’s first hour rather than the next day’s, and <code>wrap = FALSE</code> opens the chain instead of closing it into a cycle. Grouping uses each node’s whole path, so a calendar whose hour labels repeat under every day chains each day separately. Needed wherever a quantity carries from one slice into the next – a storage level, a ramping limit – and by order-constrained clustering.</p></li>
+<li><p><code><a href="../reference/recast_calendar.html">recast_calendar()</a></code> takes a rule per column. <code>rule=</code> accepts a named vector as well as a scalar, matching <code>geoscales</code> and <code>nestedscales</code>, which both already did; a column the vector does not name still falls back to the registry. A table whose columns need different rules no longer has to be recast once per rule group.</p></li>
+</ul></div>
+</div>
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.7.1" id="timescales-071">timescales 0.7.1<a class="anchor" aria-label="anchor" href="#timescales-071"></a></h2>
 <div class="section level3">

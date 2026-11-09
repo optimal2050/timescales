@@ -54,9 +54,9 @@
                   regularity = "regular"),
   m12a     = list(tokens = "m12a", coverage_class = "complete",
                   regularity = "regular"),
-  m12_h24  = list(tokens = c("m12", "h24"), coverage_class = "complete",
+  m12_h24  = list(tokens = c("m12", "h24"), coverage_class = "representative",
                   regularity = "regular"),
-  m12a_h24 = list(tokens = c("m12a", "h24"), coverage_class = "complete",
+  m12a_h24 = list(tokens = c("m12a", "h24"), coverage_class = "representative",
                   regularity = "regular"),
 
   # month x day-of-month (non-Cartesian: month lengths vary)
@@ -120,7 +120,7 @@
   fy04_m12      = list(tokens = "m12", coverage_class = "complete",
                        regularity = "regular",
                        year_start = list(month = 4L, day = 1L)),
-  fy04_m12_h24  = list(tokens = c("m12", "h24"), coverage_class = "complete",
+  fy04_m12_h24  = list(tokens = c("m12", "h24"), coverage_class = "representative",
                        regularity = "regular",
                        year_start = list(month = 4L, day = 1L)),
   fy04_q4       = list(tokens = "q4", coverage_class = "complete",

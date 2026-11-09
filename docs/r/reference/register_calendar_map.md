@@ -58,7 +58,10 @@ get_calendar_map_between(
 
 - source, target:
 
-  For the within-calendar functions, timeframe names of `x`.
+  For the within-calendar functions, timeframe names of `x`. For the
+  `_between` functions, two
+  [`Calendar`](https://optimal2050.github.io/timescales/r/reference/Calendar.md)
+  objects or their names (`meta$name`).
 
 - map:
 
@@ -69,10 +72,7 @@ get_calendar_map_between(
 
 - from, to:
 
-  Deprecated names of `source` and `target`. For the `_between`
-  functions, two
-  [`Calendar`](https://optimal2050.github.io/timescales/r/reference/Calendar.md)
-  objects or their names (`meta$name`).
+  Deprecated names of `source` and `target`.
 
 ## Value
 

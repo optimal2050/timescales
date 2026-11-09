@@ -95,14 +95,23 @@
   w53  = list(timeframe = "WEEK",
               expand = function() .numeric_padded("w", 2, 1, 53)),
 
+  # Typological frames name a KIND of period, not a stretch of the calendar,
+  # so their members do not have a length the frame name implies. `cycle`
+  # declares the unit they tile: the seven weekdays make up a WEEK, the three
+  # hour types make up a YDAY. A consumer that needs the length of ONE member
+  # -- anything carrying state from one timeslice to the next -- divides the
+  # parent's span by that unit to get how many times the pattern recurs.
+  # Without it a 12-hour DAY block in a 90-day season is indistinguishable
+  # from one contiguous 1080-hour block.
+
   # weekdays (Monday-first, ISO order)
-  wd7  = list(timeframe = "WDAY",
+  wd7  = list(timeframe = "WDAY", cycle = "WEEK",
               expand = function() .enum(.WDAY_ABBR_MONFIRST)),
 
   # day types (workday vs weekend) and hour types (day/night/peak)
-  wk2  = list(timeframe = "DAYTYPE",
+  wk2  = list(timeframe = "DAYTYPE", cycle = "WEEK",
               expand = function() .enum(.DAYTYPE_LABELS, c(5, 2) / 7)),
-  hp3  = list(timeframe = "HOURTYPE",
+  hp3  = list(timeframe = "HOURTYPE", cycle = "YDAY",
               expand = function() .enum(.HOURTYPE_LABELS, c(12, 8, 4) / 24)),
 
   # hours. h168 is hour-of-week (Mon 00:00 = h000), a distinct axis from

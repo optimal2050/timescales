@@ -1,5 +1,26 @@
 # Changelog
 
+## timescales 0.7.2
+
+### New features
+
+- [`calendar_next()`](https://optimal2050.github.io/timescales/r/reference/calendar_next.md)
+  gives the timeslice that follows each timeslice at a timeframe.
+  `within` keeps each chain inside a coarser timeframe, so the successor
+  of a day’s last hour is that day’s first hour rather than the next
+  day’s, and `wrap = FALSE` opens the chain instead of closing it into a
+  cycle. Grouping uses each node’s whole path, so a calendar whose hour
+  labels repeat under every day chains each day separately. Needed
+  wherever a quantity carries from one slice into the next – a storage
+  level, a ramping limit – and by order-constrained clustering.
+
+- [`recast_calendar()`](https://optimal2050.github.io/timescales/r/reference/recast_calendar.md)
+  takes a rule per column. `rule=` accepts a named vector as well as a
+  scalar, matching `geoscales` and `nestedscales`, which both already
+  did; a column the vector does not name still falls back to the
+  registry. A table whose columns need different rules no longer has to
+  be recast once per rule group.
+
 ## timescales 0.7.1
 
 ### New features

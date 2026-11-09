@@ -2,6 +2,14 @@
 
 ## New features
 
+* Timeframes that name a kind of period rather than a stretch of calendar -- `WDAY`, `DAYTYPE`, `HOURTYPE` -- declare the unit their members tile: the seven weekdays make up a week, the three hour types a day. A consumer that needs the length of one member, rather than the total the timeslice accounts for, can now derive it.
+
+## Bug fixes
+
+* `m12_h24`, `m12a_h24` and `fy04_m12_h24` are `representative`, not `complete`: each timeslice stands for 28-31 of the hours its timeframe names, as the seasonal designs already declared.
+
+## New features
+
 * `calendar_next()` gives the timeslice that follows each timeslice at a timeframe. `within` keeps each chain inside a coarser timeframe, so the successor of a day's last hour is that day's first hour rather than the next day's, and `wrap = FALSE` opens the chain instead of closing it into a cycle. Grouping uses each node's whole path, so a calendar whose hour labels repeat under every day chains each day separately. Needed wherever a quantity carries from one slice into the next -- a storage level, a ramping limit -- and by order-constrained clustering.
 
 * `recast_calendar()` takes a rule per column. `rule=` accepts a named vector as well as a scalar, matching `geoscales` and `nestedscales`, which both already did; a column the vector does not name still falls back to the registry. A table whose columns need different rules no longer has to be recast once per rule group.

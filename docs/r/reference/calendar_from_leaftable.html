@@ -11,7 +11,7 @@ optionally pin down the per-timeframe vocabulary and model-level metadata."><met
 
     <a class="navbar-brand me-2" href="../index.html">timescales</a>
 
-    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.1</small>
+    <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.7.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -79,7 +79,8 @@ optionally pin down the per-timeframe vocabulary and model-level metadata.</p>
 
 
 <dl><dt id="arg-leaftable">leaftable<a class="anchor" aria-label="anchor" href="#arg-leaftable"></a></dt>
-<dd><p>A <code>data.frame</code> with one row per leaf timeslice. Must contain:</p><ul><li><p>one column per timeframe named in <code>timeframes</code></p></li>
+<dd><p>A <code>data.frame</code> with one row per leaf timeslice. Must
+contain:</p><ul><li><p>one column per timeframe named in <code>timeframes</code></p></li>
 <li><p><code>share</code> — numeric &gt; 0; sums to <code>year_fraction</code></p></li>
 <li><p><code>weight</code> — numeric &gt;= 0; user-defined importance weight</p></li>
 <li><p>(optional) <code>timeslice</code> — unique character ID; auto-generated if missing</p></li>
@@ -116,8 +117,8 @@ Defaults to <code>1</code>.</p></dd>
 
 <dt id="arg-row-order">row_order<a class="anchor" aria-label="anchor" href="#arg-row-order"></a></dt>
 <dd><p><code>"nested"</code> (default) sorts the rows by timeframe, coarsest
-first, each in its member order (for a calendar, chronological order); <code>"given"</code> keeps the rows
-as supplied.</p></dd>
+first, each in its member order (for a calendar, chronological order);
+<code>"given"</code> keeps the rows as supplied.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>

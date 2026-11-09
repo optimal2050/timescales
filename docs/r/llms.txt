@@ -194,6 +194,8 @@ Query the timeframe hierarchy and subset calendars.
   [`calendar_descendants()`](https://optimal2050.github.io/timescales/r/reference/calendar_navigate.md)
   [`calendar_ancestors()`](https://optimal2050.github.io/timescales/r/reference/calendar_navigate.md)
   : Navigate a Calendar hierarchy
+- [`calendar_next()`](https://optimal2050.github.io/timescales/r/reference/calendar_next.md)
+  : The timeslice that follows each timeslice
 - [`calendar_share()`](https://optimal2050.github.io/timescales/r/reference/calendar_share.md)
   : Duration shares at a timeframe
 - [`filter_calendar()`](https://optimal2050.github.io/timescales/r/reference/filter_calendar.md)

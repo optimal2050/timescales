@@ -33,9 +33,9 @@ whose hierarchy stops at `timeframe`.
 
 Together with
 [`recast_calendar()`](https://optimal2050.github.io/timescales/r/reference/recast_calendar.md)'s
-acceptance of a timeframe name for `to=`, this covers within-calendar
-aggregation (e.g. `q4_h24 -> q4`) without constructing a second calendar
-by hand.
+acceptance of a timeframe name for `target=`, this covers
+within-calendar aggregation (e.g. `q4_h24 -> q4`) without constructing a
+second calendar by hand.
 
 ## Examples
 

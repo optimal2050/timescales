@@ -142,6 +142,10 @@ calendar_build <- function(...,
   alignment <- lapply(defs, `[[`, "alignment")
   names(alignment) <- tfs
   alignment <- alignment[!vapply(alignment, is.null, logical(1))]
+  # the unit a typological frame's members tile (see `cycle` in .TOKENS)
+  cycle <- lapply(defs, `[[`, "cycle")
+  names(cycle) <- tfs
+  cycle <- cycle[!vapply(cycle, is.null, logical(1))]
 
   do.call(calendar_from_leaftable, c(
     list(
@@ -154,7 +158,8 @@ calendar_build <- function(...,
       utc_offset_minutes = utc_offset_minutes,
       year_fraction      = year_fraction,
       tokens             = tokens_by_tf,
-      alignment          = if (length(alignment) > 0L) alignment else NULL
+      alignment          = if (length(alignment) > 0L) alignment else NULL,
+      cycle              = if (length(cycle) > 0L) cycle else NULL
     ),
     extra
   ))
